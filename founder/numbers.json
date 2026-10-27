@@ -1,0 +1,24 @@
+{
+  "business": "Dalva (assinatura de prospecção e pipeline para startups de 1 a 10 pessoas)",
+  "unit": "cliente-mês",
+  "price": 19.90,
+  "variable": [
+    {"label": "Gateway Asaas (estimativa, mix Pix/cartão)", "cost": 1.20},
+    {"label": "IA Claude Haiku: enriquecimentos e buscas (idea.md, estimativa)", "cost": 1.20},
+    {"label": "Banco e hospedagem rateados por cliente (estimativa)", "cost": 0.60}
+  ],
+  "fixed_monthly": [
+    {"label": "Supabase Pro (US$25 a R$5,10)", "cost": 128},
+    {"label": "Hospedagem (US$20 a R$5,10)", "cost": 102},
+    {"label": "Domínio, e-mail, ferramentas (estimativa)", "cost": 100}
+  ],
+  "startup": [
+    {"label": "Teste fechado: 15 fundadores, custo de IA dos testes (R$0,33-0,89 cada)", "cost": 15},
+    {"label": "Anúncios/conteúdo de lançamento (estimativa)", "cost": 1500},
+    {"label": "Registro de empresa/contador inicial (estimativa)", "cost": 1000}
+  ],
+  "days_per_month": 30,
+  "capacity_per_day": 1000,
+  "plan_per_day": 10,
+  "ramp_per_day": [0.3, 0.7, 1.2, 1.8, 2.5, 3.3, 4.2, 5.2, 6.2, 7.2, 8.2, 9.0]
+}
