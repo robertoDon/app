@@ -1,0 +1,13 @@
+{
+  "id": "P062",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Nenhum plano por enquanto. Eu testaria os 7 dias grátis porque não pede cartão, mas só pago se em uma semana ela me mostrar um follow-up que eu realmente teria esquecido. Se isso acontecer, o Dalva a R$ 19,90 seria o plano, porque somos poucos e eu sou quem cuida do funil.",
+  "objection": "Uma marca nova pode sumir, e eu ia ligar meu CRM e minha lista de clientes nela. Não sei quem está por trás, onde os dados ficam guardados nem se a Caçada traz empresas e contatos que prestam.",
+  "would_change_my_mind": "Ver quem faz a Dalva e como ela trata os dados (acesso só de leitura ao CRM, exportação fácil, exclusão dos dados), e um teste de 7 dias em que ela ache um lead esfriando de verdade na minha base.",
+  "price_too_cheap": 7,
+  "price_cheap": 19,
+  "price_expensive": 49,
+  "price_too_expensive": 90
+}

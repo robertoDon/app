@@ -1,0 +1,13 @@
+{
+  "id": "P080",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Assinaria o Dalva de R$ 19,90, não o Time. Eu faço follow-up e proposta de noite, cansada, e sempre esqueço alguém esfriando no HubSpot grátis. Por esse preço, se a lista da manhã me poupar um lead perdido por mês, já pagou. Testaria os 7 dias sem cartão e só ficaria se as mensagens prontas não soassem robóticas.",
+  "objection": "Tenho medo de dar acesso ao meu CRM e à minha base de clientes a uma ferramenta que não conheço, e de a Caçada me levar a mandar mensagem fria para empresas do CNPJ e ter problema com spam e LGPD e queimar minha marca. Como não falo com ninguém antes de assinar, não sei quem está por trás.",
+  "would_change_my_mind": "Ver claramente como os dados do meu CRM são tratados (LGPD), que ela só lê e nunca envia nada sozinha, e que a Caçada é opcional e deixa claro de onde vem cada contato e a base legal para abordá-lo.",
+  "price_too_cheap": 7,
+  "price_cheap": 19.9,
+  "price_expensive": 49,
+  "price_too_expensive": 99
+}

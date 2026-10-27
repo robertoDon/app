@@ -1,0 +1,13 @@
+{
+  "id": "P070",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano. Meu problema é prospectar a frio, e a Dalva é mais forte em organizar lead que já chegou; eu quase não tenho inbound. A Caçada acha empresas no CNPJ, mas mesmo com lista eu não teria tempo de abordar ninguém, porque faço demo e proposta à noite depois de entregar o trabalho do dia.",
+  "objection": "Uma lista de empresas não resolve meu gargalo, que é tempo para abordar. CNPJ também não me dá o contato certo de decisor, que hoje eu acho no LinkedIn.",
+  "would_change_my_mind": "Se a Caçada trouxesse o decisor com contato e a mensagem de abordagem pronta, de modo que eu só precisasse revisar e enviar em poucos minutos.",
+  "price_too_cheap": 5,
+  "price_cheap": 19,
+  "price_expensive": 49,
+  "price_too_expensive": 120
+}

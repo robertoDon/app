@@ -1,0 +1,13 @@
+{
+  "id": "P077",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "price",
+  "reason": "Assinaria o Dalva (R$ 19,90), não o Time. Por esse preço é quase um teste sem risco, e a Caçada com CNPJ pode me poupar o tempo que perco no LinkedIn; se não mostrar valor na primeira semana, cancelo.",
+  "objection": "Já uso um CRM grátis e meus leads de entrada são poucos, então a parte de priorizar a manhã pode ser redundante. Só vale se a Caçada achar empresas boas de verdade, com contato útil.",
+  "would_change_my_mind": "Ver, no teste grátis, uma lista de empresas do meu perfil (com fonte e data) que eu realmente abordaria, e que a Caçada não custe extra por lead.",
+  "price_too_cheap": 7,
+  "price_cheap": 19,
+  "price_expensive": 49,
+  "price_too_expensive": 99
+}

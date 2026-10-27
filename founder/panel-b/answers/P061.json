@@ -1,0 +1,13 @@
+{
+  "id": "P061",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "convenience",
+  "reason": "Assinaria o Dalva (só eu uso). Vivo de planilha e WhatsApp, então saber de manhã quem responder primeiro e já ter o follow-up pronto me poupa tempo à noite, e por R$ 19,90 sem cartão o risco é mínimo. Testo os 7 dias e só fico se a lista do dia fizer sentido com a minha planilha.",
+  "objection": "Será que a Caçada traz empresas atuais e que servem para o meu cliente, ou é só lista velha de CNPJ? E se a importação da planilha bagunçar tudo, eu não vou ter paciência de arrumar.",
+  "would_change_my_mind": "Ver um exemplo real de lista da Caçada para o meu tipo de cliente, com fonte e data, e a importação da minha planilha funcionando no teste sem eu precisar ajustar nada.",
+  "price_too_cheap": 7,
+  "price_cheap": 19.9,
+  "price_expensive": 49,
+  "price_too_expensive": 120
+}

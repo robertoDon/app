@@ -1,0 +1,13 @@
+{
+  "id": "P065",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Nenhum plano por enquanto. Eu já controlo tudo na planilha e no Notion e falo com o cliente pelo WhatsApp, e o preço baixo não muda o fato de que seria mais uma ferramenta para lembrar de abrir. Posso até testar os 7 dias grátis, mas só pagaria se ela me poupasse tempo de verdade.",
+  "objection": "Já uso um CRM grátis, para que pagar? Tenho medo de ela virar mais uma ferramenta que eu abro três dias e esqueço, e de a priorização de leads ser genérica e não melhor do que eu já sei de cabeça.",
+  "would_change_my_mind": "Ver, no teste grátis, ela ler minha planilha de verdade e acertar quem eu devia responder primeiro, com a mensagem de follow-up pronta para eu mandar pelo WhatsApp sem eu ter que configurar nada.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 39,
+  "price_too_expensive": 79
+}

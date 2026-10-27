@@ -1,0 +1,13 @@
+{
+  "id": "P076",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Assinaria o plano Dalva (R$ 19,90). Sou eu sozinha vendendo e entregando, e deixar lead esfriar por falta de follow-up é um problema real. Com 7 dias grátis, sem cartão, e preço baixo, o risco é pequeno para testar. Só continuo pagando se ela realmente me poupar tempo na primeira semana.",
+  "objection": "Tenho medo de spam, LGPD e queimar minha marca. A parte da Caçada me preocupa: mandar empresas do CNPJ direto para a lista pode virar abordagem fria sem consentimento. Também não sei se ela funciona bem com meu CRM ou com uma planilha bagunçada.",
+  "would_change_my_mind": "Ver claramente que nada é enviado sem eu revisar e que a Caçada respeita a LGPD (base de dados públicos, com fonte e data). Se na primeira semana as mensagens de follow-up soassem genéricas, eu cancelaria.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 35,
+  "price_too_expensive": 70
+}

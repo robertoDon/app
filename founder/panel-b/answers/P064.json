@@ -1,0 +1,13 @@
+{
+  "id": "P064",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Nenhum plano por enquanto. Eu já organizo meus leads no HubSpot grátis e numa planilha, e isso resolve do meu jeito; o preço é baixo, mas é mais uma ferramenta para abrir e eu mal tenho tempo fora das demos e propostas à noite.",
+  "objection": "Não vejo por que uma assistente nova ia priorizar meus leads melhor do que eu já faço de cabeça com poucos leads, e não quero dar acesso ao meu CRM e à minha base para um produto que eu não conheço.",
+  "would_change_my_mind": "Ver na tarefa de teste de 7 dias, com os meus próprios dados, que ela me mostrou uma proposta parada ou um lead esfriando que eu tinha esquecido, e que a mensagem de follow-up chegou boa o bastante para mandar quase sem editar.",
+  "price_too_cheap": 5,
+  "price_cheap": 12,
+  "price_expensive": 35,
+  "price_too_expensive": 70
+}

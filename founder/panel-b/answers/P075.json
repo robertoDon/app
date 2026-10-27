@@ -1,0 +1,13 @@
+{
+  "id": "P075",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Nenhum plano por enquanto. Já organizo meus leads no HubSpot grátis e não quero dar acesso ao meu CRM e aos dados dos meus clientes para uma marca nova que pode sumir daqui a seis meses. Até testaria os 7 dias sem cartão, mas assinar eu só assinaria se visse que ela me poupa tempo de verdade.",
+  "objection": "Uma marca nova pode sumir; vou colocar meus dados e os dos meus clientes nela? E eu já tenho um CRM grátis que me dá o básico.",
+  "would_change_my_mind": "Ver quem está por trás, como os dados são protegidos (LGPD) e poder exportar tudo e desconectar fácil; e uma semana de teste em que a lista da manhã e as mensagens de follow-up realmente me façam fechar uma venda.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 35,
+  "price_too_expensive": 60
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P063",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "convenience",
+  "reason": "Assinaria o plano Dalva (R$ 19,90). Eu vivo de planilha e WhatsApp e abro o celular de manhã para ver o que fazer, então uma lista pronta de quem responder primeiro com a mensagem de follow-up já escrita me poupa tempo, e por esse preço o risco é pequeno. Testo os 7 dias sem cartão e só fico se ela acertar de verdade quem está esfriando.",
+  "objection": "Já uso um CRM grátis, para que pagar? Tenho medo de ser só mais um app que eu abro duas vezes e esqueço, e de a Caçada trazer lista velha ou fraca de CNPJ.",
+  "would_change_my_mind": "Ver nos 7 dias que ela lê minha planilha sem eu arrumar nada e me aponta lead certo logo no primeiro dia, com mensagem que eu mandaria sem reescrever.",
+  "price_too_cheap": 7,
+  "price_cheap": 15,
+  "price_expensive": 35,
+  "price_too_expensive": 70
+}
