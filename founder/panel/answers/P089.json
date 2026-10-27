@@ -1,0 +1,13 @@
+{
+  "id": "P089",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Prospectar a frio no LinkedIn me come tempo demais, e por R$ 19,90 eu testo sem cartão e sem falar com vendedor. Se a primeira busca vier com empresas reais, com fonte e data, eu assino o Dalva individual.",
+  "objection": "Tenho medo de spam, LGPD e queimar minha marca. Se a base de CNPJ virar disparo em massa ou me expuser a problema com LGPD, não vale o preço.",
+  "would_change_my_mind": "Ver na primeira busca grátis empresas que realmente batem com o meu cliente ideal, com fonte e data claras, e uma explicação objetiva de como a ferramenta respeita a LGPD e não dispara mensagem por mim.",
+  "price_too_cheap": 7,
+  "price_cheap": 15,
+  "price_expensive": 49,
+  "price_too_expensive": 120
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P085",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Eu assinaria a Dalva de R$ 19,90: é barato, não pede cartão e a primeira busca é grátis, então testo sem risco. Hoje vivo de planilha e WhatsApp e não tenho tempo de prospectar, então as 3 prioridades da manhã me ajudam. Só continuo se a busca achar empresa real que sirva pro meu cliente.",
+  "objection": "Tenho medo de spam, LGPD e queimar minha marca: se a Dalva me empurrar para abordar gente de forma errada, o dano é meu, não dela. Também não sei se a base de CNPJ traz contato útil ou só dado público velho.",
+  "would_change_my_mind": "Ver na primeira busca grátis empresas que realmente batem com o meu cliente, com fonte e data, e uma explicação clara de como ela respeita a LGPD.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 40,
+  "price_too_expensive": 90
+}

@@ -1,0 +1,223 @@
+{
+ "business": "Dalva (assistente comercial para startups de tecnologia)",
+ "seed": 7,
+ "dealt": 100,
+ "answered": 100,
+ "skipped": [],
+ "buys": 43,
+ "passes": 57,
+ "buy_rate": 0.43,
+ "by_segment": [
+  [
+   "Startup de 3 a 5 pessoas, já vende para alguns clientes",
+   40,
+   0.525
+  ],
+  [
+   "Startup de 6 a 10 pessoas, com alguém que faz vendas junto com outras funções",
+   20,
+   0.4
+  ],
+  [
+   "Fundador solo ou dupla (1 a 2 pessoas), ainda sem receita recorrente",
+   40,
+   0.35
+  ]
+ ],
+ "by_behaviour": [
+  [
+   "Curioso por IA",
+   10,
+   0.9
+  ],
+  [
+   "Prospecta a frio",
+   15,
+   0.8666666666666667
+  ],
+  [
+   "Planilha e WhatsApp",
+   20,
+   0.65
+  ],
+  [
+   "Já usa CRM gratuito",
+   20,
+   0.35
+  ],
+  [
+   "Cético com ferramentas novas",
+   15,
+   0.06666666666666667
+  ],
+  [
+   "Vende por indicação",
+   20,
+   0.0
+  ]
+ ],
+ "by_income": [
+  [
+   "$83,000 to $201,000",
+   33,
+   0.5151515151515151
+  ],
+  [
+   "$201,000 and up",
+   34,
+   0.4411764705882353
+  ],
+  [
+   "under $83,000",
+   33,
+   0.3333333333333333
+  ]
+ ],
+ "why_not": [
+  [
+   "need",
+   31,
+   [
+    "Nenhum. Até testaria os 7 dias porque é grátis e sem cartão, mas meus clientes vêm de indicação e eu não tenho tempo de abordar empresa nenhuma, então uma lista de CNPJ ia ficar parada e eu cancelaria antes de pagar.",
+    "Nenhum plano. Eu até testaria os 7 dias grátis, já que não pede cartão, mas meu gargalo não é achar empresa, é ter tempo de abordar. Uma lista melhor só me dá mais gente que eu não vou conseguir contatar, então não vejo motivo para pagar nem os R$ 19,90."
+   ],
+   [
+    "P002",
+    "P007"
+   ]
+  ],
+  [
+   "habit",
+   15,
+   [
+    "Nenhum plano. Eu até testaria os 7 dias grátis por curiosidade com a busca de CNPJ, mas já organizo tudo no HubSpot grátis, na planilha e no LinkedIn, e ainda sem receita não vou colocar mais uma assinatura no cartão para algo que já faço de graça.",
+    "Nenhum plano. Talvez eu até teste os 7 dias porque não pede cartão, mas meu pipeline já vive na planilha/Notion e a prospecção eu faço no LinkedIn; não vejo motivo para migrar tudo para mais um app, e o preço não é o problema."
+   ],
+   [
+    "P001",
+    "P003"
+   ]
+  ],
+  [
+   "trust",
+   7,
+   [
+    "Nenhum plano por enquanto. Eu até testaria os 7 dias grátis pra ver a busca na base de CNPJ, mas meu pipeline já está no HubSpot grátis e não vou mudar meus dados de lugar pra uma marca que acabou de aparecer num anúncio.",
+    "Nenhum plano por enquanto. Talvez eu faça a busca grátis de CNPJ por curiosidade, mas não vou tirar meu pipeline do Notion e colocar dados de clientes numa marca que ninguém que eu sigo no LinkedIn ou no X comentou ainda; o preço não é o problema, a confiança é."
+   ],
+   [
+    "P027",
+    "P031"
+   ]
+  ],
+  [
+   "timing",
+   4,
+   [
+    "Nenhum plano. Até testo os 7 dias grátis porque não pede cartão, mas meu gargalo não é achar empresa, é ter tempo de abordar: faço demo e proposta de noite e uma lista a mais só vira mais uma coisa que eu não uso e cancelo.",
+    "Nenhum plano. Eu até testaria de graça os 7 dias, mas mesmo com lista de empresas eu não teria tempo de abordar ninguém, e meu pipeline já vive na planilha e no WhatsApp. R$ 19,90 não pesa, mas pagar por algo que eu não ia usar é só mais uma assinatura esquecida."
+   ],
+   [
+    "P012",
+    "P081"
+   ]
+  ]
+ ],
+ "why_yes": [
+  [
+   "need",
+   40,
+   [
+    "Assinaria o Dalva individual, R$ 19,90, para quem faz vendas aqui testar: o teste é grátis sem cartão e a busca na base de CNPJ com fonte pode poupar horas de garimpo no LinkedIn. O Time só depois de ver se alguém realmente abre o app toda manhã, porque o resto da equipe vive na planilha e no WhatsApp.",
+    "Eu testaria os 7 dias com certeza, e se a busca por CNPJ me trouxer empresas que batem com o meu cliente ideal, assino o Dalva de R$ 19,90 só pra mim, porque quem vende aqui sou eu. O Dalva Time não faz sentido agora: o resto do time entrega, não prospecta."
+   ],
+   [
+    "P004",
+    "P005"
+   ]
+  ],
+  [
+   "price",
+   2,
+   [
+    "Assinaria o plano Dalva, o individual. R$ 19,90 é barato o bastante para testar sem dor, e os 7 dias grátis sem cartão e a primeira busca grátis me deixam ver se a base de CNPJ acha clientes que eu já não acharia na planilha e no LinkedIn. Se não provar valor na primeira semana, cancelo num toque.",
+    "Assinaria a Dalva de R$ 19,90: perco tempo demais pesquisando empresa no LinkedIn e, por esse preço, o risco é quase zero, ainda mais com 7 dias grátis sem cartão. O Time só se eu ver que alguém do time realmente usa."
+   ],
+   [
+    "P095",
+    "P097"
+   ]
+  ],
+  [
+   "trust",
+   1,
+   [
+    "Assinaria o Dalva de R$ 19,90, só se a primeira busca grátis me mostrar empresas que servem pro meu cliente. Por esse preço o risco é pequeno e eu testo sem cartão, mas o Dalva Time eu só olharia depois de uns meses."
+   ],
+   [
+    "P084"
+   ]
+  ]
+ ],
+ "flip": [
+  "Se no teste grátis a busca de CNPJ me trouxesse leads que eu não acharia no LinkedIn e pelo menos uma reunião marcada, eu pagaria os R$ 19,90 do plano individual.",
+  "Se a Dalva me ajudasse a fazer a abordagem por mim, tipo já escrever e mandar a primeira mensagem ou organizar as indicações que eu recebo, aí os R$ 19,90 valeriam.",
+  "Se na busca grátis ela me trouxesse empresas certeiras com o contato do decisor e importasse minha planilha atual sem eu ter que redigitar nada, eu assinaria o Dalva Time para o time todo.",
+  "Se a Dalva já me entregasse a primeira mensagem escrita para cada empresa, pronta para eu mandar no LinkedIn ou WhatsApp com um toque, cortando o tempo de abordagem e não só o de pesquisa.",
+  "Se a Dalva puxasse os leads e negócios do meu CRM atual (HubSpot ou Pipedrive) e me mandasse as prioridades de follow-up sem eu ter que trocar de ferramenta.",
+  "Se a Dalva puxasse sozinha os contatos e conversas que já tenho (LinkedIn, WhatsApp, e-mail) e me lembrasse de forma confiável quem da minha rede e das indicações eu preciso responder ou retomar hoje, sem eu ter que digitar nada.",
+  "Se a Dalva ajudasse a cuidar das indicações e dos contatos que eu já tenho, lembrando quem eu preciso acompanhar e quando, e deixasse claro como fica dentro da LGPD sem empurrar disparo frio.",
+  "Se a Dalva também escrevesse e deixasse pronta a primeira mensagem para cada empresa, de um jeito que eu só revise e envie em poucos minutos à noite, e isso me rendesse uma reunião real ainda no período grátis.",
+  "Se ela me ajudasse a puxar e acompanhar indicações da minha rede (lembrar de pedir indicação, avisar quem esfriou) e substituísse meu CRM grátis importando tudo dele.",
+  "Se nos 7 dias grátis a Dalva me trouxesse empresas que realmente encaixam no meu cliente ideal, com o decisor e um motivo concreto para falar com ele agora, e isso me fizesse marcar pelo menos uma reunião, eu assinaria o plano individual.",
+  "Se na busca grátis ou nos 7 dias a Dalva me trouxesse empresas que eu realmente consigo abordar e pelo menos uma virasse conversa de venda, eu assinaria o plano Dalva de R$ 19,90.",
+  "Se ela ajudasse a trabalhar indicações e a acompanhar a rede que eu já tenho (lembrar de quem pedir indicação, quando fazer follow-up), com exportação fácil dos dados caso a empresa feche.",
+  "Se a Dalva puxasse as conversas do WhatsApp e já deixasse a mensagem de abordagem ou de follow-up pronta para eu só apertar enviar, eu assinaria o Dalva Time para o time todo.",
+  "Se a Dalva jogasse as empresas e as 3 prioridades do dia direto no CRM que já uso (HubSpot ou Pipedrive), sem eu ter que trocar de ferramenta.",
+  "Se a Dalva trabalhasse em cima da minha rede e das indicações, me lembrando de quem pedir indicação e de quem fazer follow-up, com garantia clara de LGPD, aí eu pagaria o Dalva Time para o time.",
+  "Se as 3 prioridades da manhã se montassem sozinhas a partir do meu WhatsApp e e-mail, me lembrando de follow-up de proposta e de pedir indicação, sem eu ter que digitar nada.",
+  "Se a primeira busca me trouxesse empresas certas, que eu fechasse em uma ou duas semanas, e se desse pra exportar tudo ou integrar com o HubSpot sem precisar largar meu CRM.",
+  "Se no teste grátis a Dalva me trouxesse empresas com contato atualizado que virassem pelo menos duas conversas reais, ou se ajudasse a puxar e acompanhar indicações da minha própria rede.",
+  "Se ela fizesse o primeiro contato por mim (redigir e mandar a mensagem ou e-mail) e eu visse, durante o teste, pelo menos uma reunião marcada saindo dali.",
+  "Ver fundadores que eu acompanho usando de verdade, junto com exportação fácil do pipeline para planilha e clareza sobre quem é a empresa e como trata os dados (LGPD).",
+  "Se a Dalva se integrasse ao HubSpot (ou importasse meu pipeline em um clique) e a primeira busca grátis me trouxesse uns 10 leads bons com contato que eu não teria achado sozinho.",
+  "Se na busca grátis e nos 7 dias a Dalva me trouxesse empresas certas com contato útil e eu fechasse pelo menos uma reunião com um lead dela, assinaria o Dalva de R$ 19,90.",
+  "Se a Dalva me ajudasse a puxar e acompanhar indicações da minha rede (lembrar quem pedir indicação e quando fazer follow-up), eu assinaria o plano Dalva Time para o time.",
+  "Se as indicações secarem e eu precisar prospectar de verdade, e a primeira busca grátis me trouxer umas empresas boas, que eu reconheça como clientes reais para mim.",
+  "Se no teste a busca por CNPJ me trouxer leads que realmente viram reunião e der para jogar esses leads direto no CRM que já uso, eu pagaria o Dalva Time sem pensar no preço.",
+  "Se a Dalva trabalhasse em cima da minha rede e das indicações, me lembrando de quem acompanhar e quando pedir indicação, e deixasse claro como fica em conformidade com a LGPD, eu pegaria o Dalva Time para o time todo.",
+  "Se a Dalva trabalhasse em cima da minha rede e das indicações: me lembrar de pedir indicação, fazer follow-up das propostas que mando à noite e organizar isso sem eu ter que digitar tudo.",
+  "Ver um fundador que eu acompanho no LinkedIn mostrando resultado real com a Dalva, com uma explicação clara de LGPD e da origem dos dados, e o trial me entregar pelo menos um cliente qualificado que eu não teria achado sozinha.",
+  "Se a Dalva já escrevesse e mandasse a primeira abordagem por mim (ou deixasse pronta para eu só aprovar no celular) e eu visse uma reunião marcada ainda no teste grátis.",
+  "Se a busca de empresas por CNPJ jogasse os leads direto no meu HubSpot/Pipedrive e as 3 prioridades do dia viessem dos dados de lá, eu pagaria o plano individual sem pensar.",
+  "Se na busca grátis vierem umas 10 empresas que eu reconheça como bom fit e eu fechar pelo menos uma reunião dentro dos 7 dias.",
+  "Se as indicações secassem e eu precisasse prospectar de verdade, e na semana de teste a Dalva me trouxesse uma reunião com cliente real.",
+  "Se a busca grátis me devolvesse uns leads bons que eu não acharia sozinho e desse pra importar meu pipeline do CRM atual sem retrabalho, eu pagaria os R$ 19,90.",
+  "Se na busca grátis a Dalva me trouxer uma lista de empresas pela base de CNPJ que vire reunião de verdade, eu assinaria o Dalva Time só pela prospecção.",
+  "Se durante o teste a busca de empresas me trouxer leads bons o bastante para eu marcar pelo menos uma reunião de verdade, eu assino o plano Dalva de R$ 19,90 sem pensar muito.",
+  "Se as 3 prioridades da manhã viessem dos meus leads e propostas que já estão em andamento, puxando do meu e-mail e WhatsApp, pra eu não esquecer follow-up depois das demos à noite.",
+  "Se ela me ajudasse a acompanhar e pedir indicações da minha própria rede, com lembretes de follow-up, sem empurrar disparo pra lista fria.",
+  "Se a Dalva escrevesse e mandasse a primeira mensagem de abordagem por mim, ou me mostrasse em poucos dias um cliente real respondendo, aí os R$ 19,90 valeriam.",
+  "Se a Dalva escrevesse e mandasse o primeiro contato por mim, ou se integrasse com o CRM que já uso, para eu só responder quem demonstrou interesse.",
+  "Se ela me ajudasse a acompanhar indicações e contatos da minha rede, tipo lembrar quem me indicou quem e quando fazer follow-up, puxando do LinkedIn sem eu digitar nada.",
+  "Se a busca de empresas por CNPJ grátis me trouxesse leads bons de verdade que meu CRM grátis não acha, e eu visse que dá para exportar tudo e quem está por trás da empresa.",
+  "Se ela integrasse com o CRM que já uso e ajudasse a gerar e acompanhar indicações da minha rede, e não só lista fria de CNPJ.",
+  "Se na primeira busca grátis ela me trouxesse empresas que eu não conhecia e que realmente têm o perfil do meu cliente, com contato útil, eu assinaria o Dalva Time pro time inteiro.",
+  "Se a Dalva escrevesse e mandasse a abordagem pelo WhatsApp por mim, ou se na primeira busca grátis saíssem leads claramente qualificados para o meu produto, eu assinaria o plano Dalva.",
+  "Se a Dalva também escrevesse e mandasse a primeira mensagem pelo WhatsApp por mim, e eu visse na semana de teste que isso me gerou respostas reais sem eu gastar tempo.",
+  "Se na busca grátis saíssem empresas que realmente encaixam no meu cliente, com contato de quem decide e dados recentes, e eu fechasse pelo menos uma conversa vinda dali. Aí os R$ 19,90 viram detalhe.",
+  "Fazer a primeira busca grátis e ela me devolver empresas que realmente encaixam no meu cliente, com contato do decisor, que eu não encontraria no LinkedIn.",
+  "Uma primeira busca grátis que traga empresas realmente do perfil que eu descrevi, com fonte e data recente, e contato que eu consiga usar no WhatsApp.",
+  "Ver, na busca grátis, uma lista de empresas reais que eu não teria achado sozinha e que são claramente o meu cliente, com fonte e data conferíveis. Se isso me render uma conversa de venda no trial, eu pagaria o plano de R$ 19,90.",
+  "Ver que a busca achou empresas que realmente se encaixam no meu produto, com um caso de um fundador parecido que fechou venda por isso, e cancelar sem cobrança se eu não usar.",
+  "Ver na primeira busca grátis empresas e contatos que servem de verdade para o meu cliente, e conseguir importar meu pipeline do Pipedrive sem refazer tudo.",
+  "Se a Dalva também redigisse e enviasse a primeira abordagem por mim, ou se a primeira busca já me entregasse leads com contato direto do decisor que eu pudesse chamar em poucos minutos, eu assinaria o plano Dalva.",
+  "Se a Dalva me mostrasse, a partir da minha rede e das indicações que já tenho, quem vale a pena procurar de novo e quando, e não só empresas frias do CNPJ.",
+  "Uma primeira busca grátis que me devolva 10 empresas realmente do meu perfil, com fonte e data conferíveis, e uma explicação clara de como fica a LGPD no contato. Se eu fechar uma conversa boa na primeira semana, assino o plano de R$ 19,90.",
+  "Ver na busca grátis uma lista de empresas realmente do meu perfil, com contato de quem decide, que eu não conseguiria achar sozinho em poucos minutos, e integração com o CRM que já uso.",
+  "Ver que a Dalva me traz clientes que eu não conseguiria por indicação, por exemplo uma primeira busca grátis que já me mostre empresas com cara de cliente de verdade, a ponto de eu passar a prospectar.",
+  "Ver na busca grátis empresas realmente atuais e com o perfil exato do meu cliente, e perceber que isso me ajuda a abrir um canal além da indicação."
+ ],
+ "purchases_first_month_per_buyer": 1.0,
+ "price_answers": 100
+}

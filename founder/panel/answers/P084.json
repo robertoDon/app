@@ -1,0 +1,13 @@
+{
+  "id": "P084",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "trust",
+  "reason": "Assinaria o Dalva de R$ 19,90, só se a primeira busca grátis me mostrar empresas que servem pro meu cliente. Por esse preço o risco é pequeno e eu testo sem cartão, mas o Dalva Time eu só olharia depois de uns meses.",
+  "objection": "Será que a lista de empresas é atual e serve para o meu cliente? Base de CNPJ é pública, então não quero pagar por dado velho que eu mesmo acharia de graça.",
+  "would_change_my_mind": "Se a primeira busca grátis trouxer empresas que não batem com o perfil que eu descrevi, ou com dados desatualizados (telefone, sócio, situação do CNPJ), eu não assino.",
+  "price_too_cheap": 7,
+  "price_cheap": 15,
+  "price_expensive": 49,
+  "price_too_expensive": 99
+}

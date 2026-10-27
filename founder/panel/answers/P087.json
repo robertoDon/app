@@ -1,0 +1,13 @@
+{
+  "id": "P087",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Eu testaria a busca grátis, mas não assino de cara: já controlo tudo em planilha e WhatsApp, e só pagaria se a lista de empresas viesse atual e servisse para o meu cliente. Os R$ 19,90 não pesam, o que pesa é a qualidade dos dados e ter que mudar meu jeito de trabalhar.",
+  "objection": "Será que a base de CNPJ é atual e as empresas que ela acha têm a ver com o meu cliente, ou vou perder tempo à noite com contato velho e fora do perfil?",
+  "would_change_my_mind": "Uma primeira busca grátis que traga empresas realmente do perfil que eu descrevi, com fonte e data recente, e contato que eu consiga usar no WhatsApp.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 39,
+  "price_too_expensive": 80
+}

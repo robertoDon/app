@@ -1,0 +1,13 @@
+{
+  "id": "P096",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Eu testaria os 7 dias grátis sem cartão, porque não custa nada, mas não assino de cara. Já paguei por ferramenta que não usei e só pago se a primeira busca me trouxer empresas reais que eu realmente chamaria.",
+  "objection": "Tenho medo de spam, LGPD e queimar minha marca. Não está claro de onde vêm os dados nem se tem contato de decisor, e base de CNPJ eu já consigo consultar de graça em outros lugares.",
+  "would_change_my_mind": "Uma primeira busca grátis que me devolva 10 empresas realmente do meu perfil, com fonte e data conferíveis, e uma explicação clara de como fica a LGPD no contato. Se eu fechar uma conversa boa na primeira semana, assino o plano de R$ 19,90.",
+  "price_too_cheap": 7,
+  "price_cheap": 15,
+  "price_expensive": 35,
+  "price_too_expensive": 60
+}

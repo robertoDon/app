@@ -1,0 +1,13 @@
+{
+  "id": "P086",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano. Eu já uso um CRM gratuito e planilha com LinkedIn, e funciona do meu jeito. Não vejo por que pagar para trocar de ferramenta, mesmo sendo barato.",
+  "objection": "Não sei se a base de CNPJ me entrega leads melhores do que eu acho sozinha no LinkedIn, e não quero migrar meu pipeline de novo só para testar mais uma ferramenta.",
+  "would_change_my_mind": "Fazer a primeira busca grátis e ela me devolver empresas que realmente encaixam no meu cliente, com contato do decisor, que eu não encontraria no LinkedIn.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 40,
+  "price_too_expensive": 90
+}
