@@ -1,0 +1,13 @@
+{
+  "id": "P029",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Assinaria o Dalva individual, de R$ 19,90: o pipeline eu já tenho de graça no HubSpot, mas achar empresas reais na base de CNPJ a partir de uma frase é o que me falta enquanto não tenho receita. Testo os 7 dias sem cartão e, se a busca trouxer leads bons, R$ 19,90 é menos que um almoço.",
+  "objection": "Já uso um CRM grátis, para que pagar? Se a busca de CNPJ trouxer empresa genérica ou desatualizada, vira só mais um pipeline duplicado e eu cancelo.",
+  "would_change_my_mind": "Se a primeira busca grátis trouxer empresas que não batem com o cliente que descrevi, eu não assino.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 39.9,
+  "price_too_expensive": 69.9
+}

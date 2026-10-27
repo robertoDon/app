@@ -1,0 +1,13 @@
+{
+  "id": "P036",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Eu assinaria a Dalva individual: sou eu que faço demo e proposta à noite, e achar empresa real na base de CNPJ com fonte e data me poupa horas de garimpo. Teste grátis sem cartão e R$ 19,90 é nada pra mim, mas só pago depois de ver nos 7 dias se as 3 prioridades da manhã batem com a minha realidade e não viram mais uma planilha pra alimentar.",
+  "objection": "Uma marca nova pode sumir; vou colocar meus clientes e meu pipeline nela? Se fechar, perco tudo e volto pro Notion do zero.",
+  "would_change_my_mind": "Se não der pra exportar meus dados em planilha a qualquer momento, ou se a busca grátis trouxer empresa errada ou desatualizada, eu não assino.",
+  "price_too_cheap": 9,
+  "price_cheap": 19.9,
+  "price_expensive": 79,
+  "price_too_expensive": 150
+}

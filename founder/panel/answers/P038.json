@@ -1,0 +1,13 @@
+{
+  "id": "P038",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum. Até testaria os 7 dias grátis por curiosidade, mas meus clientes vêm de indicação e rede, quase não prospecto a frio, então a busca de empresas por CNPJ não resolve meu problema e o pipeline eu já toco numa planilha.",
+  "objection": "Será que a lista de empresas é atual e serve para o meu cliente? E mesmo que sirva, eu não vendo por lista fria, vendo por indicação.",
+  "would_change_my_mind": "Se a Dalva me ajudasse a puxar e acompanhar indicações da minha rede (lembrar quem pedir indicação e quando fazer follow-up), eu assinaria o plano Dalva Time para o time.",
+  "price_too_cheap": 9,
+  "price_cheap": 19.9,
+  "price_expensive": 79,
+  "price_too_expensive": 150
+}

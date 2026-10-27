@@ -1,0 +1,13 @@
+{
+  "id": "P028",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano. Meus clientes vêm de indicação e da minha rede, quase não faço prospecção a frio, então a busca na base de CNPJ não resolve meu problema de verdade. Até testaria os 7 dias grátis por curiosidade, mas meu pipeline cabe numa planilha e não vejo motivo pra pagar todo mês.",
+  "objection": "A lista de empresas por CNPJ diz quem existe, não quem está precisando de mim agora. Pra quem vende por indicação, não sei se isso vira reunião, e duvido que os dados de contato estejam atualizados.",
+  "would_change_my_mind": "Se no teste grátis a Dalva me trouxesse empresas com contato atualizado que virassem pelo menos duas conversas reais, ou se ajudasse a puxar e acompanhar indicações da minha própria rede.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 39,
+  "price_too_expensive": 70
+}

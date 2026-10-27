@@ -1,0 +1,13 @@
+{
+  "id": "P022",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Assinaria o Dalva de R$ 19,90, só para mim. Ainda não tenho receita e o que me falta é achar cliente, não organizar pipeline, porque isso o HubSpot grátis já faz. Se a busca no teste grátis me trouxer empresas que batem com meu cliente, R$ 19,90 cabe no bolso.",
+  "objection": "Não sei se a base de CNPJ está atualizada e se tem o que eu preciso, tipo telefone ou contato de quem decide. Só CNPJ e razão social eu já acho de graça. E não quero ter mais um CRM além do que já uso.",
+  "would_change_my_mind": "Se a primeira busca grátis me der empresas desatualizadas ou que não têm nada a ver com meu cliente, eu cancelo e fico no CRM grátis.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 39,
+  "price_too_expensive": 69
+}

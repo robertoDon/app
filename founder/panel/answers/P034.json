@@ -1,0 +1,13 @@
+{
+  "id": "P034",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Nenhum plano. Eu até faria os 7 dias grátis por curiosidade com a busca por CNPJ, mas meu pipeline já tá no HubSpot grátis e os leads eu acho no LinkedIn e na planilha; não vou migrar a operação de vendas pra mais um app.",
+  "objection": "Já tenho CRM de graça que funciona, e não sei se a base de CNPJ traz algo melhor do que eu acho no LinkedIn. Mais uma ferramenta pra manter atualizada à noite é custo de tempo, não de dinheiro.",
+  "would_change_my_mind": "Se a Dalva se integrasse ao HubSpot (ou importasse meu pipeline em um clique) e a primeira busca grátis me trouxesse uns 10 leads bons com contato que eu não teria achado sozinho.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 49,
+  "price_too_expensive": 99
+}

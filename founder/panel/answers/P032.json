@@ -1,0 +1,13 @@
+{
+  "id": "P032",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Assinaria o Dalva de R$ 19,90, só para mim, porque sou eu quem prospecta e perco horas no LinkedIn caçando empresa; o CRM grátis eu mantenho, o que me interessa é a busca na base de CNPJ. Mas só passo do teste de 7 dias se as empresas que ela achar forem boas mesmo.",
+  "objection": "Já tenho CRM grátis, então o pipeline não vale nada para mim; se a busca trouxer empresa genérica, sem decisor e sem contato útil, vira mais uma assinatura que eu corto na revisão do cartão.",
+  "would_change_my_mind": "Se na primeira busca grátis vierem empresas que não batem com o meu cliente ideal ou com dados velhos, eu nem chego a assinar.",
+  "price_too_cheap": 9,
+  "price_cheap": 19.9,
+  "price_expensive": 79,
+  "price_too_expensive": 150
+}

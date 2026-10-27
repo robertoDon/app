@@ -1,0 +1,13 @@
+{
+  "id": "P040",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Eu assinaria o plano Dalva individual, mas só depois de testar os 7 dias: sem receita, o que me falta é achar cliente, e se a busca por CNPJ me trouxer empresas que valem um contato, R$ 19,90 é menos que um almoço. O Dalva Time não faz sentido, somos eu e no máximo um sócio, e o pipeline em si eu já tenho de graça na planilha.",
+  "objection": "Já uso um CRM grátis e a planilha, então pipeline e prioridades do dia não me convencem sozinhos. Se a lista de empresas vier genérica ou desatualizada, cancelo no fim do teste.",
+  "would_change_my_mind": "Se a primeira busca grátis me trouxer empresas que não batem com o cliente que descrevi, eu não assino.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 39.9,
+  "price_too_expensive": 69.9
+}

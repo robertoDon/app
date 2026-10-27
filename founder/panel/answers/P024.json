@@ -1,0 +1,13 @@
+{
+  "id": "P024",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano. Meus clientes vêm de indicação, quase não prospecto a frio, então achar empresa na base de CNPJ não resolve meu problema. Talvez eu teste os 7 dias porque é grátis e sem cartão, mas minha planilha e o LinkedIn já dão conta do meu pipeline pequeno.",
+  "objection": "Eu não preciso de lista de empresas, preciso de tempo. Mais um app pra alimentar à noite, depois de entregar o dia, vira só mais uma coisa que eu abandono em duas semanas.",
+  "would_change_my_mind": "Se as 3 prioridades da manhã se montassem sozinhas a partir do meu WhatsApp e e-mail, me lembrando de follow-up de proposta e de pedir indicação, sem eu ter que digitar nada.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 39,
+  "price_too_expensive": 69
+}

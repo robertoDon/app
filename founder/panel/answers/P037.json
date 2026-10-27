@@ -1,0 +1,13 @@
+{
+  "id": "P037",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Nenhum plano por enquanto. Até faço os 7 dias grátis porque não pede cartão, mas meu pipeline já roda num CRM grátis e as 3 prioridades do dia eu mesmo sei; só pagaria o Dalva individual se a busca de empresas me trouxesse cliente de verdade, e isso eu não acredito antes de ver.",
+  "objection": "Já uso um CRM grátis, para que pagar? A busca por CNPJ parece legal, mas base de CNPJ tem muita empresa morta ou sem contato útil, e eu já paguei ferramenta que parecia boa e ninguém usou.",
+  "would_change_my_mind": "Se na busca grátis e nos 7 dias a Dalva me trouxesse empresas certas com contato útil e eu fechasse pelo menos uma reunião com um lead dela, assinaria o Dalva de R$ 19,90.",
+  "price_too_cheap": 9,
+  "price_cheap": 15,
+  "price_expensive": 39,
+  "price_too_expensive": 79
+}
