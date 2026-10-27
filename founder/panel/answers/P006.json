@@ -1,0 +1,13 @@
+{
+  "id": "P006",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Nenhum plano. Até faço o teste grátis porque não pede cartão e quero ver a busca por CNPJ, mas meu time já vive na planilha, no Notion e no WhatsApp, e não vou fazer 3 ou 4 pessoas migrarem o pipeline por causa de uma lista de 3 prioridades que eu mesmo monto em cinco minutos.",
+  "objection": "Mais uma ferramenta solta que não conversa com o Notion nem com o WhatsApp, onde a venda realmente acontece. Daqui a duas semanas ninguém abre e o pipeline fica desatualizado em dois lugares.",
+  "would_change_my_mind": "Se a primeira busca grátis me trouxer empresas que eu não acharia sozinho no LinkedIn, com contato utilizável, e der para importar minha planilha e mandar mensagem pelo WhatsApp direto dali, eu assinaria o Dalva Time sem pensar no preço.",
+  "price_too_cheap": 9,
+  "price_cheap": 29,
+  "price_expensive": 99,
+  "price_too_expensive": 199
+}

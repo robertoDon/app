@@ -1,0 +1,13 @@
+{
+  "id": "P008",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Nenhum plano. Talvez eu até ative os 7 dias grátis pela busca de CNPJ, mas meu pipeline já vive na planilha e no Notion e eu converso com cliente pelo WhatsApp; mais um app no celular que não conversa com isso eu abandono na primeira semana corrida.",
+  "objection": "Não vejo a Dalva entrando no meu fluxo: se ela não puxa as conversas do WhatsApp nem sincroniza com minha planilha, vira mais um lugar para atualizar à noite, e três prioridades do dia eu mesma já sei quais são.",
+  "would_change_my_mind": "Se a busca grátis me trouxesse uma lista de empresas boas que eu não acharia no LinkedIn e a Dalva importasse minha planilha e se ligasse ao WhatsApp, eu assinaria o Dalva Time para os sócios.",
+  "price_too_cheap": 9.9,
+  "price_cheap": 29.9,
+  "price_expensive": 99,
+  "price_too_expensive": 199
+}

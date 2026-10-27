@@ -1,0 +1,13 @@
+{
+  "id": "P004",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum dos dois planos. Meus clientes vêm de indicação e eu quase não prospecto a frio, então achar empresas na base de CNPJ não resolve o meu problema. Talvez eu teste os 7 dias porque não pede cartão, mas para organizar um pipeline pequeno a planilha que já uso dá conta.",
+  "objection": "Lista de CNPJ me cheira a disparo frio. Tenho medo de virar spam, de ter problema com LGPD e de queimar o nome da empresa num mercado pequeno onde todo mundo se conhece.",
+  "would_change_my_mind": "Se a Dalva trabalhasse a minha rede e as indicações, tipo me lembrar de pedir indicação a quem já é cliente e de fazer follow-up das propostas que mando à noite, e deixasse claro como fica a LGPD. Aí o Dalva Time para o time todo faria sentido.",
+  "price_too_cheap": 9,
+  "price_cheap": 19.9,
+  "price_expensive": 79,
+  "price_too_expensive": 150
+}

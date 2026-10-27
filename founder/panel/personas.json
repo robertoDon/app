@@ -1,0 +1,222 @@
+[
+ {
+  "id": "P001",
+  "name": "Arjun",
+  "age": 35,
+  "segment": "Startup de 6 a 10 pessoas, com alguém que faz vendas junto com outras funções",
+  "income": 383000,
+  "behaviour": "Vende por indicação",
+  "behaviour_how": "Os clientes vêm de indicação e rede pessoal; prospectar a frio é raro.",
+  "objection": "Será que a lista de empresas é atual e serve para o meu cliente?",
+  "habit": "você faz demos e propostas à noite, depois de entregar o trabalho do dia"
+ },
+ {
+  "id": "P002",
+  "name": "Bilal",
+  "age": 31,
+  "segment": "Fundador solo ou dupla (1 a 2 pessoas), ainda sem receita recorrente",
+  "income": 77000,
+  "behaviour": "Vende por indicação",
+  "behaviour_how": "Os clientes vêm de indicação e rede pessoal; prospectar a frio é raro.",
+  "objection": "Já uso um CRM grátis, para que pagar?",
+  "habit": "você faz demos e propostas à noite, depois de entregar o trabalho do dia"
+ },
+ {
+  "id": "P003",
+  "name": "Tess",
+  "age": 24,
+  "segment": "Startup de 6 a 10 pessoas, com alguém que faz vendas junto com outras funções",
+  "income": 212000,
+  "behaviour": "Já usa CRM gratuito",
+  "behaviour_how": "Usa Agendor, RD Station CRM, HubSpot grátis ou Pipedrive para organizar vendas.",
+  "objection": "Meu produto não se vende por prospecção ativa",
+  "habit": "você abre o celular de manhã para ver o que tem para fazer no dia"
+ },
+ {
+  "id": "P004",
+  "name": "Theo",
+  "age": 39,
+  "segment": "Startup de 3 a 5 pessoas, já vende para alguns clientes",
+  "income": 122000,
+  "behaviour": "Vende por indicação",
+  "behaviour_how": "Os clientes vêm de indicação e rede pessoal; prospectar a frio é raro.",
+  "objection": "Tenho medo de spam, LGPD e queimar minha marca",
+  "habit": "você faz demos e propostas à noite, depois de entregar o trabalho do dia"
+ },
+ {
+  "id": "P005",
+  "name": "Celine",
+  "age": 27,
+  "segment": "Fundador solo ou dupla (1 a 2 pessoas), ainda sem receita recorrente",
+  "income": 42000,
+  "behaviour": "Vende por indicação",
+  "behaviour_how": "Os clientes vêm de indicação e rede pessoal; prospectar a frio é raro.",
+  "objection": "Meu produto não se vende por prospecção ativa",
+  "habit": "você acompanha fundadores no LinkedIn e no X"
+ },
+ {
+  "id": "P006",
+  "name": "Kai",
+  "age": 41,
+  "segment": "Startup de 6 a 10 pessoas, com alguém que faz vendas junto com outras funções",
+  "income": 204000,
+  "behaviour": "Planilha e WhatsApp",
+  "behaviour_how": "Controla tudo em planilha ou Notion e fala com cliente pelo WhatsApp.",
+  "objection": "Planilha e LinkedIn resolvem do meu jeito",
+  "habit": "você acompanha fundadores no LinkedIn e no X"
+ },
+ {
+  "id": "P007",
+  "name": "Jonah",
+  "age": 27,
+  "segment": "Fundador solo ou dupla (1 a 2 pessoas), ainda sem receita recorrente",
+  "income": 85000,
+  "behaviour": "Curioso por IA",
+  "behaviour_how": "Testa qualquer ferramenta de IA nova, mas só paga se resolver algo concreto.",
+  "objection": "Uma marca nova pode sumir; vou colocar meus dados nela?",
+  "habit": "você faz demos e propostas à noite, depois de entregar o trabalho do dia"
+ },
+ {
+  "id": "P008",
+  "name": "Elle",
+  "age": 44,
+  "segment": "Startup de 3 a 5 pessoas, já vende para alguns clientes",
+  "income": 177000,
+  "behaviour": "Planilha e WhatsApp",
+  "behaviour_how": "Controla tudo em planilha ou Notion e fala com cliente pelo WhatsApp.",
+  "objection": "Planilha e LinkedIn resolvem do meu jeito",
+  "habit": "você faz demos e propostas à noite, depois de entregar o trabalho do dia"
+ },
+ {
+  "id": "P009",
+  "name": "Callum",
+  "age": 24,
+  "segment": "Fundador solo ou dupla (1 a 2 pessoas), ainda sem receita recorrente",
+  "income": 49000,
+  "behaviour": "Já usa CRM gratuito",
+  "behaviour_how": "Usa Agendor, RD Station CRM, HubSpot grátis ou Pipedrive para organizar vendas.",
+  "objection": "Meu produto não se vende por prospecção ativa",
+  "habit": "você paga poucas assinaturas e revisa o cartão todo mês"
+ },
+ {
+  "id": "P010",
+  "name": "Zoe",
+  "age": 44,
+  "segment": "Startup de 3 a 5 pessoas, já vende para alguns clientes",
+  "income": 197000,
+  "behaviour": "Cético com ferramentas novas",
+  "behaviour_how": "Já pagou por ferramentas que não usou e cancela rápido o que não prova valor.",
+  "objection": "Já uso um CRM grátis, para que pagar?",
+  "habit": "você acompanha fundadores no LinkedIn e no X"
+ },
+ {
+  "id": "P011",
+  "name": "Caleb",
+  "age": 43,
+  "segment": "Startup de 3 a 5 pessoas, já vende para alguns clientes",
+  "income": 180000,
+  "behaviour": "Cético com ferramentas novas",
+  "behaviour_how": "Já pagou por ferramentas que não usou e cancela rápido o que não prova valor.",
+  "objection": "Meu produto não se vende por prospecção ativa",
+  "habit": "você abre o celular de manhã para ver o que tem para fazer no dia"
+ },
+ {
+  "id": "P012",
+  "name": "Freya",
+  "age": 34,
+  "segment": "Startup de 3 a 5 pessoas, já vende para alguns clientes",
+  "income": 146000,
+  "behaviour": "Já usa CRM gratuito",
+  "behaviour_how": "Usa Agendor, RD Station CRM, HubSpot grátis ou Pipedrive para organizar vendas.",
+  "objection": "Mesmo com lista eu não teria tempo de abordar ninguém",
+  "habit": "você faz demos e propostas à noite, depois de entregar o trabalho do dia"
+ },
+ {
+  "id": "P013",
+  "name": "Min",
+  "age": 44,
+  "segment": "Fundador solo ou dupla (1 a 2 pessoas), ainda sem receita recorrente",
+  "income": 88000,
+  "behaviour": "Já usa CRM gratuito",
+  "behaviour_how": "Usa Agendor, RD Station CRM, HubSpot grátis ou Pipedrive para organizar vendas.",
+  "objection": "Meu produto não se vende por prospecção ativa",
+  "habit": "você acompanha fundadores no LinkedIn e no X"
+ },
+ {
+  "id": "P014",
+  "name": "Omar",
+  "age": 24,
+  "segment": "Fundador solo ou dupla (1 a 2 pessoas), ainda sem receita recorrente",
+  "income": 37000,
+  "behaviour": "Curioso por IA",
+  "behaviour_how": "Testa qualquer ferramenta de IA nova, mas só paga se resolver algo concreto.",
+  "objection": "Já uso um CRM grátis, para que pagar?",
+  "habit": "você acompanha fundadores no LinkedIn e no X"
+ },
+ {
+  "id": "P015",
+  "name": "Wes",
+  "age": 34,
+  "segment": "Fundador solo ou dupla (1 a 2 pessoas), ainda sem receita recorrente",
+  "income": 37000,
+  "behaviour": "Prospecta a frio",
+  "behaviour_how": "Já pesquisa empresas no LinkedIn e manda mensagem; sente que gasta tempo demais.",
+  "objection": "Já uso um CRM grátis, para que pagar?",
+  "habit": "você abre o celular de manhã para ver o que tem para fazer no dia"
+ },
+ {
+  "id": "P016",
+  "name": "Mei",
+  "age": 38,
+  "segment": "Startup de 6 a 10 pessoas, com alguém que faz vendas junto com outras funções",
+  "income": 308000,
+  "behaviour": "Planilha e WhatsApp",
+  "behaviour_how": "Controla tudo em planilha ou Notion e fala com cliente pelo WhatsApp.",
+  "objection": "Será que a lista de empresas é atual e serve para o meu cliente?",
+  "habit": "você acompanha fundadores no LinkedIn e no X"
+ },
+ {
+  "id": "P017",
+  "name": "Harper",
+  "age": 29,
+  "segment": "Startup de 3 a 5 pessoas, já vende para alguns clientes",
+  "income": 226000,
+  "behaviour": "Cético com ferramentas novas",
+  "behaviour_how": "Já pagou por ferramentas que não usou e cancela rápido o que não prova valor.",
+  "objection": "Uma marca nova pode sumir; vou colocar meus dados nela?",
+  "habit": "você faz demos e propostas à noite, depois de entregar o trabalho do dia"
+ },
+ {
+  "id": "P018",
+  "name": "Gabriel",
+  "age": 28,
+  "segment": "Startup de 3 a 5 pessoas, já vende para alguns clientes",
+  "income": 120000,
+  "behaviour": "Prospecta a frio",
+  "behaviour_how": "Já pesquisa empresas no LinkedIn e manda mensagem; sente que gasta tempo demais.",
+  "objection": "Meu produto não se vende por prospecção ativa",
+  "habit": "você abre o celular de manhã para ver o que tem para fazer no dia"
+ },
+ {
+  "id": "P019",
+  "name": "Ruby",
+  "age": 30,
+  "segment": "Fundador solo ou dupla (1 a 2 pessoas), ainda sem receita recorrente",
+  "income": 39000,
+  "behaviour": "Prospecta a frio",
+  "behaviour_how": "Já pesquisa empresas no LinkedIn e manda mensagem; sente que gasta tempo demais.",
+  "objection": "Já uso um CRM grátis, para que pagar?",
+  "habit": "você faz demos e propostas à noite, depois de entregar o trabalho do dia"
+ },
+ {
+  "id": "P020",
+  "name": "Rohan",
+  "age": 42,
+  "segment": "Startup de 3 a 5 pessoas, já vende para alguns clientes",
+  "income": 158000,
+  "behaviour": "Planilha e WhatsApp",
+  "behaviour_how": "Controla tudo em planilha ou Notion e fala com cliente pelo WhatsApp.",
+  "objection": "Meu produto não se vende por prospecção ativa",
+  "habit": "você abre o celular de manhã para ver o que tem para fazer no dia"
+ }
+]

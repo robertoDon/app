@@ -1,0 +1,13 @@
+{
+  "id": "P003",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano. Meu produto não se vende por prospecção ativa: os clientes chegam por indicação e inbound. Achar empresa na base de CNPJ não resolve meu problema, e o pipeline eu já organizo de graça no HubSpot.",
+  "objection": "A parte principal, buscar empresas por CNPJ, é para quem faz outbound, e eu não faço. Sobra só um pipeline e uma lista de prioridades, coisa que meu CRM gratuito já faz.",
+  "would_change_my_mind": "Se a Dalva puxasse os leads que já chegam no meu HubSpot ou formulário e me dissesse toda manhã quem responder primeiro e por quê, sem eu migrar de CRM.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 49,
+  "price_too_expensive": 99
+}
