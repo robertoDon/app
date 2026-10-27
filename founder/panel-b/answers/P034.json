@@ -1,0 +1,13 @@
+{
+  "id": "P034",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Nenhum plano. Já uso HubSpot grátis e uma planilha, e minha fila de leads é pequena o bastante para eu saber de cabeça quem responder. Mais um app para olhar à noite, quando já estou cansado de fazer demo e proposta, não resolve um problema que eu sinta de verdade.",
+  "objection": "Não sei se a Dalva me dá algo que o HubSpot grátis, a planilha e o LinkedIn já não dão. Também tenho receio de uma ferramenta nova mexer nos dados dos meus clientes e de a mensagem de follow-up sair genérica e com cara de robô.",
+  "would_change_my_mind": "Ver, no teste grátis, a Dalva ligada ao meu HubSpot apontando uma proposta parada que eu tinha esquecido, com um follow-up bom o bastante para eu mandar sem reescrever. Se isso me fizer fechar um cliente que eu perderia, eu pago os R$ 19,90.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 40,
+  "price_too_expensive": 90
+}

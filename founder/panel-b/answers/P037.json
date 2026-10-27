@@ -1,0 +1,13 @@
+{
+  "id": "P037",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano por enquanto. Já uso um CRM grátis e já paguei por ferramenta que não usei; R$ 19,90 é pouco, mas não quero mais uma assinatura no cartão sem ver valor. Até testaria os 7 dias sem cartão, mas só assinaria depois de provar que ela me faz fechar um cliente a mais.",
+  "objection": "Já uso um CRM grátis, para que pagar? Não vejo o que a Dalva faz que eu não consiga fazer sozinho com os poucos leads que recebo, e tenho medo de pagar e não usar.",
+  "would_change_my_mind": "Ver no teste de 7 dias, com os meus próprios leads, ela apontar uma proposta parada ou um lead esfriando que eu tinha esquecido, e esse follow-up virar resposta de cliente de verdade.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 40,
+  "price_too_expensive": 80
+}

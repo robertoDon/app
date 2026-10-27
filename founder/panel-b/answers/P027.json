@@ -1,0 +1,13 @@
+{
+  "id": "P027",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Nenhum plano. Já organizo tudo no HubSpot grátis e não vou ligar o CRM com os dados dos meus leads a uma marca que acabei de ver num anúncio e que pode sumir em seis meses. R$ 19,90 é barato, mas o problema não é o preço, é pôr meus dados nela.",
+  "objection": "Uma marca nova pode sumir; vou colocar meus dados e os dos meus leads nela? E o que ela faz que eu não resolvo sozinho olhando meu pipeline por dez minutos de manhã?",
+  "would_change_my_mind": "Ver gente real do meu tamanho usando há meses, saber onde os dados ficam e que eu posso exportar tudo e desconectar fácil, e um acesso só de leitura ao CRM. Se eu testar nos 7 dias grátis e o follow-up pronto já sair bom com os meus leads, eu reconsidero o Dalva.",
+  "price_too_cheap": 7,
+  "price_cheap": 19.9,
+  "price_expensive": 49,
+  "price_too_expensive": 99
+}

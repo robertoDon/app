@@ -1,0 +1,13 @@
+{
+  "id": "P025",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "price",
+  "reason": "Assinaria o plano Dalva (R$ 19,90). Já uso CRM grátis, mas por esse preço, sem cartão e cancelando em um toque, vale testar se ela me poupa tempo nas noites de follow-up; se não poupar, cancelo no primeiro mês.",
+  "objection": "Já uso um CRM grátis, para que pagar? Tenho medo de ser só mais uma tela com lista de leads que meu CRM já mostra, e de dar acesso aos meus dados a um produto que não conheço.",
+  "would_change_my_mind": "Ver nos 7 dias que ela realmente acha proposta parada e leads esfriando no meu HubSpot/Pipedrive e escreve um follow-up que eu mando quase sem editar. Se só repetir o que o CRM já faz, não pago.",
+  "price_too_cheap": 7,
+  "price_cheap": 19,
+  "price_expensive": 49,
+  "price_too_expensive": 99
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P040",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Nenhum plano por enquanto. Eu já controlo tudo em planilha e falo com cliente no WhatsApp, e o anúncio não diz que a Dalva funciona com WhatsApp. Os R$ 19,90 são pouco, mas eu ainda tenho poucos leads e não vejo o que ela me daria que a minha planilha não dá. Até testaria os 7 dias grátis, mas assinar pago eu duvido.",
+  "objection": "Já uso um CRM grátis e uma planilha, para que pagar? E meu follow-up é no WhatsApp, não vi se ela manda ou integra por lá.",
+  "would_change_my_mind": "Ver que ela lê e responde as conversas do WhatsApp e já me entrega a mensagem pronta lá, e que nos 7 dias grátis ela me mostre pelo menos um lead esfriando que eu tinha esquecido.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 35,
+  "price_too_expensive": 70
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P032",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano por enquanto. Já uso um CRM grátis e meu problema é prospectar a frio, não organizar lead inbound, que quase não tenho. R$ 19,90 não pesa, mas eu reviso o cartão todo mês e não quero mais uma assinatura que eu esqueça de usar.",
+  "objection": "A parte principal é para quem já tem lead chegando, e eu corro atrás de lead frio. A Caçada parece ser o que me interessa, mas não sei se vem incluída nem se acha o decisor com contato útil, ou só lista de CNPJ.",
+  "would_change_my_mind": "Ver, nos 7 dias grátis, a Caçada trazendo empresas do meu perfil com o contato do decisor, me poupando horas de LinkedIn, e saber que está incluída no plano de R$ 19,90.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 40,
+  "price_too_expensive": 90
+}

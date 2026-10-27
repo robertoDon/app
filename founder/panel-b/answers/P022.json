@@ -1,0 +1,13 @@
+{
+  "id": "P022",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Assinaria o plano Dalva (R$ 19,90). Eu já uso CRM grátis e vivo esquecendo proposta parada, então ver de manhã no celular quem responder primeiro com o follow-up pronto me poupa tempo, e por esse preço e sem cartão o risco é baixo.",
+  "objection": "Será que a lista de empresas da Caçada é atual e serve para o meu cliente? Se for só CNPJ genérico, não me ajuda, e aí a Dalva vira só mais um app além do meu CRM grátis.",
+  "would_change_my_mind": "Ver nos 7 dias de teste que a Dalva conecta direto no meu HubSpot ou Pipedrive e que as mensagens de follow-up soam como eu, e que a lista da Caçada traz empresas do meu perfil com fonte e data.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 40,
+  "price_too_expensive": 90
+}
