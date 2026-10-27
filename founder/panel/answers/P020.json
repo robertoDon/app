@@ -1,0 +1,13 @@
+{
+  "id": "P020",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano. O preço é irrisório, mas o carro-chefe da Dalva é achar empresa na base de CNPJ, e meu produto não se vende por prospecção ativa: meus clientes chegam por indicação e pelo WhatsApp. O pipeline e as 3 prioridades eu já resolvo na minha planilha e no Notion.",
+  "objection": "Lista de CNPJ não me traz cliente, porque quem compra de mim não compra por abordagem fria. Seria mais um app no celular que eu abro duas vezes e esqueço, e ainda teria que tirar o pipeline do Notion.",
+  "would_change_my_mind": "Se ela puxasse sozinha as conversas do WhatsApp com os clientes que já tenho e me lembrasse de manhã quem está esfriando e quem precisa de follow-up, sem eu ter que alimentar nada à mão. Aí eu pagaria o Dalva Time para o time.",
+  "price_too_cheap": 9,
+  "price_cheap": 19.9,
+  "price_expensive": 79,
+  "price_too_expensive": 150
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P012",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Nenhum plano. Eu até testaria os 7 dias porque não pede cartão, mas o pipeline eu já tenho de graça no meu CRM, e uma lista de empresas não me ajuda se eu não tenho tempo de abordar ninguém. Mudar o time inteiro de ferramenta por isso não compensa.",
+  "objection": "Mesmo com a lista pronta eu não teria tempo de abordar ninguém, e eu ia acabar com duas ferramentas para manter em vez de uma.",
+  "would_change_my_mind": "Se a Dalva puxasse o pipeline do meu CRM atual (HubSpot/Pipedrive) sem eu migrar nada e já me entregasse a primeira mensagem de abordagem pronta, para eu só revisar e mandar à noite.",
+  "price_too_cheap": 9,
+  "price_cheap": 19.9,
+  "price_expensive": 59.9,
+  "price_too_expensive": 120
+}

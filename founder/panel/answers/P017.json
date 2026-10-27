@@ -1,0 +1,13 @@
+{
+  "id": "P017",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Nenhum plano por enquanto. Até faria os 7 dias grátis, já que não pede cartão, mas não vou passar meu pipeline e meus clientes para uma marca que nunca ouvi falar e que pode sumir em seis meses. E R$ 19,90 é tão barato que me faz pensar se tem gente séria por trás.",
+  "objection": "Uma marca nova pode sumir; vou colocar meus dados de clientes e de vendas nela? Não vejo nada sobre exportar os dados, quem está por trás nem se a busca na base de CNPJ traz lead bom de verdade ou só lista genérica.",
+  "would_change_my_mind": "Se no teste grátis a busca me trouxer umas empresas que eu realmente abordaria e virassem reunião, e eu souber que consigo exportar tudo em planilha se a Dalva acabar, eu assinaria o Dalva individual.",
+  "price_too_cheap": 9.9,
+  "price_cheap": 29.9,
+  "price_expensive": 99,
+  "price_too_expensive": 199
+}

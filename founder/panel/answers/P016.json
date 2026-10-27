@@ -1,0 +1,13 @@
+{
+  "id": "P016",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Eu testaria os 7 dias sem cartão e, se a busca trouxer empresas que batem com o meu cliente ideal, assino o Dalva Time, porque somos mais de uma pessoa vendendo e R$ 59,90 é irrelevante perto de um cliente fechado. Se a lista vier genérica ou desatualizada, cancelo e volto pra planilha e Notion.",
+  "objection": "Base de CNPJ é pública e cheia de empresa inativa ou sem perfil; minha dúvida é se a Dalva realmente filtra quem é meu cliente ou só me entrega uma lista grande que eu ainda vou ter que limpar na mão. E o time de 6 a 10 pessoas já passa do limite de 5 do plano Time.",
+  "would_change_my_mind": "Se na primeira busca grátis a maioria das empresas for irrelevante ou desatualizada, eu não assino.",
+  "price_too_cheap": 9,
+  "price_cheap": 39,
+  "price_expensive": 199,
+  "price_too_expensive": 399
+}
