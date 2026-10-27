@@ -1,6 +1,6 @@
 {
- "n": 20,
- "seed": 602952,
+ "n": 100,
+ "seed": 7,
  "customer": {
   "business": "Dalva (assistente comercial para startups de tecnologia)",
   "target": "Fundador ou sócio de uma startup de tecnologia brasileira de 1 a 10 pessoas, que vende, administra e entrega ao mesmo tempo. ATENÇÃO: você é brasileiro, todo dinheiro aqui é em reais (R$); onde a renda aparece com '$', leia R$ por ano. Responda sempre em português do Brasil",

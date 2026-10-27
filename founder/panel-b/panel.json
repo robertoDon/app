@@ -1,0 +1,87 @@
+{
+ "n": 100,
+ "seed": 7,
+ "customer": {
+  "business": "Dalva (assistente comercial para startups de tecnologia)",
+  "target": "Fundador ou sócio de uma startup de tecnologia brasileira de 1 a 10 pessoas, que vende, administra e entrega ao mesmo tempo. ATENÇÃO: você é brasileiro, todo dinheiro aqui é em reais (R$); onde a renda aparece com '$', leia R$ por ano. Responda sempre em português do Brasil",
+  "where": "Brasil, online",
+  "age": [
+   24,
+   45
+  ],
+  "segments": [
+   {
+    "name": "Fundador solo ou dupla (1 a 2 pessoas), ainda sem receita recorrente",
+    "share": 0.4,
+    "income": [
+     36000,
+     96000
+    ]
+   },
+   {
+    "name": "Startup de 3 a 5 pessoas, já vende para alguns clientes",
+    "share": 0.4,
+    "income": [
+     96000,
+     240000
+    ]
+   },
+   {
+    "name": "Startup de 6 a 10 pessoas, com alguém que faz vendas junto com outras funções",
+    "share": 0.2,
+    "income": [
+     180000,
+     400000
+    ]
+   }
+  ],
+  "behaviours": [
+   {
+    "name": "Vende por indicação",
+    "share": 0.2,
+    "how": "Os clientes vêm de indicação e rede pessoal; prospectar a frio é raro."
+   },
+   {
+    "name": "Já usa CRM gratuito",
+    "share": 0.2,
+    "how": "Usa Agendor, RD Station CRM, HubSpot grátis ou Pipedrive para organizar vendas."
+   },
+   {
+    "name": "Planilha e WhatsApp",
+    "share": 0.2,
+    "how": "Controla tudo em planilha ou Notion e fala com cliente pelo WhatsApp."
+   },
+   {
+    "name": "Prospecta a frio",
+    "share": 0.15,
+    "how": "Já pesquisa empresas no LinkedIn e manda mensagem; sente que gasta tempo demais."
+   },
+   {
+    "name": "Cético com ferramentas novas",
+    "share": 0.15,
+    "how": "Já pagou por ferramentas que não usou e cancela rápido o que não prova valor."
+   },
+   {
+    "name": "Curioso por IA",
+    "share": 0.1,
+    "how": "Testa qualquer ferramenta de IA nova, mas só paga se resolver algo concreto."
+   }
+  ],
+  "objections": [
+   "Já uso um CRM grátis, para que pagar?",
+   "Planilha e LinkedIn resolvem do meu jeito",
+   "Será que a lista de empresas é atual e serve para o meu cliente?",
+   "Tenho medo de spam, LGPD e queimar minha marca",
+   "Uma marca nova pode sumir; vou colocar meus dados nela?",
+   "Mesmo com lista eu não teria tempo de abordar ninguém",
+   "Meu produto não se vende por prospecção ativa"
+  ],
+  "habits": [
+   "você abre o celular de manhã para ver o que tem para fazer no dia",
+   "você paga poucas assinaturas e revisa o cartão todo mês",
+   "você acompanha fundadores no LinkedIn e no X",
+   "você faz demos e propostas à noite, depois de entregar o trabalho do dia"
+  ]
+ },
+ "pitch": "Dalva, assistente comercial para quem vende, administra e entrega ao mesmo tempo. Ela se conecta ao seu CRM (HubSpot ou Pipedrive) ou importa sua planilha, sem você migrar nada. Toda manhã, mostra quem responder primeiro entre os leads que já chegam (formulário, indicação, inbound), quem está esfriando e qual proposta está parada, com a mensagem de follow-up pronta para você revisar e mandar.\nQuando quiser mais clientes, a Caçada acha empresas reais na base de CNPJ, com fonte e data, e manda direto para a sua lista.\nFunciona no celular (app instalável). Você viu o anúncio e assina no próprio celular, sem demo e sem falar com vendedor.\nDois planos: Dalva, R$ 19,90 por mês, para uma pessoa. Dalva Time, R$ 59,90 por mês, até 5 pessoas.\n7 dias grátis, sem cartão. Cancela em um toque.\nNo campo \"reason\", diga qual plano você assinaria (Dalva, Dalva Time ou nenhum) e por quê, em português."
+}
