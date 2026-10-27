@@ -1,0 +1,13 @@
+{
+  "id": "P085",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "price",
+  "reason": "Assinaria o Dalva (R$ 19,90), não o Time. Sao 7 dias sem cartão e importa minha planilha, então o teste custa quase nada; se me disser todo dia de manhã quem responder primeiro, já paga. Só uso a parte de follow-up, a Caçada eu deixo de lado por enquanto.",
+  "objection": "Tenho medo de spam, LGPD e queimar minha marca: se a Caçada me empurrar lista fria de CNPJ para disparar mensagem, eu não uso. E não sei se ela vai entender minha planilha bagunçada de verdade.",
+  "would_change_my_mind": "Ver no teste grátis que ela lê minha planilha sem eu arrumar nada e que a Caçada deixa claro a base legal (LGPD) e não envia nada sozinha sem eu aprovar.",
+  "price_too_cheap": 5,
+  "price_cheap": 19.9,
+  "price_expensive": 59,
+  "price_too_expensive": 120
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P084",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "convenience",
+  "reason": "Assinaria o plano Dalva (R$ 19,90). É barato, tem 7 dias grátis sem cartão e eu já perco tempo toda manhã lembrando de quem esfriou na planilha. Se a mensagem de follow-up pronta me poupar isso, vale mais que o preço de um lanche.",
+  "objection": "Será que a lista de empresas da Caçada é atual e serve para o meu cliente? E será que ela lê direito a minha planilha bagunçada e o meu WhatsApp, ou eu vou acabar tendo que arrumar tudo à mão?",
+  "would_change_my_mind": "Ver nos 7 dias de teste que ela lê minha planilha sem eu arrumar nada e que as empresas da Caçada vêm com fonte e data recentes e batem com o meu tipo de cliente. Se a lista vier velha ou genérica, cancelo antes de cobrar.",
+  "price_too_cheap": 7,
+  "price_cheap": 15,
+  "price_expensive": 40,
+  "price_too_expensive": 90
+}

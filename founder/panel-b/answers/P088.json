@@ -1,0 +1,13 @@
+{
+  "id": "P088",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano. Já uso um CRM grátis e reviso o cartão todo mês; não vou pagar por mais uma ferramenta sem ver que ela me traz resposta mais rápida ou venda que eu não teria. Por R$ 19,90 até testaria os 7 dias, mas provavelmente cancelaria antes de cobrar.",
+  "objection": "Já tenho CRM grátis e já paguei por ferramenta que não usei. Não sei se a lista de prioridades da manhã é realmente melhor do que eu mesma olhar meus leads, que são poucos.",
+  "would_change_my_mind": "Ver, nos 7 dias de teste com os meus próprios dados, ela apontar um lead esfriando ou uma proposta parada que eu tinha esquecido, e o follow-up pronto me poupar tempo de verdade.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 35,
+  "price_too_expensive": 80
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P089",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "price",
+  "reason": "Assinaria o Dalva (R$ 19,90), porque é barato, não pede cartão e funciona no celular, que é onde eu começo o dia. Se me dizer de manhã quem responder primeiro e já trouxer a mensagem pronta, economizo tempo; se não servir, cancelo em um toque.",
+  "objection": "Tenho medo de spam, LGPD e queimar minha marca: a Caçada pegar empresas na base de CNPJ e eu sair mandando mensagem fria sem saber se estou dentro da lei. Também não sei se o CRM conecta direito e se a mensagem pronta não vai soar robótica.",
+  "would_change_my_mind": "Ver claramente como a Caçada trata LGPD (origem dos dados, opt-out) e testar nos 7 dias que a integração com meu HubSpot ou Pipedrive funciona e que as mensagens soam como eu.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 50,
+  "price_too_expensive": 120
+}

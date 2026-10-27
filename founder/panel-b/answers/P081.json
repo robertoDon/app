@@ -1,0 +1,13 @@
+{
+  "id": "P081",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "convenience",
+  "reason": "Assinaria o Dalva de R$ 19,90, só pra uma pessoa. Perto do que eu ganho é quase nada, e se ela importar minha planilha e me disser de manhã quem responder primeiro com a mensagem pronta, me poupa tempo. Vou testar nos 7 dias grátis e só fico se ela acertar.",
+  "objection": "Eu não teria tempo de abordar ninguém, então a Caçada não me serve. Só vale se a lista de manhã for curta e certeira, e se funcionar com a minha planilha e o WhatsApp, porque não uso CRM de verdade. Se virar mais uma ferramenta pra abrir, esqueço e cancelo.",
+  "would_change_my_mind": "Ver, no teste grátis com a minha planilha, que a lista de prioridades acerta quem está esfriando e que a mensagem pode ir direto pro WhatsApp sem eu copiar e colar.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 40,
+  "price_too_expensive": 90
+}

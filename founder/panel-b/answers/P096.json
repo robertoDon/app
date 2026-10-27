@@ -1,0 +1,13 @@
+{
+  "id": "P096",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "price",
+  "reason": "Assinaria o plano Dalva (R$ 19,90) só pra testar: sem cartão, cancela em um toque e custa menos que um almoço. Se na primeira semana ela não me mostrar um lead esfriando que eu tinha esquecido, cancelo sem pensar duas vezes.",
+  "objection": "Tenho medo de spam, LGPD e queimar minha marca: se a Caçada me empurrar empresas pra abordar a frio e eu sair mandando mensagem, o prejuízo é na minha reputação, não na mensalidade. Também não sei se com tão poucos leads eu vou realmente usar todo dia.",
+  "would_change_my_mind": "Ver, antes de pagar, que o follow-up só sai depois da minha revisão, que a Caçada usa só dado público de CNPJ com fonte e data e que não dispara nada sozinha, mais um exemplo real de que ela achou uma proposta parada no meu HubSpot ou Pipedrive.",
+  "price_too_cheap": 7,
+  "price_cheap": 19,
+  "price_expensive": 49,
+  "price_too_expensive": 99
+}

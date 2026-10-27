@@ -1,0 +1,13 @@
+{
+  "id": "P092",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "price",
+  "reason": "Assinaria o plano Dalva (R$ 19,90), não o Time. Por esse valor e com 7 dias grátis sem cartão, vale testar: se o resumo da manhã me mostrar de verdade qual proposta está parada e vier com a mensagem pronta, eu fico. A Caçada eu quase não usaria, não tenho tempo de abordar ninguém.",
+  "objection": "Mais uma ferramenta de IA que eu abro três dias e esqueço. Se o CRM ou a planilha estiver bagunçado, ela vai me mostrar prioridade errada e eu perco a confiança rápido.",
+  "would_change_my_mind": "Ver no teste de 7 dias que ela acerta quem responder primeiro com os meus leads reais, sem eu ter que arrumar a base antes.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 49,
+  "price_too_expensive": 120
+}

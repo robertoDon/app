@@ -1,0 +1,13 @@
+{
+  "id": "P099",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano. Já uso um CRM grátis e meus clientes vêm por indicação, então tenho poucos leads para priorizar e quase não prospecto a frio. Pago poucas assinaturas e reviso o cartão todo mês, então não vou somar mais uma por algo que não resolve uma dor que eu sinta hoje.",
+  "objection": "Já uso um CRM grátis, para que pagar? Com poucos leads por indicação eu já sei quem responder primeiro, e a Caçada de CNPJ não é como eu vendo.",
+  "would_change_my_mind": "Ver, no teste grátis com a minha própria planilha, ela achar uma proposta parada ou um lead esfriando que eu tinha esquecido de verdade, a ponto de me fazer fechar uma venda.",
+  "price_too_cheap": 7,
+  "price_cheap": 15,
+  "price_expensive": 29,
+  "price_too_expensive": 49
+}

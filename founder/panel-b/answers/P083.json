@@ -1,0 +1,13 @@
+{
+  "id": "P083",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "price",
+  "reason": "Assinaria o plano Dalva (R$ 19,90). Por esse valor e com 7 dias grátis sem cartão, o risco é quase zero, e a parte de lembrar de propostas paradas e deixar o follow-up pronto me ajuda, porque eu vendo e entrego ao mesmo tempo e deixo coisa esfriar. Mas a Caçada eu não contaria com ela, já que quase não prospecto a frio.",
+  "objection": "Meus clientes vêm de indicação, então tenho poucos leads por semana; talvez uma planilha e um lembrete já resolvam. E fico em dúvida se a lista de empresas do CNPJ é atual e serve para o meu cliente, ou se vira só mais um app que eu esqueço de abrir.",
+  "would_change_my_mind": "Se na semana grátis ela não puxasse meu HubSpot ou minha planilha direito, ou se as mensagens de follow-up soassem genéricas e eu tivesse que reescrever tudo, eu cancelaria no primeiro mês.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 40,
+  "price_too_expensive": 90
+}
