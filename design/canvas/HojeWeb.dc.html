@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Dalva — Hoje (web)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+h1,h2,h3,.ds{font-family:'Sora', 'IBM Plex Sans', system-ui, sans-serif}
+a{color:#11131F}a:hover{color:#FF7A45}
+</style>
+</helmet>
+<div style="min-height: 900px; background: #F7F5F2; color: #11131F; font-family: 'IBM Plex Sans', -apple-system, system-ui, sans-serif; display: flex; flex-wrap: wrap">
+  <aside style="flex: 1 1 220px; max-width: 260px; box-sizing: border-box; padding: 28px 16px; display: flex; flex-direction: column; gap: 4px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 12px 24px">
+      <p style="margin: 0; font-family: 'Sora', 'IBM Plex Sans', system-ui, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -0.035em">Dalva</p>
+    </div>
+    <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none; font-size: 15px; font-weight: 600; background: #FFFFFF; color: #11131F; box-shadow: 0 1px 2px rgba(0,0,0,0.05)">Hoje</a>
+    <a href="Pipeline.dc.html" style="padding: 10px 12px; border-radius: 10px; text-decoration: none; font-size: 15px; font-weight: 500; color: #33364A">Pipeline</a>
+    <a href="Cacada.dc.html" style="padding: 10px 12px; border-radius: 10px; text-decoration: none; font-size: 15px; font-weight: 500; color: #33364A">Caçada</a>
+  </aside>
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px 32px 40px; display: flex; flex-direction: column; gap: 20px">
+    <header style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+      <div>
+        <h1 style="margin: 0; font-size: 34px; font-weight: 700; letter-spacing: -0.035em">Hoje</h1>
+        <p style="margin: 4px 0 0; font-size: 15px; color: #5E6272">Segunda, 26 de outubro · bom dia, Roberto</p>
+      </div>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap"><button type="button" style="font: inherit; font-size: 15px; font-weight: 600; color: #FFFFFF; background: #11131F; border: 0; border-radius: 999px; padding: 12px 20px; min-height: 44px; cursor: pointer">Nova tarefa</button></div>
+    </header>
+    <div style="display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 20px; align-items: start">
+      <div style="display: flex; flex-direction: column; gap: 16px">
+        <div style="background: #11131F; color: #FFFFFF; border-radius: 20px; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; gap: 16px"><div><p style="margin: 0; font-size: 13px; font-weight: 600; color: #FF7A45">Dalva diz</p><p style="margin: 4px 0 0; font-size: 20px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.35">A proposta da Orbita é para hoje. Começa por ela.</p></div><button type="button" style="flex-shrink: 0; font: inherit; font-size: 14px; font-weight: 600; color: #11131F; background: #FF7A45; border: 0; border-radius: 999px; padding: 10px 18px; min-height: 40px; cursor: pointer">Escrever</button></div>
+        <section style="background: #FFFFFF; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05); overflow: hidden">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 20px">
+            <div><p style="margin: 0; font-size: 16px; font-weight: 600">Três coisas pra hoje</p><p style="margin: 2px 0 0; font-size: 13px; color: #5E6272">Primeiro o próximo passo de hoje, depois a proposta e a conversa paradas.</p></div>
+            <span style="font-size: 13px; color: #5E6272; white-space: nowrap">Arraste para reordenar</span>
+          </div>
+        <div style="display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-top: 1px solid rgba(0,0,0,0.06)">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="#CFCAC1" aria-hidden="true"><circle cx="9" cy="6" r="1.6"></circle><circle cx="15" cy="6" r="1.6"></circle><circle cx="9" cy="12" r="1.6"></circle><circle cx="15" cy="12" r="1.6"></circle><circle cx="9" cy="18" r="1.6"></circle><circle cx="15" cy="18" r="1.6"></circle></svg>
+          <span style="width: 28px; font-size: 22px; font-weight: 700; letter-spacing: -0.03em; color: #11131F">1</span>
+          <div style="flex-grow: 1; min-width: 0"><p style="margin: 0; font-size: 16px; font-weight: 600">Enviar proposta para a Orbita</p><p style="margin: 3px 0 0; font-size: 13px; color: #5E6272">Próximo passo combinado · hoje, 17h</p></div>
+          <span style="font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 999px; background: #E8ECF3; color: #4E628F; white-space: nowrap">hoje</span>
+          <button type="button" style="font: inherit; font-size: 13px; font-weight: 600; color: #11131F; background: #EFECE6; border: 0; border-radius: 999px; padding: 8px 14px; min-height: 36px; cursor: pointer; white-space: nowrap">Escrever</button>
+          <button type="button" style="font: inherit; font-size: 13px; font-weight: 600; color: #5E6272; background: transparent; border: 0; border-radius: 999px; padding: 8px 14px; min-height: 36px; cursor: pointer; white-space: nowrap">Adiar</button>
+        </div>
+        <div style="display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-top: 1px solid rgba(0,0,0,0.06)">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="#CFCAC1" aria-hidden="true"><circle cx="9" cy="6" r="1.6"></circle><circle cx="15" cy="6" r="1.6"></circle><circle cx="9" cy="12" r="1.6"></circle><circle cx="15" cy="12" r="1.6"></circle><circle cx="9" cy="18" r="1.6"></circle><circle cx="15" cy="18" r="1.6"></circle></svg>
+          <span style="width: 28px; font-size: 22px; font-weight: 700; letter-spacing: -0.03em; color: #A1A1A6">2</span>
+          <div style="flex-grow: 1; min-width: 0"><p style="margin: 0; font-size: 16px; font-weight: 600">Ligar para a Acme</p><p style="margin: 3px 0 0; font-size: 13px; color: #5E6272">Proposta parada há 6 dias · R$ 4.800</p></div>
+          <span style="font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 999px; background: #F5E6D0; color: #8F550E; white-space: nowrap">6 dias</span>
+          <button type="button" style="font: inherit; font-size: 13px; font-weight: 600; color: #11131F; background: #EFECE6; border: 0; border-radius: 999px; padding: 8px 14px; min-height: 36px; cursor: pointer; white-space: nowrap">Ligar</button>
+          <button type="button" style="font: inherit; font-size: 13px; font-weight: 600; color: #5E6272; background: transparent; border: 0; border-radius: 999px; padding: 8px 14px; min-height: 36px; cursor: pointer; white-space: nowrap">Adiar</button>
+        </div>
+        <div style="display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-top: 1px solid rgba(0,0,0,0.06)">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="#CFCAC1" aria-hidden="true"><circle cx="9" cy="6" r="1.6"></circle><circle cx="15" cy="6" r="1.6"></circle><circle cx="9" cy="12" r="1.6"></circle><circle cx="15" cy="12" r="1.6"></circle><circle cx="9" cy="18" r="1.6"></circle><circle cx="15" cy="18" r="1.6"></circle></svg>
+          <span style="width: 28px; font-size: 22px; font-weight: 700; letter-spacing: -0.03em; color: #A1A1A6">3</span>
+          <div style="flex-grow: 1; min-width: 0"><p style="margin: 0; font-size: 16px; font-weight: 600">Follow-up na Nuvem Labs</p><p style="margin: 3px 0 0; font-size: 13px; color: #5E6272">Conversa sem resposta desde quarta</p></div>
+          <span style="font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 999px; background: #F5E6D0; color: #8F550E; white-space: nowrap">2 dias</span>
+          <button type="button" style="font: inherit; font-size: 13px; font-weight: 600; color: #11131F; background: #EFECE6; border: 0; border-radius: 999px; padding: 8px 14px; min-height: 36px; cursor: pointer; white-space: nowrap">Escrever</button>
+          <button type="button" style="font: inherit; font-size: 13px; font-weight: 600; color: #5E6272; background: transparent; border: 0; border-radius: 999px; padding: 8px 14px; min-height: 36px; cursor: pointer; white-space: nowrap">Adiar</button>
+        </div>
+        </section>
+        <p style="margin: 0 4px; font-size: 14px; color: #5E6272">Na fila: abordar a Ilha Digital, nova da Caçada, e mais 2. <a href="#" style="font-weight: 600">Ver tudo</a></p>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 16px">
+        <section style="background: #FFFFFF; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05); padding: 20px; display: flex; flex-direction: column; gap: 14px">
+          <p style="margin: 0; font-size: 15px; font-weight: 600">Esta semana</p>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px"><div style="display: flex; flex-direction: column; gap: 2px"><p style="margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.03em; font-variant-numeric: tabular-nums">6</p><p style="margin: 0; font-size: 13px; color: #5E6272">contatos</p></div><div style="display: flex; flex-direction: column; gap: 2px"><p style="margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.03em; font-variant-numeric: tabular-nums">3</p><p style="margin: 0; font-size: 13px; color: #5E6272">responderam</p></div><div style="display: flex; flex-direction: column; gap: 2px"><p style="margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.03em; font-variant-numeric: tabular-nums">1</p><p style="margin: 0; font-size: 13px; color: #5E6272">reunião</p></div></div>
+          <p style="margin: 0; font-size: 13px; color: #5E6272">Sai dos toques depois de cada contato. Nada para digitar.</p>
+        </section>
+        <section style="background: #FFFFFF; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05); padding: 16px 20px">
+          <p style="margin: 0 0 4px; font-size: 15px; font-weight: 600">Agenda de hoje</p>
+          <div style="display: flex; gap: 14px; padding: 12px 0; border-top: 1px solid rgba(0,0,0,0.06)"><span style="width: 44px; font-size: 13px; font-weight: 600; color: #5E6272">10:00</span><div><p style="margin: 0; font-size: 14px; font-weight: 500">Ligar para a Acme</p><p style="margin: 2px 0 0; font-size: 12px; color: #5E6272">Eu te lembro 10 min antes</p></div></div><div style="display: flex; gap: 14px; padding: 12px 0; border-top: 1px solid rgba(0,0,0,0.06)"><span style="width: 44px; font-size: 13px; font-weight: 600; color: #5E6272">17:00</span><div><p style="margin: 0; font-size: 14px; font-weight: 500">Proposta Orbita</p><p style="margin: 2px 0 0; font-size: 12px; color: #5E6272">Próximo passo combinado</p></div></div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

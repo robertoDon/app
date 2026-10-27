@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Dalva — Primeira caçada (web)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+h1,h2,h3,.ds{font-family:'Sora', 'IBM Plex Sans', system-ui, sans-serif}
+a{color:#11131F}a:hover{color:#FF7A45}
+</style>
+</helmet>
+<div style="min-height: 900px; background: #F7F5F2; color: #11131F; font-family: 'IBM Plex Sans', -apple-system, system-ui, sans-serif; display: flex; flex-wrap: wrap">
+  <aside style="flex: 1 1 220px; max-width: 260px; box-sizing: border-box; padding: 28px 16px; display: flex; flex-direction: column; gap: 4px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 12px 24px">
+      <p style="margin: 0; font-family: 'Sora', 'IBM Plex Sans', system-ui, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -0.035em">Dalva</p>
+    </div>
+    <a href="HojeWeb.dc.html" style="padding: 10px 12px; border-radius: 10px; text-decoration: none; font-size: 15px; font-weight: 500; color: #33364A">Hoje</a>
+    <a href="Pipeline.dc.html" style="padding: 10px 12px; border-radius: 10px; text-decoration: none; font-size: 15px; font-weight: 500; color: #33364A">Pipeline</a>
+    <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none; font-size: 15px; font-weight: 600; background: #FFFFFF; color: #11131F; box-shadow: 0 1px 2px rgba(0,0,0,0.05)">Caçada</a>
+  </aside>
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px 32px 40px; display: flex; flex-direction: column; gap: 20px">
+    <header style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+      <div>
+        <h1 style="margin: 0; font-size: 34px; font-weight: 700; letter-spacing: -0.035em">Primeira caçada</h1>
+        <p style="margin: 4px 0 0; font-size: 15px; color: #5E6272">Uma frase e a lista sai pronta. Ajustar é opcional.</p>
+      </div>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap"><span style="font-size: 14px; font-weight: 500; color: #5E6272">Leva menos de 1 minuto</span></div>
+    </header>
+    <div style="display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 20px; align-items: start">
+      <section style="background: #FFFFFF; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05); overflow: hidden">
+        <div style="padding: 20px; display: flex; flex-direction: column; gap: 12px">
+          <label for="q1" style="font-size: 13px; font-weight: 600; color: #5E6272">Para quem você vende? Escreva como falaria para um amigo.</label>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap"><input id="q1" type="text" value="Vendo sites e apps para software houses e agências de SC" style="flex: 1 1 320px; min-width: 0; font: inherit; font-size: 17px; padding: 12px 14px; border: 1px solid rgba(0,0,0,0.12); border-radius: 12px; background: #FBFAF8; color: #11131F"><button type="button" style="font: inherit; font-size: 15px; font-weight: 600; color: #11131F; background: #FF7A45; border: 0; border-radius: 999px; padding: 12px 22px; min-height: 44px; cursor: pointer">Caçar</button></div>
+        </div>
+        <div style="padding: 20px; background: #FBFAF8; border-top: 1px solid rgba(0,0,0,0.06); display: flex; flex-direction: column; gap: 12px">
+          <p style="margin: 0; font-size: 13px; font-weight: 600; color: #5E6272">ENTENDI ASSIM</p>
+          <p style="margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.4">Software houses e agências em Santa Catarina, abertas há mais de dois anos. Quer ajustar algum critério?</p>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px"><span style="display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; padding: 8px 12px 8px 14px; border-radius: 999px; background: #11131F; color: #FFFFFF; border: 1px solid #11131F">Software + agências<span style="font-size: 12px; font-weight: 500; opacity: 0.7">· da sua frase</span><span aria-hidden="true" style="opacity: 0.6; margin-left: 2px">×</span></span><span style="display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; padding: 8px 12px 8px 14px; border-radius: 999px; background: #11131F; color: #FFFFFF; border: 1px solid #11131F">Santa Catarina<span style="font-size: 12px; font-weight: 500; opacity: 0.7">· da sua frase</span><span aria-hidden="true" style="opacity: 0.6; margin-left: 2px">×</span></span><span style="display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; padding: 8px 12px 8px 14px; border-radius: 999px; background: #FFFFFF; color: #33364A; border: 1px dashed #A9A49A">Aberta há 2+ anos<span style="font-size: 12px; font-weight: 500; opacity: 0.7">· sugestão</span><span aria-hidden="true" style="opacity: 0.6; margin-left: 2px">×</span></span><span style="display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; padding: 8px 12px 8px 14px; border-radius: 999px; background: #FFFFFF; color: #33364A; border: 1px dashed #A9A49A">ME ou EPP<span style="font-size: 12px; font-weight: 500; opacity: 0.7">· sugestão</span><span aria-hidden="true" style="opacity: 0.6; margin-left: 2px">×</span></span></div>
+          <p style="margin: 0; font-size: 13px; color: #5E6272">Contorno cheio veio da sua frase. Tracejado é sugestão da Dalva: toque no × para tirar. <a href="#" style="font-weight: 600">Filtros avançados</a></p>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 20px; border-top: 1px solid rgba(0,0,0,0.06)"><span style="font-size: 13px; color: #5E6272">Já tem uma lista? <a href="#" style="font-weight: 600">Importar CSV ou Google Contatos</a></span><button type="button" style="font: inherit; font-size: 15px; font-weight: 600; color: #FFFFFF; background: #11131F; border: 0; border-radius: 999px; padding: 12px 20px; min-height: 44px; cursor: pointer">Ver as 80 empresas</button></div>
+      </section>
+      <div style="display: flex; flex-direction: column; gap: 16px">
+        <section style="background: #11131F; color: #F7F5F2; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 8px">
+          <p style="margin: 0; font-size: 13px; font-weight: 600; color: #A1A1A6">Até aqui</p>
+          <p style="margin: 0; font-size: 56px; font-weight: 700; letter-spacing: -0.045em; line-height: 1">~80</p>
+          <p style="margin: 0; font-size: 15px; line-height: 1.45; color: #D2D2D7">empresas batem com a sua frase. Fonte: Receita Federal, set/2026.</p>
+        </section>
+        <section style="background: #FFFFFF; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05); padding: 20px; display: flex; flex-direction: column; gap: 6px">
+          <p style="margin: 0; font-size: 15px; font-weight: 600">Essa é por conta da Dalva</p>
+          <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #33364A">Buscar empresas nunca gasta crédito. Crédito só quando você pede para enriquecer um contato.</p>
+        </section>
+        <section style="background: #FFFFFF; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05); padding: 20px; display: flex; flex-direction: column; gap: 6px">
+          <p style="margin: 0; font-size: 15px; font-weight: 600">Quer mais? Caça de novo</p>
+          <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #33364A">Mude a frase e caça quantas vezes quiser, sem gastar nada. A Dalva esconde o que você já viu e mostra só o que é novo.</p>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

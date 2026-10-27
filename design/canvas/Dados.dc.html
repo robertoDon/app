@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Dalva — Cada dado diz de onde veio</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+h1,h2,h3,.ds{font-family:'Sora', 'IBM Plex Sans', system-ui, sans-serif}
+a{color:#11131F}a:hover{color:#FF7A45}
+</style>
+</helmet>
+<div style="width: 1440px; min-height: 1370px; box-sizing: border-box; padding: 72px 80px; background: #F7F5F2; color: #11131F; font-family: 'IBM Plex Sans', -apple-system, system-ui, sans-serif; display: flex; flex-direction: column; gap: 44px">
+  <header style="display: flex; justify-content: space-between; align-items: flex-end; gap: 48px">
+    <div style="display: flex; flex-direction: column; gap: 12px; max-width: 760px">
+      <p style="margin: 0; font-size: 14px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #5E6272">Capítulo 5 · como funciona por baixo</p>
+      <h1 style="margin: 0; font-size: 64px; font-weight: 700; letter-spacing: -0.04em; line-height: 1.02">Cada dado diz de onde veio.</h1>
+      <p style="margin: 0; font-size: 20px; line-height: 1.45; color: #5E6272">Cinco tipos, cada um com um selo diferente na tela: texto, forma e cor, como os estados. É regra da arquitetura de dados, não só da interface.</p>
+    </div>
+    
+  </header>
+  <section style="background: #FFFFFF; border: 1px solid #E6E2DB; border-radius: 20px; overflow: hidden"><table style="width: 100%; border-collapse: collapse">
+    <thead><tr style="text-align: left; font-size: 13px; color: #5E6272"><th style="padding: 14px 20px; font-weight: 600">Selo na tela</th><th style="padding: 14px 12px; font-weight: 600">Tipo</th><th style="padding: 14px 12px; font-weight: 600">Exemplos</th><th style="padding: 14px 20px; font-weight: 600">Regra</th></tr></thead>
+    <tbody><tr style="border-top: 1px solid #E6E2DB">
+      <td style="padding: 16px 20px; vertical-align: top; width: 210px"><span style="display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 6px; background: #11131F; color: #FFFFFF; white-space: nowrap">✓ Receita · set/26</span></td>
+      <td style="padding: 16px 12px; vertical-align: top; width: 170px; font-size: 15px; font-weight: 600">Oficial</td>
+      <td style="padding: 16px 12px; vertical-align: top; font-size: 15px; line-height: 1.45; color: #33364A">CNPJ, situação, setor (CNAE), cidade, data de abertura, sócios.</td>
+      <td style="padding: 16px 20px; vertical-align: top; font-size: 15px; line-height: 1.45; color: #33364A">Mostra a fonte e o mês da base. É o único que aparece sem ressalva.</td></tr><tr style="border-top: 1px solid #E6E2DB">
+      <td style="padding: 16px 20px; vertical-align: top; width: 210px"><span style="display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; border: 1px solid #11131F; color: #11131F; white-space: nowrap">↗ site da empresa · 22/10</span></td>
+      <td style="padding: 16px 12px; vertical-align: top; width: 170px; font-size: 15px; font-weight: 600">Encontrado na web</td>
+      <td style="padding: 16px 12px; vertical-align: top; font-size: 15px; line-height: 1.45; color: #33364A">Site, telefone comercial, Instagram, nota no Google, vaga aberta, notícia.</td>
+      <td style="padding: 16px 20px; vertical-align: top; font-size: 15px; line-height: 1.45; color: #33364A">Link para a fonte e a data em que a Dalva viu. Mais de 90 dias: a data fica âmbar.</td></tr><tr style="border-top: 1px solid #E6E2DB">
+      <td style="padding: 16px 20px; vertical-align: top; width: 210px"><span style="display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; border: 1px dashed #8A8D99; color: #33364A; white-space: nowrap">? provável</span></td>
+      <td style="padding: 16px 12px; vertical-align: top; width: 170px; font-size: 15px; font-weight: 600">Inferido</td>
+      <td style="padding: 16px 12px; vertical-align: top; font-size: 15px; line-height: 1.45; color: #33364A">Cargo de alguém, tamanho real do time, se a empresa está ativa.</td>
+      <td style="padding: 16px 20px; vertical-align: top; font-size: 15px; line-height: 1.45; color: #33364A">Sempre “provável”. Nunca vira filtro nem entra no título do card.</td></tr><tr style="border-top: 1px solid #E6E2DB">
+      <td style="padding: 16px 20px; vertical-align: top; width: 210px"><span style="display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; font-style: italic; padding: 4px 9px; border-radius: 6px; background: #E8ECF3; color: #4E628F; white-space: nowrap">~ hipótese</span></td>
+      <td style="padding: 16px 12px; vertical-align: top; width: 170px; font-size: 15px; font-weight: 600">Hipótese</td>
+      <td style="padding: 16px 12px; vertical-align: top; font-size: 15px; line-height: 1.45; color: #33364A">“Pode precisar de site novo”, “está crescendo”.</td>
+      <td style="padding: 16px 20px; vertical-align: top; font-size: 15px; line-height: 1.45; color: #33364A">Só no “por que agora”, com o sinal que levou a ela ao lado.</td></tr><tr style="border-top: 1px solid #E6E2DB">
+      <td style="padding: 16px 20px; vertical-align: top; width: 210px"><span style="display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 6px; background: #FFE9DF; color: #8A3A14; white-space: nowrap">✦ rascunho da Dalva</span></td>
+      <td style="padding: 16px 12px; vertical-align: top; width: 170px; font-size: 15px; font-weight: 600">Gerado pela IA</td>
+      <td style="padding: 16px 12px; vertical-align: top; font-size: 15px; line-height: 1.45; color: #33364A">Mensagem sugerida, resumo, motivo de prioridade.</td>
+      <td style="padding: 16px 20px; vertical-align: top; font-size: 15px; line-height: 1.45; color: #33364A">Rascunho até você revisar. Nada sai sem você.</td></tr></tbody></table></section>
+  <section style="display: grid; grid-template-columns: 1fr 1fr 0.9fr; gap: 20px; align-items: start"><div style="background: #FFFFFF; border: 1px solid #E6E2DB; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 12px; "><div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px"><div><p style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #5E6272">Lead com motivo</p><h3 style="margin: 6px 0 0; font-size: 26px; font-weight: 700; letter-spacing: -0.03em">Ilha Digital</h3><p style="margin: 0; font-size: 14px; line-height: 1.5; color: #5E6272; ">Agência de marketing · Florianópolis · desde 2017</p></div></div>
+    <div><div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 11px 0; border-top: 1px solid #E6E2DB"><div><p style="margin: 0; font-size: 12px; color: #5E6272">Sócio-administrador</p><p style="margin: 2px 0 0; font-size: 15px; font-weight: 500">Paulo R.</p></div><span style="display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 6px; background: #11131F; color: #FFFFFF; white-space: nowrap">✓ Receita · set/26</span></div><div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 11px 0; border-top: 1px solid #E6E2DB"><div><p style="margin: 0; font-size: 12px; color: #5E6272">Site e telefone comercial</p><p style="margin: 2px 0 0; font-size: 15px; font-weight: 500">ilhadigital.com.br · (48) 3xxx</p></div><span style="display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; border: 1px solid #11131F; color: #11131F; white-space: nowrap">↗ site da empresa · 22/10</span></div><div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 11px 0; border-top: 1px solid #E6E2DB"><div><p style="margin: 0; font-size: 12px; color: #5E6272">Sinal</p><p style="margin: 2px 0 0; font-size: 15px; font-weight: 500">Vaga aberta: executivo de vendas</p></div><span style="display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; border: 1px solid #11131F; color: #11131F; white-space: nowrap">↗ Gupy · 22/10</span></div><div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 11px 0; border-top: 1px solid #E6E2DB"><div><p style="margin: 0; font-size: 12px; color: #5E6272">Leitura</p><p style="margin: 2px 0 0; font-size: 15px; font-weight: 500">Está montando time comercial</p></div><span style="display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; font-style: italic; padding: 4px 9px; border-radius: 6px; background: #E8ECF3; color: #4E628F; white-space: nowrap">~ hipótese</span></div></div>
+    <div style="background: #F7F5F2; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px"><div style="display: flex; justify-content: space-between; align-items: center"><span style="font-size: 13px; font-weight: 600">Por que agora</span><span style="display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 6px; background: #FFE9DF; color: #8A3A14; white-space: nowrap">✦ rascunho da Dalva</span></div><p style="margin: 0; font-size: 14px; line-height: 1.5; color: #33364A; ">Abriram vaga de vendas há 5 dias. Quem monta time comercial costuma precisar de site e funil prontos para receber os leads.</p></div></div><div style="background: #FFFFFF; border: 1px solid #E6E2DB; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 12px; "><p style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #5E6272">Aquecimento em 3 passos</p><h3 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.03em">O lead chega aquecido porque a Dalva planejou o contato, não porque comprou um dado.</h3>
+    <ol style="margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column">
+      <li style="display: flex; gap: 14px; padding: 12px 0; border-top: 1px solid #E6E2DB"><span style="font-family: 'Sora', 'IBM Plex Sans', system-ui, sans-serif; font-size: 20px; font-weight: 700; width: 20px">1</span><div><p style="margin: 0; font-size: 15px; font-weight: 600">Hoje: aparecer</p><p style="margin: 0; font-size: 14px; line-height: 1.5; color: #33364A; ">Seguir a empresa e comentar um post de verdade. A Dalva sugere qual.</p></div></li>
+      <li style="display: flex; gap: 14px; padding: 12px 0; border-top: 1px solid #E6E2DB"><span style="font-family: 'Sora', 'IBM Plex Sans', system-ui, sans-serif; font-size: 20px; font-weight: 700; width: 20px">2</span><div><p style="margin: 0; font-size: 15px; font-weight: 600">Em 2 dias: a mensagem</p><p style="margin: 0; font-size: 14px; line-height: 1.5; color: #33364A; ">Citando o motivo (a vaga, o post). Canal comercial da empresa: site, e-mail ou LinkedIn.</p></div></li>
+      <li style="display: flex; gap: 14px; padding: 12px 0; border-top: 1px solid #E6E2DB"><span style="font-family: 'Sora', 'IBM Plex Sans', system-ui, sans-serif; font-size: 20px; font-weight: 700; width: 20px">3</span><div><p style="margin: 0; font-size: 15px; font-weight: 600">Em 5 dias: o follow-up</p><p style="margin: 0; font-size: 14px; line-height: 1.5; color: #33364A; ">Se não respondeu. Depois disso, a Dalva sugere parar e tirar do funil.</p></div></li>
+    </ol>
+    <p style="margin: 0; font-size: 13px; color: #5E6272">Cada passo vira uma ação no Hoje, no dia certo.</p></div><div style="background: #11131F; color: #F7F5F2; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 10px">
+    <p style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #FF7A45">LGPD: regras desde o dia 1</p><h3 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.025em; color: #FFFFFF">Dado público não é dado livre.</h3>
+    <ul style="margin: 0; padding: 0; list-style: none"><li style="padding: 9px 0; border-top: 1px solid rgba(255,255,255,0.12); font-size: 14px; line-height: 1.45; color: #D2D2D7">Só canais comerciais da empresa. Nada de contato pessoal de pessoa física.</li><li style="padding: 9px 0; border-top: 1px solid rgba(255,255,255,0.12); font-size: 14px; line-height: 1.45; color: #D2D2D7">Toda mensagem diz de onde veio o contato e como pedir para sair.</li><li style="padding: 9px 0; border-top: 1px solid rgba(255,255,255,0.12); font-size: 14px; line-height: 1.45; color: #D2D2D7">Pedido de exclusão apaga a pessoa de todas as contas, não só de uma.</li><li style="padding: 9px 0; border-top: 1px solid rgba(255,255,255,0.12); font-size: 14px; line-height: 1.45; color: #D2D2D7">MEI é tratado como pessoa física: sem enriquecimento.</li><li style="padding: 9px 0; border-top: 1px solid rgba(255,255,255,0.12); font-size: 14px; line-height: 1.45; color: #D2D2D7">Parecer de advogado antes do teste aberto.</li></ul></div></section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1370}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

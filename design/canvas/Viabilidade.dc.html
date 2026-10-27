@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Dalva — Viabilidade</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+h1,h2,h3,.ds{font-family:'Sora', 'IBM Plex Sans', system-ui, sans-serif}
+a{color:#11131F}a:hover{color:#FF7A45}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1180px; box-sizing: border-box; padding: 64px 80px; background: #F7F5F2; color: #11131F; font-family: 'IBM Plex Sans', -apple-system, system-ui, sans-serif; display: flex; flex-direction: column; gap: 28px">
+
+  <header style="display: flex; justify-content: space-between; align-items: flex-end; gap: 48px">
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <p style="margin: 0; font-size: 15px; font-weight: 600; color: #5E6272">Viabilidade</p>
+      <h1 style="margin: 0; font-size: 64px; font-weight: 700; letter-spacing: -0.04em; line-height: 1.05">A conta fecha.</h1>
+    </div>
+    <p style="margin: 0; max-width: 460px; font-size: 16px; line-height: 1.55; color: #5E6272">Custo real por cliente nos planos novos: teste grátis, Dalva e Dalva Time. Preços públicos de outubro de 2026, antes de impostos, dólar a R$ 5,10.</p>
+  </header>
+
+  <section style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+    <sc-for list="{{stats}}" as="s" hint-placeholder-count="3">
+      <div style="background: #FFFFFF; border-radius: 24px; padding: 24px 28px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05)">
+        <p style="margin: 0; font-size: 14px; font-weight: 500; color: #5E6272">{{s.label}}</p>
+        <p style="margin: 0; font-size: 48px; font-weight: 700; letter-spacing: -0.04em; line-height: 1.05">{{s.value}}</p>
+        <p style="margin: 0; font-size: 14px; line-height: 1.45; color: #33364A">{{s.note}}</p>
+      </div>
+    </sc-for>
+  </section>
+
+  <section style="background: #FFFFFF; border-radius: 24px; padding: 28px 32px; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap">
+      <div>
+        <h2 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.03em">{{chartTitle}}</h2>
+        <p style="margin: 4px 0 0; font-size: 14px; color: #5E6272">{{planNote}}</p>
+      </div>
+      <div style="display: flex; background: #EFECE6; border-radius: 999px; padding: 4px" role="group" aria-label="Plano">
+        <sc-for list="{{plans}}" as="p" hint-placeholder-count="2">
+          <button type="button" onClick="{{p.pick}}" style="font: inherit; font-size: 14px; font-weight: 600; padding: 8px 18px; min-height: 36px; border: 0; border-radius: 999px; background: {{p.bg}}; color: {{p.fg}}; box-shadow: {{p.shadow}}; cursor: pointer">{{p.label}}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px">
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="3">
+        <div style="display: grid; grid-template-columns: 130px 1fr 210px; align-items: center; gap: 16px">
+          <p style="margin: 0; font-size: 15px; font-weight: 600">{{r.scale}}</p>
+          <div style="display: flex; height: 32px; border-radius: 10px; overflow: hidden; background: #EFECE6">
+            <div style="width: {{r.wInfra}}; background: #11131F"></div>
+            <div style="width: {{r.wIa}}; background: #FF7A45"></div>
+            <div style="width: {{r.wGw}}; background: #4E628F"></div>
+            <div style="width: {{r.wMargin}}; background: #E6E2DB; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box; font-size: 13px; font-weight: 600; color: #11131F; white-space: nowrap">{{r.margin}}</div>
+          </div>
+          <p style="margin: 0; font-size: 15px; text-align: right"><span style="font-weight: 700; font-size: 20px; letter-spacing: -0.02em">{{r.pct}}</span> <span style="color: #5E6272">{{r.pctLabel}}</span></p>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 20px; font-size: 13px; color: #33364A">
+      <sc-for list="{{legend}}" as="l" hint-placeholder-count="4">
+        <span style="display: inline-flex; align-items: center; gap: 8px"><span style="width: 10px; height: 10px; border-radius: 3px; background: {{l.c}}"></span>{{l.t}}</span>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+    <sc-for list="{{insights}}" as="i" hint-placeholder-count="4">
+      <article style="background: {{i.bg}}; color: {{i.fg}}; border-radius: 24px; padding: 22px 24px; display: flex; flex-direction: column; gap: 8px">
+        <p style="margin: 0; font-size: 13px; font-weight: 600; color: {{i.kc}}">{{i.kicker}}</p>
+        <h3 style="margin: 0; font-size: 19px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.25">{{i.title}}</h3>
+        <p style="margin: 0; font-size: 14px; line-height: 1.5; color: {{i.bc}}">{{i.body}}</p>
+      </article>
+    </sc-for>
+  </section>
+
+  <footer style="margin-top: auto; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.08); display: flex; justify-content: space-between; gap: 32px; font-size: 13px; line-height: 1.5; color: #5E6272">
+    <p style="margin: 0; max-width: 820px"><strong style="color: #11131F; font-weight: 600">Premissas:</strong> Supabase Pro, hospedagem a US$ 20/mês, Claude Haiku 5.5 com 100 enriquecimentos e 20 buscas na web por pessoa/mês, gateway Asaas (cartão R$ 0,49 + 2,99%; fuja do Pix de R$ 1,99 fixo). <strong style="color: #11131F; font-weight: 600">Time:</strong> pior caso, 5 pessoas usando a cota cheia e infra contada 5 vezes. <strong style="color: #11131F; font-weight: 600">Teste:</strong> 7 dias com um quarto da cota de busca. <strong style="color: #11131F; font-weight: 600">Fora da conta:</strong> impostos (Simples Nacional), chargeback, inadimplência, suporte, e-mail transacional, domínio.</p>
+    <p style="margin: 0; text-align: right; white-space: nowrap">Pesquisa de 26/10/2026<br>Fontes no relatório completo</p>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1180}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { plan: 'mensal' };
+  }
+  renderVals() {
+    const key = this.state.plan;
+    const brl = (v) => 'R$ ' + v.toFixed(2).replace('.', ',');
+    const P = {
+      teste: { price: 0, seats: 1, ia: 0.31, gw: 0, infraK: 7 / 30, title: 'Quanto custa um teste grátis', note: '7 dias, sem cartão, busca limitada a um quarto da cota. Não cobra, então não tem gateway.' },
+      mensal: { price: 19.90, seats: 1, ia: 1.25, gw: 1.09, infraK: 1, title: 'Para onde vai cada R$ 19,90', note: 'Plano Dalva mensal, cartão no Asaas (R$ 1,09 por cobrança).' },
+      anual: { price: 16.67, seats: 1, ia: 1.25, gw: 0.17, infraK: 1, title: 'Para onde vai cada R$ 16,67', note: 'Plano Dalva anual de R$ 200, dividido por 12. Pix no Asaas cobrado uma vez só (R$ 0,17/mês).' },
+      time: { price: 59.90, seats: 5, ia: 1.25, gw: 2.28, infraK: 1, title: 'Para onde vai cada R$ 59,90', note: 'Dalva Time, até 5 pessoas. Pior caso: as 5 usando a cota cheia de busca.' }
+    }[key];
+    const base = key === 'time' ? 59.90 : 19.90;
+    const pct = (v) => Math.max(v / base * 100, 0).toFixed(2) + '%';
+    const rows = [
+      { scale: '100 clientes', infra: 2.50, subMargin: 15.06 },
+      { scale: '1.000 clientes', infra: 0.28, subMargin: 17.28 },
+      { scale: '5.000 clientes', infra: 0.10, subMargin: 17.46 }
+    ].map((r) => {
+      const infra = r.infra * P.infraK * P.seats;
+      const ia = P.ia * P.seats;
+      const cost = infra + ia + P.gw;
+      if (key === 'teste') {
+        return { scale: r.scale, wInfra: pct(infra), wIa: pct(ia), wGw: '0%', wMargin: pct(base - cost),
+          margin: 'custa ' + brl(cost) + ' por teste', pct: Math.floor(r.subMargin / cost) + ' testes', pctLabel: 'pagos por 1 assinante' };
+      }
+      const margin = P.price - cost;
+      return { scale: r.scale, wInfra: pct(infra), wIa: pct(ia), wGw: pct(P.gw), wMargin: pct(margin),
+        margin: 'sobra ' + brl(margin), pct: Math.round(margin / P.price * 100) + '%', pctLabel: 'de margem' };
+    });
+    const plans = [['teste', 'Teste grátis'], ['mensal', 'Dalva mensal'], ['anual', 'Dalva anual'], ['time', 'Dalva Time']].map(([k, label]) => {
+      const on = key === k;
+      return { label, bg: on ? '#FFFFFF' : 'transparent', fg: on ? '#11131F' : '#5E6272',
+        shadow: on ? '0 1px 3px rgba(0,0,0,0.10)' : 'none', pick: () => this.setState({ plan: k }) };
+    });
+    const light = { bg: '#FFFFFF', fg: '#11131F', kc: '#5E6272', bc: '#33364A' };
+    return {
+      chartTitle: P.title,
+      planNote: P.note,
+      plans,
+      rows,
+      stats: [
+        { label: 'Margem · Dalva', value: '76–91%', note: 'R$ 19,90 mensal ou R$ 200 por ano. Sobe com escala.' },
+        { label: 'Margem · Dalva Time', value: '65–85%', note: 'R$ 59,90 até 5 pessoas, no pior caso de uso.' },
+        { label: 'Custo de um teste', value: 'R$ 0,33–0,89', note: 'Um assinante paga de 16 a 52 testes grátis.' }
+      ],
+      legend: [
+        { c: '#11131F', t: 'Infraestrutura' },
+        { c: '#FF7A45', t: 'IA da Caçada' },
+        { c: '#4E628F', t: 'Gateway de pagamento' },
+        { c: '#E6E2DB', t: key === 'teste' ? 'Escala: R$ 19,90' : 'Sobra' }
+      ],
+      insights: [
+        { kicker: 'Dalva Time', title: 'Só compensa a partir de 4.', body: 'Três assinaturas avulsas dão R$ 59,70, R$ 0,20 a menos que o Time. Com 4 já compensa; com 5, sai R$ 11,98 por pessoa.', ...light },
+        { kicker: 'Teste grátis', title: 'Barato, se tiver trava.', body: 'Sem cartão, o risco é conta fake usando a busca. Limite por CNPJ ou por celular segura o custo.', ...light },
+        { kicker: 'Custo que pesa', title: 'Busca na web, não a IA.', body: 'Tokens de 100 enriquecimentos: ~R$ 0,23. Cada busca na web: US$ 0,01. Créditos por plano seguram isso.', ...light },
+        { kicker: 'Risco', title: 'LGPD na Caçada.', body: 'Dado de CNPJ público segue protegido, ainda mais de MEI. Pede legítimo interesse documentado e opt-out. Falar com advogado antes.', bg: '#11131F', fg: '#F7F5F2', kc: '#FF7A45', bc: '#D2D2D7' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
