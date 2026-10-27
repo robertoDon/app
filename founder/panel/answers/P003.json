@@ -1,0 +1,13 @@
+{
+  "id": "P003",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Nenhum plano. Talvez eu até teste os 7 dias porque não pede cartão, mas meu pipeline já vive na planilha/Notion e a prospecção eu faço no LinkedIn; não vejo motivo para migrar tudo para mais um app, e o preço não é o problema.",
+  "objection": "Planilha e LinkedIn já resolvem do meu jeito. Base de CNPJ me diz que a empresa existe, não quem decide nem se tem dor; e mais uma ferramenta para alimentar à noite, depois do dia cheio, vira abandono em duas semanas.",
+  "would_change_my_mind": "Se na busca grátis ela me trouxesse empresas certeiras com o contato do decisor e importasse minha planilha atual sem eu ter que redigitar nada, eu assinaria o Dalva Time para o time todo.",
+  "price_too_cheap": 9,
+  "price_cheap": 29,
+  "price_expensive": 99,
+  "price_too_expensive": 249
+}

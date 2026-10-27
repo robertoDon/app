@@ -1,0 +1,13 @@
+{
+  "id": "P016",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano. Meus clientes vêm de indicação e eu quase não prospecto a frio, então achar empresas na base de CNPJ não resolve meu problema; até testaria os 7 dias grátis por curiosidade, mas não vejo isso virar mais uma assinatura no cartão.",
+  "objection": "Uma marca nova que pode sumir amanhã, e eu colocaria ali meu pipeline e os dados dos meus clientes. Além disso, prospecção não é onde eu perco venda.",
+  "would_change_my_mind": "Se ela ajudasse a trabalhar indicações e a acompanhar a rede que eu já tenho (lembrar de quem pedir indicação, quando fazer follow-up), com exportação fácil dos dados caso a empresa feche.",
+  "price_too_cheap": 9,
+  "price_cheap": 19.9,
+  "price_expensive": 49,
+  "price_too_expensive": 99
+}

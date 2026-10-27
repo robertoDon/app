@@ -1,0 +1,13 @@
+{
+  "id": "P002",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum. Até testaria os 7 dias porque é grátis e sem cartão, mas meus clientes vêm de indicação e eu não tenho tempo de abordar empresa nenhuma, então uma lista de CNPJ ia ficar parada e eu cancelaria antes de pagar.",
+  "objection": "Mesmo com lista eu não teria tempo de abordar ninguém. Achar empresa não é meu gargalo, meu problema é tempo para vender, e o resto (pipeline, prioridades) eu já resolvo numa planilha ou no WhatsApp.",
+  "would_change_my_mind": "Se a Dalva me ajudasse a fazer a abordagem por mim, tipo já escrever e mandar a primeira mensagem ou organizar as indicações que eu recebo, aí os R$ 19,90 valeriam.",
+  "price_too_cheap": 5,
+  "price_cheap": 12,
+  "price_expensive": 30,
+  "price_too_expensive": 50
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P013",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano. Meus clientes vêm por indicação, quase não prospecto a frio, então achar empresas na base de CNPJ não resolve meu problema, e para o pipeline já uso um CRM grátis que dá conta.",
+  "objection": "Já uso um CRM grátis, para que pagar? O ponto forte da Dalva é prospecção, e prospecção não é como eu vendo hoje.",
+  "would_change_my_mind": "Se ela me ajudasse a puxar e acompanhar indicações da minha rede (lembrar de pedir indicação, avisar quem esfriou) e substituísse meu CRM grátis importando tudo dele.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 40,
+  "price_too_expensive": 80
+}

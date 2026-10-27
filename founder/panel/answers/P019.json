@@ -1,0 +1,13 @@
+{
+  "id": "P019",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Nenhum plano. Talvez eu até teste os 7 dias pela busca de CNPJ, mas meu pipeline já está no CRM gratuito com o time, e não vou manter dois lugares nem migrar tudo para um app novo de R$ 19,90.",
+  "objection": "Ter dois pipelines: o que a Dalva organiza não conversa com o CRM que já uso, e a busca por CNPJ não me diz quem decide nem se a empresa compra software; para isso eu já uso LinkedIn.",
+  "would_change_my_mind": "Se a Dalva jogasse as empresas e as 3 prioridades do dia direto no CRM que já uso (HubSpot ou Pipedrive), sem eu ter que trocar de ferramenta.",
+  "price_too_cheap": 9.9,
+  "price_cheap": 29.9,
+  "price_expensive": 99,
+  "price_too_expensive": 199
+}

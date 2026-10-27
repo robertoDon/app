@@ -1,0 +1,13 @@
+{
+  "id": "P014",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano. Até faria a busca grátis por curiosidade, mas meu produto não se vende só por prospecção ativa, e quando prospecto preciso achar a pessoa certa no LinkedIn, não uma lista de CNPJ. Pagar R$ 19,90 não é o problema, o problema é que não vejo isso mudando como eu fecho venda.",
+  "objection": "Base de CNPJ me dá razão social e endereço, não o decisor nem o contexto. Vou continuar indo no LinkedIn do mesmo jeito, então vira mais um app aberto que eu abandono em duas semanas.",
+  "would_change_my_mind": "Se nos 7 dias grátis a Dalva me trouxesse empresas que realmente encaixam no meu cliente ideal, com o decisor e um motivo concreto para falar com ele agora, e isso me fizesse marcar pelo menos uma reunião, eu assinaria o plano individual.",
+  "price_too_cheap": 9,
+  "price_cheap": 19.9,
+  "price_expensive": 79,
+  "price_too_expensive": 150
+}

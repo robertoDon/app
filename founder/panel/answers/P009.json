@@ -1,0 +1,13 @@
+{
+  "id": "P009",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano. Meus clientes vêm de indicação e da minha rede, quase não prospecto a frio, então a parte de achar empresa na base de CNPJ não resolve meu problema, e o pipeline eu já toco na planilha e no LinkedIn. Talvez eu até teste os 7 dias porque é grátis e sem cartão, mas não vejo motivo para continuar pagando.",
+  "objection": "Meu gargalo não é achar empresa nova, é dar conta do follow-up com quem já me indicaram. Uma ferramenta focada em lista de CNPJ não é para quem vende por indicação, e trocar minha planilha por mais um app é mais trabalho.",
+  "would_change_my_mind": "Se a Dalva puxasse sozinha os contatos e conversas que já tenho (LinkedIn, WhatsApp, e-mail) e me lembrasse de forma confiável quem da minha rede e das indicações eu preciso responder ou retomar hoje, sem eu ter que digitar nada.",
+  "price_too_cheap": 9,
+  "price_cheap": 19.9,
+  "price_expensive": 59.9,
+  "price_too_expensive": 120
+}

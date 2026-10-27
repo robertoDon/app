@@ -1,0 +1,13 @@
+{
+  "id": "P017",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Assinaria o Dalva individual, R$ 19,90: testo os 7 dias sem cartão e, se a busca na base de CNPJ me trouxer empresas reais que viram proposta à noite, pago, porque prospecção é exatamente o que eu não tenho tempo de fazer. O Time não faz sentido, somos no máximo dois.",
+  "objection": "Marca nova e barata demais pode sumir em seis meses levando meu pipeline junto; não sei onde ficam meus dados nem se consigo exportar tudo se eles fecharem.",
+  "would_change_my_mind": "Se a primeira busca grátis trouxer empresas genéricas ou desatualizadas, ou se não houver exportação clara dos meus dados, eu cancelo antes de pagar.",
+  "price_too_cheap": 9,
+  "price_cheap": 19.9,
+  "price_expensive": 49,
+  "price_too_expensive": 89
+}

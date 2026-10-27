@@ -1,0 +1,13 @@
+{
+  "id": "P020",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano. Meus clientes vêm de indicação e rede, então achar empresa na base de CNPJ para abordar a frio não resolve meu problema, e o pipeline eu já toco numa planilha. No máximo testo os 7 dias grátis por curiosidade, mas não vejo motivo para pagar depois.",
+  "objection": "Lista de CNPJ para prospectar a frio é exatamente o caminho para virar spam, ter dor de cabeça com LGPD e queimar minha marca num mercado onde todo mundo se conhece.",
+  "would_change_my_mind": "Se a Dalva trabalhasse em cima da minha rede e das indicações, me lembrando de quem pedir indicação e de quem fazer follow-up, com garantia clara de LGPD, aí eu pagaria o Dalva Time para o time.",
+  "price_too_cheap": 9,
+  "price_cheap": 19.9,
+  "price_expensive": 79,
+  "price_too_expensive": 150
+}

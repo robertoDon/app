@@ -1,0 +1,13 @@
+{
+  "id": "P001",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Nenhum plano. Eu até testaria os 7 dias grátis por curiosidade com a busca de CNPJ, mas já organizo tudo no HubSpot grátis, na planilha e no LinkedIn, e ainda sem receita não vou colocar mais uma assinatura no cartão para algo que já faço de graça.",
+  "objection": "Pipeline e lista de prioridades eu já tenho no CRM gratuito; o único diferencial é a busca na base de CNPJ, e não sei se ela traz empresas que realmente viram cliente ou só mais uma lista fria.",
+  "would_change_my_mind": "Se no teste grátis a busca de CNPJ me trouxesse leads que eu não acharia no LinkedIn e pelo menos uma reunião marcada, eu pagaria os R$ 19,90 do plano individual.",
+  "price_too_cheap": 5,
+  "price_cheap": 12,
+  "price_expensive": 29.9,
+  "price_too_expensive": 49.9
+}
