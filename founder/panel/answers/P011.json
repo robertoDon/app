@@ -1,0 +1,13 @@
+{
+  "id": "P011",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum. Meu produto não se vende por prospecção ativa: os clientes que tenho vieram por indicação e inbound, então uma lista de CNPJs não resolve meu gargalo. Talvez eu até teste os 7 dias porque é sem cartão, mas não vejo chegar ao dia 8 pagando.",
+  "objection": "Achar empresa na base de CNPJ não é meu problema. Já paguei por ferramenta de vendas que ficou parada, e um pipeline simples com 3 prioridades eu já resolvo com uma planilha ou com o CRM gratuito que uso.",
+  "would_change_my_mind": "Ver que a Dalva gera reunião ou venda real para uma startup B2B de tecnologia parecida com a minha, que não vive de prospecção fria, por exemplo puxando os leads que já chegam por inbound e me dizendo quem atacar primeiro.",
+  "price_too_cheap": 9,
+  "price_cheap": 19.9,
+  "price_expensive": 59.9,
+  "price_too_expensive": 120
+}

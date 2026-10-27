@@ -1,0 +1,13 @@
+{
+  "id": "P010",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Nenhum plano. Até faria a busca grátis por curiosidade, mas meu time já tem pipeline num CRM grátis que todo mundo usa, e mais uma ferramenta pra alimentar é exatamente o tipo de coisa que eu assino e cancelo no segundo mês.",
+  "objection": "Já uso um CRM grátis, para que pagar? Prioridades do dia e pipeline simples eu já tenho; a única coisa nova é a busca na base de CNPJ, e não sei se ela acha empresas boas de verdade ou só uma lista que eu mesma tiraria da Receita.",
+  "would_change_my_mind": "Se na busca grátis a Dalva me trouxesse uns 10 leads realmente bons no meu perfil de cliente e conseguisse puxar o que já está no meu CRM sem eu ter que migrar nada, eu assinaria o Dalva Time.",
+  "price_too_cheap": 9,
+  "price_cheap": 29,
+  "price_expensive": 99,
+  "price_too_expensive": 199
+}

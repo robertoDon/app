@@ -1,0 +1,13 @@
+{
+  "id": "P013",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano. Meu produto não se vende por prospecção ativa, então achar empresas na base de CNPJ não resolve meu gargalo, e pra pipeline eu já uso o HubSpot grátis, que me atende. Talvez eu teste os 7 dias por curiosidade, mas não vejo motivo pra pagar depois.",
+  "objection": "A parte principal é lista de empresas pra prospectar, e não é assim que eu vendo. Sem isso, sobra um pipeline simples que eu já tenho de graça.",
+  "would_change_my_mind": "Se as 3 prioridades do dia funcionassem em cima dos leads inbound e dos contatos que eu já tenho no HubSpot, sem eu ter que migrar nada, aí talvez valesse R$ 19,90.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 40,
+  "price_too_expensive": 80
+}

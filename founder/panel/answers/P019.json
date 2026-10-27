@@ -1,0 +1,13 @@
+{
+  "id": "P019",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Assinaria o plano Dalva, de R$ 19,90, só pra mim, porque o CRM grátis eu já tenho, mas o que me come as noites é garimpar empresa no LinkedIn, e achar empresa real na base de CNPJ a partir de uma frase pode me poupar horas. Testo os 7 dias sem cartão e só pago se a busca trouxer empresa que eu realmente abordaria.",
+  "objection": "Já uso um CRM grátis, então o pipeline não vale nada pra mim. Tenho medo de a busca por CNPJ trazer razão social e telefone desatualizado, sem o nome do decisor, e aí eu continuo indo pro LinkedIn do mesmo jeito.",
+  "would_change_my_mind": "Se na busca grátis vier lista genérica, com empresa fechada ou sem nenhum caminho pra falar com quem decide, eu cancelo antes de pagar.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 39,
+  "price_too_expensive": 69
+}
