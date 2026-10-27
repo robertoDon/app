@@ -23,3 +23,12 @@
 - Plano Time a R$ 59,90.
 - Teste fechado em novembro ou oferta paga já a R$ 19,90.
 - Projetos fica no produto mas sai da vitrine.
+
+## Hipótese de diferencial (Roberto, fundador)
+1. Visual e facilidade de adquirir
+2. UI
+3. Pacote completo, mesmo que pequeno, com o que as startups pequenas mais precisam
+4. Preço
+
+Como testar: preço e facilidade de adquirir (7 dias grátis, sem cartão) cabem no painel de compradores. Pacote completo cabe num terceiro pitch que mostre os 5 módulos como um conjunto. Visual e UI não cabem em texto: precisam de tela mostrada a pessoas reais.
+Leitura do painel (menções espontâneas nas respostas, A e B): preço citado por 69 e 77 de 100, teste grátis sem cartão por 97 e 93, mas isso vem do próprio pitch. Visual ou interface: 10 e 6. Pacote completo: 1 e 2.
