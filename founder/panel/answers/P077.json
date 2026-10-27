@@ -1,0 +1,13 @@
+{
+  "id": "P077",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Assinaria o Dalva individual, de R$ 19,90: o CRM grátis eu já tenho, mas achar empresa certa na base de CNPJ sem ficar horas no LinkedIn é o que me come tempo, e por esse preço testo sem pensar. O Time não faz sentido agora, porque quem prospecta sou eu.",
+  "objection": "Se for só mais um pipeline, não pago, meu CRM grátis já faz isso. Tenho medo de a busca trazer lista genérica de CNPJ, com empresa fechada ou sem contato de quem decide.",
+  "would_change_my_mind": "Se nos 7 dias a busca não me trouxer pelo menos algumas empresas que eu realmente abordaria, eu cancelo.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 79,
+  "price_too_expensive": 150
+}

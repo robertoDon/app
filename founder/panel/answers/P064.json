@@ -1,0 +1,13 @@
+{
+  "id": "P064",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Nenhum plano. Já tenho meu pipeline no CRM grátis e acho cliente no LinkedIn e na planilha; até testaria os 7 dias, mas pagar mais uma assinatura pra trocar de ferramenta sem receita recorrente não faz sentido agora.",
+  "objection": "Mais um app pra alimentar à noite, e não sei se a busca de CNPJ traz empresa que realmente compra ou só lista um monte de nome que eu já acho no LinkedIn.",
+  "would_change_my_mind": "Se a busca grátis me devolvesse uns leads bons que eu não acharia sozinho e desse pra importar meu pipeline do CRM atual sem retrabalho, eu pagaria os R$ 19,90.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 39,
+  "price_too_expensive": 69
+}

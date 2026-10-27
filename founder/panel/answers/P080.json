@@ -1,0 +1,13 @@
+{
+  "id": "P080",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Assinaria o Dalva individual, porque sou eu quem prospecta e faz as demos à noite; o CRM grátis organiza, mas não me acha cliente novo, e R$ 19,90 é troco se a busca no CNPJ me trouxer uma lista boa no teste grátis. O Time não faz sentido agora, o resto do time não vende.",
+  "objection": "Medo de LGPD: se eu abordar empresa tirada da base de CNPJ sem cuidado, posso parecer spammer e queimar minha marca. Também não quero mais um pipeline duplicando o que já tenho no CRM.",
+  "would_change_my_mind": "Se no teste a lista vier com empresas genéricas ou dados desatualizados, ou se não der para exportar/integrar com meu CRM atual, eu cancelo antes de pagar.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 49,
+  "price_too_expensive": 99
+}

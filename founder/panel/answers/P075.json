@@ -1,0 +1,13 @@
+{
+  "id": "P075",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Nenhum plano. Talvez eu teste os 7 dias porque não pede cartão, mas já organizo tudo no RD Station CRM grátis e não vou passar meus clientes e meu pipeline para uma marca que nunca ouvi falar e que pode sumir daqui a seis meses.",
+  "objection": "Uma marca nova pode sumir; vou colocar meus dados de clientes nela? E se fechar, como eu tiro tudo de lá? Mais uma assinatura no cartão sem eu ter receita recorrente também pesa.",
+  "would_change_my_mind": "Se a busca de empresas por CNPJ grátis me trouxesse leads bons de verdade que meu CRM grátis não acha, e eu visse que dá para exportar tudo e quem está por trás da empresa.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 30,
+  "price_too_expensive": 50
+}

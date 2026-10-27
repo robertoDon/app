@@ -1,0 +1,13 @@
+{
+  "id": "P093",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano. Meus clientes vêm de indicação e da minha rede, quase nunca prospecto a frio, então uma ferramenta que acha empresas no CNPJ resolve um problema que eu não tenho. Até testaria os 7 dias grátis por curiosidade, mas não pagaria depois.",
+  "objection": "Meu produto não se vende por prospecção ativa. Se eu não vou ligar nem mandar mensagem pra empresa desconhecida, lista de CNPJ não me serve, e pipeline e prioridades do dia eu já resolvo com uma planilha ou o Notion.",
+  "would_change_my_mind": "Se a Dalva me mostrasse, a partir da minha rede e das indicações que já tenho, quem vale a pena procurar de novo e quando, e não só empresas frias do CNPJ.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 40,
+  "price_too_expensive": 80
+}

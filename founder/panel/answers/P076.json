@@ -1,0 +1,13 @@
+{
+  "id": "P076",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Eu testaria os 7 dias grátis com certeza, e se a busca por CNPJ me trouxer empresas reais que batem com meu cliente ideal, assino a Dalva de R$ 19,90, porque estou sem receita e preciso achar cliente. O Dalva Time não faz sentido, somos só eu e meu sócio e um plano basta.",
+  "objection": "Tenho medo de que esses dados de CNPJ me levem a sair abordando gente que não pediu contato, virar spam, ter problema com LGPD e queimar minha marca logo no começo. E também que as 3 prioridades do dia sejam genéricas, coisa que eu mesmo já sei.",
+  "would_change_my_mind": "Se na primeira busca grátis vierem empresas desatualizadas ou que não têm nada a ver com o que descrevi, eu cancelo na hora e não pago nada.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 49,
+  "price_too_expensive": 89
+}

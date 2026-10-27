@@ -1,0 +1,13 @@
+{
+  "id": "P063",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Assinaria a Dalva de R$ 19,90, sozinho, depois de testar os 7 dias grátis: meu CRM grátis organiza o que já tenho, mas não me acha cliente novo, e sem receita o que eu mais preciso é lista de empresa para abordar. A Dalva Time não faz sentido, somos eu e no máximo um sócio.",
+  "objection": "Já uso CRM grátis e planilha, então só pago se a busca na base de CNPJ trouxer empresas que realmente servem e com contato útil. Se for só lista genérica de CNPJ, cancelo no sétimo dia.",
+  "would_change_my_mind": "Se na busca grátis as empresas vierem desatualizadas ou sem contato que eu consiga usar no WhatsApp, eu não assino.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 39.9,
+  "price_too_expensive": 69.9
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P078",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum. Nossos clientes chegam por indicação e rede, quase não prospectamos a frio, então achar empresas na base de CNPJ não resolve nosso gargalo, e o pipeline eu já tenho no CRM grátis.",
+  "objection": "Já uso um CRM grátis e a maior parte da nossa venda vem de indicação; não vejo o que a Dalva faz que justifique mais uma ferramenta pro time aprender.",
+  "would_change_my_mind": "Se ela integrasse com o CRM que já uso e ajudasse a gerar e acompanhar indicações da minha rede, e não só lista fria de CNPJ.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 60,
+  "price_too_expensive": 120
+}

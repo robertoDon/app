@@ -1,0 +1,13 @@
+{
+  "id": "P068",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano. Meus clientes vêm de indicação, não fico caçando empresa em base de CNPJ, e meu pipeline cabe numa planilha. Até testaria os 7 dias grátis por curiosidade, mas não vejo motivo pra colocar mais uma assinatura no cartão.",
+  "objection": "Achar empresa pela base de CNPJ cheira a prospecção fria. Tenho medo de virar spam, ter problema com LGPD e queimar meu nome justo com a rede que me indica.",
+  "would_change_my_mind": "Se ela me ajudasse a acompanhar e pedir indicações da minha própria rede, com lembretes de follow-up, sem empurrar disparo pra lista fria.",
+  "price_too_cheap": 5,
+  "price_cheap": 12,
+  "price_expensive": 29.9,
+  "price_too_expensive": 49.9
+}

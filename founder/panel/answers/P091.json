@@ -1,0 +1,13 @@
+{
+  "id": "P091",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Nenhum plano. Eu já organizo as vendas no Pipedrive grátis e prospecto no LinkedIn, e mudar de ferramenta dá trabalho. R$ 19,90 não pesa, mas eu teria que migrar meu pipeline só por causa de uma lista de empresas e três prioridades.",
+  "objection": "Não sei se a base de CNPJ me traz empresas que realmente compram, com contato de gente que decide. Se for só lista de CNPJ, o LinkedIn e minha planilha já fazem isso. Também não quero manter dois pipelines.",
+  "would_change_my_mind": "Ver na primeira busca grátis empresas e contatos que servem de verdade para o meu cliente, e conseguir importar meu pipeline do Pipedrive sem refazer tudo.",
+  "price_too_cheap": 5,
+  "price_cheap": 19.9,
+  "price_expensive": 59,
+  "price_too_expensive": 120
+}

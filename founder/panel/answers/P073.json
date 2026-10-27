@@ -1,0 +1,13 @@
+{
+  "id": "P073",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano. Meus clientes vêm de indicação e da minha rede, quase não prospecto a frio, então achar empresa na base de CNPJ não resolve meu problema; até testaria os 7 dias grátis por curiosidade, mas planilha e LinkedIn já dão conta do meu pipeline.",
+  "objection": "Minha venda é por relacionamento, não por lista de empresas. Uma ferramenta de busca de CNPJ e prioridades do dia parece feita para quem faz outbound, e eu não faço.",
+  "would_change_my_mind": "Se ela me ajudasse a acompanhar indicações e contatos da minha rede, tipo lembrar quem me indicou quem e quando fazer follow-up, puxando do LinkedIn sem eu digitar nada.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 49,
+  "price_too_expensive": 99
+}

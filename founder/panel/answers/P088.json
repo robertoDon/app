@@ -1,0 +1,13 @@
+{
+  "id": "P088",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Nenhum. Já uso um CRM grátis e pago poucas assinaturas que reviso todo mês. Testar 7 dias sem cartão eu até faria, mas só assinaria se a busca por CNPJ me desse leads melhores do que eu já consigo achar sozinha.",
+  "objection": "Já uso um CRM grátis, para que pagar? Já paguei por ferramenta que não usei, e não sei se a base de CNPJ traz empresas que realmente compram de mim.",
+  "would_change_my_mind": "Ver, na busca grátis, uma lista de empresas reais que eu não teria achado sozinha e que são claramente o meu cliente, com fonte e data conferíveis. Se isso me render uma conversa de venda no trial, eu pagaria o plano de R$ 19,90.",
+  "price_too_cheap": 5,
+  "price_cheap": 12,
+  "price_expensive": 25,
+  "price_too_expensive": 40
+}

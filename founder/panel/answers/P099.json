@@ -1,0 +1,13 @@
+{
+  "id": "P099",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Meus clientes vêm de indicação e eu quase não prospecto a frio, então uma busca de empresas por CNPJ resolve um problema que eu pouco tenho. Já uso um CRM grátis e corto assinatura que não uso todo mês quando reviso o cartão.",
+  "objection": "Já uso um CRM grátis, para que pagar? E se eu quase não prospecto a frio, a busca de empresas fica parada e eu pago por algo que não uso.",
+  "would_change_my_mind": "Ver que a Dalva me traz clientes que eu não conseguiria por indicação, por exemplo uma primeira busca grátis que já me mostre empresas com cara de cliente de verdade, a ponto de eu passar a prospectar.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 35,
+  "price_too_expensive": 60
+}

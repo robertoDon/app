@@ -1,0 +1,13 @@
+{
+  "id": "P074",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Eu testo os 7 dias sem pensar, é sem cartão. Se a busca por CNPJ me trouxer empresas que batem com meu cliente ideal e as 3 prioridades da manhã forem úteis de verdade, assino a Dalva de R$ 19,90, só pra mim, porque quem vende na startup sou eu; o Time só faria sentido se meu sócio também começasse a prospectar.",
+  "objection": "Ter uma lista de empresas é fácil, o difícil é abordar sem virar spam e sem me complicar com LGPD. Se a Dalva me empurrar a sair disparando mensagem pra todo mundo da base de CNPJ, eu queimo minha marca, e não está claro como ela trata esses dados.",
+  "would_change_my_mind": "Se na busca grátis vierem empresas genéricas ou desatualizadas, ou se não ficar claro de onde vêm os dados e como eles ficam dentro da LGPD, eu cancelo antes dos 7 dias.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 49,
+  "price_too_expensive": 99
+}

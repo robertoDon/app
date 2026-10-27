@@ -1,0 +1,13 @@
+{
+  "id": "P070",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Assinaria o Dalva individual, de R$ 19,90, depois de testar os 7 dias grátis, porque hoje eu perco horas fuçando empresa no LinkedIn à noite e, se ela me entregar a lista com CNPJ e as 3 prioridades do dia, isso economiza um tempo que eu não tenho. O Time não faz sentido, somos só eu e às vezes meu sócio.",
+  "objection": "Mesmo com a lista pronta eu não sei se vou ter tempo de abordar alguém; tenho medo de virar mais um app que eu abro dois dias e esqueço, e de a base de CNPJ trazer empresa que não tem nada a ver com meu cliente ideal.",
+  "would_change_my_mind": "Se nos 7 dias grátis as empresas que ela achar forem genéricas ou sem contato útil, eu cancelo e não pago nada.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 49,
+  "price_too_expensive": 99
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P072",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum. Já organizo o pipeline no CRM gratuito, e o meu gargalo não é achar empresa, é ter tempo para abordar. Uma lista a mais de CNPJ só vira mais uma coisa parada, então no máximo eu testaria os 7 dias grátis e deixaria passar.",
+  "objection": "Mesmo com a lista pronta eu não teria tempo de abordar ninguém, e não quero trocar o CRM que já uso nem pagar mais uma assinatura que aparece no cartão todo mês.",
+  "would_change_my_mind": "Se a Dalva escrevesse e mandasse o primeiro contato por mim, ou se integrasse com o CRM que já uso, para eu só responder quem demonstrou interesse.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 50,
+  "price_too_expensive": 100
+}
