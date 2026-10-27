@@ -1,0 +1,226 @@
+{
+ "business": "Dalva (assistente comercial para startups de tecnologia)",
+ "seed": 7,
+ "dealt": 100,
+ "answered": 100,
+ "skipped": [],
+ "buys": 52,
+ "passes": 48,
+ "buy_rate": 0.52,
+ "by_segment": [
+  [
+   "Startup de 3 a 5 pessoas, já vende para alguns clientes",
+   40,
+   0.6
+  ],
+  [
+   "Startup de 6 a 10 pessoas, com alguém que faz vendas junto com outras funções",
+   20,
+   0.55
+  ],
+  [
+   "Fundador solo ou dupla (1 a 2 pessoas), ainda sem receita recorrente",
+   40,
+   0.425
+  ]
+ ],
+ "by_behaviour": [
+  [
+   "Curioso por IA",
+   10,
+   0.8
+  ],
+  [
+   "Planilha e WhatsApp",
+   20,
+   0.75
+  ],
+  [
+   "Prospecta a frio",
+   15,
+   0.6
+  ],
+  [
+   "Vende por indicação",
+   20,
+   0.45
+  ],
+  [
+   "Já usa CRM gratuito",
+   20,
+   0.35
+  ],
+  [
+   "Cético com ferramentas novas",
+   15,
+   0.26666666666666666
+  ]
+ ],
+ "by_income": [
+  [
+   "$201,000 and up",
+   34,
+   0.5882352941176471
+  ],
+  [
+   "$83,000 to $201,000",
+   33,
+   0.5151515151515151
+  ],
+  [
+   "under $83,000",
+   33,
+   0.45454545454545453
+  ]
+ ],
+ "why_not": [
+  [
+   "need",
+   21,
+   [
+    "Nenhum plano. Meus clientes vêm por indicação e eu tenho poucos leads por vez, dá para controlar no WhatsApp e numa planilha. Até testaria os 7 dias de graça, mas não vejo motivo para pagar depois.",
+    "Nenhum. O forte da Dalva é organizar lead que já chega, e eu hoje vivo de prospecção a frio, quase sem inbound. A Caçada até me interessa, mas mesmo com lista eu não teria tempo de abordar ninguém. Talvez eu testasse os 7 dias grátis, mas não ia pagar depois."
+   ],
+   [
+    "P002",
+    "P007"
+   ]
+  ],
+  [
+   "habit",
+   15,
+   [
+    "Nenhum. Já uso o HubSpot grátis e uma planilha, e o que ela promete (quem responder primeiro, follow-up pronto) eu resolvo olhando minha lista de manhã. Pago poucas assinaturas e reviso o cartão todo mês, então não vou somar mais uma por algo que meu jeito atual já cobre.",
+    "Nenhum plano por enquanto. Eu controlo tudo em planilha e Notion e falo com cliente pelo WhatsApp, e isso resolve do meu jeito. Talvez eu abra o teste grátis por curiosidade, mas não vou mudar minha rotina por causa disso."
+   ],
+   [
+    "P001",
+    "P003"
+   ]
+  ],
+  [
+   "trust",
+   10,
+   [
+    "Nenhum plano. Eu vendo por indicação, então a Caçada de prospecção fria quase não me serve, e o resto eu já faço no HubSpot e na cabeça. Para ligar o CRM e dar meus leads a uma marca nova que pode sumir, eu precisaria de mais motivo.",
+    "Nenhum plano. Já organizo tudo no HubSpot grátis e não vou ligar o CRM com os dados dos meus leads a uma marca que acabei de ver num anúncio e que pode sumir em seis meses. R$ 19,90 é barato, mas o problema não é o preço, é pôr meus dados nela."
+   ],
+   [
+    "P016",
+    "P027"
+   ]
+  ],
+  [
+   "timing",
+   2,
+   [
+    "Nenhum plano. Eu já pago por ferramenta que não uso, e meu problema não é lista de leads, é tempo: faço demo e proposta à noite depois de entregar o trabalho do dia. Mais uma ferramenta para abrir de manhã não resolve isso.",
+    "Nenhum plano. Os R$ 19,90 não pesam, mas meu problema é tempo, não falta de lista: mesmo com mensagem pronta eu não teria tempo de abordar ninguém. Já paguei por ferramenta que não usei, então não assino só porque é barato."
+   ],
+   [
+    "P012",
+    "P030"
+   ]
+  ]
+ ],
+ "why_yes": [
+  [
+   "price",
+   28,
+   [
+    "Assinaria o plano Dalva (R$ 19,90), só depois de testar nos 7 dias grátis sem cartão. Por esse preço o risco é baixo, e se ela me mostrar de manhã qual proposta está parada e já deixar o follow-up pronto, economizo o tempo das minhas noites. Mas não pago sem ver isso funcionando com meus leads de verdade.",
+    "Eu assinaria o plano Dalva (R$ 19,90), não o Time. A parte da Caçada não me interessa, meu produto não se vende por prospecção ativa, mas o resumo da manhã com follow-up pronto para os leads inbound me serve, porque eu faço proposta à noite e deixo lead esfriar. Por R$ 19,90, sem cartão e cancelando num toque, o risco é quase zero."
+   ],
+   [
+    "P006",
+    "P008"
+   ]
+  ],
+  [
+   "convenience",
+   13,
+   [
+    "Assinaria o Dalva de R$ 19,90, só depois de testar nos 7 dias sem cartão. Abro o celular de manhã para ver o que fazer, e se ele me mostrar qual lead ou proposta está esfriando com o follow-up pronto, isso me poupa tempo. É barato o bastante para não doer se eu cancelar.",
+    "Assinaria o plano Dalva (R$ 19,90). É barato, testo 7 dias sem cartão no celular e, se me mostrar de manhã qual lead responder e qual proposta está parada, já me poupa tempo. Não é o que resolve minha prospecção, mas o follow-up eu perco mesmo."
+   ],
+   [
+    "P011",
+    "P014"
+   ]
+  ],
+  [
+   "need",
+   10,
+   [
+    "Assinaria o plano Dalva, de R$ 19,90. Perco tempo demais prospectando no LinkedIn, e a Caçada com CNPJ, fonte e data me interessa. Como o teste é grátis, sem cartão e cancela em um toque, o risco é baixo, mas só pago depois dos 7 dias se a lista vier boa de verdade.",
+    "Assinaria o plano Dalva (R$ 19,90). Eu já uso CRM grátis e vivo esquecendo proposta parada, então ver de manhã no celular quem responder primeiro com o follow-up pronto me poupa tempo, e por esse preço e sem cartão o risco é baixo."
+   ],
+   [
+    "P010",
+    "P022"
+   ]
+  ],
+  [
+   "trust",
+   1,
+   [
+    "Assinaria o plano Dalva (R$ 19,90), não o Time. Como são 7 dias grátis sem cartão, testo sem risco, e se ela me mostrar de manhã quem responder e a mensagem pronta, R$ 19,90 é pouco para o que resolve. Só pago depois de ver isso funcionando com os meus leads."
+   ],
+   [
+    "P005"
+   ]
+  ]
+ ],
+ "flip": [
+  "Ver, no teste grátis, ela apontar na minha própria base um lead esfriando ou uma proposta parada que eu tinha esquecido, com mensagem boa o suficiente para mandar quase sem editar.",
+  "Ver que ela me faz fechar mais indicações ou lembra sozinha de cobrar propostas paradas direto no WhatsApp, sem eu configurar nada, e provar isso nos 7 dias.",
+  "Ver, no teste grátis, a Dalva importar minha planilha atual e me entregar em poucos minutos uma lista de prioridades e follow-ups com a minha cara, pronta para mandar pelo WhatsApp.",
+  "Ver a Dalva rodando com uma planilha minha no teste de 7 dias, sem cartão, e já na primeira manhã me mostrar um lead esfriando ou uma proposta parada que eu tinha esquecido, com uma mensagem que eu mandaria sem editar.",
+  "Se a Caçada também escrevesse e enviasse as primeiras mensagens de abordagem por mim, com pouco esforço da minha parte, e eu visse resposta real na primeira semana.",
+  "Ver, no meu próprio CRM ou planilha durante o teste grátis, ela apontar uma proposta parada ou um lead esfriando que eu tinha esquecido.",
+  "Ver, no teste grátis, a Dalva me dizer em poucos minutos quem responder e entregar a mensagem pronta já usando meus dados reais, sem eu configurar nada, e isso render uma resposta de cliente de verdade na primeira semana.",
+  "Ver, no teste grátis, ela achar sozinha uma proposta parada ou um lead esfriando que eu tinha esquecido, com a mensagem de follow-up pronta e boa o bastante para mandar sem reescrever.",
+  "Ver nos 7 dias, com os meus dados, ela apontando um lead esfriando ou uma proposta parada que eu tinha esquecido, e a mensagem pronta já sair boa o bastante para eu mandar sem reescrever.",
+  "Ver um colega fundador que eu conheço usando há meses, ou uma garantia clara de que meus dados do CRM são só leitura e posso apagar tudo em um clique.",
+  "Ver, nos 7 dias grátis, a Dalva apontando com meus próprios leads uma proposta parada que eu tinha esquecido e a mensagem pronta soando como eu escrevo.",
+  "Ver a Caçada achando em poucos minutos empresas do meu perfil, com contato de decisor, de forma que me poupe horas de LinkedIn por semana.",
+  "Se eu já tivesse um volume de leads que não consigo acompanhar sozinho, ou se visse a Dalva funcionando com o meu HubSpot ou a minha planilha nos 7 dias grátis e ela me avisasse de uma proposta que eu tinha esquecido.",
+  "Se a Caçada também escrevesse e enviasse as abordagens a frio por mim, ou se eu visse que ela já traz leads qualificados com mensagem pronta que eu só aprovo em um minuto por dia.",
+  "Ver gente real do meu tamanho usando há meses, saber onde os dados ficam e que eu posso exportar tudo e desconectar fácil, e um acesso só de leitura ao CRM. Se eu testar nos 7 dias grátis e o follow-up pronto já sair bom com os meus leads, eu reconsidero o Dalva.",
+  "Ver no trial a Dalva apontando, com os meus próprios leads, uma proposta parada ou um lead esfriando que eu tinha esquecido, com a mensagem de follow-up já boa o bastante para mandar sem reescrever.",
+  "Ver nos 7 dias grátis, com os meus leads reais do CRM, que ela me poupa tempo de verdade e que eu fecho pelo menos uma proposta que estava parada.",
+  "Ver, nos 7 dias grátis, a Caçada trazendo empresas do meu perfil com o contato do decisor, me poupando horas de LinkedIn, e saber que está incluída no plano de R$ 19,90.",
+  "Ver, no teste grátis, a Dalva ligada ao meu HubSpot apontando uma proposta parada que eu tinha esquecido, com um follow-up bom o bastante para eu mandar sem reescrever. Se isso me fizer fechar um cliente que eu perderia, eu pago os R$ 19,90.",
+  "Ver no teste de 7 dias, com os meus próprios leads, ela apontar uma proposta parada ou um lead esfriando que eu tinha esquecido, e esse follow-up virar resposta de cliente de verdade.",
+  "Ver que ela lê e responde as conversas do WhatsApp e já me entrega a mensagem pronta lá, e que nos 7 dias grátis ela me mostre pelo menos um lead esfriando que eu tinha esquecido.",
+  "Ver, nos primeiros dias do teste com os meus próprios dados, ela apontar um lead esfriando ou uma proposta parada que eu tinha esquecido, com uma mensagem que eu mandaria quase sem editar.",
+  "Ver no teste grátis, com os meus próprios leads, que ela me faz fechar pelo menos um cliente a mais, e ter clareza de como meus dados são protegidos e como exporto/apago tudo se a empresa fechar.",
+  "Testar nos 7 dias com os meus próprios leads e ver a Dalva apontar corretamente quem responder primeiro, e a Caçada trazer empresas do meu perfil de cliente com fonte e data verificáveis.",
+  "Ver a Dalva escrevendo e enviando os follow-ups sozinha, sem eu precisar revisar nada, e provar nos 7 dias que ela me fez fechar uma venda que eu teria perdido.",
+  "Ver, antes de pagar, uma lista de exemplo para o meu nicho com fonte e data de cada empresa, e a Dalva apontando corretamente leads parados do meu próprio CRM durante o teste de 7 dias.",
+  "Ver, no teste grátis com a minha própria planilha, ela apontar uma proposta parada ou um lead esfriando que eu tinha esquecido; se isso acontecer uma vez, eu assino o plano de R$ 19,90.",
+  "Ver, dentro do teste grátis, uma lista real de empresas do meu perfil de cliente, com fonte e data, e que pelo menos metade delas fosse atual e fizesse sentido para mim.",
+  "Ver quem faz a Dalva e como ela trata os dados (acesso só de leitura ao CRM, exportação fácil, exclusão dos dados), e um teste de 7 dias em que ela ache um lead esfriando de verdade na minha base.",
+  "Ver na tarefa de teste de 7 dias, com os meus próprios dados, que ela me mostrou uma proposta parada ou um lead esfriando que eu tinha esquecido, e que a mensagem de follow-up chegou boa o bastante para mandar quase sem editar.",
+  "Ver, no teste grátis, ela ler minha planilha de verdade e acertar quem eu devia responder primeiro, com a mensagem de follow-up pronta para eu mandar pelo WhatsApp sem eu ter que configurar nada.",
+  "Ver nos 7 dias grátis ela apontar um lead esfriando ou uma proposta parada que eu tinha esquecido e que viraria resposta de verdade, com a mensagem pronta me poupando tempo de fato. Ter certeza de que cancela em um toque e de que não cobra sem aviso.",
+  "Ver, no meu próprio HubSpot ou Pipedrive durante o teste grátis, uma proposta parada ou um lead esfriando que eu tinha esquecido, com um follow-up bom o bastante para eu mandar quase sem editar. Se isso acontecesse na primeira semana, eu assinaria o plano Dalva.",
+  "Ver que ela só mexe nos leads que já são meus, sem mandar nada sozinha, com explicação clara de LGPD e de onde ficam meus dados, e ter prova de que lembrou de uma proposta parada que eu teria perdido.",
+  "Ver nos 7 dias grátis que ela me poupa tempo de verdade, por exemplo mandando o follow-up sozinha depois da minha aprovação em um toque, e que a Caçada traz empresas com CNPJ que realmente respondem.",
+  "Se a Caçada trouxesse o decisor com contato e a mensagem de abordagem pronta, de modo que eu só precisasse revisar e enviar em poucos minutos.",
+  "Ver, no meu próprio CRM durante o teste, que ela me poupa mais de uma hora por semana e que os follow-ups saem prontos para mandar sem eu editar. Só assinaria se isso ficasse claro nos 7 dias grátis.",
+  "Ver, num teste dos 7 dias com a minha própria planilha, ela achar uma proposta esquecida ou um lead esfriando que eu tinha deixado passar, e o follow-up sair pronto com o meu jeito de escrever.",
+  "Ver quem está por trás, como os dados são protegidos (LGPD) e poder exportar tudo e desconectar fácil; e uma semana de teste em que a lista da manhã e as mensagens de follow-up realmente me façam fechar uma venda.",
+  "Ver no teste de 7 dias a Dalva achar uma proposta parada ou um lead esfriando que eu tinha esquecido, com a mensagem pronta e boa, e ter certeza de como meus dados do CRM são tratados.",
+  "Ver, no teste grátis com meus próprios dados, ela apontar um lead esfriando ou uma proposta parada que eu tinha esquecido, e isso virar uma resposta que eu realmente envie.",
+  "Ver que ela manda o follow-up direto pelo WhatsApp, sem eu copiar e colar, e que já me mostra de cara, importando minha planilha, uma proposta parada que eu tinha esquecido.",
+  "Ver, no teste grátis, ela achar numa semana um lead esfriando ou uma proposta parada que eu tinha esquecido, com mensagem pronta que eu mandaria quase sem mexer.",
+  "Ver, nos 7 dias de teste com os meus próprios dados, ela apontar um lead esfriando ou uma proposta parada que eu tinha esquecido, e o follow-up pronto me poupar tempo de verdade.",
+  "Ver nos 7 dias, com os meus próprios leads, ela apontando uma proposta parada que eu tinha esquecido, com mensagem que eu mandaria sem reescrever. Aí eu assinaria o plano Dalva.",
+  "Ver que ela funciona com indicação que chega por WhatsApp, sem eu ter que montar CRM ou planilha, e que me lembra de quem indicou e quem sumiu.",
+  "Ver, nos 7 dias grátis, a Dalva ligada ao meu HubSpot me mostrando de manhã uma lista de leads e propostas paradas que eu realmente tinha esquecido, com mensagens boas o bastante para mandar quase sem editar.",
+  "Ver, no teste grátis com a minha própria planilha, ela achar uma proposta parada ou um lead esfriando que eu tinha esquecido de verdade, a ponto de me fazer fechar uma venda."
+ ],
+ "purchases_first_month_per_buyer": 1.0,
+ "price_answers": 100
+}
