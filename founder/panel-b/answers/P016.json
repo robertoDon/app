@@ -1,0 +1,13 @@
+{
+  "id": "P016",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Nenhum plano. Eu vendo por indicação, então a Caçada de prospecção fria quase não me serve, e o resto eu já faço no HubSpot e na cabeça. Para ligar o CRM e dar meus leads a uma marca nova que pode sumir, eu precisaria de mais motivo.",
+  "objection": "Uma marca nova pode sumir; vou colocar os dados dos meus clientes e das indicações nela? E eu já sei quem responder primeiro, não sinto essa dor.",
+  "would_change_my_mind": "Ver um colega fundador que eu conheço usando há meses, ou uma garantia clara de que meus dados do CRM são só leitura e posso apagar tudo em um clique.",
+  "price_too_cheap": 7,
+  "price_cheap": 15,
+  "price_expensive": 40,
+  "price_too_expensive": 80
+}

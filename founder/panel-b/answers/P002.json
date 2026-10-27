@@ -1,0 +1,13 @@
+{
+  "id": "P002",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano. Meus clientes vêm por indicação e eu tenho poucos leads por vez, dá para controlar no WhatsApp e numa planilha. Até testaria os 7 dias de graça, mas não vejo motivo para pagar depois.",
+  "objection": "Mesmo com lista eu não teria tempo de abordar ninguém, e com tão poucos leads entrando eu não preciso de um assistente para dizer quem responder primeiro. É mais uma ferramenta para abrir.",
+  "would_change_my_mind": "Ver que ela me faz fechar mais indicações ou lembra sozinha de cobrar propostas paradas direto no WhatsApp, sem eu configurar nada, e provar isso nos 7 dias.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 40,
+  "price_too_expensive": 80
+}

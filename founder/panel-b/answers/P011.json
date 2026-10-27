@@ -1,0 +1,13 @@
+{
+  "id": "P011",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "convenience",
+  "reason": "Assinaria o Dalva de R$ 19,90, só depois de testar nos 7 dias sem cartão. Abro o celular de manhã para ver o que fazer, e se ele me mostrar qual lead ou proposta está esfriando com o follow-up pronto, isso me poupa tempo. É barato o bastante para não doer se eu cancelar.",
+  "objection": "Meus clientes vêm de indicação, então tenho poucos leads, e uma planilha já resolve boa parte. Tenho medo de a ferramenta mandar mensagem errada em nome da minha marca, ou de a Caçada me levar a spam e problema de LGPD. Só uso se eu revisar tudo antes de enviar.",
+  "would_change_my_mind": "Ver deixando claro que nada é enviado sem eu aprovar, como a Caçada trata LGPD e consentimento, e que ela funciona de verdade com meu HubSpot ou minha planilha sem bagunçar os dados.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 40,
+  "price_too_expensive": 80
+}

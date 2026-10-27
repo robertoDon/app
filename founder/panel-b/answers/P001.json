@@ -1,0 +1,13 @@
+{
+  "id": "P001",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Nenhum. Já uso o HubSpot grátis e uma planilha, e o que ela promete (quem responder primeiro, follow-up pronto) eu resolvo olhando minha lista de manhã. Pago poucas assinaturas e reviso o cartão todo mês, então não vou somar mais uma por algo que meu jeito atual já cobre.",
+  "objection": "Não vejo o que ela faz que o meu CRM grátis com planilha não faça. Tenho poucos leads por semana, então priorização automática não pesa tanto, e não sei se a mensagem pronta soa como eu ou como robô.",
+  "would_change_my_mind": "Ver, no teste grátis, ela apontar na minha própria base um lead esfriando ou uma proposta parada que eu tinha esquecido, com mensagem boa o suficiente para mandar quase sem editar.",
+  "price_too_cheap": 5,
+  "price_cheap": 12,
+  "price_expensive": 30,
+  "price_too_expensive": 50
+}

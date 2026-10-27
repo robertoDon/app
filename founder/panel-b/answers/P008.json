@@ -1,0 +1,13 @@
+{
+  "id": "P008",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "price",
+  "reason": "Eu assinaria o plano Dalva (R$ 19,90), não o Time. A parte da Caçada não me interessa, meu produto não se vende por prospecção ativa, mas o resumo da manhã com follow-up pronto para os leads inbound me serve, porque eu faço proposta à noite e deixo lead esfriar. Por R$ 19,90, sem cartão e cancelando num toque, o risco é quase zero.",
+  "objection": "Já tenho HubSpot grátis e não sei se a Dalva faz algo que eu não consiga fazer sozinho com uma boa rotina. Também tenho medo de ser só mais um app que eu abro duas vezes e esqueço, e de a mensagem pronta soar genérica.",
+  "would_change_my_mind": "Ver, dentro dos 7 dias, a lista da manhã com meus leads reais do HubSpot e um follow-up que eu mandaria sem reescrever. Se ficasse genérico ou eu tivesse que configurar muita coisa, eu cancelaria.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 49,
+  "price_too_expensive": 120
+}

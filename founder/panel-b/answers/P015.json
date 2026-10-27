@@ -1,0 +1,13 @@
+{
+  "id": "P015",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano por enquanto. Já uso um CRM grátis e não sinto falta de mais uma ferramenta; testar os 7 dias eu até testaria, mas só assinaria o Dalva se ele provasse que me faz responder lead que eu perderia.",
+  "objection": "Já uso um CRM grátis, para que pagar? Já paguei por ferramenta que não usei, e não sei se a Dalva acha lead e sugere follow-up melhor do que eu mesmo olhando minha lista de manhã.",
+  "would_change_my_mind": "Ver nos 7 dias, com os meus dados, ela apontando um lead esfriando ou uma proposta parada que eu tinha esquecido, e a mensagem pronta já sair boa o bastante para eu mandar sem reescrever.",
+  "price_too_cheap": 5,
+  "price_cheap": 12,
+  "price_expensive": 35,
+  "price_too_expensive": 60
+}

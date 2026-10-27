@@ -1,0 +1,13 @@
+{
+  "id": "P006",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "price",
+  "reason": "Assinaria o plano Dalva (R$ 19,90), só depois de testar nos 7 dias grátis sem cartão. Por esse preço o risco é baixo, e se ela me mostrar de manhã qual proposta está parada e já deixar o follow-up pronto, economizo o tempo das minhas noites. Mas não pago sem ver isso funcionando com meus leads de verdade.",
+  "objection": "Uma marca nova pode sumir; vou colocar meus dados do CRM e dos meus leads nela? Não sei quem está por trás nem o que fazem com os dados.",
+  "would_change_my_mind": "Ver, no teste grátis, que ela acerta quem responder primeiro com os meus próprios dados, e ter clareza de quem é a empresa, onde ficam os dados e como exportar ou apagar tudo.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 40,
+  "price_too_expensive": 80
+}

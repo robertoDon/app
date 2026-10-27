@@ -1,0 +1,13 @@
+{
+  "id": "P005",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "trust",
+  "reason": "Assinaria o plano Dalva (R$ 19,90), não o Time. Como são 7 dias grátis sem cartão, testo sem risco, e se ela me mostrar de manhã quem responder e a mensagem pronta, R$ 19,90 é pouco para o que resolve. Só pago depois de ver isso funcionando com os meus leads.",
+  "objection": "É uma marca nova que pode sumir, e eu ia ligar meu CRM e minha base de clientes nela. Não quero entregar meus dados e depois ela fechar.",
+  "would_change_my_mind": "Ver, durante o teste, que a conexão com o HubSpot ou Pipedrive é só de leitura, poder exportar ou apagar meus dados facilmente, e que o follow-up sai bom com os meus leads reais.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 45,
+  "price_too_expensive": 100
+}

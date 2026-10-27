@@ -1,0 +1,13 @@
+{
+  "id": "P017",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "price",
+  "reason": "Assinaria o plano Dalva, de R$ 19,90. Sem cartão e com 7 dias grátis, testo à noite com meus leads do HubSpot. Se me mostrar quem responder primeiro e já trouxer o follow-up pronto, o preço é baixo demais para eu não manter. Dalva Time não, porque sou só eu ou eu e mais um.",
+  "objection": "Uma marca nova pode sumir. Vou colocar meus leads e propostas nela e, se ela fechar, perco o fluxo que montei. Também não sei se a mensagem de follow-up sai boa ou genérica.",
+  "would_change_my_mind": "Ver, no teste grátis, a priorização funcionando com meus leads reais, e poder exportar meus dados a qualquer momento. Com isso eu pagaria sem pensar muito.",
+  "price_too_cheap": 7,
+  "price_cheap": 15,
+  "price_expensive": 40,
+  "price_too_expensive": 90
+}

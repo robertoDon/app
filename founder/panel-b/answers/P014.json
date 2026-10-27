@@ -1,0 +1,13 @@
+{
+  "id": "P014",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "convenience",
+  "reason": "Assinaria o plano Dalva (R$ 19,90). É barato, testo 7 dias sem cartão no celular e, se me mostrar de manhã qual lead responder e qual proposta está parada, já me poupa tempo. Não é o que resolve minha prospecção, mas o follow-up eu perco mesmo.",
+  "objection": "Meu produto não se vende por prospecção ativa, e eu não sei se a Caçada com base de CNPJ acha o tipo de empresa que compra de mim. Também tenho medo de ser mais uma ferramenta que eu abro três dias e esqueço.",
+  "would_change_my_mind": "Ver, no teste grátis, que ela lê minha planilha ou CRM direito e que o follow-up sai com texto bom, que eu não precise reescrever.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 49,
+  "price_too_expensive": 99
+}
