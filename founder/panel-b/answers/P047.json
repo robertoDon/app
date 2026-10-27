@@ -1,0 +1,13 @@
+{
+  "id": "P047",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Nenhum por enquanto. O preço é pequeno, mas já uso um CRM grátis e já paguei por ferramenta que larguei; não vi nada que prove que a Dalva me faz responder um lead que eu perderia. Posso até abrir o teste de 7 dias, mas só assinaria depois de ver valor de verdade.",
+  "objection": "Meu CRM grátis já guarda meus leads. Não está claro o que a Dalva faz que eu não faria sozinho em 10 minutos de manhã, nem se as mensagens de follow-up prontas seriam boas ou genéricas.",
+  "would_change_my_mind": "Ver, nos primeiros dias do teste com os meus próprios dados, ela apontar um lead esfriando ou uma proposta parada que eu tinha esquecido, com uma mensagem que eu mandaria quase sem editar.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 40,
+  "price_too_expensive": 90
+}

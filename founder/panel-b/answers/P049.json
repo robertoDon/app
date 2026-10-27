@@ -1,0 +1,13 @@
+{
+  "id": "P049",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "price",
+  "reason": "Assinaria o Dalva (R$ 19,90) depois do teste grátis, porque é barato, não pede cartão e eu já olho o celular de manhã para ver o que fazer. Proposta parada e lead esfriando é problema real meu, já que faço tudo sozinho. Não preciso do Dalva Time e, como vendo por indicação, não contaria com a Caçada.",
+  "objection": "Tenho medo de spam, LGPD e queimar minha marca: se a Caçada ou a mensagem pronta mandar algo errado para um contato de indicação, o estrago é meu. Também não sei se ela conecta de verdade com o meu CRM sem bagunçar os dados.",
+  "would_change_my_mind": "Ver que nada é enviado sem eu revisar e aprovar, e uma explicação clara de como ela trata os dados dos meus contatos (LGPD) e de onde vêm os dados do CNPJ.",
+  "price_too_cheap": 5,
+  "price_cheap": 19,
+  "price_expensive": 49,
+  "price_too_expensive": 99
+}

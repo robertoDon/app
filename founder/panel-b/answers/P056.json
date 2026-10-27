@@ -1,0 +1,13 @@
+{
+  "id": "P056",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Nenhum plano por enquanto. O preço é irrisório, mas já paguei por ferramenta que não usei, e não vou assinar sem saber se a lista de empresas é atual e serve para o meu cliente. Posso até abrir o teste grátis, mas só pago depois se provar valor com os meus leads.",
+  "objection": "A Caçada promete empresas reais da base de CNPJ, mas essa base é pública e pode estar velha, e não sei se o filtro acerta o perfil do meu cliente. Também não sei se o follow-up pronto vai soar como eu ou como mensagem genérica.",
+  "would_change_my_mind": "Ver, antes de pagar, uma lista de exemplo para o meu nicho com fonte e data de cada empresa, e a Dalva apontando corretamente leads parados do meu próprio CRM durante o teste de 7 dias.",
+  "price_too_cheap": 5,
+  "price_cheap": 19.9,
+  "price_expensive": 49,
+  "price_too_expensive": 99
+}

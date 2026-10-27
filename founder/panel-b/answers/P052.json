@@ -1,0 +1,13 @@
+{
+  "id": "P052",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Nenhum plano por enquanto. Já organizo meus leads no CRM grátis e pago pouquíssimas assinaturas, então só entro em algo novo se eu enxergar valor claro. O preço de R$ 19,90 não pesa, mas não vejo motivo urgente para trocar minha rotina.",
+  "objection": "Será que a lista de empresas da Caçada é atual e serve para o meu cliente? Se vier lista velha ou genérica, é só mais uma ferramenta que eu pago e não uso, e ainda tenho que conectar meu CRM e confiar que ela mexe nos meus dados sem bagunçar.",
+  "would_change_my_mind": "Testar nos 7 dias com os meus próprios leads e ver a Dalva apontar corretamente quem responder primeiro, e a Caçada trazer empresas do meu perfil de cliente com fonte e data verificáveis.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 40,
+  "price_too_expensive": 90
+}

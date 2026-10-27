@@ -1,0 +1,13 @@
+{
+  "id": "P050",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "price",
+  "reason": "Assinaria o Dalva (só eu faço vendas). Por R$ 19,90 e 7 dias sem cartão o risco é quase zero, e se ela me disser de manhã qual indicação está esfriando e já trouxer o follow-up pronto, ganho tempo à noite. Não assinaria o Time agora.",
+  "objection": "Tenho medo de spam, LGPD e queimar minha marca: não quero que a Caçada me empurre para prospecção fria, e não sei o que ela faz com os dados dos meus clientes. Também vendo por indicação, com poucos leads, e o próprio CRM talvez já resolva.",
+  "would_change_my_mind": "Ver, dentro do teste, que ela só lê meus leads e nunca envia nada sozinha, com explicação clara de LGPD e de onde vêm os dados da Caçada. Se a mensagem de follow-up soar genérica, cancelo.",
+  "price_too_cheap": 7,
+  "price_cheap": 19.9,
+  "price_expensive": 59,
+  "price_too_expensive": 120
+}

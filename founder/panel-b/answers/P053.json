@@ -1,0 +1,13 @@
+{
+  "id": "P053",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "convenience",
+  "reason": "Eu assinaria a Dalva de R$ 19,90: abro o celular de manhã para ver o que fazer, e ela importa minha planilha sem eu migrar nada. Com 7 dias grátis sem cartão, o risco é quase zero, e se eu não usar eu cancelo.",
+  "objection": "Será que a lista de empresas da Caçada é atual e serve para o meu cliente? E se o follow-up pronto soar genérico, eu vou acabar reescrevendo tudo e voltando para a planilha.",
+  "would_change_my_mind": "Ver, no teste grátis, a lista da Caçada com fonte e data recentes e uma mensagem de follow-up que soe como eu falo com meus clientes no WhatsApp.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 40,
+  "price_too_expensive": 90
+}

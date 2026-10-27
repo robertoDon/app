@@ -1,0 +1,13 @@
+{
+  "id": "P048",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Eu até abriria o teste de 7 dias por curiosidade, já que é sem cartão, mas não assinaria agora. Ainda não tenho receita recorrente, então entram poucos leads e não sei se uma assistente que me diz quem responder primeiro resolve algo concreto pra mim; e conectar meu CRM e minha base de clientes numa marca nova me deixa com o pé atrás.",
+  "objection": "Uma marca nova pode sumir; vou colocar meus dados nela? Além disso, com poucos leads entrando, não sei se vale mais uma assinatura no cartão que eu reviso todo mês.",
+  "would_change_my_mind": "Ver no teste grátis, com os meus próprios leads, que ela me faz fechar pelo menos um cliente a mais, e ter clareza de como meus dados são protegidos e como exporto/apago tudo se a empresa fechar.",
+  "price_too_cheap": 7,
+  "price_cheap": 15,
+  "price_expensive": 35,
+  "price_too_expensive": 70
+}
