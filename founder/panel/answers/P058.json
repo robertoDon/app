@@ -1,0 +1,13 @@
+{
+  "id": "P058",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Eu assinaria o Dalva individual, porque sou eu quem prospecta e perco horas no LinkedIn montando lista. Testo os 7 dias grátis e, se a busca trouxer empresas que fazem sentido pro meu cliente, R$ 19,90 é troco perto do tempo que economizo; o Time não faz sentido porque o resto do time não vende.",
+  "objection": "Base de CNPJ mostra que a empresa existe, mas não diz se ela tem o perfil e o momento certo pra comprar de mim, nem quem é o decisor. Se vier lista velha ou genérica, eu volto pro LinkedIn.",
+  "would_change_my_mind": "Se na primeira busca grátis a maioria das empresas for irrelevante ou desatualizada, eu cancelo antes de pagar.",
+  "price_too_cheap": 9,
+  "price_cheap": 29,
+  "price_expensive": 99,
+  "price_too_expensive": 199
+}

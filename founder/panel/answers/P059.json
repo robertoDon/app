@@ -1,0 +1,13 @@
+{
+  "id": "P059",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Assinaria o Dalva individual, de R$ 19,90: quem prospecta aqui sou eu, e achar empresas reais por CNPJ com fonte já me poupa horas de planilha. Testo os 7 dias sem cartão e, se a lista vier boa, pago sem pensar, porque o preço é irrisório. O Time não faz sentido enquanto o resto do time não vende.",
+  "objection": "Uma marca nova pode sumir de uma hora pra outra, e eu vou colocar meu pipeline e meus clientes nela. Se fechar, perco tudo, e não sei onde os dados ficam nem se dá pra exportar.",
+  "would_change_my_mind": "Se eu não conseguir exportar meu pipeline em CSV ou pro Notion, ou se a primeira busca trouxer empresas erradas ou desatualizadas, eu cancelo.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 79,
+  "price_too_expensive": 150
+}

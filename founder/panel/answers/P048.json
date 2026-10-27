@@ -1,0 +1,13 @@
+{
+  "id": "P048",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Assinaria o plano Dalva de R$ 19,90, só pra mim, porque ainda não tenho receita e preciso achar cliente; testo os 7 dias grátis sem cartão e, se a busca na base de CNPJ me trouxer empresas reais que eu não acharia sozinho, R$ 19,90 é menos que um almoço. O Dalva Time não faz sentido, somos no máximo dois.",
+  "objection": "Uma marca nova pode sumir do mapa e levar meu pipeline junto; não sei onde ficam meus dados nem se consigo exportar tudo se ela fechar.",
+  "would_change_my_mind": "Se a primeira busca grátis me devolver empresas genéricas ou desatualizadas, eu cancelo antes de pagar.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 39.9,
+  "price_too_expensive": 69.9
+}

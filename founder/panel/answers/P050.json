@@ -1,0 +1,13 @@
+{
+  "id": "P050",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano. Meus clientes vêm de indicação e rede, não de lista de CNPJ, então o principal da Dalva é achar empresa para prospectar a frio, coisa que eu quase não faço e nem quero fazer. Até poderia testar os 7 dias grátis por curiosidade, mas não vejo motivo para pagar depois.",
+  "objection": "Prospectar a frio a partir de base de CNPJ me cheira a spam e risco de LGPD, e eu não vou queimar a reputação que construí por indicação para ganhar uns leads frios. O pipeline e as prioridades eu já resolvo numa planilha.",
+  "would_change_my_mind": "Se a Dalva trabalhasse em cima da minha rede e das indicações: me lembrar de pedir indicação, fazer follow-up das propostas que mando à noite e organizar isso sem eu ter que digitar tudo.",
+  "price_too_cheap": 9,
+  "price_cheap": 19.9,
+  "price_expensive": 79,
+  "price_too_expensive": 150
+}

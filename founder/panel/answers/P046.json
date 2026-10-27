@@ -1,0 +1,13 @@
+{
+  "id": "P046",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Eu assinaria o plano Dalva de R$ 19,90, porque perco horas garimpando empresas no LinkedIn e o teste é grátis e sem cartão, então não tenho nada a perder. Mas só passo do teste se a primeira busca me trouxer empresas que realmente têm a cara do meu cliente.",
+  "objection": "Base de CNPJ me dá razão social e CNAE, mas não me diz se a empresa está ativa de verdade, se tem dinheiro ou quem é o decisor. Tenho medo de virar só mais uma lista fria que eu ainda vou ter que validar uma por uma no LinkedIn.",
+  "would_change_my_mind": "",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 49,
+  "price_too_expensive": 89
+}

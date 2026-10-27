@@ -1,0 +1,13 @@
+{
+  "id": "P047",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Nenhum. Até testaria os 7 dias porque não pede cartão, mas o time já roda o pipeline num CRM grátis e não vou migrar 4 pessoas para outra ferramenta por causa de 3 prioridades no celular; a busca por CNPJ é a única coisa que me chama atenção, e uma busca grátis não prova nada.",
+  "objection": "Já uso um CRM grátis. Ter dois lugares para o pipeline vira bagunça, e eu já paguei por ferramenta que ninguém do time abriu depois da primeira semana.",
+  "would_change_my_mind": "Se no teste a busca por CNPJ me trouxer leads que realmente viram reunião e der para jogar esses leads direto no CRM que já uso, eu pagaria o Dalva Time sem pensar no preço.",
+  "price_too_cheap": 9,
+  "price_cheap": 29,
+  "price_expensive": 99,
+  "price_too_expensive": 199
+}

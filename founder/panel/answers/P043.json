@@ -1,0 +1,13 @@
+{
+  "id": "P043",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Nenhum plano. Meus clientes vêm de indicação e da minha rede, quase não prospecto a frio, então achar empresas na base de CNPJ não resolve meu problema hoje. Até testaria os 7 dias grátis por curiosidade, mas não me vejo pagando nem os R$ 19,90.",
+  "objection": "Não sei se uma lista de CNPJ é atual e traz o cliente certo para mim. E meu gargalo é fechar com quem já me foi indicado, não encontrar empresa nova; para o pipeline, uma planilha ou o Notion já dão conta.",
+  "would_change_my_mind": "Se as indicações secarem e eu precisar prospectar de verdade, e a primeira busca grátis me trouxer umas empresas boas, que eu reconheça como clientes reais para mim.",
+  "price_too_cheap": 5,
+  "price_cheap": 15,
+  "price_expensive": 39,
+  "price_too_expensive": 70
+}

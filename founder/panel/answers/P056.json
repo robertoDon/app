@@ -1,0 +1,13 @@
+{
+  "id": "P056",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Nenhum plano por enquanto. Faço a busca grátis e uso os 7 dias porque não custa nada, mas já paguei ferramenta que não usei e só assino se a lista de empresas vier atual e com cara do meu cliente; se der certo, seria o Dalva Time, porque somos 4 vendendo.",
+  "objection": "Base de CNPJ eu já consigo de graça ou barato; duvido que a lista venha filtrada de verdade para o meu ICP, com contato útil e dado recente, e não um monte de empresa inativa.",
+  "would_change_my_mind": "Se na busca grátis vierem umas 10 empresas que eu reconheça como bom fit e eu fechar pelo menos uma reunião dentro dos 7 dias.",
+  "price_too_cheap": 9,
+  "price_cheap": 29,
+  "price_expensive": 99,
+  "price_too_expensive": 200
+}
