@@ -12,6 +12,6 @@
 
 **Para começar:** quase nada de caixa (R$ 2.700 de cobertura até o mês 5 no modelo), mais o trabalho do fundador.
 
-**Esta semana:** fechar a lista de 15 fundadores reais, montar a versão mínima (Hoje + Pipeline + Caçada), a LGPD mínima e o teste fechado com cobrança de R$ 19,90.
+**Esta semana:** montar a página de venda com lista de espera e subir um teste de tráfego pago (R$ 1.500 a 3.000), enquanto sai a versão mínima (Hoje + Pipeline + Caçada) e a LGPD mínima.
 
 Painel = compradores simulados; números = projeção. Clientes e cotações reais confirmam. Não é aconselhamento financeiro, jurídico ou fiscal.

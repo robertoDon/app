@@ -13,5 +13,5 @@
 | Compram no painel | 43% (A), 52% (B) |
 
 **Evidência:** conselho 3 vezes "financie se" (5,0); lacuna estreita (busca por CNPJ + pipeline + prioridades do dia por menos de R$ 30); painel simulado de 200 compradores; nenhum cliente real ainda.
-**Dinheiro serve para:** teste fechado com 15 fundadores e LGPD mínima (cerca de R$ 2,5 mil).
-**Pedido:** 4 semanas e 15 fundadores para provar que 5 pagam R$ 19,90 depois do teste.
+**Dinheiro serve para:** tráfego de teste e LGPD mínima.
+**Pedido:** 4 semanas e R$ 1.500 a 3.000 de tráfego para provar CAC abaixo de R$ 50 e conversão de 10% ou mais da lista de espera em pagantes.
