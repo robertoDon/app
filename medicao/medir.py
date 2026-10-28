@@ -40,8 +40,9 @@ PRECO_IA = {
     "claude-sonnet-5-5": (2.00, 10.00),
     "claude-opus-5-5": (4.00, 20.00),
 }
-# US$ por busca, do plano contratado na Serper. Sem valor padrão de propósito: não chutar.
-PRECO_BUSCA = os.environ.get("PRECO_BUSCA_USD")
+# US$ por busca. Serper Starter: US$ 50 por 50.000 buscas (serper.dev, 28/10/2026).
+# Os planos maiores chegam a US$ 0,0003. As 2.500 buscas grátis da conta nova não entram na conta.
+PRECO_BUSCA = float(os.environ.get("PRECO_BUSCA_USD", "0.001"))
 
 SCHEMA = {
     "type": "object",
@@ -138,7 +139,7 @@ def main():
 
     cliente = None
     if not a.so_receita:
-        faltam = [k for k in ("SEARCH_API_KEY", "ANTHROPIC_API_KEY", "PRECO_BUSCA_USD") if not os.environ.get(k)]
+        faltam = [k for k in ("SEARCH_API_KEY", "ANTHROPIC_API_KEY") if not os.environ.get(k)]
         if faltam:
             sys.exit(f"Falta configurar no ambiente: {', '.join(faltam)}. Ou rode com --so-receita.")
         import anthropic
@@ -164,7 +165,7 @@ def main():
             buscas += 1
             card, uso = resumir(cliente, emp, achados)
             custo_ia = (uso.input_tokens * ent + uso.output_tokens * sai) / 1e6
-            custo = (custo_ia + buscas * float(PRECO_BUSCA)) * DOLAR
+            custo = (custo_ia + buscas * PRECO_BUSCA) * DOLAR
             card = card or {}
             sinais = [k for k in ("site", "instagram", "telefone_comercial", "nota_google",
                                   "vaga_aberta", "noticia_recente") if card.get(k) is not None]
