@@ -59,17 +59,23 @@ SCHEMA = {
         "sinal_data": {"type": ["string", "null"]},
         "sinal_fonte": {"type": ["string", "null"]},
         "por_que_agora": {"type": ["string", "null"]},
+        "por_que_agora_tipo": {"type": ["string", "null"], "enum": ["fato", "hipotese", None]},
         "fontes": {"type": "array", "items": {"type": "string"}},
     },
     "required": ["confianca_empresa", "site", "instagram", "telefone_comercial", "nota_google",
                  "avaliacoes_google", "vaga_aberta", "noticia_recente", "sinal_data", "sinal_fonte",
-                 "por_que_agora", "fontes"],
+                 "por_que_agora", "por_que_agora_tipo", "fontes"],
     "additionalProperties": False,
 }
 
 HOJE = date.today()
+# O "por que agora" depende do que o usuário da Dalva vende. Na Caçada, vem da frase dele.
+OFERTA = os.environ.get("OFERTA", "consultoria que estrutura o comercial (prospecção, funil e proposta) de agências e software houses pequenas")
+VAGAS = ("gupy.io", "geekhunter", "linkedin.com/jobs", "programathor", "solides", "vagas.com", "indeed",
+         "infojobs", "catho", "trampos.co", "jobleads", "99jobs", "kenoby", "inhire")
 
 INSTRUCAO = f"""Você monta o card de uma empresa para um dono de pequena empresa que quer vender para ela. Hoje é {HOJE:%d/%m/%Y}.
+Quem vai abordar vende: {OFERTA}.
 Use só o que está no material abaixo (cadastro da Receita, verificação do site e resultados de busca). Se um dado não aparece, devolva null. Nunca invente.
 
 1. Primeiro confira se é a mesma empresa. confianca_empresa:
@@ -80,10 +86,15 @@ Use só o que está no material abaixo (cadastro da Receita, verificação do si
 3. instagram: só o endereço do perfil (instagram.com/usuario). Nunca um post, reel ou perfil de outra empresa que cita esta.
 4. telefone_comercial: só telefone publicado no site ou no Google que seja DIFERENTE do telefone da Receita. Se for igual, null.
 5. vaga_aberta e noticia_recente: uma frase curta com o fato e a data, só se for dos últimos 12 meses.
-6. por_que_agora: um gancho de venda, numa frase, em português simples. Só vale com um fato datado, dos últimos 12 meses, e que mostre mudança na empresa:
-   vaga aberta ou contratação, nova sede ou filial, novo produto ou serviço lançado, contrato ou cliente novo, prêmio, investimento, expansão.
-   Leia o fato com cuidado (prorrogação de contrato não é contrato novo). Rotina, post comum, convênio genérico ou "a empresa está ativa" não valem: devolva null.
-   Se houver vaga aberta nas fontes, use a vaga. sinal_data (mês/ano) e sinal_fonte (URL) são obrigatórios quando houver por_que_agora.
+6. por_que_agora: um gancho de venda para quem vende a oferta acima, numa frase, em português simples. Dois tipos:
+   - fato: um acontecimento dos últimos 12 meses que mostra mudança na empresa: vaga aberta ou contratação (vaga confirmada
+     aberta numa página de vagas vale mesmo sem data), sócio que entrou no último ano (campo socio_entrou_ultimo_ano, fonte
+     "Receita Federal"), nova sede ou filial, produto ou serviço novo, contrato ou cliente novo, prêmio, investimento, expansão.
+     Leia com cuidado: prorrogação de contrato não é contrato novo.
+   - hipotese: uma leitura que liga um dado VERIFICADO acima à oferta de quem vai abordar (ex.: "contratou dev e não tem
+     ninguém de vendas: o comercial deve estar no fundador"). Diga o dado em que ela se apoia. Nunca uma frase genérica.
+   Prefira fato. Rotina, post comum, convênio genérico ou "a empresa está ativa" não valem. Sem base: null.
+   sinal_data (mês/ano, ou "aberta hoje" para vaga confirmada) e sinal_fonte (URL ou "Receita Federal") são obrigatórios.
 7. fontes: as URLs que você usou."""
 
 
@@ -96,6 +107,8 @@ def receita(cnpj):
         time.sleep(4 * (tentativa + 1))
     r.raise_for_status()
     d = r.json()
+    um_ano = f"{date.today().year - 1}{date.today():-%m-%d}"
+    novos = [s["nome_socio"] for s in d.get("qsa") or [] if (s.get("data_entrada_sociedade") or "") >= um_ano]
     adm = next((s["nome_socio"] for s in d.get("qsa") or []
                 if "administrador" in (s.get("qualificacao_socio") or "").lower()), None)
     return {
@@ -111,6 +124,7 @@ def receita(cnpj):
         "telefone_receita": d.get("ddd_telefone_1") or "",
         "endereco": " ".join(x for x in (d.get("logradouro"), d.get("numero"), d.get("bairro")) if x),
         "cep": d.get("cep") or "",
+        "socio_entrou_ultimo_ano": ", ".join(novos),
     }
 
 
@@ -161,6 +175,22 @@ def so_digitos(t):
     return re.sub(r"\D", "", t or "")
 
 
+def conferir_vagas(links):
+    """Abre anúncios de vaga (de graça) e devolve o começo do texto: a IA vê se está aberta e a data."""
+    saida = []
+    for url in [u for u in links if any(v in u for v in VAGAS)][:2]:
+        try:
+            v = requests.get(url, timeout=8, headers={"User-Agent": "DalvaBot/0.1 (medição de enriquecimento)"})
+        except requests.RequestException:
+            continue
+        if v.status_code != 200:
+            saida.append(f"Anúncio {url}: não abriu (HTTP {v.status_code}).")
+            continue
+        t = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", re.sub(r"(?s)<(script|style).*?</\1>", " ", v.text)))
+        saida.append(f"Anúncio {url}: {t[:700]}")
+    return "\n".join(saida)
+
+
 def conferir_site(emp, links):
     """Abre o primeiro site candidato (de graça) e diz se ele bate com a Receita."""
     for url in links:
@@ -168,7 +198,7 @@ def conferir_site(emp, links):
             continue
         dominio = re.sub(r"^https?://(www\.)?", "", url).split("/")[0]
         try:
-            r = requests.get(f"https://{dominio}", timeout=8, headers={"User-Agent": "Mozilla/5.0"})
+            r = requests.get(f"https://{dominio}", timeout=8, headers={"User-Agent": "DalvaBot/0.1 (medição de enriquecimento)"})
         except requests.RequestException:
             continue
         html = r.text
@@ -181,10 +211,21 @@ def conferir_site(emp, links):
             "telefone": bool(tel) and tel in dig,
             "cidade": emp["cidade"].lower() in texto.lower(),
         }
-        vagas = sorted({m for m in re.findall(r'href="([^"]*(?:vaga|carreira|trabalhe|careers|jobs)[^"]*)"', html, re.I)})[:3]
+        vagas = sorted({m for m in re.findall(r'href="([^"]*(?:vaga|carreira|trabalhe|careers|jobs)[^"]*)"', html, re.I)})[:1]
+        pagina_vagas = ""
+        if vagas:
+            link = vagas[0] if vagas[0].startswith("http") else f"https://{dominio}/{vagas[0].lstrip('/')}"
+            try:
+                v = requests.get(link, timeout=8, headers={"User-Agent": "DalvaBot/0.1 (medição de enriquecimento)"}).text
+                v = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", re.sub(r"(?s)<(script|style).*?</\1>", " ", v)))
+                pagina_vagas = f"\nPágina de vagas ({link}): {v[:800]}"
+            except requests.RequestException:
+                pass
+        anos = [int(a) for a in re.findall(r"(?:©|copyright|&copy;)\s*(?:\d{4}\s*[-–]\s*)?(20\d\d)", html, re.I)]
         return (f"Verificação do site {dominio}: mostra o CNPJ: {confere['cnpj']}; o CEP: {confere['cep']}; "
-                f"o telefone da Receita: {confere['telefone']}; a cidade: {confere['cidade']}. "
-                f"Links de vagas no site: {vagas or 'nenhum'}.\nTrecho do site: {texto[:1200]}")
+                f"o telefone da Receita: {confere['telefone']}; a cidade: {confere['cidade']}; "
+                f"ano do copyright: {max(anos) if anos else 'não aparece'}."
+                f"\nTrecho do site: {texto[:1200]}{pagina_vagas}")
     return "Verificação do site: nenhum site próprio encontrado nos resultados."
 
 
@@ -217,6 +258,8 @@ def limpar(card, emp):
         card["telefone_comercial"] = None
     if card.get("por_que_agora") and not (card.get("sinal_data") and card.get("sinal_fonte")):
         card["por_que_agora"] = None
+    if not card.get("por_que_agora"):
+        card["por_que_agora_tipo"] = None
     return card
 
 
@@ -259,7 +302,7 @@ def main():
             # Segunda busca só para os sinais do último ano, que dão o "por que agora".
             sinais, links2 = buscar(f'"{nome}" (vaga OR contrata OR lança OR inaugura OR "novo cliente" OR prêmio OR expansão)', recente=True)
             buscas += 1
-            achados = conferir_site(emp, links + links2) + "\n\nResultados de busca:\n" + achados + "\n\nSinais do último ano:\n" + sinais
+            achados = conferir_site(emp, links + links2) + "\n" + conferir_vagas(links + links2) + "\n\nResultados de busca:\n" + achados + "\n\nSinais do último ano:\n" + sinais
             card, uso = resumir(cliente, emp, achados)
             custo_ia = (uso.input_tokens * ent + uso.output_tokens * sai) / 1e6
             custo = (custo_ia + buscas * PRECO_BUSCA) * DOLAR
@@ -271,7 +314,7 @@ def main():
                           for k, v in card.items()})
             linha.update({
                 "achou_algo": "sim" if novos else "não",
-                "tem_por_que_agora": "sim" if card.get("por_que_agora") else "não",
+                "tem_por_que_agora": card.get("por_que_agora_tipo") or "não",
                 "buscas": buscas,
                 "tokens_entrada": uso.input_tokens,
                 "tokens_saida": uso.output_tokens,
@@ -302,13 +345,14 @@ def main():
     if cliente:
         custos = [l["custo_rs"] for l in linhas]
         achou = [l for l in linhas if l["achou_algo"] == "sim"]
-        gancho = [l for l in linhas if l["tem_por_que_agora"] == "sim"]
+        gancho = [l for l in linhas if l["tem_por_que_agora"] != "não"]
+        fatos = [l for l in linhas if l["tem_por_que_agora"] == "fato"]
         res += [
             f"Modelo: {MODELO} · busca a US$ {PRECO_BUSCA} · dólar R$ {DOLAR}",
             f"Custo médio por empresa: R$ {statistics.mean(custos):.4f}",
             f"Custo mais alto: R$ {max(custos):.4f}",
             f"Com dado novo (site, Instagram, telefone novo, vaga ou notícia): {len(achou)} de {n}",
-            f"Com por que agora: {len(gancho)} de {n}",
+            f"Com por que agora: {len(gancho)} de {n} ({len(fatos)} fato, {len(gancho) - len(fatos)} hipótese)",
             f"Custo por empresa com dado novo: R$ {sum(custos) / max(len(achou), 1):.4f}",
             f"Custo por empresa com por que agora: R$ {sum(custos) / max(len(gancho), 1):.4f}",
             f"Tempo médio: {statistics.mean(l['segundos'] for l in linhas):.1f}s",
