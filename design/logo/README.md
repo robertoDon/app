@@ -1,4 +1,16 @@
-# Marca Dalva · logo (rodada 1)
+# Marca Dalva · logo
+
+**Decidido (28/10/2026): direção B · 18°.** Arquivos finais em `final/`, guia em `guia.html` (https://claude.ai/artifact/FAQsPFqWb1ZdScW5Tor1bV).
+
+```
+cd design/logo && python3 final.py && python3 guia.py
+```
+
+- `final.py`: desenho refinado (miolo assimétrico, espaçamento ótico), versões, ícones, favicons (16 px desenhado pixel a pixel), PNGs e ICO.
+- `espacamento.py`: mede a área de branco entre pares de letras.
+- `guia.py`: página do guia.
+
+## Rodada 1
 
 Apresentação: https://claude.ai/artifact/DJkNMRrFA8Bq6sLiSSRHJU (`apresentacao.html`).
 
@@ -26,4 +38,4 @@ cd design/logo && python3 gerar.py
 
 Processo guiado pela skill `logo-design` (rampstackco/claude-skills, MIT), instalada em `.claude/skills/logo-design`.
 
-Pendente antes dos arquivos finais: busca no INPI (nome e marca mista, classes 9, 35 e 42) e o refino da direção escolhida.
+Pendente: busca no INPI (nome e marca mista, classes 9, 35 e 42).

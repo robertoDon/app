@@ -7,4 +7,4 @@ Canvas do conceito do produto: https://claude.ai/artifact/JoLM6BpVWakan6zacwe6mP
 
 Os scripts foram escritos para rodar numa pasta de trabalho com `project/` ao lado; ajuste os caminhos antes de rodar aqui.
 
-Fora do MVP (v2): Projetos e Grana. A marca ainda não está decidida: Main, Aplicações e Visões ainda dizem "enquanto você dorme".
+Fora do MVP (v2): Projetos e Grana. Logo decidido: `logo/` (direção 18°, guia em `logo/guia.html`). Main, Aplicações e Visões ainda usam as opções antigas de logo e dizem "enquanto você dorme".
