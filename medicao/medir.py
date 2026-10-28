@@ -83,18 +83,20 @@ Use só o que está no material abaixo (cadastro da Receita, verificação do si
    - media: mesmo nome, mesma cidade e mesmo ramo, sem CNPJ, endereço ou telefone para confirmar.
    - baixa: só o nome parece. Outra cidade, outro ramo ou CNPJ diferente é outra empresa: nesse caso devolva baixa e todos os campos null.
 2. site: só o domínio próprio da empresa. Nunca diretório, agregador de CNPJ, rede social ou página vazia.
-3. instagram: só o endereço do perfil (instagram.com/usuario). Nunca um post, reel ou perfil de outra empresa que cita esta.
+3. instagram: só o endereço do perfil (instagram.com/usuario). O Instagram linkado no próprio site vale. Nunca um post, reel ou perfil de outra empresa que cita esta.
 4. telefone_comercial: só telefone publicado no site ou no Google que seja DIFERENTE do telefone da Receita. Se for igual, null.
 5. vaga_aberta e noticia_recente: uma frase curta com o fato e a data, só se for dos últimos 12 meses.
 6. por_que_agora: um gancho de venda para quem vende a oferta acima, numa frase, em português simples. Dois tipos:
-   - fato: um acontecimento dos últimos 12 meses que mostra mudança na empresa: vaga aberta ou contratação (vaga confirmada
-     aberta numa página de vagas vale mesmo sem data), sócio que entrou no último ano (campo socio_entrou_ultimo_ano, fonte
+   - fato: um acontecimento dos últimos 12 meses que mostra mudança na empresa: vaga aberta ou contratação (só com data de publicação
+     nos últimos 12 meses; página de vagas sem data não vale), sócio que entrou no último ano (campo socio_entrou_ultimo_ano, fonte
      "Receita Federal"), empresa aberta no último ano (campo aberta_no_ultimo_ano, fonte "Receita Federal"), nova sede ou filial, produto ou serviço novo, contrato ou cliente novo, prêmio, investimento, expansão.
-     Leia com cuidado: prorrogação de contrato não é contrato novo.
+     Leia com cuidado: aditivo, prorrogação ou renovação de contrato não é contrato novo.
    - hipotese: uma leitura que liga um dado VERIFICADO acima à oferta de quem vai abordar (ex.: "contratou dev e não tem
      ninguém de vendas: o comercial deve estar no fundador"). Diga o dado em que ela se apoia. Nunca uma frase genérica.
+   Escreva o fato com a data e, se quiser, por que ele importa para a oferta. Não afirme sobre a empresa nada que o fato
+   não mostre (ex.: "o comercial está no fundador", "está mudando de comando").
    Prefira fato. Rotina, post comum, convênio genérico ou "a empresa está ativa" não valem. Sem base: null.
-   sinal_data (mês/ano, ou "aberta hoje" para vaga confirmada) e sinal_fonte (URL ou "Receita Federal") são obrigatórios.
+   sinal_data (MM/AAAA) e sinal_fonte (URL ou "Receita Federal") são obrigatórios.
 7. fontes: as URLs que você usou."""
 
 
@@ -108,7 +110,8 @@ def receita(cnpj):
     r.raise_for_status()
     d = r.json()
     um_ano = f"{date.today().year - 1}{date.today():-%m-%d}"
-    novos = [s["nome_socio"] for s in d.get("qsa") or [] if (s.get("data_entrada_sociedade") or "") >= um_ano]
+    novos = [f'{s["nome_socio"]} (entrou em {s["data_entrada_sociedade"][5:7]}/{s["data_entrada_sociedade"][:4]})'
+             for s in d.get("qsa") or [] if (s.get("data_entrada_sociedade") or "") >= um_ano]
     adm = next((s["nome_socio"] for s in d.get("qsa") or []
                 if "administrador" in (s.get("qualificacao_socio") or "").lower()), None)
     return {
@@ -222,10 +225,13 @@ def conferir_site(emp, links):
                 pagina_vagas = f"\nPágina de vagas ({link}): {v[:800]}"
             except requests.RequestException:
                 pass
+        insta = sorted({m.split("?")[0].rstrip("/") for m in re.findall(r'https?://(?:www\.)?instagram\.com/[A-Za-z0-9_.]+', html)
+                        if not re.search(r"instagram\.com/(p|reel|explore|stories)$", m)})[:2]
         anos = [int(a) for a in re.findall(r"(?:©|copyright|&copy;)\s*(?:\d{4}\s*[-–]\s*)?(20\d\d)", html, re.I)]
         return (f"Verificação do site {dominio}: mostra o CNPJ: {confere['cnpj']}; o CEP: {confere['cep']}; "
                 f"o telefone da Receita: {confere['telefone']}; a cidade: {confere['cidade']}; "
-                f"ano do copyright: {max(anos) if anos else 'não aparece'}."
+                f"ano do copyright: {max(anos) if anos else 'não aparece'}; "
+                f"Instagram linkado no site: {', '.join(insta) or 'nenhum'}."
                 f"\nTrecho do site: {texto[:1200]}{pagina_vagas}")
     return "Verificação do site: nenhum site próprio encontrado nos resultados."
 
@@ -245,6 +251,19 @@ def resumir(cliente, emp, achados):
     return json.loads(txt), resp.usage
 
 
+def recente(sinal_data):
+    """Só aceita mês/ano dos últimos 12 meses: "aberta hoje" ou "último ano" sem mês não é data."""
+    nomes = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"]
+    m = re.search(r"(\d{1,2}|[a-zç]{3})[a-zç]*\s*(?:/|de)\s*(20\d\d)", (sinal_data or "").lower())
+    if not m:
+        return False
+    mes = int(m[1]) if m[1].isdigit() else (nomes.index(m[1]) + 1 if m[1] in nomes else 0)
+    if not 1 <= mes <= 12:
+        return False
+    meses = (HOJE.year - int(m[2])) * 12 + HOJE.month - mes
+    return 0 <= meses <= 12
+
+
 def limpar(card, emp):
     """Regras que não dependem da IA."""
     if card.get("confianca_empresa") == "baixa":
@@ -257,7 +276,7 @@ def limpar(card, emp):
     tel = so_digitos(card.get("telefone_comercial"))
     if tel and (tel[-8:] == so_digitos(emp["telefone_receita"])[-8:] or len(set(tel[-8:])) <= 2):
         card["telefone_comercial"] = None
-    if card.get("por_que_agora") and not (card.get("sinal_data") and card.get("sinal_fonte")):
+    if card.get("por_que_agora") and not (recente(card.get("sinal_data")) and card.get("sinal_fonte")):
         card["por_que_agora"] = None
     if not card.get("por_que_agora"):
         card["por_que_agora_tipo"] = None
