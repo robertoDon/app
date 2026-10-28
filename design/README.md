@@ -1,10 +1,10 @@
 # Design da Dalva
 
-Canvas do conceito do produto: https://claude.ai/artifact/JoLM6BpVWakan6zacwe6mP (v33, 27/10/2026).
+Canvas do conceito do produto: https://claude.ai/artifact/JoLM6BpVWakan6zacwe6mP (v44, 28/10/2026).
 
 - `canvas/` — as telas e capítulos publicados no canvas (`*.dc.html`) e o `canvas.json` com a posição e o tamanho de cada um.
 - `geradores/` — os scripts Python que geraram as telas. `gen_brand.py` tem os helpers (tokens, `page`, `header`); `adjust.py` e `adjust2.py` são os ajustes feitos por cima do HTML (v25 e v33, decisões de 27/10).
 
 Os scripts foram escritos para rodar numa pasta de trabalho com `project/` ao lado; ajuste os caminhos antes de rodar aqui.
 
-Fora do MVP (v2): Projetos e Grana. Logo decidido: `logo/` (direção 18°, guia em `logo/guia.html`). Main, Aplicações e Visões ainda usam as opções antigas de logo e dizem "enquanto você dorme".
+Fora do MVP (v2): Projetos e Grana. Logo provisório: `logo/` (direção 18°, guia em `logo/guia.html`). No canvas, Marca, Visões e Aplicações viraram um quadro só (Main), e todas as telas usam o logo novo.
