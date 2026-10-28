@@ -13,7 +13,8 @@ Uso:
   python medicao/medir.py --so-receita    # só o passo 1, sem gastar nada
   python medicao/medir.py --limite 5      # só as 5 primeiras
 
-Chaves (variáveis de ambiente, nunca no código): SEARCH_API_KEY (Serper) e ANTHROPIC_API_KEY.
+Chaves (variáveis de ambiente, nunca no código): SEARCH_API_KEY (Serper) e DALVA_ANTHROPIC_KEY.
+O nome ANTHROPIC_API_KEY é reservado pelo Claude Code no ambiente da nuvem e não chega ao script.
 """
 
 import argparse
@@ -144,11 +145,11 @@ def main():
 
     cliente = None
     if not a.so_receita:
-        faltam = [k for k in ("SEARCH_API_KEY", "ANTHROPIC_API_KEY") if not os.environ.get(k)]
+        faltam = [k for k in ("SEARCH_API_KEY", "DALVA_ANTHROPIC_KEY") if not os.environ.get(k)]
         if faltam:
             sys.exit(f"Falta configurar no ambiente: {', '.join(faltam)}. Ou rode com --so-receita.")
         import anthropic
-        cliente = anthropic.Anthropic()
+        cliente = anthropic.Anthropic(api_key=os.environ["DALVA_ANTHROPIC_KEY"])
     ent, sai = PRECO_IA[MODELO] if not a.so_receita else (0, 0)
 
     linhas = []
