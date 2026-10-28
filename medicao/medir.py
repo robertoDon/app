@@ -72,7 +72,12 @@ fontes: as URLs que você usou."""
 
 
 def receita(cnpj):
-    r = requests.get(f"https://brasilapi.com.br/api/cnpj/v1/{cnpj}", timeout=30)
+    # A BrasilAPI limita chamadas seguidas; espera e tenta de novo.
+    for tentativa in range(5):
+        r = requests.get(f"https://brasilapi.com.br/api/cnpj/v1/{cnpj}", timeout=30)
+        if r.status_code != 429:
+            break
+        time.sleep(4 * (tentativa + 1))
     r.raise_for_status()
     d = r.json()
     adm = next((s["nome_socio"] for s in d.get("qsa") or []
