@@ -48,6 +48,7 @@ PRECO_BUSCA = float(os.environ.get("PRECO_BUSCA_USD", "0.001"))
 SCHEMA = {
     "type": "object",
     "properties": {
+        "confianca_empresa": {"type": "string", "enum": ["alta", "media", "baixa"]},
         "site": {"type": ["string", "null"]},
         "instagram": {"type": ["string", "null"]},
         "telefone_comercial": {"type": ["string", "null"]},
@@ -55,21 +56,35 @@ SCHEMA = {
         "avaliacoes_google": {"type": ["integer", "null"]},
         "vaga_aberta": {"type": ["string", "null"]},
         "noticia_recente": {"type": ["string", "null"]},
+        "sinal_data": {"type": ["string", "null"]},
+        "sinal_fonte": {"type": ["string", "null"]},
         "por_que_agora": {"type": ["string", "null"]},
         "fontes": {"type": "array", "items": {"type": "string"}},
     },
-    "required": ["site", "instagram", "telefone_comercial", "nota_google", "avaliacoes_google",
-                 "vaga_aberta", "noticia_recente", "por_que_agora", "fontes"],
+    "required": ["confianca_empresa", "site", "instagram", "telefone_comercial", "nota_google",
+                 "avaliacoes_google", "vaga_aberta", "noticia_recente", "sinal_data", "sinal_fonte",
+                 "por_que_agora", "fontes"],
     "additionalProperties": False,
 }
 
-INSTRUCAO = """Você monta o card de uma empresa para um dono de pequena empresa que quer vender para ela.
-Use só o que está nos resultados de busca abaixo. Se um campo não aparece neles, devolva null. Nunca invente.
-Ignore resultados que sejam de outra empresa com nome parecido (confira cidade e setor).
-telefone_comercial: só telefone da empresa publicado no site ou no Google. Nunca celular pessoal de sócio.
-vaga_aberta e noticia_recente: uma frase curta, só se for dos últimos 6 meses.
-por_que_agora: uma frase, em português simples, com o motivo para abordar agora, apoiado num sinal acima. Se não houver sinal, null.
-fontes: as URLs que você usou."""
+HOJE = date.today()
+
+INSTRUCAO = f"""Você monta o card de uma empresa para um dono de pequena empresa que quer vender para ela. Hoje é {HOJE:%d/%m/%Y}.
+Use só o que está no material abaixo (cadastro da Receita, verificação do site e resultados de busca). Se um dado não aparece, devolva null. Nunca invente.
+
+1. Primeiro confira se é a mesma empresa. confianca_empresa:
+   - alta: o site ou a fonte mostra o mesmo CNPJ, o mesmo endereço ou o mesmo telefone da Receita.
+   - media: mesmo nome, mesma cidade e mesmo ramo, sem CNPJ, endereço ou telefone para confirmar.
+   - baixa: só o nome parece. Outra cidade, outro ramo ou CNPJ diferente é outra empresa: nesse caso devolva baixa e todos os campos null.
+2. site: só o domínio próprio da empresa. Nunca diretório, agregador de CNPJ, rede social ou página vazia.
+3. instagram: só o endereço do perfil (instagram.com/usuario). Nunca um post, reel ou perfil de outra empresa que cita esta.
+4. telefone_comercial: só telefone publicado no site ou no Google que seja DIFERENTE do telefone da Receita. Se for igual, null.
+5. vaga_aberta e noticia_recente: uma frase curta com o fato e a data, só se for dos últimos 12 meses.
+6. por_que_agora: um gancho de venda, numa frase, em português simples. Só vale com um fato datado, dos últimos 12 meses, e que mostre mudança na empresa:
+   vaga aberta ou contratação, nova sede ou filial, novo produto ou serviço lançado, contrato ou cliente novo, prêmio, investimento, expansão.
+   Leia o fato com cuidado (prorrogação de contrato não é contrato novo). Rotina, post comum, convênio genérico ou "a empresa está ativa" não valem: devolva null.
+   Se houver vaga aberta nas fontes, use a vaga. sinal_data (mês/ano) e sinal_fonte (URL) são obrigatórios quando houver por_que_agora.
+7. fontes: as URLs que você usou."""
 
 
 def receita(cnpj):
@@ -93,6 +108,9 @@ def receita(cnpj):
         "porte": d.get("porte"),
         "situacao": d.get("descricao_situacao_cadastral"),
         "socio_adm": adm,
+        "telefone_receita": d.get("ddd_telefone_1") or "",
+        "endereco": " ".join(x for x in (d.get("logradouro"), d.get("numero"), d.get("bairro")) if x),
+        "cep": d.get("cep") or "",
     }
 
 
@@ -101,24 +119,77 @@ def nome_curto(emp):
     return re.sub(r"\b(LTDA|ME|EPP|EIRELI|S/?A|SOCIEDADE UNIPESSOAL)\b\.?", "", nome, flags=re.I).strip(" -.")
 
 
-def buscar(q):
+# Sites que só repetem o cadastro da Receita: não trazem dado novo e confundem a IA.
+AGREGADORES = ("cnpj.biz", "econodata", "cnpja", "casadosdados", "cnpj.info", "cnpj.ws", "cnpjs.rocks",
+               "serasa", "solutudo", "empresasdobrasil", "consultasocio", "informecadastral", "cylex",
+               "apontador", "listamais", "telelistas", "empresaqui", "guiamais", "jusbrasil", "transparencia.cc",
+               "cadastroempresa", "cnpjcheck", "speedio", "b2bleads", "dadosmarket", "empresas.org")
+SEM_AGREGADORES = " ".join(f"-site:{d}" for d in ("cnpj.biz", "econodata.com.br", "cnpja.com", "casadosdados.com.br", "solutudo.com.br"))
+
+
+def eh_agregador(url):
+    return any(a in (url or "") for a in AGREGADORES)
+
+
+def buscar(q, recente=False):
+    corpo = {"q": q, "gl": "br", "hl": "pt-br", "num": 10}
+    if recente:
+        corpo["tbs"] = "qdr:y"  # só o último ano
     r = requests.post("https://google.serper.dev/search",
-                      headers={"X-API-KEY": os.environ["SEARCH_API_KEY"]},
-                      json={"q": q, "gl": "br", "hl": "pt-br", "num": 10}, timeout=30)
+                      headers={"X-API-KEY": os.environ["SEARCH_API_KEY"]}, json=corpo, timeout=30)
     r.raise_for_status()
     d = r.json()
-    partes = []
+    partes, links = [], []
     kg = d.get("knowledgeGraph")
     if kg:
         partes.append("Painel do Google: " + json.dumps(kg, ensure_ascii=False))
-    for o in d.get("organic", [])[:8]:
+    for o in d.get("organic", []):
+        if eh_agregador(o.get("link")):
+            continue
         partes.append(f"- {o.get('title')} | {o.get('link')} | {o.get('snippet')} {o.get('date', '')}")
-    return "\n".join(partes)
+        links.append(o.get("link") or "")
+        if len(links) == 8:
+            break
+    return "\n".join(partes), links
+
+
+SOCIAIS = ("instagram.", "facebook.", "linkedin.", "youtube.", "tiktok.", "twitter.", "x.com", "wa.me",
+           "google.", "gupy", "indeed", "glassdoor", "vagas.com", "infojobs", "catho", "reclameaqui")
+
+
+def so_digitos(t):
+    return re.sub(r"\D", "", t or "")
+
+
+def conferir_site(emp, links):
+    """Abre o primeiro site candidato (de graça) e diz se ele bate com a Receita."""
+    for url in links:
+        if not url or eh_agregador(url) or any(s in url for s in SOCIAIS):
+            continue
+        dominio = re.sub(r"^https?://(www\.)?", "", url).split("/")[0]
+        try:
+            r = requests.get(f"https://{dominio}", timeout=8, headers={"User-Agent": "Mozilla/5.0"})
+        except requests.RequestException:
+            continue
+        html = r.text
+        texto = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", re.sub(r"(?s)<(script|style).*?</\1>", " ", html)))
+        dig = so_digitos(texto)
+        tel = so_digitos(emp["telefone_receita"])[-8:]
+        confere = {
+            "cnpj": emp["cnpj"] in dig,
+            "cep": bool(emp["cep"]) and emp["cep"] in dig,
+            "telefone": bool(tel) and tel in dig,
+            "cidade": emp["cidade"].lower() in texto.lower(),
+        }
+        vagas = sorted({m for m in re.findall(r'href="([^"]*(?:vaga|carreira|trabalhe|careers|jobs)[^"]*)"', html, re.I)})[:3]
+        return (f"Verificação do site {dominio}: mostra o CNPJ: {confere['cnpj']}; o CEP: {confere['cep']}; "
+                f"o telefone da Receita: {confere['telefone']}; a cidade: {confere['cidade']}. "
+                f"Links de vagas no site: {vagas or 'nenhum'}.\nTrecho do site: {texto[:1200]}")
+    return "Verificação do site: nenhum site próprio encontrado nos resultados."
 
 
 def resumir(cliente, emp, achados):
-    texto = (f"Empresa (Receita Federal): {json.dumps(emp, ensure_ascii=False)}\n\n"
-             f"Resultados de busca:\n{achados}")
+    texto = f"Empresa (Receita Federal): {json.dumps(emp, ensure_ascii=False)}\n\n{achados}"
     resp = cliente.messages.create(
         model=MODELO,
         max_tokens=2000,
@@ -132,11 +203,29 @@ def resumir(cliente, emp, achados):
     return json.loads(txt), resp.usage
 
 
+def limpar(card, emp):
+    """Regras que não dependem da IA."""
+    if card.get("confianca_empresa") == "baixa":
+        return {k: ([] if k == "fontes" else None) for k in card} | {"confianca_empresa": "baixa"}
+    ig = card.get("instagram")
+    if ig and not re.fullmatch(r"(https?://)?(www\.)?instagram\.com/[A-Za-z0-9_.]+/?", ig):
+        card["instagram"] = None
+    if card.get("site") and (eh_agregador(card["site"]) or any(s in card["site"] for s in SOCIAIS)):
+        card["site"] = None
+    tel = so_digitos(card.get("telefone_comercial"))
+    if tel and (tel[-8:] == so_digitos(emp["telefone_receita"])[-8:] or len(set(tel[-8:])) <= 2):
+        card["telefone_comercial"] = None
+    if card.get("por_que_agora") and not (card.get("sinal_data") and card.get("sinal_fonte")):
+        card["por_que_agora"] = None
+    return card
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--entrada", default=AQUI / "empresas.csv")
     ap.add_argument("--so-receita", action="store_true")
     ap.add_argument("--limite", type=int)
+    ap.add_argument("--nome", help="nome dos arquivos de saída (padrão: a data de hoje)")
     a = ap.parse_args()
 
     with open(a.entrada, newline="") as f:
@@ -161,24 +250,28 @@ def main():
         except requests.RequestException as e:
             print(f"{i:>3} {cnpj} Receita falhou: {e}")
             continue
+        emp["cnpj"] = cnpj
         linha.update(emp)
         if cliente:
             nome = nome_curto(emp)
-            achados = buscar(f'"{nome}" {emp["cidade"]}')
+            achados, links = buscar(f'"{nome}" {emp["cidade"]} {SEM_AGREGADORES}')
             buscas = 1
-            # Segunda busca só para os sinais (vaga, notícia), que dão o "por que agora".
-            achados += "\n\n" + buscar(f'"{nome}" vaga OR contratando OR notícia')
+            # Segunda busca só para os sinais do último ano, que dão o "por que agora".
+            sinais, links2 = buscar(f'"{nome}" (vaga OR contrata OR lança OR inaugura OR "novo cliente" OR prêmio OR expansão)', recente=True)
             buscas += 1
+            achados = conferir_site(emp, links + links2) + "\n\nResultados de busca:\n" + achados + "\n\nSinais do último ano:\n" + sinais
             card, uso = resumir(cliente, emp, achados)
             custo_ia = (uso.input_tokens * ent + uso.output_tokens * sai) / 1e6
             custo = (custo_ia + buscas * PRECO_BUSCA) * DOLAR
-            card = card or {}
-            sinais = [k for k in ("site", "instagram", "telefone_comercial", "nota_google",
-                                  "vaga_aberta", "noticia_recente") if card.get(k) is not None]
+            card = limpar(card or {}, emp)
+            # Só conta o que é novo: telefone e cadastro da Receita não entram.
+            novos = [k for k in ("site", "instagram", "telefone_comercial", "vaga_aberta", "noticia_recente")
+                     if card.get(k) is not None]
             linha.update({k: (json.dumps(v, ensure_ascii=False) if isinstance(v, list) else v)
                           for k, v in card.items()})
             linha.update({
-                "achou_algo": "sim" if sinais else "não",
+                "achou_algo": "sim" if novos else "não",
+                "tem_por_que_agora": "sim" if card.get("por_que_agora") else "não",
                 "buscas": buscas,
                 "tokens_entrada": uso.input_tokens,
                 "tokens_saida": uso.output_tokens,
@@ -196,7 +289,7 @@ def main():
         sys.exit("Nenhuma empresa processada.")
     pasta = AQUI / "resultados"
     pasta.mkdir(exist_ok=True)
-    base = pasta / f"{date.today()}{'-receita' if a.so_receita else ''}"
+    base = pasta / (a.nome or f"{date.today()}{'-receita' if a.so_receita else ''}")
     campos = list(dict.fromkeys(k for l in linhas for k in l))
     with open(f"{base}.csv", "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=campos)
@@ -204,17 +297,20 @@ def main():
         w.writerows(linhas)
 
     n = len(linhas)
-    res = [f"# Medição {date.today()}", "", f"Empresas: {n}"]
+    res = [f"# Medição {base.name}", "", f"Empresas: {n}"]
     res.append(f"Com sócio-administrador na Receita: {sum(1 for l in linhas if l.get('socio_adm'))} de {n}")
     if cliente:
         custos = [l["custo_rs"] for l in linhas]
         achou = [l for l in linhas if l["achou_algo"] == "sim"]
+        gancho = [l for l in linhas if l["tem_por_que_agora"] == "sim"]
         res += [
             f"Modelo: {MODELO} · busca a US$ {PRECO_BUSCA} · dólar R$ {DOLAR}",
             f"Custo médio por empresa: R$ {statistics.mean(custos):.4f}",
             f"Custo mais alto: R$ {max(custos):.4f}",
-            f"Achou algum sinal: {len(achou)} de {n}",
-            f"Custo por empresa com sinal (o que viraria 1 crédito cobrado): R$ {sum(custos) / max(len(achou), 1):.4f}",
+            f"Com dado novo (site, Instagram, telefone novo, vaga ou notícia): {len(achou)} de {n}",
+            f"Com por que agora: {len(gancho)} de {n}",
+            f"Custo por empresa com dado novo: R$ {sum(custos) / max(len(achou), 1):.4f}",
+            f"Custo por empresa com por que agora: R$ {sum(custos) / max(len(gancho), 1):.4f}",
             f"Tempo médio: {statistics.mean(l['segundos'] for l in linhas):.1f}s",
             "",
             "Falta a conferência manual: preencher as 3 colunas (s/n) no CSV.",
