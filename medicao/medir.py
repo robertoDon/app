@@ -59,7 +59,7 @@ SCHEMA = {
         "sinal_data": {"type": ["string", "null"]},
         "sinal_fonte": {"type": ["string", "null"]},
         "por_que_agora": {"type": ["string", "null"]},
-        "por_que_agora_tipo": {"type": ["string", "null"], "enum": ["fato", "hipotese", None]},
+        "por_que_agora_tipo": {"anyOf": [{"type": "string", "enum": ["fato", "hipotese"]}, {"type": "null"}]},
         "fontes": {"type": "array", "items": {"type": "string"}},
     },
     "required": ["confianca_empresa", "site", "instagram", "telefone_comercial", "nota_google",
@@ -89,7 +89,7 @@ Use só o que está no material abaixo (cadastro da Receita, verificação do si
 6. por_que_agora: um gancho de venda para quem vende a oferta acima, numa frase, em português simples. Dois tipos:
    - fato: um acontecimento dos últimos 12 meses que mostra mudança na empresa: vaga aberta ou contratação (vaga confirmada
      aberta numa página de vagas vale mesmo sem data), sócio que entrou no último ano (campo socio_entrou_ultimo_ano, fonte
-     "Receita Federal"), nova sede ou filial, produto ou serviço novo, contrato ou cliente novo, prêmio, investimento, expansão.
+     "Receita Federal"), empresa aberta no último ano (campo aberta_no_ultimo_ano, fonte "Receita Federal"), nova sede ou filial, produto ou serviço novo, contrato ou cliente novo, prêmio, investimento, expansão.
      Leia com cuidado: prorrogação de contrato não é contrato novo.
    - hipotese: uma leitura que liga um dado VERIFICADO acima à oferta de quem vai abordar (ex.: "contratou dev e não tem
      ninguém de vendas: o comercial deve estar no fundador"). Diga o dado em que ela se apoia. Nunca uma frase genérica.
@@ -125,6 +125,7 @@ def receita(cnpj):
         "endereco": " ".join(x for x in (d.get("logradouro"), d.get("numero"), d.get("bairro")) if x),
         "cep": d.get("cep") or "",
         "socio_entrou_ultimo_ano": ", ".join(novos),
+        "aberta_no_ultimo_ano": (d.get("data_inicio_atividade") or "") >= um_ano,
     }
 
 
