@@ -19,6 +19,7 @@ O nome ANTHROPIC_API_KEY é reservado pelo Claude Code no ambiente da nuvem e n�
 
 import argparse
 import csv
+import io
 import json
 import os
 import re
@@ -28,6 +29,7 @@ import time
 from datetime import date
 from pathlib import Path
 
+import pypdf
 import requests
 
 AQUI = Path(__file__).parent
@@ -264,6 +266,22 @@ def recente(sinal_data):
     return 0 <= meses <= 12
 
 
+def contrato_novo(url, emp):
+    """Abre a publicação do contrato (de graça) e confere se não é aditivo ou prorrogação de um contrato antigo."""
+    try:
+        r = requests.get(url, timeout=15, headers={"User-Agent": "DalvaBot/0.1 (medição de enriquecimento)"})
+        if r.content[:4] == b"%PDF":
+            texto = " ".join(p.extract_text() or "" for p in pypdf.PdfReader(io.BytesIO(r.content)).pages)
+        else:
+            texto = re.sub(r"<[^>]+>", " ", r.text)
+    except Exception:
+        return False
+    texto = re.sub(r"\s+", " ", texto).lower()
+    chave = nome_curto(emp).split()[0].lower()
+    trechos = [texto[max(0, m.start() - 1500):m.end() + 1500] for m in re.finditer(re.escape(chave), texto)]
+    return bool(trechos) and not any(re.search(r"aditivo|prorroga|renova", t) for t in trechos)
+
+
 def limpar(card, emp):
     """Regras que não dependem da IA."""
     if card.get("confianca_empresa") == "baixa":
@@ -277,6 +295,10 @@ def limpar(card, emp):
     if tel and (tel[-8:] == so_digitos(emp["telefone_receita"])[-8:] or len(set(tel[-8:])) <= 2):
         card["telefone_comercial"] = None
     if card.get("por_que_agora") and not (recente(card.get("sinal_data")) and card.get("sinal_fonte")):
+        card["por_que_agora"] = None
+    fonte = card.get("sinal_fonte") or ""
+    if card.get("por_que_agora") and re.search(r"contrat", card["por_que_agora"], re.I) and fonte.startswith("http") \
+            and not contrato_novo(fonte, emp):
         card["por_que_agora"] = None
     if not card.get("por_que_agora"):
         card["por_que_agora_tipo"] = None
