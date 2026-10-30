@@ -148,8 +148,7 @@
    "w": 390,
    "h": 844,
    "title": "1. Hoje — celular",
-   "page": "telas",
-   "is_interactive": true
+   "page": "telas"
   },
   "PipelineMobile.dc.html": {
    "x": 1520,
@@ -157,8 +156,7 @@
    "w": 390,
    "h": 844,
    "title": "2. Pipeline — celular",
-   "page": "telas",
-   "is_interactive": true
+   "page": "telas"
   },
   "PipelineNegocioMobile.dc.html": {
    "x": 3040,
@@ -166,8 +164,7 @@
    "w": 390,
    "h": 844,
    "title": "2. Pipeline · negócio aberto — celular",
-   "page": "telas",
-   "is_interactive": true
+   "page": "telas"
   },
   "PipelineAbordagemMobile.dc.html": {
    "x": 3510,
@@ -175,8 +172,7 @@
    "w": 390,
    "h": 844,
    "title": "2. Pipeline · abordagem — celular",
-   "page": "telas",
-   "is_interactive": true
+   "page": "telas"
   },
   "CacadaMobile.dc.html": {
    "x": 4560,
@@ -184,8 +180,7 @@
    "w": 390,
    "h": 844,
    "title": "3. Caçada — celular",
-   "page": "telas",
-   "is_interactive": true
+   "page": "telas"
   },
   "CacadaEntradaMobile.dc.html": {
    "x": 6080,
@@ -193,8 +188,7 @@
    "w": 390,
    "h": 844,
    "title": "3. Caçada · primeira caçada — celular",
-   "page": "telas",
-   "is_interactive": true
+   "page": "telas"
   },
   "ProjetosMobile.dc.html": {
    "x": 7600,
@@ -202,8 +196,7 @@
    "w": 390,
    "h": 844,
    "title": "4. Projetos — celular · fora do MVP (v2)",
-   "page": "telas",
-   "is_interactive": true
+   "page": "telas"
   },
   "GranaMobile.dc.html": {
    "x": 9120,
@@ -211,8 +204,7 @@
    "w": 390,
    "h": 844,
    "title": "5. Grana — celular · fora do MVP (v2)",
-   "page": "telas",
-   "is_interactive": true
+   "page": "telas"
   },
   "FocoMobile.dc.html": {
    "x": 0,
@@ -220,8 +212,7 @@
    "w": 390,
    "h": 844,
    "title": "Foco — uma coisa por vez",
-   "page": "telas",
-   "is_interactive": true
+   "page": "telas"
   },
   "ComoFoiMobile.dc.html": {
    "x": 470,
@@ -229,8 +220,7 @@
    "w": 390,
    "h": 844,
    "title": "Como foi — dois toques e segue",
-   "page": "telas",
-   "is_interactive": true
+   "page": "telas"
   },
   "FeitoMobile.dc.html": {
    "x": 940,
@@ -238,8 +228,7 @@
    "w": 390,
    "h": 844,
    "title": "Manhã feita — o dia clareia",
-   "page": "telas",
-   "is_interactive": true
+   "page": "telas"
   },
   "Landing.dc.html": {
    "x": 0,
