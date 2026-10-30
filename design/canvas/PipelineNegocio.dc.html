@@ -2,65 +2,218 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<title>Dalva — Negócio aberto (web)</title>
+<title>Dalva 2.0 — Negócio aberto e abordagem (web)</title>
 <script src="./support.js"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
 <style>
 body{margin:0}
-h1,h2,h3,.ds{font-family:'Sora', 'IBM Plex Sans', system-ui, sans-serif}
-a{color:#11131F}a:hover{color:#FF7A45}
+a:focus-visible,button:focus-visible{outline:2px solid #FF7A45;outline-offset:2px}
+.dv-nav:hover{background:#EFECE6}
+.pn-card{transition:border-color 150ms ease-out,box-shadow 150ms ease-out}
+.pn-card:hover{border-color:#CFCAC1}
+.pn-btn{transition:background-color 150ms ease-out}
+.pn-btn:hover{background:#EFECE6}
 </style>
 </helmet>
 <div style="min-height: 900px; background: #F7F5F2; color: #11131F; font-family: 'IBM Plex Sans', -apple-system, system-ui, sans-serif; display: flex; flex-wrap: wrap">
-  <aside style="flex: 1 1 220px; max-width: 260px; box-sizing: border-box; padding: 28px 16px; display: flex; flex-direction: column; gap: 4px">
-    <div style="display: flex; align-items: center; gap: 10px; padding: 0 12px 24px">
-      <svg viewBox="0 -742 2542 752" width="71.0" height="21" role="img" aria-label="Dalva" style="display: block; flex-shrink: 0"><path fill="#11131F" d="M428 0H556V-742L428 -700V-494C386 -517 335 -530 278 -530C111 -530 0 -422 0 -260C0 -98 111 10 278 10C335 10 386 -3 428 -26ZM2414 0H2542V-520L2413 -478V-494C2371 -517 2321 -530 2264 -530C2097 -530 1986 -422 1986 -260C1986 -98 2097 10 2264 10C2321 10 2372 -3 2414 -26ZM1042 0H1170V-520L1041 -478V-494C999 -517 949 -530 892 -530C725 -530 614 -422 614 -260C614 -98 725 10 892 10C949 10 1000 -3 1042 -26ZM1430 -520 1629 0H1779L1978 -520H1845L1718 -188H1690L1563 -520ZM1266 0H1394V-742L1266 -700ZM1042 -260C1042 -144 998 -94 895 -94C805 -94 748 -158 748 -260C748 -362 805 -426 895 -426C998 -426 1042 -376 1042 -260ZM428 -260C428 -144 384 -94 281 -94C191 -94 134 -158 134 -260C134 -362 191 -426 281 -426C384 -426 428 -376 428 -260ZM2414 -260C2414 -144 2370 -94 2267 -94C2177 -94 2120 -158 2120 -260C2120 -362 2177 -426 2267 -426C2370 -426 2414 -376 2414 -260Z"></path></svg>
-    </div>
-    <a href="HojeWeb.dc.html" style="padding: 10px 12px; border-radius: 10px; text-decoration: none; font-size: 15px; font-weight: 500; color: #33364A">Hoje</a>
-    <a href="#" style="padding: 10px 12px; border-radius: 10px; text-decoration: none; font-size: 15px; font-weight: 600; background: #FFFFFF; color: #11131F; box-shadow: 0 1px 2px rgba(0,0,0,0.05)">Pipeline</a>
-    <a href="Cacada.dc.html" style="padding: 10px 12px; border-radius: 10px; text-decoration: none; font-size: 15px; font-weight: 500; color: #33364A">Caçada</a>
+
+  <aside style="flex: 1 1 220px; max-width: 256px; box-sizing: border-box; padding: 24px 16px; display: flex; flex-direction: column; gap: 4px">
+    <div style="padding: 0 12px 20px"><svg viewBox="0 -742 2542 752" width="71" height="21" role="img" aria-label="Dalva" style="display: block"><path fill="#11131F" d="M428 0H556V-742L428 -700V-494C386 -517 335 -530 278 -530C111 -530 0 -422 0 -260C0 -98 111 10 278 10C335 10 386 -3 428 -26ZM2414 0H2542V-520L2413 -478V-494C2371 -517 2321 -530 2264 -530C2097 -530 1986 -422 1986 -260C1986 -98 2097 10 2264 10C2321 10 2372 -3 2414 -26ZM1042 0H1170V-520L1041 -478V-494C999 -517 949 -530 892 -530C725 -530 614 -422 614 -260C614 -98 725 10 892 10C949 10 1000 -3 1042 -26ZM1430 -520 1629 0H1779L1978 -520H1845L1718 -188H1690L1563 -520ZM1266 0H1394V-742L1266 -700ZM1042 -260C1042 -144 998 -94 895 -94C805 -94 748 -158 748 -260C748 -362 805 -426 895 -426C998 -426 1042 -376 1042 -260ZM428 -260C428 -144 384 -94 281 -94C191 -94 134 -158 134 -260C134 -362 191 -426 281 -426C384 -426 428 -376 428 -260ZM2414 -260C2414 -144 2370 -94 2267 -94C2177 -94 2120 -158 2120 -260C2120 -362 2177 -426 2267 -426C2370 -426 2414 -376 2414 -260Z"></path></svg></div>
+    <button type="button" style="height: 44px; margin-bottom: 12px; box-sizing: border-box; padding: 0 8px 0 14px; border: 1px solid #E6E2DB; border-radius: 999px; background: #FFFFFF; color: #5E6272; font: inherit; font-size: 13px; display: flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 1px 2px rgba(17,19,31,0.06)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg><span style="flex-grow: 1; text-align: left">Buscar ou fazer algo</span><kbd style="min-width: 22px; height: 24px; box-sizing: border-box; padding: 0 6px; border-radius: 8px; background: #EFECE6; color: #33364A; font: inherit; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center">⌘K</kbd></button>
+    <nav aria-label="Navegação" style="display: flex; flex-direction: column; gap: 4px">
+      <a class="dv-nav" href="Hoje.dc.html" style="height: 44px; box-sizing: border-box; padding: 0 13px; border-radius: 999px; color: #33364A; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 500; transition: background-color 150ms ease-out"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 18h18"></path><path d="M7 18a5 5 0 0 1 10 0"></path><path d="M12 6v3"></path><path d="M5.6 10.6l1.6 1.6"></path><path d="M18.4 10.6l-1.6 1.6"></path></svg><span style="flex-grow: 1">Hoje</span><span style="font-size: 13px; font-weight: 500; color: #5E6272">G H</span></a>
+      <a href="Pipeline.dc.html" aria-current="page" style="height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 999px; background: #FFFFFF; border: 1px solid #E6E2DB; box-shadow: 0 1px 2px rgba(17,19,31,0.06); color: #11131F; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="4.5" height="16" rx="1.5"></rect><rect x="9.75" y="4" width="4.5" height="11" rx="1.5"></rect><rect x="16" y="4" width="4.5" height="7" rx="1.5"></rect></svg><span style="flex-grow: 1">Pipeline</span><span style="font-size: 13px; font-weight: 500; color: #5E6272">G P</span></a>
+      <a class="dv-nav" href="Cacada.dc.html" style="height: 44px; box-sizing: border-box; padding: 0 13px; border-radius: 999px; color: #33364A; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 500; transition: background-color 150ms ease-out"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="7.5"></circle><circle cx="12" cy="12" r="2"></circle><path d="M12 2v3"></path><path d="M12 19v3"></path><path d="M2 12h3"></path><path d="M19 12h3"></path></svg><span style="flex-grow: 1">Caçada</span><span style="font-size: 13px; font-weight: 500; color: #5E6272">G C</span></a>
+      </nav>
   </aside>
-  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px 32px 40px; display: flex; flex-direction: column; gap: 20px">
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 24px 32px 48px; display: flex; flex-direction: column; gap: 24px">
     <header style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
       <div>
-        <h1 style="margin: 0; font-size: 34px; font-weight: 700; letter-spacing: -0.035em">Nuvem Labs</h1>
-        <p style="margin: 4px 0 0; font-size: 15px; color: #5E6272"><a href="Pipeline.dc.html" style="text-decoration: none; color: #5E6272">‹ Pipeline</a> · Conversa · R$ 5.500</p>
+        <a href="Pipeline.dc.html" style="display: inline-flex; align-items: center; gap: 4px; min-height: 24px; font-size: 13px; line-height: 18px; color: #5E6272; text-decoration: none"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>Pipeline</a>
+        <h1 style="margin: 0; font-family: 'Sora', 'IBM Plex Sans', system-ui, sans-serif; font-size: 40px; line-height: 44px; font-weight: 700; letter-spacing: -0.035em">Nuvem Labs</h1>
+        <p style="margin: 4px 0 0; font-size: 16px; line-height: 22px; color: #5E6272; font-variant-numeric: tabular-nums">Conversa · R$ 5.500 · Ana Ribeiro</p>
       </div>
-      <div style="display: flex; gap: 10px; flex-wrap: wrap"><button type="button" style="font: inherit; font-size: 15px; font-weight: 600; color: #11131F; background: #FFFFFF; border: 0; border-radius: 999px; padding: 12px 20px; min-height: 44px; cursor: pointer">Mover para Proposta</button><button type="button" style="font: inherit; font-size: 15px; font-weight: 600; color: #FFFFFF; background: #11131F; border: 0; border-radius: 999px; padding: 12px 20px; min-height: 44px; cursor: pointer">Marcar como ganho</button></div>
+      <div style="display: flex; flex-wrap: wrap; gap: 12px">
+        <button type="button" class="pn-btn" style="height: 44px; box-sizing: border-box; padding: 0 18px; border: 1px solid #11131F; border-radius: 999px; background: transparent; color: #11131F; font: inherit; font-size: 16px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; white-space: nowrap">Mover para Proposta</button>
+        <button type="button" class="pn-btn" style="height: 44px; box-sizing: border-box; padding: 0 18px; border: 1px solid #11131F; border-radius: 999px; background: transparent; color: #11131F; font: inherit; font-size: 16px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; white-space: nowrap">Marcar como ganho</button>
+      </div>
     </header>
-    <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 20px; align-items: start">
-      <div style="display: flex; flex-direction: column; gap: 16px">
-        <section style="background: #FFFFFF; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05); padding: 22px; display: flex; flex-direction: column; gap: 18px">
-          <div style="display: flex; align-items: center; gap: 14px"><span style="width: 52px; height: 52px; border-radius: 26px; background: #11131F; color: #FFFFFF; display: inline-flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 600">AR</span><div><p style="margin: 0; font-size: 19px; font-weight: 700; letter-spacing: -0.02em">Ana Ribeiro</p><p style="margin: 2px 0 0; font-size: 13px; color: #5E6272">Head de Produto · Nuvem Labs</p></div></div>
-          <div style="display: flex; gap: 22px"><a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 6px; text-decoration: none; font-size: 12px; font-weight: 500; color: #33364A"><span style="width: 44px; height: 44px; border-radius: 22px; background: #EFECE6; display: flex; align-items: center; justify-content: center; color: #11131F"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"></path></svg></span>Ligar</a><a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 6px; text-decoration: none; font-size: 12px; font-weight: 500; color: #33364A"><span style="width: 44px; height: 44px; border-radius: 22px; background: #EFECE6; display: flex; align-items: center; justify-content: center; color: #11131F"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.2-4.5A9 9 0 1 1 21 12z"></path></svg></span>WhatsApp</a><a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 6px; text-decoration: none; font-size: 12px; font-weight: 500; color: #33364A"><span style="width: 44px; height: 44px; border-radius: 22px; background: #EFECE6; display: flex; align-items: center; justify-content: center; color: #11131F"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 7l9 6 9-6"></path></svg></span>E-mail</a></div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+
+      <div style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+        <section aria-label="Contato" style="border-radius: 24px; padding: 24px; background: #FFFFFF; border: 1px solid #E6E2DB; box-shadow: 0 1px 2px rgba(17,19,31,0.06); display: flex; flex-direction: column; gap: 20px">
+          <div style="display: flex; align-items: center; gap: 16px">
+            <span aria-hidden="true" style="width: 48px; height: 48px; flex-shrink: 0; border-radius: 24px; background: #11131F; color: #FFFFFF; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 600">AR</span>
+            <div><h2 style="margin: 0; font-size: 16px; line-height: 22px; font-weight: 600">Ana Ribeiro</h2><p style="margin: 0; font-size: 13px; line-height: 18px; color: #5E6272">Head de Produto · Nuvem Labs</p></div>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <a class="pn-btn" href="#" style="height: 44px; box-sizing: border-box; padding: 0 18px; border: 1px solid #11131F; border-radius: 999px; background: transparent; color: #11131F; font: inherit; font-size: 16px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; white-space: nowrap; border-color: #E6E2DB"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h3.5l2 5-2.5 1.5a11 11 0 0 0 5.5 5.5l1.5-2.5 5 2V19a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"></path></svg>Ligar</a>
+            <a class="pn-btn" href="#" style="height: 44px; box-sizing: border-box; padding: 0 18px; border: 1px solid #11131F; border-radius: 999px; background: transparent; color: #11131F; font: inherit; font-size: 16px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; white-space: nowrap; border-color: #E6E2DB"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.2-4A8 8 0 1 1 8 18.8L4 20z"></path></svg>WhatsApp</a>
+            <a class="pn-btn" href="#" style="height: 44px; box-sizing: border-box; padding: 0 18px; border: 1px solid #11131F; border-radius: 999px; background: transparent; color: #11131F; font: inherit; font-size: 16px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; white-space: nowrap; border-color: #E6E2DB"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"></rect><path d="M4 7l8 6 8-6"></path></svg>E-mail</a>
+          </div>
         </section>
-        <section style="background: #FFFFFF; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05); padding: 14px 22px 8px"><p style="margin: 4px 0 4px; font-size: 13px; font-weight: 600; color: #5E6272">A EMPRESA</p><div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid rgba(0,0,0,0.06)"><span style="font-size: 14px">Desenvolvimento de software · Florianópolis</span><span style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: #EFECE6; color: #5E6272; white-space: nowrap">Receita Federal · set/26</span></div><div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid rgba(0,0,0,0.06)"><span style="font-size: 14px">Aberta em 2019 · microempresa</span><span style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: #EFECE6; color: #5E6272; white-space: nowrap">Receita Federal · set/26</span></div><div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid rgba(0,0,0,0.06)"><span style="font-size: 14px">Ana Ribeiro, Head de Produto</span><span style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: #EFECE6; color: #5E6272; white-space: nowrap">você cadastrou</span></div><div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid rgba(0,0,0,0.06)"><span style="font-size: 14px">Vende por planilha, sem CRM</span><span style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; border: 1px dashed #A1A1A6; color: #5E6272; white-space: nowrap">inferido por IA</span></div></section>
-        <section style="background: #FFFFFF; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05); padding: 14px 22px 8px"><p style="margin: 4px 0 0; font-size: 13px; font-weight: 600; color: #5E6272">HISTÓRICO</p><div style="display: flex; gap: 12px; padding: 10px 0"><span style="width: 8px; height: 8px; margin-top: 6px; border-radius: 4px; background: #11131F; flex-shrink: 0"></span><div><p style="margin: 0; font-size: 14px; font-weight: 500">Reunião de descoberta</p><p style="margin: 2px 0 0; font-size: 12px; color: #5E6272">17/10 · "Querem trocar a planilha até dezembro."</p></div></div><div style="display: flex; gap: 12px; padding: 10px 0"><span style="width: 8px; height: 8px; margin-top: 6px; border-radius: 4px; background: #CFCAC1; flex-shrink: 0"></span><div><p style="margin: 0; font-size: 14px; font-weight: 500">Primeiro contato enviado</p><p style="margin: 2px 0 0; font-size: 12px; color: #5E6272">12/10 · abordagem sugerida, você revisou</p></div></div><div style="display: flex; gap: 12px; padding: 10px 0"><span style="width: 8px; height: 8px; margin-top: 6px; border-radius: 4px; background: #C77713; flex-shrink: 0"></span><div><p style="margin: 0; font-size: 14px; font-weight: 500">Selecionada para prospectar</p><p style="margin: 2px 0 0; font-size: 12px; color: #5E6272">10/10 · caçada "SaaS em SC"</p></div></div></section>
+
+        <section aria-label="A empresa" style="border-radius: 24px; padding: 24px; background: #FFFFFF; border: 1px solid #E6E2DB; box-shadow: 0 1px 2px rgba(17,19,31,0.06); padding-bottom: 12px">
+          <h2 style="margin: 0 0 4px; font-size: 16px; line-height: 22px; font-weight: 600">A empresa</h2>
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid #EFECE6; font-size: 16px; line-height: 22px"><span>Desenvolvimento de software · Florianópolis</span><span style="font-size: 13px; line-height: 18px; color: #5E6272; text-align: right">Receita Federal · set/26</span></div><div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid #EFECE6; font-size: 16px; line-height: 22px"><span>Aberta em 2019 · microempresa</span><span style="font-size: 13px; line-height: 18px; color: #5E6272; text-align: right">Receita Federal · set/26</span></div><div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid #EFECE6; font-size: 16px; line-height: 22px"><span>Ana Ribeiro, Head de Produto</span><span style="font-size: 13px; line-height: 18px; color: #5E6272; text-align: right">você cadastrou</span></div><div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid #EFECE6; font-size: 16px; line-height: 22px"><span>Vende por planilha, sem CRM</span><span style="font-size: 13px; line-height: 18px; color: #5E6272; text-align: right"><span style="height: 24px; box-sizing: border-box; padding: 0 8px; border-radius: 999px; border: 1px dashed #5E6272; display: inline-flex; align-items: center">inferido por IA</span></span></div>
+        </section>
+
+        <section aria-label="Histórico" style="border-radius: 24px; padding: 24px; background: #FFFFFF; border: 1px solid #E6E2DB; box-shadow: 0 1px 2px rgba(17,19,31,0.06)">
+          <h2 style="margin: 0 0 12px; font-size: 16px; line-height: 22px; font-weight: 600">Histórico</h2>
+          <ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px">
+            <sc-for list="{{historico}}" as="h" hint-placeholder-count="3">
+              <li style="display: flex; gap: 12px">
+                <span style="width: 8px; height: 8px; margin-top: 7px; flex-shrink: 0; border-radius: 4px; background: #11131F"></span>
+                <div><p style="margin: 0; font-size: 16px; line-height: 22px; font-weight: 600">{{h.t}}</p><p style="margin: 0; font-size: 13px; line-height: 18px; color: #5E6272">{{h.d}}</p></div>
+              </li>
+            </sc-for>
+          </ol>
+        </section>
       </div>
-      <div style="display: flex; flex-direction: column; gap: 16px">
-        <section style="background: #FFFFFF; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05); padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; gap: 16px; box-shadow: inset 4px 0 0 #C77713, 0 1px 2px rgba(0,0,0,0.04)">
-          <div><p style="margin: 0; font-size: 12px; font-weight: 600; color: #5E6272">PRÓXIMO PASSO</p><p style="margin: 4px 0 0; font-size: 17px; font-weight: 600">Follow-up com a Ana</p><p style="margin: 2px 0 0; font-size: 13px; font-weight: 500; color: #8F550E">venceu sáb 24/10 · 2 dias</p></div>
-          <button type="button" style="font: inherit; font-size: 13px; font-weight: 600; color: #11131F; background: #EFECE6; border: 0; border-radius: 999px; padding: 8px 14px; min-height: 36px; cursor: pointer; white-space: nowrap">Remarcar</button>
-        </section>
-        <section style="background: #FFFFFF; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05); padding: 22px; display: flex; flex-direction: column; gap: 16px">
-          <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px"><h2 style="margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.02em">Abordagem sugerida</h2><span style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; border: 1px dashed #A1A1A6; color: #5E6272; white-space: nowrap">sugestão da Dalva</span></div>
-          <div style="display: flex; flex-wrap: wrap; gap: 4px; background: #EFECE6; border-radius: 999px; padding: 4px; align-self: flex-start"><span style="font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 999px; background: transparent; color: #A1A1A6">1º contato ✓</span><span style="font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 999px; background: #11131F; color: #FFFFFF">Follow-up 1</span><span style="font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 999px; background: transparent; color: #33364A">Follow-up 2</span><span style="font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 999px; background: transparent; color: #33364A">Follow-up 3</span></div>
-          <div style="background: #F7F5F2; border-radius: 16px; padding: 18px 20px; font-size: 16px; line-height: 1.55">Oi, Ana! Na nossa conversa do dia 17 você comentou que querem trocar a planilha até dezembro. Montei um rascunho de como ficaria o painel de vocês. Te mostro em 20 minutos esta semana?</div>
-          <p style="margin: 0; font-size: 13px; color: #5E6272">Escrita a partir da reunião de 17/10. Revise antes de mandar: nada sai sem você.</p>
-          <div style="display: flex; flex-wrap: wrap; gap: 10px"><button type="button" style="font: inherit; font-size: 15px; font-weight: 600; color: #FFFFFF; background: #11131F; border: 0; border-radius: 999px; padding: 12px 20px; min-height: 44px; cursor: pointer">Abrir no WhatsApp</button><button type="button" style="font: inherit; font-size: 15px; font-weight: 600; color: #11131F; background: #FFFFFF; border: 0; border-radius: 999px; padding: 12px 20px; min-height: 44px; cursor: pointer">Copiar</button><button type="button" style="font: inherit; font-size: 15px; font-weight: 600; color: #11131F; background: #FFFFFF; border: 0; border-radius: 999px; padding: 12px 20px; min-height: 44px; cursor: pointer">Outra versão</button></div>
-        </section>
-      </div>
+
+      <section aria-label="Próximo passo" aria-live="polite" style="flex: 1.25 1 420px; min-width: 0; border-radius: 24px; padding: 24px; background: #FFFFFF; border: 1px solid #E6E2DB; box-shadow: 0 1px 2px rgba(17,19,31,0.06); display: flex; flex-direction: column; gap: 20px">
+
+        <sc-if value="{{ativo}}" hint-placeholder-val="{{true}}">
+          <div style="display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px">
+            <div>
+              <p style="margin: 0; font-size: 13px; line-height: 18px; font-weight: 600; color: #5E6272">Próximo passo</p>
+              <h2 style="margin: 0; font-size: 16px; line-height: 22px; font-weight: 600">{{titulo}}</h2>
+            </div>
+            <sc-if value="{{atrasado}}" hint-placeholder-val="{{true}}"><span style="height: 24px; box-sizing: border-box; padding: 0 8px; border-radius: 999px; background: #F5E6D0; color: #8F550E; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; white-space: nowrap"><span style="width: 8px; height: 8px; border-radius: 4px; background: #C77713"></span>Venceu sáb 24/10 · 5 dias</span></sc-if>
+            <sc-if value="{{noPrazo}}" hint-placeholder-val="{{false}}"><span style="height: 24px; box-sizing: border-box; padding: 0 8px; border-radius: 999px; background: #E8ECF3; color: #4E628F; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; white-space: nowrap"><span style="width: 8px; height: 8px; border-radius: 4px; box-sizing: border-box; border: 2px solid #4E628F"></span>{{prazo}}</span></sc-if>
+          </div>
+
+          <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+            <ol aria-label="Sequência de abordagem" style="list-style: none; margin: 0; padding: 4px; border-radius: 999px; background: #EFECE6; display: flex; flex-wrap: wrap; gap: 4px">
+              <sc-for list="{{passos}}" as="p" hint-placeholder-count="4">
+                <li aria-current="{{p.aria}}" style="height: 36px; box-sizing: border-box; padding: 0 12px; border-radius: 999px; background: {{p.fundo}}; color: {{p.cor}}; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; transition: background-color 150ms ease-out"><sc-if value="{{p.feito}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if>{{p.nome}}</li>
+              </sc-for>
+            </ol>
+            <span style="height: 24px; box-sizing: border-box; padding: 0 8px; border-radius: 999px; border: 1px dashed #5E6272; color: #5E6272; display: inline-flex; align-items: center; font-size: 13px; font-weight: 500; white-space: nowrap">sugestão da Dalva</span>
+          </div>
+
+          <div style="border-radius: 16px; padding: 20px; background: #F7F5F2; font-size: 16px; line-height: 22px">{{mensagem}}</div>
+          <p style="margin: 0; font-size: 13px; line-height: 18px; color: #5E6272">{{fonte}}</p>
+
+          <sc-if value="{{rascunho}}" hint-placeholder-val="{{true}}">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+              <button type="button" onClick="{{abrir}}" style="height: 48px; box-sizing: border-box; padding: 0 12px 0 20px; border: 0; border-radius: 999px; background: #FF7A45; color: #11131F; font: inherit; font-size: 16px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; white-space: nowrap"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.2-4A8 8 0 1 1 8 18.8L4 20z"></path></svg>Abrir no WhatsApp <kbd style="min-width: 22px; height: 24px; box-sizing: border-box; padding: 0 6px; border-radius: 8px; background: rgba(17,19,31,0.12); color: #11131F; font: inherit; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center">W</kbd></button>
+              <button type="button" class="pn-btn" onClick="{{copiar}}" style="height: 44px; box-sizing: border-box; padding: 0 18px; border: 1px solid #11131F; border-radius: 999px; background: transparent; color: #11131F; font: inherit; font-size: 16px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; white-space: nowrap"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="11" rx="2.5"></rect><path d="M15.5 8.5v-2a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"></path></svg><span>{{rotuloCopiar}}</span> <kbd style="min-width: 22px; height: 24px; box-sizing: border-box; padding: 0 6px; border-radius: 8px; background: #EFECE6; color: #33364A; font: inherit; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center">C</kbd></button>
+              <sc-if value="{{temOutra}}" hint-placeholder-val="{{true}}"><button type="button" class="pn-btn" onClick="{{outra}}" style="height: 44px; box-sizing: border-box; padding: 0 18px; border: 1px solid #11131F; border-radius: 999px; background: transparent; color: #11131F; font: inherit; font-size: 16px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; white-space: nowrap; border-color: #E6E2DB">Outra versão</button></sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{confirmar}}" hint-placeholder-val="{{false}}">
+            <div style="border-top: 1px solid #EFECE6; padding-top: 20px; display: flex; flex-direction: column; gap: 12px">
+              <p style="margin: 0; font-size: 16px; line-height: 22px; font-weight: 600">Abri o WhatsApp com a mensagem. Você mandou?</p>
+              <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+                <button type="button" onClick="{{mandei}}" style="height: 48px; box-sizing: border-box; padding: 0 12px 0 20px; border: 0; border-radius: 999px; background: #FF7A45; color: #11131F; font: inherit; font-size: 16px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; white-space: nowrap"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Sim, mandei</button>
+                <button type="button" class="pn-btn" onClick="{{ainda}}" style="height: 44px; box-sizing: border-box; padding: 0 18px; border: 1px solid #11131F; border-radius: 999px; background: transparent; color: #11131F; font: inherit; font-size: 16px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; white-space: nowrap">Ainda não</button>
+              </div>
+            </div>
+          </sc-if>
+        </sc-if>
+
+        <sc-if value="{{enviada}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+            <div style="display: flex; align-items: center; gap: 12px">
+              <span aria-hidden="true" style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 16px; background: #11131F; color: #FFFFFF; display: inline-flex; align-items: center; justify-content: center"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+              <div><h2 style="margin: 0; font-size: 16px; line-height: 22px; font-weight: 600">{{enviadoTitulo}}</h2><p style="margin: 0; font-size: 13px; line-height: 18px; color: #5E6272">Anotado no histórico da Nuvem Labs · agora</p></div>
+            </div>
+            <button type="button" class="pn-btn" onClick="{{desfazer}}" style="height: 44px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; color: #11131F; font: inherit; font-size: 16px; font-weight: 600; text-decoration: underline; cursor: pointer">Desfazer</button>
+          </div>
+          <div style="border-radius: 16px; padding: 16px 20px; background: #F7F5F2; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+            <div><p style="margin: 0; font-size: 13px; line-height: 18px; font-weight: 600; color: #5E6272">Depois disso</p><p style="margin: 0; font-size: 16px; line-height: 22px; font-weight: 600">{{depois}}</p></div>
+            <sc-if value="{{temProximoPasso}}" hint-placeholder-val="{{true}}"><button type="button" class="pn-btn" onClick="{{verProximo}}" style="height: 44px; box-sizing: border-box; padding: 0 18px; border: 1px solid #11131F; border-radius: 999px; background: transparent; color: #11131F; font: inherit; font-size: 16px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; white-space: nowrap">Ver o rascunho</button></sc-if>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding-top: 4px">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px">
+              <span style="height: 24px; box-sizing: border-box; padding: 0 8px; border-radius: 999px; background: #E8ECF3; color: #4E628F; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; white-space: nowrap"><span style="width: 8px; height: 8px; border-radius: 4px; box-sizing: border-box; border: 2px solid #4E628F"></span>Hoje, 10h</span>
+              <div><p style="margin: 0; font-size: 13px; line-height: 18px; font-weight: 600; color: #5E6272">Na fila</p><p style="margin: 0; font-size: 16px; line-height: 22px; font-weight: 600">Ligar para a Acme</p></div>
+            </div>
+            <a href="#" style="height: 48px; box-sizing: border-box; padding: 0 12px 0 20px; border: 0; border-radius: 999px; background: #FF7A45; color: #11131F; font: inherit; font-size: 16px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; white-space: nowrap">Abrir a Acme</a>
+          </div>
+        </sc-if>
+
+      </section>
     </div>
   </main>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
 class Component extends DCLogic {
-  renderVals() { return {}; }
+  msgs() {
+    return {
+      1: [
+        "Oi, Ana! Na nossa conversa do dia 17 você comentou que querem trocar a planilha até dezembro. Montei um rascunho de como ficaria o painel de vocês. Te mostro em 20 minutos esta semana?",
+        "Oi, Ana! Lembrei do que você disse no dia 17 sobre trocar a planilha até dezembro. Tenho um rascunho do painel de vocês. Posso te mostrar em 20 minutos?"
+      ],
+      2: ["Oi, Ana! Voltando ao rascunho do painel: ficou alguma dúvida? Se quiser, mostro em 20 minutos na segunda."],
+      3: ["Oi, Ana! Vou deixar de insistir por aqui. Se a troca da planilha ainda estiver nos planos para dezembro, me chame e retomamos de onde paramos."]
+    };
+  }
+  renderVals() {
+    const s = this.state || {};
+    const passo = s.passo ?? 1;
+    const fase = s.fase ?? "rascunho";
+    const versao = s.versao ?? 0;
+    const copiado = !!s.copiado;
+    const enviados = s.enviados ?? [];
+    const guia = Math.min(passo, 3);
+    const lista = this.msgs()[guia];
+    const titulos = { 1: "Follow-up com a Ana", 2: "Segundo follow-up com a Ana", 3: "Último follow-up com a Ana" };
+    const prazos = { 2: "seg 2/11 · em 4 dias", 3: "qui 5/11" };
+    const fontes = {
+      1: "Escrita a partir da reunião de 17/10. Revise antes de mandar: nada sai sem você.",
+      2: "Escrita a partir do follow-up 1 e da reunião de 17/10. Revise antes de mandar: nada sai sem você.",
+      3: "Escrita a partir da sequência inteira e da reunião de 17/10. Revise antes de mandar: nada sai sem você."
+    };
+    const nomes = ["1º contato", "Follow-up 1", "Follow-up 2", "Follow-up 3"];
+    const passos = nomes.map((nome, i) => {
+      const feito = i === 0 || enviados.includes(i);
+      const ativo = !feito && i === passo;
+      return { nome, feito, aria: ativo ? "step" : "false", fundo: ativo ? "#11131F" : "transparent", cor: ativo ? "#FFFFFF" : (feito ? "#5E6272" : "#33364A") };
+    });
+    const historico = enviados.slice().reverse().map((n) => ({ t: "Follow-up " + n + " enviado", d: "hoje · abordagem sugerida, você revisou" })).concat([
+      { t: "Reunião de descoberta", d: "17/10 · \"Querem trocar a planilha até dezembro.\"" },
+      { t: "Primeiro contato enviado", d: "12/10 · abordagem sugerida, você revisou" },
+      { t: "Selecionada para prospectar", d: "10/10 · caçada \"SaaS em SC\"" }
+    ]);
+    const ultimo = enviados.length ? enviados[enviados.length - 1] : 0;
+    const completo = passo > 3;
+    return {
+      ativo: fase !== "enviada",
+      enviada: fase === "enviada",
+      rascunho: fase === "rascunho",
+      confirmar: fase === "confirmar",
+      titulo: titulos[guia],
+      atrasado: guia === 1,
+      noPrazo: guia > 1,
+      prazo: prazos[guia] || "",
+      passos,
+      mensagem: lista[versao % lista.length],
+      fonte: fontes[guia],
+      temOutra: lista.length > 1,
+      rotuloCopiar: copiado ? "Copiado" : "Copiar",
+      historico,
+      enviadoTitulo: "Follow-up " + ultimo + " enviado",
+      temProximoPasso: !completo,
+      depois: completo ? "Sequência completa · eu aviso se a Ana responder." : "Follow-up " + passo + " · " + prazos[Math.min(passo, 3)] + " · eu te lembro",
+      abrir: () => this.setState({ fase: "confirmar" }),
+      ainda: () => this.setState({ fase: "rascunho" }),
+      copiar: () => this.setState({ copiado: true }),
+      outra: () => this.setState({ versao: versao + 1, copiado: false }),
+      mandei: () => this.setState({ fase: "enviada", passo: passo + 1, versao: 0, copiado: false, enviados: enviados.concat([passo]) }),
+      desfazer: () => this.setState({ fase: "rascunho", passo: ultimo, versao: 0, copiado: false, enviados: enviados.slice(0, -1) }),
+      verProximo: () => this.setState({ fase: "rascunho" })
+    };
+  }
 }
 </script>
 </body>

@@ -8,39 +8,87 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
 <style>
-body{margin:0}
-h1,h2,h3,.ds{font-family:'Sora', 'IBM Plex Sans', system-ui, sans-serif}
-a{color:#11131F}a:hover{color:#FF7A45}
+body{margin:0;font-variant-numeric:tabular-nums}
+h1,h2,h3,.ds{font-family:'Sora','IBM Plex Sans',system-ui,sans-serif}
+a{color:inherit;text-decoration:none}
+a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid #FF7A45;outline-offset:2px}
+.btn{transition:background-color 150ms ease-out,border-color 150ms ease-out,transform 150ms ease-out;cursor:pointer}
+.btn:active{transform:scale(.98)}
+.bp:hover{background:#FF9068!important;border-color:#FF9068!important}
+.bl:hover{background:#EFECE6!important}
+.bd:hover{background:rgba(255,255,255,.08)!important}
+.lk{transition:opacity 150ms ease-out}.lk:hover{opacity:.72}
+details>summary{list-style:none;cursor:pointer}details>summary::-webkit-details-marker{display:none}
+details>summary svg{transition:transform 150ms ease-out}details[open]>summary svg{transform:rotate(45deg)}
 </style>
 </helmet>
-<div style="width: 1440px; min-height: 900px; box-sizing: border-box; background: #FFFFFF; color: #11131F; font-family: 'IBM Plex Sans', -apple-system, system-ui, sans-serif">
-<div style="height: 900px; box-sizing: border-box; padding: 40px 80px; display: flex; flex-direction: column; background: linear-gradient(180deg, #FFFFFF, #F7F5F2)">
-  <div style="display: flex; justify-content: space-between; align-items: center"><svg viewBox="0 -742 2542 752" width="71.0" height="21" role="img" aria-label="Dalva" style="display: block; flex-shrink: 0"><path fill="#11131F" d="M428 0H556V-742L428 -700V-494C386 -517 335 -530 278 -530C111 -530 0 -422 0 -260C0 -98 111 10 278 10C335 10 386 -3 428 -26ZM2414 0H2542V-520L2413 -478V-494C2371 -517 2321 -530 2264 -530C2097 -530 1986 -422 1986 -260C1986 -98 2097 10 2264 10C2321 10 2372 -3 2414 -26ZM1042 0H1170V-520L1041 -478V-494C999 -517 949 -530 892 -530C725 -530 614 -422 614 -260C614 -98 725 10 892 10C949 10 1000 -3 1042 -26ZM1430 -520 1629 0H1779L1978 -520H1845L1718 -188H1690L1563 -520ZM1266 0H1394V-742L1266 -700ZM1042 -260C1042 -144 998 -94 895 -94C805 -94 748 -158 748 -260C748 -362 805 -426 895 -426C998 -426 1042 -376 1042 -260ZM428 -260C428 -144 384 -94 281 -94C191 -94 134 -158 134 -260C134 -362 191 -426 281 -426C384 -426 428 -376 428 -260ZM2414 -260C2414 -144 2370 -94 2267 -94C2177 -94 2120 -158 2120 -260C2120 -362 2177 -426 2267 -426C2370 -426 2414 -376 2414 -260Z"></path></svg><span style="font-size: 14px; color: #5E6272">um produto Don</span></div>
-  <div style="flex: 1; display: flex; justify-content: space-between; align-items: center; gap: 64px">
-    <div style="max-width: 600px; display: flex; flex-direction: column; gap: 24px">
-      <p style="margin: 0; display: inline-flex; align-self: flex-start; gap: 8px; align-items: center; font-size: 14px; font-weight: 500; color: #33364A; background: #FFFFFF; border: 1px solid #E6E2DB; border-radius: 999px; padding: 7px 14px"><span style="width: 7px; height: 7px; border-radius: 4px; background: #FF7A45"></span>Piloto pago · novembro de 2026</p>
-      <h1 style="margin: 0; font-size: 68px; font-weight: 700; letter-spacing: -0.045em; line-height: 1">15 fundadores vão testar a Dalva primeiro.</h1>
-      <p style="margin: 0; font-size: 19px; line-height: 1.5; color: #5E6272">Encontre empresas para vender. Não perca o próximo passo. Se você vende, entrega e administra ao mesmo tempo, entra no piloto.</p>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px"><label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: #33364A">E-mail<input type="email" placeholder="voce@empresa.com.br" style="font: inherit; font-size: 16px; font-weight: 400; padding: 14px 16px; border: 1px solid #E6E2DB; border-radius: 14px; background: #FFFFFF; color: #11131F"></label><label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: #33364A">WhatsApp<input type="tel" placeholder="(48) 99999-0000" style="font: inherit; font-size: 16px; font-weight: 400; padding: 14px 16px; border: 1px solid #E6E2DB; border-radius: 14px; background: #FFFFFF; color: #11131F"></label></div>
-      <div style="display: flex; align-items: center; gap: 16px"><button type="button" style="font: inherit; font-size: 17px; font-weight: 600; color: #11131F; background: #FF7A45; border: 1px solid #FF7A45; border-radius: 999px; padding: 16px 28px; min-height: 44px; cursor: pointer; white-space: nowrap">Entrar por R$ 49,90</button><span style="font-size: 14px; color: #5E6272">Não serviu? Devolvemos em 30 dias.</span></div>
+<div class="dk" style="width: 1440px; height: 900px; box-sizing: border-box; padding: 0 80px; background: #11131F; color: #FFFFFF; font-family: 'IBM Plex Sans', -apple-system, system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+  <div style="height: 72px; display: flex; align-items: center; flex-shrink: 0"><svg viewBox="0 -742 2542 752" width="71" height="21" role="img" aria-label="Dalva" style="display: block; flex-shrink: 0"><path fill="#FFFFFF" d="M428 0H556V-742L428 -700V-494C386 -517 335 -530 278 -530C111 -530 0 -422 0 -260C0 -98 111 10 278 10C335 10 386 -3 428 -26ZM2414 0H2542V-520L2413 -478V-494C2371 -517 2321 -530 2264 -530C2097 -530 1986 -422 1986 -260C1986 -98 2097 10 2264 10C2321 10 2372 -3 2414 -26ZM1042 0H1170V-520L1041 -478V-494C999 -517 949 -530 892 -530C725 -530 614 -422 614 -260C614 -98 725 10 892 10C949 10 1000 -3 1042 -26ZM1430 -520 1629 0H1779L1978 -520H1845L1718 -188H1690L1563 -520ZM1266 0H1394V-742L1266 -700ZM1042 -260C1042 -144 998 -94 895 -94C805 -94 748 -158 748 -260C748 -362 805 -426 895 -426C998 -426 1042 -376 1042 -260ZM428 -260C428 -144 384 -94 281 -94C191 -94 134 -158 134 -260C134 -362 191 -426 281 -426C384 -426 428 -376 428 -260ZM2414 -260C2414 -144 2370 -94 2267 -94C2177 -94 2120 -158 2120 -260C2120 -362 2177 -426 2267 -426C2370 -426 2414 -376 2414 -260Z"></path></svg></div>
+  <div style="flex: 1; min-height: 0; display: flex; justify-content: space-between; align-items: center; gap: 64px">
+    <div style="max-width: 640px; display: flex; flex-direction: column; gap: 24px">
+      <p style="margin: 0; align-self: flex-start; height: 32px; box-sizing: border-box; padding: 0 16px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.16); display: inline-flex; align-items: center; font-size: 13px; line-height: 16px; font-weight: 500">Piloto pago · novembro de 2026</p>
+      <h1 style="margin: 0; font-size: 64px; line-height: 68px; font-weight: 700; letter-spacing: -0.04em; text-wrap: balance">15 fundadores vão testar a Dalva primeiro.</h1>
+      <p style="margin: 0; max-width: 560px; font-size: 16px; line-height: 24px">Encontre empresas para vender. Não perca o próximo passo. Se você vende, entrega e administra ao mesmo tempo, entra no piloto.</p>
+      <sc-if value="{{mostraForm}}" hint-placeholder-val="{{true}}">
+        <form onSubmit="{{enviar}}" style="display: flex; flex-direction: column; gap: 16px" novalidate>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+            <label style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; line-height: 16px; font-weight: 600">E-mail<input type="email" name="email" value="{{email}}" onInput="{{setEmail}}" disabled="{{ocupado}}" placeholder="voce@empresa.com.br" aria-invalid="{{temErro}}" style="width: 100%; height: 48px; box-sizing: border-box; padding: 0 16px; border: 1px solid rgba(255,255,255,0.16); border-radius: 8px; background: #1B1E2E; color: #FFFFFF; font: inherit; font-size: 16px; line-height: 22px; transition: border-color 150ms ease-out"></label>
+            <label style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; line-height: 16px; font-weight: 600">WhatsApp<input type="tel" name="tel" value="{{tel}}" onInput="{{setTel}}" disabled="{{ocupado}}" placeholder="(48) 99999-0000" style="width: 100%; height: 48px; box-sizing: border-box; padding: 0 16px; border: 1px solid rgba(255,255,255,0.16); border-radius: 8px; background: #1B1E2E; color: #FFFFFF; font: inherit; font-size: 16px; line-height: 22px; transition: border-color 150ms ease-out"></label>
+          </div>
+          <sc-if value="{{temErro}}" hint-placeholder-val="{{false}}"><p role="alert" style="margin: 0; display: flex; gap: 8px; align-items: center; font-size: 13px; line-height: 18px; color: #FFFFFF"><span style="flex-shrink: 0; display: flex"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8v5M12 16.5v.01M12 3.5l9.5 16.5h-19z"></path></svg></span>{{erro}}</p></sc-if>
+          <div style="display: flex; align-items: center; gap: 16px"><button type="submit" disabled="{{ocupado}}" class="btn bp" style="height: 48px; box-sizing: border-box; padding: 0 24px; border: 1px solid #FF7A45; border-radius: 999px; background: #FF7A45; color: #11131F; font: inherit; font-size: 16px; line-height: 22px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; height: 56px; padding: 0 32px">{{rotulo}}</button><span style="font-size: 13px; line-height: 18px; color: #A6A9B6">Não serviu? Devolvemos em 30 dias.</span></div>
+        </form>
+      </sc-if>
+      <sc-if value="{{enviado}}" hint-placeholder-val="{{false}}">
+        <div role="status" style="border-radius: 16px; padding: 24px; background: #1B1E2E; box-shadow: 0 0 0 1px rgba(255,255,255,0.10); display: flex; gap: 16px; align-items: flex-start">
+          <span style="width: 40px; height: 40px; border-radius: 20px; background: #FFFFFF; color: #11131F; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+          <div><p style="margin: 0; font-size: 16px; line-height: 22px; font-weight: 600">Vaga reservada.</p><p style="margin: 4px 0 0; font-size: 16px; line-height: 24px; color: #A6A9B6">Os próximos passos chegam em {{email}}. Não serviu? Devolvemos em 30 dias.</p><button type="button" onClick="{{voltar}}" class="btn bd" style="margin-top: 16px; height: 44px; padding: 0 20px; border: 1px solid rgba(255,255,255,0.16); border-radius: 999px; background: transparent; color: #FFFFFF; font: inherit; font-size: 16px; font-weight: 600">Mudar contato</button></div>
+        </div>
+      </sc-if>
     </div>
-    <div style="padding-right: 40px"><div style="width: 300px; height: 610px; border-radius: 46px; background: #11131F; padding: 10px; box-sizing: border-box; box-shadow: 0 30px 60px rgba(17,19,31,0.18), 0 2px 6px rgba(17,19,31,0.1); flex-shrink: 0">
-      <div style="width: 100%; height: 100%; border-radius: 37px; background: #F7F5F2; overflow: hidden; padding: 44px 14px 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px">
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 4px"><svg viewBox="0 -742 2542 752" width="50.7" height="15" role="img" aria-label="Dalva" style="display: block; flex-shrink: 0"><path fill="#11131F" d="M428 0H556V-742L428 -700V-494C386 -517 335 -530 278 -530C111 -530 0 -422 0 -260C0 -98 111 10 278 10C335 10 386 -3 428 -26ZM2414 0H2542V-520L2413 -478V-494C2371 -517 2321 -530 2264 -530C2097 -530 1986 -422 1986 -260C1986 -98 2097 10 2264 10C2321 10 2372 -3 2414 -26ZM1042 0H1170V-520L1041 -478V-494C999 -517 949 -530 892 -530C725 -530 614 -422 614 -260C614 -98 725 10 892 10C949 10 1000 -3 1042 -26ZM1430 -520 1629 0H1779L1978 -520H1845L1718 -188H1690L1563 -520ZM1266 0H1394V-742L1266 -700ZM1042 -260C1042 -144 998 -94 895 -94C805 -94 748 -158 748 -260C748 -362 805 -426 895 -426C998 -426 1042 -376 1042 -260ZM428 -260C428 -144 384 -94 281 -94C191 -94 134 -158 134 -260C134 -362 191 -426 281 -426C384 -426 428 -376 428 -260ZM2414 -260C2414 -144 2370 -94 2267 -94C2177 -94 2120 -158 2120 -260C2120 -362 2177 -426 2267 -426C2370 -426 2414 -376 2414 -260Z"></path></svg><span style="width: 28px; height: 28px; border-radius: 14px; background: #E6E2DB; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #33364A">RB</span></div>
-        <div style="padding: 4px 4px 0"><p style="margin: 0; font-size: 11px; color: #5E6272">Terça, 27 de outubro</p><p class="ds" style="margin: 2px 0 0; font-size: 21px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.15">Bom dia. Estas são suas 3 prioridades.</p></div>
-        <div style="background: #11131F; color: #FFFFFF; border-radius: 16px; padding: 12px 14px"><p style="margin: 0; font-size: 11px; font-weight: 600; color: #FF7A45">Sua caçada</p><p style="margin: 3px 0 0; font-size: 13px; font-weight: 600; line-height: 1.35">Achei 18 empresas que podem comprar de você.</p></div>
-        <div style="display: flex; gap: 10px; align-items: center; padding: 11px 12px; background: #FFFFFF; border-radius: 14px; box-shadow: 0 0 0 1px #E6E2DB"><span class="ds" style="font-size: 16px; font-weight: 700; width: 12px">1</span><div style="flex: 1; min-width: 0"><p style="margin: 0; font-size: 13px; font-weight: 600">Retomar a Acme</p><p style="margin: 2px 0 0; font-size: 11px; color: #5E6272">Proposta parada há 6 dias</p></div><span style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: #F5E6D0; color: #8F550E"><span style="width: 8px; height: 8px; border-radius: 4px; background: #C77713"></span>6 dias</span></div><div style="display: flex; gap: 10px; align-items: center; padding: 11px 12px; background: #FFFFFF; border-radius: 14px; box-shadow: 0 0 0 1px #E6E2DB"><span class="ds" style="font-size: 16px; font-weight: 700; width: 12px">2</span><div style="flex: 1; min-width: 0"><p style="margin: 0; font-size: 13px; font-weight: 600">Enviar proposta à Orbita</p><p style="margin: 2px 0 0; font-size: 11px; color: #5E6272">Próximo passo: hoje</p></div><span style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: #E8ECF3; color: #4E628F"><span style="width: 8px; height: 8px; border-radius: 4px; box-sizing: border-box; border: 2px solid #4E628F"></span>17h</span></div><div style="display: flex; gap: 10px; align-items: center; padding: 11px 12px; background: #FFFFFF; border-radius: 14px; box-shadow: 0 0 0 1px #E6E2DB"><span class="ds" style="font-size: 16px; font-weight: 700; width: 12px">3</span><div style="flex: 1; min-width: 0"><p style="margin: 0; font-size: 13px; font-weight: 600">Falar com a Ilha Digital</p><p style="margin: 2px 0 0; font-size: 11px; color: #5E6272">Achada na caçada · sócio: Paulo</p></div><span style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: #EFECE6; color: #33364A"><span style="width: 8px; height: 2px; border-radius: 1px; background: #33364A"></span>nova</span></div>
-      </div>
-    </div></div>
+    <div style="position: relative; width: 520px; height: 700px; flex-shrink: 0">
+      <div style="position: absolute; left: 0; top: 9px"><div style="width: 328px; height: 691px; box-sizing: border-box; padding: 8px; border-radius: 48px; background: #0B0C14; box-shadow: 0 0 0 1px #2A2D3E; flex-shrink: 0"><div style="width: 312px; height: 675px; border-radius: 40px; overflow: hidden; position: relative"><div style="width: 390px; height: 844px; transform: scale(0.8); transform-origin: 0 0"><dc-import name="CacadaMobile" hint-size="390px,844px"></dc-import></div></div></div></div>
+      <div style="position: absolute; left: 192px; top: 0"><div style="width: 328px; height: 691px; box-sizing: border-box; padding: 8px; border-radius: 48px; background: #0B0C14; box-shadow: 0 0 0 1px #2A2D3E; flex-shrink: 0"><div style="width: 312px; height: 675px; border-radius: 40px; overflow: hidden; position: relative"><div style="width: 390px; height: 844px; transform: scale(0.8); transform-origin: 0 0"><dc-import name="HojeMobile" hint-size="390px,844px"></dc-import></div></div></div></div>
+    </div>
   </div>
-</div>
-</div>
-</x-dc>
+  <div style="height: 72px; flex-shrink: 0; border-top: 1px solid rgba(255,255,255,0.10); display: flex; justify-content: space-between; align-items: center; font-size: 13px; line-height: 18px; color: #A6A9B6"><span>um produto Don</span><span>dalvaapp.com.br · contato@dalvaapp.com.br</span></div>
+</div></x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
 class Component extends DCLogic {
-  renderVals() { return {}; }
+  renderVals() {
+    const s = this.state || {};
+    const email = s.email || '';
+    const tel = s.tel || '';
+    const estado = s.estado || 'form';
+    const erro = s.erro || '';
+    const ocupado = estado === 'enviando';
+    return {
+      email,
+      tel,
+      erro,
+      temErro: !!erro,
+      ocupado,
+      mostraForm: estado !== 'enviado',
+      enviado: estado === 'enviado',
+      rotulo: ocupado ? 'Reservando sua vaga…' : 'Entrar por R$ 49,90',
+      setEmail: (e) => this.setState({ ...this.state, email: e.target.value, erro: '' }),
+      setTel: (e) => this.setState({ ...this.state, tel: e.target.value }),
+      enviar: (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        const cur = this.state || {};
+        const mail = (cur.email || '').trim();
+        if (!/^\S+@\S+\.\S+$/.test(mail)) {
+          this.setState({ ...cur, estado: 'form', erro: 'Escreva um e-mail válido para reservar sua vaga.' });
+          return;
+        }
+        this.setState({ ...cur, estado: 'enviando', erro: '' });
+        setTimeout(() => this.setState({ ...(this.state || {}), estado: 'enviado' }), 900);
+      },
+      voltar: () => this.setState({ ...(this.state || {}), estado: 'form' })
+    };
+  }
 }
 </script>
 </body>

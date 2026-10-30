@@ -1,1 +1,578 @@
-{"v": 3, "createdOnFiles": {"v": 1, "at": "2026-10-26T19:00:00Z"}, "title": "Dalva — Conceito", "launch": {"view": "canvas"}, "pages": [{"id": "conceito", "name": "Conceito"}, {"id": "v2", "name": "Design 2.0"}], "boards": {"Main.dc.html": {"x": 1520, "y": 0, "w": 1440, "h": 2330, "title": "Marca — logo provisório, cores, tipos, aplicações, voz"}, "Modulos.dc.html": {"x": 3040, "y": 0, "w": 1440, "h": 1180, "title": "Módulos do produto"}, "Hoje.dc.html": {"x": 0, "y": 3890, "w": 390, "h": 844, "title": "1. Hoje — celular"}, "Pipeline.dc.html": {"x": 1520, "y": 2870, "w": 1440, "h": 900, "title": "2. Pipeline — web", "expand": "fill"}, "Cacada.dc.html": {"x": 4560, "y": 2870, "w": 1440, "h": 900, "title": "3. Caçada — web", "expand": "fill"}, "Landing.dc.html": {"x": 0, "y": 5154, "w": 1440, "h": 5679, "title": "Landing web — venda aberta", "expand": "fill"}, "Waitlist.dc.html": {"x": 1990, "y": 5154, "w": 1440, "h": 900, "title": "Lista de espera — piloto pago de novembro"}, "Projetos.dc.html": {"x": 7600, "y": 2870, "w": 1440, "h": 900, "title": "4. Projetos — web · fora do MVP (v2)", "expand": "fill"}, "HojeWeb.dc.html": {"x": 0, "y": 2870, "w": 1440, "h": 900, "title": "1. Hoje — web", "expand": "fill"}, "PipelineMobile.dc.html": {"x": 1520, "y": 3890, "w": 390, "h": 844, "title": "2. Pipeline — celular"}, "CacadaMobile.dc.html": {"x": 4560, "y": 3890, "w": 390, "h": 844, "title": "3. Caçada — celular"}, "ProjetosMobile.dc.html": {"x": 7600, "y": 3890, "w": 390, "h": 844, "title": "4. Projetos — celular · fora do MVP (v2)"}, "Grana.dc.html": {"x": 9120, "y": 2870, "w": 1440, "h": 900, "title": "5. Grana — web · fora do MVP (v2)", "expand": "fill"}, "GranaMobile.dc.html": {"x": 9120, "y": 3890, "w": 390, "h": 844, "title": "5. Grana — celular · fora do MVP (v2)"}, "PipelineNegocio.dc.html": {"x": 3040, "y": 2870, "w": 1440, "h": 900, "title": "2. Pipeline · negócio aberto + abordagem — web", "expand": "fill"}, "PipelineNegocioMobile.dc.html": {"x": 3040, "y": 3890, "w": 390, "h": 844, "title": "2. Pipeline · negócio aberto — celular"}, "PipelineAbordagemMobile.dc.html": {"x": 3510, "y": 3890, "w": 390, "h": 844, "title": "2. Pipeline · abordagem — celular"}, "CacadaEntrada.dc.html": {"x": 6080, "y": 2870, "w": 1440, "h": 900, "title": "3. Caçada · primeira caçada (entrada) — web", "expand": "fill"}, "CacadaEntradaMobile.dc.html": {"x": 6080, "y": 3890, "w": 390, "h": 844, "title": "3. Caçada · primeira caçada — celular"}, "Estrategia.dc.html": {"x": 0, "y": 0, "w": 1440, "h": 1320, "title": "Estratégia — a Dalva em uma página"}, "LandingMobile.dc.html": {"x": 1520, "y": 5154, "w": 390, "h": 3416, "title": "Landing celular — compra pelo anúncio"}, "Concorrencia.dc.html": {"x": 5030, "y": 5154, "w": 1440, "h": 2290, "title": "Contra quem a gente joga — 46 produtos e onde a Dalva ganha"}, "Resumo.dc.html": {"x": 3510, "y": 5154, "w": 1440, "h": 900, "title": "A conta e o motor — margem, custo medido, Caçada, dados e LGPD"}, "V2Deslop.dc.html": {"x": 0, "y": 0, "w": 1440, "h": 1000, "title": "A régua — cada valor com nome, motivo e conferência", "page": "v2"}, "V2Hoje.dc.html": {"x": 0, "y": 1860, "w": 390, "h": 844, "title": "1. Hoje — a manhã", "is_interactive": true, "page": "v2"}, "V2Foco.dc.html": {"x": 470, "y": 1860, "w": 390, "h": 844, "title": "2. Foco — uma coisa por vez", "is_interactive": true, "page": "v2"}, "V2ComoFoi.dc.html": {"x": 940, "y": 1860, "w": 390, "h": 844, "title": "3. Como foi — dois toques e segue", "is_interactive": true, "page": "v2"}, "V2Feito.dc.html": {"x": 1410, "y": 1860, "w": 390, "h": 844, "title": "4. Manhã feita — o dia clareia", "is_interactive": true, "page": "v2"}, "V2Pipeline.dc.html": {"x": 1990, "y": 1860, "w": 390, "h": 844, "title": "Pipeline — celular", "is_interactive": true, "page": "v2"}, "V2Cacada.dc.html": {"x": 2460, "y": 1860, "w": 390, "h": 844, "title": "Caçada — celular", "is_interactive": true, "page": "v2"}, "V2Antes.dc.html": {"x": 1520, "y": 0, "w": 1440, "h": 1420, "title": "Antes e depois — o que a régua tirou", "page": "v2"}, "V2Sistema.dc.html": {"x": 3040, "y": 0, "w": 1440, "h": 2160, "title": "O sistema — tokens, símbolos e componentes", "page": "v2"}, "V2HojeWeb.dc.html": {"x": 0, "y": 3124, "w": 1440, "h": 900, "title": "Hoje — web", "expand": "fill", "page": "v2"}}, "order": ["Estrategia.dc.html", "Main.dc.html", "Modulos.dc.html", "HojeWeb.dc.html", "Pipeline.dc.html", "PipelineNegocio.dc.html", "Cacada.dc.html", "CacadaEntrada.dc.html", "Projetos.dc.html", "Grana.dc.html", "Hoje.dc.html", "PipelineMobile.dc.html", "PipelineNegocioMobile.dc.html", "PipelineAbordagemMobile.dc.html", "CacadaMobile.dc.html", "CacadaEntradaMobile.dc.html", "ProjetosMobile.dc.html", "GranaMobile.dc.html", "Landing.dc.html", "LandingMobile.dc.html", "Waitlist.dc.html", "Resumo.dc.html", "Concorrencia.dc.html", "V2Deslop.dc.html", "V2Antes.dc.html", "V2Sistema.dc.html", "V2Hoje.dc.html", "V2Foco.dc.html", "V2ComoFoi.dc.html", "V2Feito.dc.html", "V2Pipeline.dc.html", "V2Cacada.dc.html", "V2HojeWeb.dc.html"], "notes": {"t_marca": {"x": 0, "y": -300, "text": "Capítulo 1 — A marca e o produto", "kind": "title1", "maxW": 4480}, "t_telas": {"x": 0, "y": 2570, "text": "Capítulo 2 — As telas", "kind": "title1", "maxW": 10560}, "t_landing": {"x": 0, "y": 4854, "text": "Capítulo 3 — A vitrine", "kind": "title1", "maxW": 3430}, "t_viab": {"x": 3510, "y": 4854, "text": "Capítulo 4 — A conta e o motor", "kind": "title1", "maxW": 1440}, "t_conc": {"x": 5030, "y": 4854, "text": "Capítulo 5 — Contra quem a gente joga", "kind": "title1", "maxW": 1440}, "s_web": {"x": -560, "y": 2870, "text": "Web", "size": "xl", "bold": true, "w": 440}, "s_mob": {"x": -560, "y": 3890, "text": "Celular", "size": "xl", "bold": true, "w": 440}, "t_v2": {"x": 0, "y": -300, "text": "Design 2.0 — a Dalva com régua", "kind": "title1", "maxW": 4480, "page": "v2"}, "t_v2_sessao": {"x": 0, "y": 1560, "text": "A sessão da manhã — clicável", "kind": "title1", "maxW": 1800, "page": "v2"}, "t_v2_modulos": {"x": 1990, "y": 1560, "text": "Os módulos na régua", "kind": "title1", "maxW": 860, "page": "v2"}, "t_v2_web": {"x": 0, "y": 2824, "text": "Na web", "kind": "title1", "maxW": 1440, "page": "v2"}}, "designSystems": []}
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-10-26T19:00:00Z"
+ },
+ "title": "Dalva",
+ "launch": {
+  "view": "canvas"
+ },
+ "pages": [
+  {
+   "id": "marca",
+   "name": "A marca e o produto"
+  },
+  {
+   "id": "design",
+   "name": "O design"
+  },
+  {
+   "id": "telas",
+   "name": "As telas"
+  },
+  {
+   "id": "vitrine",
+   "name": "A vitrine"
+  },
+  {
+   "id": "conta",
+   "name": "A conta e o motor"
+  },
+  {
+   "id": "conc",
+   "name": "Contra quem a gente joga"
+  },
+  {
+   "id": "legado",
+   "name": "Legado"
+  }
+ ],
+ "boards": {
+  "Estrategia.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 1320,
+   "title": "Estratégia — a Dalva em uma página",
+   "page": "marca"
+  },
+  "Main.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 1440,
+   "h": 2330,
+   "title": "Marca — logo provisório, cores, tipos, aplicações, voz",
+   "page": "marca"
+  },
+  "Modulos.dc.html": {
+   "x": 3040,
+   "y": 0,
+   "w": 1440,
+   "h": 1180,
+   "title": "Módulos do produto",
+   "page": "marca"
+  },
+  "Regua.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 1000,
+   "title": "A régua — cada valor com nome, motivo e conferência",
+   "page": "design"
+  },
+  "Sistema.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 1440,
+   "h": 2160,
+   "title": "O sistema — tokens, símbolos e componentes",
+   "page": "design"
+  },
+  "Hoje.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 900,
+   "title": "1. Hoje — web",
+   "page": "telas",
+   "expand": "fill"
+  },
+  "Pipeline.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 1440,
+   "h": 900,
+   "title": "2. Pipeline — web",
+   "page": "telas",
+   "expand": "fill"
+  },
+  "PipelineNegocio.dc.html": {
+   "x": 3040,
+   "y": 0,
+   "w": 1440,
+   "h": 900,
+   "title": "2. Pipeline · negócio aberto + abordagem — web",
+   "page": "telas",
+   "expand": "fill"
+  },
+  "Cacada.dc.html": {
+   "x": 4560,
+   "y": 0,
+   "w": 1440,
+   "h": 900,
+   "title": "3. Caçada — web",
+   "page": "telas",
+   "expand": "fill"
+  },
+  "CacadaEntrada.dc.html": {
+   "x": 6080,
+   "y": 0,
+   "w": 1440,
+   "h": 900,
+   "title": "3. Caçada · primeira caçada — web",
+   "page": "telas",
+   "expand": "fill"
+  },
+  "Projetos.dc.html": {
+   "x": 7600,
+   "y": 0,
+   "w": 1440,
+   "h": 900,
+   "title": "4. Projetos — web · fora do MVP (v2)",
+   "page": "telas",
+   "expand": "fill"
+  },
+  "Grana.dc.html": {
+   "x": 9120,
+   "y": 0,
+   "w": 1440,
+   "h": 900,
+   "title": "5. Grana — web · fora do MVP (v2)",
+   "page": "telas",
+   "expand": "fill"
+  },
+  "HojeMobile.dc.html": {
+   "x": 0,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "1. Hoje — celular",
+   "page": "telas",
+   "is_interactive": true
+  },
+  "PipelineMobile.dc.html": {
+   "x": 1520,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "2. Pipeline — celular",
+   "page": "telas",
+   "is_interactive": true
+  },
+  "PipelineNegocioMobile.dc.html": {
+   "x": 3040,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "2. Pipeline · negócio aberto — celular",
+   "page": "telas",
+   "is_interactive": true
+  },
+  "PipelineAbordagemMobile.dc.html": {
+   "x": 3510,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "2. Pipeline · abordagem — celular",
+   "page": "telas",
+   "is_interactive": true
+  },
+  "CacadaMobile.dc.html": {
+   "x": 4560,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "3. Caçada — celular",
+   "page": "telas",
+   "is_interactive": true
+  },
+  "CacadaEntradaMobile.dc.html": {
+   "x": 6080,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "3. Caçada · primeira caçada — celular",
+   "page": "telas",
+   "is_interactive": true
+  },
+  "ProjetosMobile.dc.html": {
+   "x": 7600,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "4. Projetos — celular · fora do MVP (v2)",
+   "page": "telas",
+   "is_interactive": true
+  },
+  "GranaMobile.dc.html": {
+   "x": 9120,
+   "y": 1020,
+   "w": 390,
+   "h": 844,
+   "title": "5. Grana — celular · fora do MVP (v2)",
+   "page": "telas",
+   "is_interactive": true
+  },
+  "FocoMobile.dc.html": {
+   "x": 0,
+   "y": 2040,
+   "w": 390,
+   "h": 844,
+   "title": "Foco — uma coisa por vez",
+   "page": "telas",
+   "is_interactive": true
+  },
+  "ComoFoiMobile.dc.html": {
+   "x": 470,
+   "y": 2040,
+   "w": 390,
+   "h": 844,
+   "title": "Como foi — dois toques e segue",
+   "page": "telas",
+   "is_interactive": true
+  },
+  "FeitoMobile.dc.html": {
+   "x": 940,
+   "y": 2040,
+   "w": 390,
+   "h": 844,
+   "title": "Manhã feita — o dia clareia",
+   "page": "telas",
+   "is_interactive": true
+  },
+  "Landing.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 5500,
+   "title": "Landing web — venda aberta",
+   "page": "vitrine",
+   "expand": "fill"
+  },
+  "LandingMobile.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 390,
+   "h": 4000,
+   "title": "Landing celular — compra pelo anúncio",
+   "page": "vitrine"
+  },
+  "Waitlist.dc.html": {
+   "x": 1990,
+   "y": 0,
+   "w": 1440,
+   "h": 900,
+   "title": "Lista de espera — piloto pago de novembro",
+   "page": "vitrine"
+  },
+  "Resumo.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 900,
+   "title": "A conta e o motor — margem, custo medido, Caçada, dados e LGPD",
+   "page": "conta"
+  },
+  "Concorrencia.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 2290,
+   "title": "Contra quem a gente joga — 46 produtos e onde a Dalva ganha",
+   "page": "conc"
+  },
+  "LegadoAntesDepois.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 1420,
+   "title": "Antes e depois — o que a régua tirou",
+   "page": "legado"
+  },
+  "LegadoHojeWeb.dc.html": {
+   "x": 0,
+   "y": 1560,
+   "w": 1440,
+   "h": 900,
+   "title": "Legado · Hoje — web",
+   "page": "legado",
+   "expand": "fill"
+  },
+  "LegadoPipeline.dc.html": {
+   "x": 1520,
+   "y": 1560,
+   "w": 1440,
+   "h": 900,
+   "title": "Legado · Pipeline — web",
+   "page": "legado",
+   "expand": "fill"
+  },
+  "LegadoPipelineNegocio.dc.html": {
+   "x": 3040,
+   "y": 1560,
+   "w": 1440,
+   "h": 900,
+   "title": "Legado · Pipeline · negócio aberto + abordagem — web",
+   "page": "legado",
+   "expand": "fill"
+  },
+  "LegadoCacada.dc.html": {
+   "x": 4560,
+   "y": 1560,
+   "w": 1440,
+   "h": 900,
+   "title": "Legado · Caçada — web",
+   "page": "legado",
+   "expand": "fill"
+  },
+  "LegadoCacadaEntrada.dc.html": {
+   "x": 6080,
+   "y": 1560,
+   "w": 1440,
+   "h": 900,
+   "title": "Legado · Caçada · primeira caçada — web",
+   "page": "legado",
+   "expand": "fill"
+  },
+  "LegadoProjetos.dc.html": {
+   "x": 7600,
+   "y": 1560,
+   "w": 1440,
+   "h": 900,
+   "title": "Legado · Projetos — web",
+   "page": "legado",
+   "expand": "fill"
+  },
+  "LegadoGrana.dc.html": {
+   "x": 9120,
+   "y": 1560,
+   "w": 1440,
+   "h": 900,
+   "title": "Legado · Grana — web",
+   "page": "legado",
+   "expand": "fill"
+  },
+  "LegadoHoje.dc.html": {
+   "x": 0,
+   "y": 2580,
+   "w": 390,
+   "h": 844,
+   "title": "Legado · Hoje — celular",
+   "page": "legado"
+  },
+  "LegadoPipelineMobile.dc.html": {
+   "x": 1520,
+   "y": 2580,
+   "w": 390,
+   "h": 844,
+   "title": "Legado · Pipeline — celular",
+   "page": "legado"
+  },
+  "LegadoPipelineNegocioMobile.dc.html": {
+   "x": 3040,
+   "y": 2580,
+   "w": 390,
+   "h": 844,
+   "title": "Legado · Pipeline · negócio aberto — celular",
+   "page": "legado"
+  },
+  "LegadoPipelineAbordagemMobile.dc.html": {
+   "x": 3510,
+   "y": 2580,
+   "w": 390,
+   "h": 844,
+   "title": "Legado · Pipeline · abordagem — celular",
+   "page": "legado"
+  },
+  "LegadoCacadaMobile.dc.html": {
+   "x": 4560,
+   "y": 2580,
+   "w": 390,
+   "h": 844,
+   "title": "Legado · Caçada — celular",
+   "page": "legado"
+  },
+  "LegadoCacadaEntradaMobile.dc.html": {
+   "x": 6080,
+   "y": 2580,
+   "w": 390,
+   "h": 844,
+   "title": "Legado · Caçada · primeira caçada — celular",
+   "page": "legado"
+  },
+  "LegadoProjetosMobile.dc.html": {
+   "x": 7600,
+   "y": 2580,
+   "w": 390,
+   "h": 844,
+   "title": "Legado · Projetos — celular",
+   "page": "legado"
+  },
+  "LegadoGranaMobile.dc.html": {
+   "x": 9120,
+   "y": 2580,
+   "w": 390,
+   "h": 844,
+   "title": "Legado · Grana — celular",
+   "page": "legado"
+  },
+  "LegadoLanding.dc.html": {
+   "x": 0,
+   "y": 3600,
+   "w": 1440,
+   "h": 5679,
+   "title": "Legado · Landing web",
+   "page": "legado",
+   "expand": "fill"
+  },
+  "LegadoLandingMobile.dc.html": {
+   "x": 1520,
+   "y": 3600,
+   "w": 390,
+   "h": 3416,
+   "title": "Legado · Landing celular",
+   "page": "legado"
+  },
+  "LegadoWaitlist.dc.html": {
+   "x": 1990,
+   "y": 3600,
+   "w": 1440,
+   "h": 900,
+   "title": "Legado · Lista de espera",
+   "page": "legado"
+  }
+ },
+ "order": [
+  "Estrategia.dc.html",
+  "Main.dc.html",
+  "Modulos.dc.html",
+  "Regua.dc.html",
+  "Sistema.dc.html",
+  "Hoje.dc.html",
+  "Pipeline.dc.html",
+  "PipelineNegocio.dc.html",
+  "Cacada.dc.html",
+  "CacadaEntrada.dc.html",
+  "Projetos.dc.html",
+  "Grana.dc.html",
+  "HojeMobile.dc.html",
+  "PipelineMobile.dc.html",
+  "PipelineNegocioMobile.dc.html",
+  "PipelineAbordagemMobile.dc.html",
+  "CacadaMobile.dc.html",
+  "CacadaEntradaMobile.dc.html",
+  "ProjetosMobile.dc.html",
+  "GranaMobile.dc.html",
+  "FocoMobile.dc.html",
+  "ComoFoiMobile.dc.html",
+  "FeitoMobile.dc.html",
+  "Landing.dc.html",
+  "LandingMobile.dc.html",
+  "Waitlist.dc.html",
+  "Resumo.dc.html",
+  "Concorrencia.dc.html",
+  "LegadoAntesDepois.dc.html",
+  "LegadoHojeWeb.dc.html",
+  "LegadoPipeline.dc.html",
+  "LegadoPipelineNegocio.dc.html",
+  "LegadoCacada.dc.html",
+  "LegadoCacadaEntrada.dc.html",
+  "LegadoProjetos.dc.html",
+  "LegadoGrana.dc.html",
+  "LegadoHoje.dc.html",
+  "LegadoPipelineMobile.dc.html",
+  "LegadoPipelineNegocioMobile.dc.html",
+  "LegadoPipelineAbordagemMobile.dc.html",
+  "LegadoCacadaMobile.dc.html",
+  "LegadoCacadaEntradaMobile.dc.html",
+  "LegadoProjetosMobile.dc.html",
+  "LegadoGranaMobile.dc.html",
+  "LegadoLanding.dc.html",
+  "LegadoLandingMobile.dc.html",
+  "LegadoWaitlist.dc.html"
+ ],
+ "notes": {
+  "t_marca": {
+   "x": 0,
+   "y": -300,
+   "text": "A marca e o produto",
+   "kind": "title1",
+   "page": "marca",
+   "maxW": 4480
+  },
+  "t_design": {
+   "x": 0,
+   "y": -300,
+   "text": "O design",
+   "kind": "title1",
+   "page": "design",
+   "maxW": 2960
+  },
+  "t_telas": {
+   "x": 0,
+   "y": -300,
+   "text": "As telas",
+   "kind": "title1",
+   "page": "telas",
+   "maxW": 10560
+  },
+  "s_web": {
+   "x": -560,
+   "y": 0,
+   "text": "Web",
+   "kind": "title1",
+   "page": "telas",
+   "maxW": 440
+  },
+  "s_mob": {
+   "x": -560,
+   "y": 1020,
+   "text": "Celular",
+   "kind": "title1",
+   "page": "telas",
+   "maxW": 440
+  },
+  "s_ses": {
+   "x": -560,
+   "y": 2040,
+   "text": "A sessão da manhã (clicável)",
+   "kind": "title1",
+   "page": "telas",
+   "maxW": 440
+  },
+  "t_vitrine": {
+   "x": 0,
+   "y": -300,
+   "text": "A vitrine",
+   "kind": "title1",
+   "page": "vitrine",
+   "maxW": 3430
+  },
+  "t_conta": {
+   "x": 0,
+   "y": -300,
+   "text": "A conta e o motor",
+   "kind": "title1",
+   "page": "conta",
+   "maxW": 1440
+  },
+  "t_conc": {
+   "x": 0,
+   "y": -300,
+   "text": "Contra quem a gente joga",
+   "kind": "title1",
+   "page": "conc",
+   "maxW": 1440
+  },
+  "t_legado": {
+   "x": 0,
+   "y": -300,
+   "text": "Legado — as telas de 28/10, antes do design",
+   "kind": "title1",
+   "page": "legado",
+   "maxW": 10560
+  }
+ },
+ "designSystems": []
+}

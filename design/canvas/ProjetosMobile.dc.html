@@ -2,66 +2,113 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<title>Dalva — Projetos (celular)</title>
+<title>Dalva — Projetos (celular) · fora do MVP (v2)</title>
 <script src="./support.js"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
 <style>
 body{margin:0}
-h1,h2,h3,.ds{font-family:'Sora', 'IBM Plex Sans', system-ui, sans-serif}
-a{color:#11131F}a:hover{color:#FF7A45}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #FF7A45;outline-offset:2px}
 </style>
 </helmet>
-<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F7F5F2; color: #11131F; font-family: 'IBM Plex Sans', -apple-system, system-ui, sans-serif; display: flex; flex-direction: column; position: relative; overflow: hidden">
-  <div style="padding: 56px 20px 0; display: flex; justify-content: space-between; align-items: center; gap: 12px">
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; padding: 60px 16px 0; background: #F7F5F2; color: #11131F; font-family: 'IBM Plex Sans', -apple-system, system-ui, sans-serif; display: flex; flex-direction: column; gap: 16px">
+
+  <header style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
     <div>
-      <p style="margin: 0; font-size: 13px; font-weight: 500; color: #5E6272">4 ativos · 4 entregas na semana</p>
-      <h1 style="margin: 2px 0 0; font-size: 32px; font-weight: 700; letter-spacing: -0.035em">Projetos</h1>
+      <h1 style="margin: 0; font-family: 'Sora', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 700; letter-spacing: -0.035em">Projetos</h1>
+      <div style="margin-top: 4px; display: flex; align-items: center; gap: 8px"><p style="margin: 0; font-size: 12px; line-height: 16px; color: #5E6272; font-variant-numeric: tabular-nums">{{nAtivos}} ativos · 4 entregas na semana</p><span style="height: 24px; box-sizing: border-box; padding: 0 8px; border-radius: 999px; border: 1px dashed #5E6272; color: #5E6272; display: inline-flex; align-items: center; font-size: 12px; line-height: 16px; font-weight: 600; white-space: nowrap">Fora do MVP (v2)</span></div>
     </div>
-    
-  </div>
-  <div style="margin: 16px 16px 0; background: #FFFFFF; border: 1px dashed rgba(0,0,0,0.18); border-radius: 16px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px">
-    <p style="margin: 0; font-size: 14px; line-height: 1.35"><strong style="font-weight: 600">Trilho fechou hoje.</strong><br><span style="color: #5E6272">R$ 3.000 · vira projeto?</span></p>
-    <button type="button" style="flex-shrink: 0; font: inherit; font-size: 14px; font-weight: 600; color: #11131F; background: #FF7A45; border: 0; border-radius: 999px; padding: 9px 14px; min-height: 40px; cursor: pointer">Criar</button>
-  </div>
-  <div style="display: flex; flex-direction: column; gap: 10px; padding: 16px 16px 0">
-    <article style="background: #FFFFFF; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.05)">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px"><div><p style="margin: 0; font-size: 16px; font-weight: 600">Kora</p><p style="margin: 2px 0 0; font-size: 13px; color: #5E6272">Integração com ERP · Você</p></div><span style="font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 999px; background: #F5E6D0; color: #8F550E; white-space: nowrap">atrasado</span></div>
-      <div style="height: 6px; border-radius: 3px; background: #E6E2DB; overflow: hidden"><div style="width: 40%; height: 6px; background: #C77713"></div></div>
-      <p style="margin: 0; font-size: 13px; color: #33364A">Próxima: <strong style="font-weight: 600">Ambiente de testes</strong> · <span style="color: #8F550E">venceu sex 23/10</span></p>
-    </article>
-    <article style="background: #FFFFFF; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.05)">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px"><div><p style="margin: 0; font-size: 16px; font-weight: 600">Grão</p><p style="margin: 2px 0 0; font-size: 13px; color: #5E6272">Site + painel de pedidos · Bia</p></div><span style="font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 999px; background: #E8ECF3; color: #4E628F; white-space: nowrap">atenção</span></div>
-      <div style="height: 6px; border-radius: 3px; background: #E6E2DB; overflow: hidden"><div style="width: 38%; height: 6px; background: #4E628F"></div></div>
-      <p style="margin: 0; font-size: 13px; color: #33364A">Próxima: <strong style="font-weight: 600">Aprovar layout</strong> · <span style="color: #5E6272">hoje</span></p>
-    </article>
-    <article style="background: #FFFFFF; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.05)">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px"><div><p style="margin: 0; font-size: 16px; font-weight: 600">Lumen</p><p style="margin: 2px 0 0; font-size: 13px; color: #5E6272">App de agendamento · Rafael</p></div><span style="font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 999px; background: #EFECE6; color: #33364A; white-space: nowrap">no prazo</span></div>
-      <div style="height: 6px; border-radius: 3px; background: #E6E2DB; overflow: hidden"><div style="width: 67%; height: 6px; background: #11131F"></div></div>
-      <p style="margin: 0; font-size: 13px; color: #33364A">Próxima: <strong style="font-weight: 600">Telas do onboarding</strong> · <span style="color: #5E6272">sex 30/10</span></p>
-    </article>
-    <article style="background: #FFFFFF; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.05)">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px"><div><p style="margin: 0; font-size: 16px; font-weight: 600">Faro</p><p style="margin: 2px 0 0; font-size: 13px; color: #5E6272">MVP de marketplace · Rafael</p></div><span style="font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 999px; background: #EFECE6; color: #33364A; white-space: nowrap">no prazo</span></div>
-      <div style="height: 6px; border-radius: 3px; background: #E6E2DB; overflow: hidden"><div style="width: 8%; height: 6px; background: #11131F"></div></div>
-      <p style="margin: 0; font-size: 13px; color: #33364A">Próxima: <strong style="font-weight: 600">Kickoff e escopo</strong> · <span style="color: #5E6272">seg 2/11</span></p>
-    </article>
-  </div>
-  <button type="button" aria-label="Novo projeto" style="position: absolute; right: 20px; bottom: 100px; width: 56px; height: 56px; border-radius: 28px; border: 0; background: #11131F; color: #FFFFFF; font-size: 28px; font-weight: 400; line-height: 1; box-shadow: 0 8px 24px rgba(0,0,0,0.2); cursor: pointer">+</button>
-  <nav style="position: absolute; left: 0; right: 0; bottom: 0; height: 84px; box-sizing: border-box; padding: 10px 8px 24px; background: rgba(255,255,255,0.92); border-top: 1px solid rgba(0,0,0,0.08); display: flex; justify-content: space-around" aria-label="Navegação">
-    <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #8A8D99; font-size: 11px; font-weight: 500; min-width: 56px"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path></svg>Hoje</a>
-    <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #8A8D99; font-size: 11px; font-weight: 500; min-width: 56px"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="5" height="16" rx="1.5"></rect><rect x="10" y="4" width="5" height="11" rx="1.5"></rect><rect x="17" y="4" width="4" height="7" rx="1.5"></rect></svg>Pipeline</a>
-    <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #8A8D99; font-size: 11px; font-weight: 500; min-width: 56px"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><path d="M12 1v6M12 17v6M1 12h6M17 12h6"></path></svg>Caçada</a>
-    <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #11131F; font-size: 11px; font-weight: 600; min-width: 56px"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="3"></rect><path d="M3 10h18M8 3v4M16 3v4M7.5 14.5l2 2 4-4"></path></svg>Projetos</a>
-    <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #8A8D99; font-size: 11px; font-weight: 500; min-width: 56px"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 20V12M10 20V6M16 20v-9M22 20H2"></path></svg>Grana</a>
+    <button type="button" aria-label="Novo projeto" style="width: 44px; height: 44px; flex-shrink: 0; border: 0; border-radius: 999px; background: #11131F; color: #FFFFFF; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg></button>
+  </header>
+
+  <sc-if value="{{temSugestao}}" hint-placeholder-val="{{true}}">
+    <section aria-label="Sugestão" style="border-radius: 24px; background: #FFFFFF; border: 1px solid #E6E2DB; box-shadow: 0 1px 2px rgba(17,19,31,0.06); padding: 12px 12px 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px">
+      <div><p style="margin: 0; font-size: 16px; line-height: 22px; font-weight: 600">Trilho fechou hoje.</p><p style="margin: 0; font-size: 12px; line-height: 16px; color: #5E6272; font-variant-numeric: tabular-nums">R$ 3.000 · Pipeline, hoje · vira projeto?</p></div>
+      <button type="button" onClick="{{criar}}" style="box-sizing: border-box; border: 0; border-radius: 999px; background: #FF7A45; color: #11131F; font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 150ms ease-out; height: 44px; padding: 0 20px; flex-shrink: 0">Criar</button>
+    </section>
+  </sc-if>
+
+  <section style="display: flex; flex-direction: column; gap: 8px">
+      <h2 style="margin: 0; font-size: 16px; line-height: 22px; font-weight: 600">Precisa de você <span style="color: #5E6272; font-weight: 500; font-variant-numeric: tabular-nums">· {{urgN}}</span></h2>
+      <ul style="list-style: none; margin: 0; padding: 0 16px; border-radius: 24px; background: #FFFFFF; border: 1px solid #E6E2DB; box-shadow: 0 1px 2px rgba(17,19,31,0.06)">
+        <sc-for list="{{urgentes}}" as="p" hint-placeholder-count="2">
+          <li style="border-top: {{p.linha}}">
+            <a href="#" style="min-height: 88px; box-sizing: border-box; padding: 8px 0; display: flex; flex-direction: column; gap: 8px; color: #11131F; text-decoration: none">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px">
+                <div style="min-width: 0"><p style="margin: 0; font-size: 16px; line-height: 22px; font-weight: 600">{{p.nome}}</p><p style="margin: 0; font-size: 12px; line-height: 16px; color: #5E6272">{{p.linha2}}</p></div>
+                <div style="flex-shrink: 0">
+                  <sc-if value="{{p.atrasado}}" hint-placeholder-val="{{false}}"><span style="height: 24px; box-sizing: border-box; padding: 0 8px; border-radius: 999px; background: #F5E6D0; color: #8F550E; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; line-height: 16px; font-weight: 600; white-space: nowrap"><span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 999px; background: #C77713"></span>{{p.estado}}</span></sc-if>
+                  <sc-if value="{{p.hoje}}" hint-placeholder-val="{{false}}"><span style="height: 24px; box-sizing: border-box; padding: 0 8px; border-radius: 999px; background: #E8ECF3; color: #4E628F; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; line-height: 16px; font-weight: 600; white-space: nowrap"><span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 999px; box-sizing: border-box; border: 2px solid #4E628F"></span>{{p.estado}}</span></sc-if>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px"><div role="progressbar" aria-valuenow="{{p.pct}}" aria-valuemin="0" aria-valuemax="100" aria-label="Andamento" style="flex: 1; height: 6px; border-radius: 999px; background: #E6E2DB; overflow: hidden"><div style="width: {{p.pct}}%; height: 6px; background: {{p.cor}}"></div></div><span style="width: 32px; text-align: right; font-size: 12px; line-height: 16px; color: #5E6272; font-variant-numeric: tabular-nums">{{p.pct}}%</span></div>
+              <p style="margin: 0; font-size: 12px; line-height: 16px; color: #5E6272">Próxima: <strong style="font-weight: 600; color: #11131F">{{p.proxima}}</strong> · {{p.quando}}</p>
+            </a>
+          </li>
+        </sc-for>
+      </ul>
+    </section>
+
+  <section style="display: flex; flex-direction: column; gap: 8px">
+      <h2 style="margin: 0; font-size: 16px; line-height: 22px; font-weight: 600">No prazo <span style="color: #5E6272; font-weight: 500; font-variant-numeric: tabular-nums">· {{okN}}</span></h2>
+      <ul style="list-style: none; margin: 0; padding: 0 16px; border-radius: 24px; background: #FFFFFF; border: 1px solid #E6E2DB; box-shadow: 0 1px 2px rgba(17,19,31,0.06)">
+        <sc-for list="{{noPrazo}}" as="p" hint-placeholder-count="3">
+          <li style="border-top: {{p.linha}}">
+            <a href="#" style="min-height: 88px; box-sizing: border-box; padding: 8px 0; display: flex; flex-direction: column; gap: 8px; color: #11131F; text-decoration: none">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px">
+                <div style="min-width: 0"><p style="margin: 0; font-size: 16px; line-height: 22px; font-weight: 600">{{p.nome}}</p><p style="margin: 0; font-size: 12px; line-height: 16px; color: #5E6272">{{p.linha2}}</p></div>
+                <div style="flex-shrink: 0">
+                  <sc-if value="{{p.atrasado}}" hint-placeholder-val="{{false}}"><span style="height: 24px; box-sizing: border-box; padding: 0 8px; border-radius: 999px; background: #F5E6D0; color: #8F550E; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; line-height: 16px; font-weight: 600; white-space: nowrap"><span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 999px; background: #C77713"></span>{{p.estado}}</span></sc-if>
+                  <sc-if value="{{p.hoje}}" hint-placeholder-val="{{false}}"><span style="height: 24px; box-sizing: border-box; padding: 0 8px; border-radius: 999px; background: #E8ECF3; color: #4E628F; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; line-height: 16px; font-weight: 600; white-space: nowrap"><span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 999px; box-sizing: border-box; border: 2px solid #4E628F"></span>{{p.estado}}</span></sc-if>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px"><div role="progressbar" aria-valuenow="{{p.pct}}" aria-valuemin="0" aria-valuemax="100" aria-label="Andamento" style="flex: 1; height: 6px; border-radius: 999px; background: #E6E2DB; overflow: hidden"><div style="width: {{p.pct}}%; height: 6px; background: {{p.cor}}"></div></div><span style="width: 32px; text-align: right; font-size: 12px; line-height: 16px; color: #5E6272; font-variant-numeric: tabular-nums">{{p.pct}}%</span></div>
+              <p style="margin: 0; font-size: 12px; line-height: 16px; color: #5E6272">Próxima: <strong style="font-weight: 600; color: #11131F">{{p.proxima}}</strong> · {{p.quando}}</p>
+            </a>
+          </li>
+        </sc-for>
+      </ul>
+    </section>
+
+  <nav aria-label="Navegação" style="position: absolute; left: 16px; right: 16px; bottom: 24px; height: 64px; box-sizing: border-box; padding: 6px; border-radius: 999px; background: rgba(255,255,255,0.72); backdrop-filter: blur(20px) saturate(1.6); -webkit-backdrop-filter: blur(20px) saturate(1.6); border: 1px solid rgba(17,19,31,0.08); box-shadow: 0 1px 2px rgba(17,19,31,0.06), 0 12px 32px rgba(17,19,31,0.14); display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px">
+    <a href="HojeMobile.dc.html" style="border-radius: 999px; color: #5E6272; font-weight: 500; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; line-height: 16px; transition: background-color 150ms ease-out"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18h18"></path><path d="M7 18a5 5 0 0 1 10 0"></path><path d="M12 6v3"></path><path d="M5.6 10.6l1.6 1.6"></path><path d="M18.4 10.6l-1.6 1.6"></path></svg>Hoje</a>
+    <a href="PipelineMobile.dc.html" style="border-radius: 999px; color: #5E6272; font-weight: 500; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; line-height: 16px; transition: background-color 150ms ease-out"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="4.5" height="16" rx="1.5"></rect><rect x="9.75" y="4" width="4.5" height="11" rx="1.5"></rect><rect x="16" y="4" width="4.5" height="7" rx="1.5"></rect></svg>Pipeline</a>
+    <a href="CacadaMobile.dc.html" style="border-radius: 999px; color: #5E6272; font-weight: 500; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; line-height: 16px; transition: background-color 150ms ease-out"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="7.5"></circle><circle cx="12" cy="12" r="2"></circle><path d="M12 2v3"></path><path d="M12 19v3"></path><path d="M2 12h3"></path><path d="M19 12h3"></path></svg>Caçada</a>
+    <a href="ProjetosMobile.dc.html" aria-current="page" style="border-radius: 999px; background: #11131F; color: #FFFFFF; font-weight: 600; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; line-height: 16px; transition: background-color 150ms ease-out"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="3"></rect><path d="M3 10h18"></path><path d="M8 3v4"></path><path d="M16 3v4"></path><path d="M7.5 14.5l2 2 4-4"></path></svg>Projetos</a>
+    <a href="GranaMobile.dc.html" style="border-radius: 999px; color: #5E6272; font-weight: 500; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; line-height: 16px; transition: background-color 150ms ease-out"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V12"></path><path d="M10 20V6"></path><path d="M16 20v-9"></path><path d="M22 20H2"></path></svg>Grana</a>
   </nav>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
-  renderVals() { return {}; }
+  projetos() {
+    return [
+      { nome: 'Kora', linha2: 'Integração com ERP · Você', pct: 40, cor: '#C77713', proxima: 'Ambiente de testes', quando: 'venceu sex 23/10', urgente: true, atrasado: true, estado: 'Atrasado' },
+      { nome: 'Grão', linha2: 'Site + painel de pedidos · Bia', pct: 38, cor: '#4E628F', proxima: 'Aprovar layout', quando: 'hoje', urgente: true, hoje: true, estado: 'Hoje' },
+      { nome: 'Lumen', linha2: 'App de agendamento · Rafael', pct: 67, cor: '#11131F', proxima: 'Telas do onboarding', quando: 'sex 30/10' },
+      { nome: 'Faro', linha2: 'MVP de marketplace · Rafael', pct: 8, cor: '#11131F', proxima: 'Kickoff e escopo', quando: 'seg 2/11' }
+    ];
+  }
+  renderVals() {
+    const s = this.state || {};
+    const criado = !!s.criado;
+    let xs = this.projetos();
+    if (criado) xs = [...xs, { nome: 'Trilho', linha2: 'Projeto novo · Você', pct: 0, cor: '#11131F', proxima: 'Kickoff e escopo', quando: 'a marcar' }];
+    const marca = (a) => a.map((p, i) => ({ ...p, linha: i === 0 ? '0' : '1px solid #EFECE6' }));
+    const urgentes = marca(xs.filter((p) => p.urgente));
+    const noPrazo = marca(xs.filter((p) => !p.urgente));
+    return {
+      nAtivos: xs.length,
+      temSugestao: !criado,
+      criar: () => this.setState({ criado: true }),
+      urgentes, noPrazo,
+      urgN: urgentes.length,
+      okN: noPrazo.length
+    };
+  }
 }
 </script>
 </body>

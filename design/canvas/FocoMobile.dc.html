@@ -16,7 +16,7 @@ body{margin:0}
 <div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #11131F; color: #FFFFFF; font-family: 'IBM Plex Sans', -apple-system, system-ui, sans-serif">
 
   <div style="position: absolute; left: 16px; right: 16px; top: 60px; height: 44px; display: flex; align-items: center; gap: 16px">
-    <a href="V2Hoje.dc.html" aria-label="Sair da sessão" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 22px; background: rgba(255,255,255,0.08); color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg></a>
+    <a href="HojeMobile.dc.html" aria-label="Sair da sessão" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 22px; background: rgba(255,255,255,0.08); color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg></a>
     <div role="img" aria-label="Sessão: {{idx1}} de {{total}}" style="flex-grow: 1; display: flex; gap: 4px">
       <sc-for list="{{segs}}" as="s" hint-placeholder-count="3">
         <span style="flex: 1; height: 6px; border-radius: 3px; background: {{s.cor}}; transition: background-color 150ms ease-out"></span>
@@ -73,7 +73,7 @@ body{margin:0}
         <button type="button" onClick="{{adiar}}" style="height: 44px; border: 0; border-radius: 999px; background: transparent; color: #FFFFFF; font: inherit; font-size: 16px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg>Adiar</button>
       </sc-if>
       <sc-if value="{{ultimo}}" hint-placeholder-val="{{false}}">
-        <a href="V2Feito.dc.html" style="height: 44px; border-radius: 999px; color: #FFFFFF; text-decoration: none; font-size: 16px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg>Adiar</a>
+        <a href="FeitoMobile.dc.html" style="height: 44px; border-radius: 999px; color: #FFFFFF; text-decoration: none; font-size: 16px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg>Adiar</a>
       </sc-if>
       <button type="button" onClick="{{jaFiz}}" style="height: 44px; border: 0; border-radius: 999px; background: transparent; color: #FFFFFF; font: inherit; font-size: 16px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Já fiz</button>
     </div>
@@ -111,7 +111,7 @@ body{margin:0}
           <button type="button" onClick="{{salvar}}" disabled="{{semEscolha}}" style="height: 56px; border: 0; border-radius: 999px; background: #FF7A45; color: #11131F; font: inherit; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer">Salvar e seguir<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></button>
         </sc-if>
         <sc-if value="{{ultimo}}" hint-placeholder-val="{{false}}">
-          <a href="V2Feito.dc.html" style="height: 56px; border-radius: 999px; background: #FF7A45; color: #11131F; text-decoration: none; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px">Salvar e terminar a manhã</a>
+          <a href="FeitoMobile.dc.html" style="height: 56px; border-radius: 999px; background: #FF7A45; color: #11131F; text-decoration: none; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px">Salvar e terminar a manhã</a>
         </sc-if>
       </div>
     </div>

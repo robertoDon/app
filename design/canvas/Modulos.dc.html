@@ -15,43 +15,43 @@ h1,h2,h3,.ds{font-family:'Sora', 'IBM Plex Sans', system-ui, sans-serif}
 a{color:#11131F}a:hover{color:#FF7A45}
 </style>
 </helmet>
-<div style="width: 1440px; height: 1180px; box-sizing: border-box; padding: 72px 80px; background: #F7F5F2; color: #11131F; font-family: 'IBM Plex Sans', -apple-system, system-ui, sans-serif; display: flex; flex-direction: column; gap: 40px">
+<div style="width: 1440px; height: 1180px; box-sizing: border-box; padding: 64px 80px; background: #F7F5F2; color: #11131F; font-family: 'IBM Plex Sans', -apple-system, system-ui, sans-serif; display: flex; flex-direction: column; gap: 40px">
 
   <header style="display: flex; justify-content: space-between; align-items: flex-end; gap: 48px">
     <div style="display: flex; flex-direction: column; gap: 12px">
-      <p style="margin: 0; font-size: 15px; font-weight: 600; color: #5E6272">Produto</p>
-      <h1 style="margin: 0; font-size: 64px; font-weight: 700; letter-spacing: -0.04em; line-height: 1.05">Três módulos. Nada além.</h1>
+      <p style="margin: 0; font-size: 14px; font-weight: 600; color: #5E6272">Produto</p>
+      <h1 style="margin: 0; font-size: 56px; font-weight: 700; letter-spacing: -0.04em; line-height: 1.05">Três módulos. Nada além.</h1>
     </div>
-    <p style="margin: 0; max-width: 440px; font-size: 16px; line-height: 1.55; color: #5E6272">Regra da reunião: entregar o essencial muito bem feito. Cada módulo responde uma pergunta que o fundador faz todo dia. Projetos e Grana ficam para a v2.</p>
+    <p style="margin: 0; max-width: 440px; font-size: 16px; line-height: 1.55; color: #5E6272">O essencial, muito bem feito. Cada módulo responde uma pergunta que o fundador faz todo dia. Projetos e Grana ficam para a v2.</p>
   </header>
 
-  <section style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px">
+  <section style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
     <sc-for list="{{mvp}}" as="m" hint-placeholder-count="3">
-      <article style="background: #FFFFFF; border-radius: 24px; padding: 22px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05); min-height: 430px; box-sizing: border-box">
-        <div style="width: 48px; height: 48px; border-radius: 14px; background: #11131F; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700">{{m.n}}</div>
+      <article style="background: #FFFFFF; border-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 1px 2px rgba(17,19,31,0.06); min-height: 430px; box-sizing: border-box">
+        <div style="width: 48px; height: 48px; border-radius: 16px; background: #11131F; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700">{{m.n}}</div>
         <div style="display: flex; flex-direction: column; gap: 4px">
-          <h2 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.03em">{{m.name}}</h2>
+          <h2 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.03em">{{m.name}}</h2>
           <p style="margin: 0; font-size: 14px; font-weight: 600; color: #11131F">{{m.q}}</p>
         </div>
-        <p style="margin: 0; font-size: 15px; line-height: 1.5; color: #33364A">{{m.what}}</p>
+        <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #33364A">{{m.what}}</p>
         <div style="margin-top: auto; padding-top: 14px; border-top: 1px solid rgba(0,0,0,0.08); font-size: 13px; line-height: 1.5; color: #5E6272">{{m.note}}</div>
       </article>
     </sc-for>
   </section>
 
   <section style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
-    <div style="background: #FFFFFF; border-radius: 24px; padding: 24px 28px; display: flex; flex-direction: column; gap: 12px">
-      <p style="margin: 0; font-size: 15px; font-weight: 600">Canais de aviso</p>
-      <p style="margin: 0; font-size: 15px; line-height: 1.5; color: #33364A"><strong style="font-weight: 600">MVP:</strong> push no celular (PWA) e e-mail do resumo da manhã.</p>
-      <p style="margin: 0; font-size: 15px; line-height: 1.5; color: #33364A"><strong style="font-weight: 600">v2:</strong> WhatsApp como “secretária” — avisa, recebe anotação, manda resumo. Entra quando o custo por mensagem couber no plano.</p>
+    <div style="background: #FFFFFF; border-radius: 24px; padding: 24px 24px; display: flex; flex-direction: column; gap: 12px">
+      <p style="margin: 0; font-size: 14px; font-weight: 600">Canais de aviso</p>
+      <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #33364A"><strong style="font-weight: 600">No piloto:</strong> push no celular (PWA), e-mail do resumo da manhã e botão “Abrir no WhatsApp” com a mensagem pronta.</p>
+      <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #33364A"><strong style="font-weight: 600">Durante o piloto:</strong> resumo da manhã no WhatsApp. Depois, o WhatsApp do cliente dentro da Dalva e conversa com ela por lá.</p>
     </div>
-    <div style="background: #FFFFFF; border-radius: 24px; padding: 24px 28px; display: flex; flex-direction: column; gap: 12px">
-      <p style="margin: 0; font-size: 15px; font-weight: 600">Fica para depois</p>
-      <p style="margin: 0; font-size: 15px; line-height: 1.5; color: #33364A">CAC e métricas avançadas, papéis e permissões, integrações (agenda, e-mail), app nativo.</p>
+    <div style="background: #FFFFFF; border-radius: 24px; padding: 24px 24px; display: flex; flex-direction: column; gap: 12px">
+      <p style="margin: 0; font-size: 14px; font-weight: 600">Fica para depois</p>
+      <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #33364A">CAC e métricas avançadas, papéis e permissões, integrações (agenda, e-mail), app nativo.</p>
     </div>
-    <div style="background: #11131F; color: #F7F5F2; border-radius: 24px; padding: 24px 28px; display: flex; flex-direction: column; gap: 12px">
-      <p style="margin: 0; font-size: 15px; font-weight: 600">Base técnica</p>
-      <p style="margin: 0; font-size: 15px; line-height: 1.5; color: #D2D2D7">Mesma stack do Plandon: React + Vite, Supabase (login, banco, isolamento por empresa), Cloudflare. Web responsiva instalável no celular.</p>
+    <div style="background: #11131F; color: #F7F5F2; border-radius: 24px; padding: 24px 24px; display: flex; flex-direction: column; gap: 12px">
+      <p style="margin: 0; font-size: 14px; font-weight: 600">Base técnica</p>
+      <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #A6A9B6">Mesma stack do Plandon: React + Vite, Supabase (login, banco, isolamento por empresa), Cloudflare. Web responsiva instalável no celular.</p>
     </div>
   </section>
 </div>
