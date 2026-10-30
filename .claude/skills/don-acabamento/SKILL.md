@@ -49,6 +49,18 @@ Seis referências. Cada uma vira regra concreta.
 - Botões em pílula. Um principal (cheio), um secundário (contorno ou texto).
 - Escuro é para vitrine. A ferramenta do dia a dia continua clara, a não ser que a marca peça o contrário.
 
+## 7. Régua: poucos valores, cada um com nome
+
+Origem: Design 2.0 da Dalva, aprovado em 30/10/2026. Tela com cara de "gerada" tem valor solto. A régua fecha a conta:
+
+- **Espaçamento:** 4, 8, 12, 16, 20, 24. Toque de 44.
+- **Tipo:** 3 tamanhos por tela (celular 32/36, 16/22, 12/16). Display em Sora 700, corpo em Plex Sans.
+- **Cor:** um acento por tela, só em ação. Um cinza por tema, com 4,5:1 ou mais.
+- **Símbolos:** ícones de 24 px, traço 2, pontas redondas.
+- **Estrutura:** raios 8, 16, 24 e pílula. Sombra de 1 px. Barra de abas de vidro. 150 ms.
+
+Para reformar uma tela: conte os valores distintos no código, troque cada um pelo vizinho da régua e mostre antes e depois com os números. Padrões de produto (sessão com próximo passo, Ritmo em dias úteis, metas com barra, sem mascote) e o passo a passo estão em [regua.md](regua.md). Leia antes de redesenhar telas.
+
 ## Regras que valem para tudo
 
 - **Estado = texto + forma + cor.** Nunca só cor (atrasado: ponto cheio + "Atrasado"; hoje: anel + "Hoje"). Contraste AA no mínimo.
@@ -70,5 +82,8 @@ Seis referências. Cada uma vira regra concreta.
 8. Nenhum estado depende só de cor?
 9. O acento aparece só em ação?
 10. Funciona em 375 px de largura sem scroll horizontal?
+11. No máximo 3 tamanhos de texto, 6 espaçamentos e 4 raios na tela? Todo valor está na régua?
+12. Todo cinza de texto passa 4,5:1? Só um acento, só em ação?
+13. Gesto tem botão equivalente? Nenhum mascote ou número sem barra de referência?
 
 Se a resposta de algum item for "não", ajuste antes de mostrar. Em caso de dúvida sobre marca, preço ou estratégia, pergunte. Não chute.
