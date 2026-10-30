@@ -1,3 +1,5 @@
+**Substituído em 30/10/2026 pela marca Follou (`follou/`).** O que segue é o histórico da Dalva.
+
 # Marca Dalva · logo
 
 **Decidido (28/10/2026): direção B · 18°.** Arquivos finais em `final/`, guia em `guia.html` (https://claude.ai/artifact/FAQsPFqWb1ZdScW5Tor1bV).

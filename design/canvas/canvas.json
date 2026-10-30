@@ -4,7 +4,7 @@
   "v": 1,
   "at": "2026-10-26T19:00:00Z"
  },
- "title": "Dalva",
+ "title": "Follou",
  "launch": {
   "view": "canvas"
  },
@@ -44,15 +44,15 @@
    "y": 0,
    "w": 1440,
    "h": 1320,
-   "title": "Estratégia — a Dalva em uma página",
+   "title": "Estratégia — o Follou em uma página",
    "page": "marca"
   },
   "Main.dc.html": {
    "x": 1520,
    "y": 0,
    "w": 1440,
-   "h": 2330,
-   "title": "Marca — logo provisório, cores, tipos, aplicações, voz",
+   "h": 6480,
+   "title": "Marca — Follou: nome, símbolo, paleta, tipos, voz, aplicações",
    "page": "marca"
   },
   "Modulos.dc.html": {
@@ -268,7 +268,7 @@
    "y": 0,
    "w": 1440,
    "h": 2290,
-   "title": "Contra quem a gente joga — 46 produtos e onde a Dalva ganha",
+   "title": "Contra quem a gente joga — 46 produtos e onde o Follou ganha",
    "page": "conc"
   },
   "LegadoAntesDepois.dc.html": {

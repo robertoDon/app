@@ -2,27 +2,27 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<title>Dalva 2.0 — Foco (celular)</title>
+<title>Follou — Foco (celular)</title>
 <script src="./support.js"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
 <style>
 body{margin:0}
 </style>
 </helmet>
-<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #11131F; color: #FFFFFF; font-family: 'IBM Plex Sans', -apple-system, system-ui, sans-serif">
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #100F0F; color: #F4F1EC; font-family: 'IBM Plex Sans', -apple-system, system-ui, sans-serif">
 
   <div style="position: absolute; left: 16px; right: 16px; top: 60px; height: 44px; display: flex; align-items: center; gap: 16px">
-    <a href="HojeMobile.dc.html" aria-label="Sair da sessão" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 22px; background: rgba(255,255,255,0.08); color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg></a>
+    <a href="HojeMobile.dc.html" aria-label="Sair da sessão" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 22px; background: rgba(255,255,255,0.08); color: #F4F1EC; display: flex; align-items: center; justify-content: center"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg></a>
     <div role="img" aria-label="Sessão: {{idx1}} de {{total}}" style="flex-grow: 1; display: flex; gap: 4px">
       <sc-for list="{{segs}}" as="s" hint-placeholder-count="3">
         <span style="flex: 1; height: 6px; border-radius: 3px; background: {{s.cor}}; transition: background-color 150ms ease-out"></span>
       </sc-for>
     </div>
-    <span style="flex-shrink: 0; font-size: 12px; line-height: 16px; font-weight: 600; color: #A6A9B6; font-variant-numeric: tabular-nums">{{idx1}} de {{total}}</span>
+    <span style="flex-shrink: 0; font-size: 12px; line-height: 16px; font-weight: 600; color: #C9C6C0; font-variant-numeric: tabular-nums">{{idx1}} de {{total}}</span>
   </div>
 
   <main style="position: absolute; left: 16px; right: 16px; top: 128px; display: flex; flex-direction: column; gap: 24px">
@@ -32,16 +32,16 @@ body{margin:0}
           <sc-if value="{{it.tel}}" hint-placeholder-val="{{true}}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h3.5l2 5-2.5 1.5a11 11 0 0 0 5.5 5.5l1.5-2.5 5 2V19a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"></path></svg></sc-if>
           <sc-if value="{{it.msg}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"></path></svg></sc-if>
           {{it.verbo}}</span>
-        <span style="height: 28px; box-sizing: border-box; padding: 0 10px; border-radius: 999px; background: rgba(255,255,255,0.10); display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600"><sc-if value="{{it.atraso}}" hint-placeholder-val="{{false}}"><span style="width: 8px; height: 8px; border-radius: 4px; background: #C77713"></span></sc-if><sc-if value="{{it.emDia}}" hint-placeholder-val="{{true}}"><span style="width: 8px; height: 8px; border-radius: 4px; box-sizing: border-box; border: 2px solid #FFFFFF"></span></sc-if>{{it.quando}}</span>
+        <span style="height: 28px; box-sizing: border-box; padding: 0 10px; border-radius: 999px; background: rgba(255,255,255,0.10); display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600"><sc-if value="{{it.atraso}}" hint-placeholder-val="{{false}}"><span style="width: 8px; height: 8px; border-radius: 4px; background: #E8865C"></span></sc-if><sc-if value="{{it.emDia}}" hint-placeholder-val="{{true}}"><span style="width: 8px; height: 8px; border-radius: 4px; box-sizing: border-box; border: 2px solid #F4F1EC"></span></sc-if>{{it.quando}}</span>
       </div>
       <div>
-        <h1 style="margin: 0; font-family: 'Sora', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 700; letter-spacing: -0.035em">{{it.empresa}}</h1>
-        <p style="margin: 2px 0 0; font-size: 16px; line-height: 22px; color: #A6A9B6">{{it.pessoa}}</p>
+        <h1 style="margin: 0; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.035em">{{it.empresa}}</h1>
+        <p style="margin: 2px 0 0; font-size: 16px; line-height: 22px; color: #C9C6C0">{{it.pessoa}}</p>
       </div>
     </div>
 
     <section style="display: flex; flex-direction: column; gap: 6px">
-      <h2 style="margin: 0; font-size: 12px; line-height: 16px; font-weight: 600; color: #A6A9B6">Por que agora</h2>
+      <h2 style="margin: 0; font-size: 12px; line-height: 16px; font-weight: 600; color: #C9C6C0">Por que agora</h2>
       <p style="margin: 0; font-size: 16px; line-height: 23px; text-wrap: pretty">{{it.porque}}</p>
     </section>
 
@@ -49,69 +49,69 @@ body{margin:0}
       <sc-for list="{{it.fatos}}" as="f" hint-placeholder-count="2">
         <div style="min-height: 60px; box-sizing: border-box; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; border-top: {{f.linha}}">
           <div style="min-width: 0">
-            <p style="margin: 0; font-size: 12px; line-height: 16px; color: #A6A9B6">{{f.k}}</p>
+            <p style="margin: 0; font-size: 12px; line-height: 16px; color: #C9C6C0">{{f.k}}</p>
             <p style="margin: 2px 0 0; font-size: 16px; line-height: 22px; font-variant-numeric: tabular-nums">{{f.v}}</p>
           </div>
-          <span style="flex-shrink: 0; font-size: 12px; line-height: 16px; color: #A6A9B6; text-align: right; white-space: pre-line">{{f.fonte}}</span>
+          <span style="flex-shrink: 0; font-size: 12px; line-height: 16px; color: #C9C6C0; text-align: right; white-space: pre-line">{{f.fonte}}</span>
         </div>
       </sc-for>
     </section>
 
     <section style="display: flex; flex-direction: column; gap: 6px">
-      <h2 style="margin: 0; font-size: 12px; line-height: 16px; font-weight: 600; color: #A6A9B6">{{it.roteiroTitulo}}</h2>
-      <p style="margin: 0; font-size: 16px; line-height: 23px; color: #E4E3EA; text-wrap: pretty">{{it.roteiro}}</p>
+      <h2 style="margin: 0; font-size: 12px; line-height: 16px; font-weight: 600; color: #C9C6C0">{{it.roteiroTitulo}}</h2>
+      <p style="margin: 0; font-size: 16px; line-height: 23px; color: #E3DFD7; text-wrap: pretty">{{it.roteiro}}</p>
     </section>
   </main>
 
   <div style="position: absolute; left: 16px; right: 16px; bottom: 28px; display: flex; flex-direction: column; gap: 4px">
-    <button type="button" onClick="{{abrir}}" style="height: 56px; border: 0; border-radius: 999px; background: #FF7A45; color: #11131F; font: inherit; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: transform 100ms ease-out">
+    <button type="button" onClick="{{abrir}}" style="height: 56px; border: 0; border-radius: 999px; background: #3FD07F; color: #100F0F; font: inherit; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: transform 100ms ease-out">
       <sc-if value="{{it.tel}}" hint-placeholder-val="{{true}}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h3.5l2 5-2.5 1.5a11 11 0 0 0 5.5 5.5l1.5-2.5 5 2V19a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"></path></svg></sc-if>
       <sc-if value="{{it.msg}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"></path></svg></sc-if>
       {{it.acao}}</button>
     <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
       <sc-if value="{{naoUltimo}}" hint-placeholder-val="{{true}}">
-        <button type="button" onClick="{{adiar}}" style="height: 44px; border: 0; border-radius: 999px; background: transparent; color: #FFFFFF; font: inherit; font-size: 16px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg>Adiar</button>
+        <button type="button" onClick="{{adiar}}" style="height: 44px; border: 0; border-radius: 999px; background: transparent; color: #F4F1EC; font: inherit; font-size: 16px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg>Adiar</button>
       </sc-if>
       <sc-if value="{{ultimo}}" hint-placeholder-val="{{false}}">
-        <a href="FeitoMobile.dc.html" style="height: 44px; border-radius: 999px; color: #FFFFFF; text-decoration: none; font-size: 16px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg>Adiar</a>
+        <a href="FeitoMobile.dc.html" style="height: 44px; border-radius: 999px; color: #F4F1EC; text-decoration: none; font-size: 16px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg>Adiar</a>
       </sc-if>
-      <button type="button" onClick="{{jaFiz}}" style="height: 44px; border: 0; border-radius: 999px; background: transparent; color: #FFFFFF; font: inherit; font-size: 16px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Já fiz</button>
+      <button type="button" onClick="{{jaFiz}}" style="height: 44px; border: 0; border-radius: 999px; background: transparent; color: #F4F1EC; font: inherit; font-size: 16px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Já fiz</button>
     </div>
   </div>
 
   <sc-if value="{{comofoi}}" hint-placeholder-val="{{false}}">
     <div style="position: absolute; inset: 0; background: rgba(11,12,20,0.64)">
       <button type="button" onClick="{{fechar}}" aria-label="Fechar" style="position: absolute; inset: 0 0 auto 0; height: 300px; border: 0; background: transparent; cursor: pointer"></button>
-      <div role="dialog" aria-modal="true" aria-labelledby="comofoi-t" style="position: absolute; left: 0; right: 0; bottom: 0; box-sizing: border-box; padding: 8px 16px 28px; border-radius: 24px 24px 0 0; background: #FFFFFF; color: #11131F; display: flex; flex-direction: column; gap: 16px">
-        <span style="align-self: center; width: 36px; height: 5px; border-radius: 3px; background: #E6E2DB"></span>
-        <h2 id="comofoi-t" style="margin: 0; font-family: 'Sora', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 700; letter-spacing: -0.035em; text-wrap: balance">{{it.pergunta}}</h2>
+      <div role="dialog" aria-modal="true" aria-labelledby="comofoi-t" style="position: absolute; left: 0; right: 0; bottom: 0; box-sizing: border-box; padding: 8px 16px 28px; border-radius: 24px 24px 0 0; background: #FAF9F7; color: #1A1815; display: flex; flex-direction: column; gap: 16px">
+        <span style="align-self: center; width: 36px; height: 5px; border-radius: 3px; background: #E3DFD7"></span>
+        <h2 id="comofoi-t" style="margin: 0; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.035em; text-wrap: balance">{{it.pergunta}}</h2>
         <div style="display: flex; flex-direction: column; gap: 8px">
           <sc-for list="{{opcoes}}" as="o" hint-placeholder-count="4">
             <sc-if value="{{o.marcada}}" hint-placeholder-val="{{false}}">
-              <button type="button" onClick="{{o.pick}}" aria-pressed="true" style="height: 56px; box-sizing: border-box; padding: 0 16px; border: 2px solid #11131F; border-radius: 16px; background: #FFFFFF; color: #11131F; font: inherit; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; text-align: left">{{o.t}}<span style="width: 24px; height: 24px; border-radius: 12px; background: #11131F; color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span></button>
+              <button type="button" onClick="{{o.pick}}" aria-pressed="true" style="height: 56px; box-sizing: border-box; padding: 0 16px; border: 2px solid #1A1815; border-radius: 16px; background: #FAF9F7; color: #1A1815; font: inherit; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; text-align: left">{{o.t}}<span style="width: 24px; height: 24px; border-radius: 12px; background: #100F0F; color: #F4F1EC; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span></button>
             </sc-if>
             <sc-if value="{{o.livre}}" hint-placeholder-val="{{true}}">
-              <button type="button" onClick="{{o.pick}}" aria-pressed="false" style="height: 56px; box-sizing: border-box; padding: 0 17px; border: 1px solid #E6E2DB; border-radius: 16px; background: #FFFFFF; color: #11131F; font: inherit; font-size: 16px; font-weight: 500; display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; text-align: left; transition: border-color 150ms ease-out">{{o.t}}<span style="width: 24px; height: 24px; border-radius: 12px; box-sizing: border-box; border: 2px solid #CFCAC1; flex-shrink: 0"></span></button>
+              <button type="button" onClick="{{o.pick}}" aria-pressed="false" style="height: 56px; box-sizing: border-box; padding: 0 17px; border: 1px solid #E3DFD7; border-radius: 16px; background: #FAF9F7; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; text-align: left; transition: border-color 150ms ease-out">{{o.t}}<span style="width: 24px; height: 24px; border-radius: 12px; box-sizing: border-box; border: 2px solid #CFC9BF; flex-shrink: 0"></span></button>
             </sc-if>
           </sc-for>
         </div>
         <sc-if value="{{temEscolha}}" hint-placeholder-val="{{true}}">
-          <div style="min-height: 56px; box-sizing: border-box; padding: 8px 16px; border-radius: 16px; background: #F7F5F2; display: flex; justify-content: space-between; align-items: center; gap: 12px">
+          <div style="min-height: 56px; box-sizing: border-box; padding: 8px 16px; border-radius: 16px; background: #F4F1EC; display: flex; justify-content: space-between; align-items: center; gap: 12px">
             <div style="min-width: 0">
-              <p style="margin: 0; font-size: 12px; line-height: 16px; color: #5E6272">Próximo passo, já marcado</p>
+              <p style="margin: 0; font-size: 12px; line-height: 16px; color: #57524B">Próximo passo, já marcado</p>
               <p style="margin: 2px 0 0; font-size: 16px; line-height: 22px; font-weight: 600">{{prox}}</p>
             </div>
-            <button type="button" style="flex-shrink: 0; height: 44px; padding: 0 4px; border: 0; background: transparent; color: #11131F; font: inherit; font-size: 16px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">Mudar</button>
+            <button type="button" style="flex-shrink: 0; height: 44px; padding: 0 4px; border: 0; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">Mudar</button>
           </div>
         </sc-if>
         <sc-if value="{{semEscolha}}" hint-placeholder-val="{{false}}">
-          <p style="margin: 0; min-height: 56px; box-sizing: border-box; padding: 8px 16px; border-radius: 16px; background: #F7F5F2; font-size: 16px; line-height: 20px; color: #5E6272; display: flex; align-items: center">Escolha uma. A Dalva marca o próximo passo.</p>
+          <p style="margin: 0; min-height: 56px; box-sizing: border-box; padding: 8px 16px; border-radius: 16px; background: #F4F1EC; font-size: 16px; line-height: 20px; color: #57524B; display: flex; align-items: center">Escolha uma. O Follou marca o próximo passo.</p>
         </sc-if>
         <sc-if value="{{naoUltimo}}" hint-placeholder-val="{{true}}">
-          <button type="button" onClick="{{salvar}}" disabled="{{semEscolha}}" style="height: 56px; border: 0; border-radius: 999px; background: #FF7A45; color: #11131F; font: inherit; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer">Salvar e seguir<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></button>
+          <button type="button" onClick="{{salvar}}" disabled="{{semEscolha}}" style="height: 56px; border: 0; border-radius: 999px; background: #0E7038; color: #FAF9F7; font: inherit; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer">Salvar e seguir<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></button>
         </sc-if>
         <sc-if value="{{ultimo}}" hint-placeholder-val="{{false}}">
-          <a href="FeitoMobile.dc.html" style="height: 56px; border-radius: 999px; background: #FF7A45; color: #11131F; text-decoration: none; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px">Salvar e terminar a manhã</a>
+          <a href="FeitoMobile.dc.html" style="height: 56px; border-radius: 999px; background: #0E7038; color: #FAF9F7; text-decoration: none; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px">Salvar e terminar a manhã</a>
         </sc-if>
       </div>
     </div>
@@ -191,7 +191,7 @@ class Component extends DCLogic {
       it,
       idx1: idx + 1,
       total: lista.length,
-      segs: lista.map((x, i) => ({ cor: feitos.includes(i) ? '#FFFFFF' : (i === idx ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.16)') })),
+      segs: lista.map((x, i) => ({ cor: feitos.includes(i) ? '#F4F1EC' : (i === idx ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.16)') })),
       opcoes: it.opcoes.map((o) => ({ ...o, marcada: o.id === escolha, livre: o.id !== escolha, pick: () => this.setState({ idx, fase: 'comofoi', escolha: o.id }) })),
       comofoi: fase === 'comofoi',
       temEscolha: !!sel,

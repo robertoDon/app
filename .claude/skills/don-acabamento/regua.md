@@ -1,6 +1,6 @@
 # Régua Don (Design 2.0)
 
-Origem: o Design 2.0 da Dalva (`design/canvas/`, páginas O design e As telas), aprovada em 30/10/2026. A ideia vem do "deslop any vibecoded app": o que deixa uma tela com cara de gerada é valor solto. Texto de 13, 14 e 15 px na mesma tela, espaço de 9 e 14, cinza que não passa no contraste. A cura é uma régua: poucos valores, cada um com nome, e nada fora dela.
+Origem: o Design 2.0 da Dalva, hoje Follou (`design/canvas/`, páginas O design e As telas), aprovada em 30/10/2026. A ideia vem do "deslop any vibecoded app": o que deixa uma tela com cara de gerada é valor solto. Texto de 13, 14 e 15 px na mesma tela, espaço de 9 e 14, cinza que não passa no contraste. A cura é uma régua: poucos valores, cada um com nome, e nada fora dela.
 
 ## 1. A régua
 
@@ -9,12 +9,12 @@ Cinco grupos. Use o valor com nome; se precisar de um novo, mude a régua antes,
 | Grupo | Regra |
 |---|---|
 | Espaçamento | 4, 8, 12, 16, 20, 24. Seção de landing: 96 ou mais. Alvo de toque: 44. |
-| Tipo | 3 tamanhos por tela. Celular: 32/36, 16/22, 12/16. Web: 40, 16, 13. Título em fonte de display (Sora 700), resto em Plex Sans. Hierarquia por peso e tamanho, nunca por cor. |
-| Cor | Um fundo escuro, um claro, um acento. O acento (coral na Dalva) só em ação, um por tela, com texto escuro sobre ele. Um cinza de texto por tema, ambos com 4,5:1 ou mais. Âmbar e azul só para estado, sempre com texto e forma. |
+| Tipo | 3 tamanhos por tela. Celular: 32/36, 16/22, 12/16. Web: 40, 16, 13. Título em fonte de display (Archivo 600 no Follou), resto em Plex Sans. Hierarquia por peso e tamanho, nunca por cor. |
+| Cor | Um fundo escuro, um claro, um acento. O acento (verde sinal no Follou) só em ação, um por tela; no escuro, texto escuro sobre ele; no claro, o tom escuro do acento com texto claro. Um cinza de texto por tema, ambos com 4,5:1 ou mais. Âmbar e azul só para estado, sempre com texto e forma. |
 | Símbolos | Ícones de 24 px, traço 2, pontas redondas, um só conjunto. Sem emoji como ícone. |
 | Estrutura | Raios 8 (controle), 16 e 24 (card, folha), pílula (botão e chip). Sombra de 1 px. Barra de abas de vidro flutuando. Movimento de 150 ms. |
 
-Os valores exatos da Dalva estão em `design/canvas/Sistema.dc.html`. Outro produto Don troca as cores e a fonte, mantém o formato da régua.
+Os valores exatos do Follou estão em `design/canvas/Sistema.dc.html`. Outro produto Don troca as cores e a fonte, mantém o formato da régua.
 
 ## 2. Como auditar uma tela
 
@@ -24,7 +24,7 @@ Os valores exatos da Dalva estão em `design/canvas/Sistema.dc.html`. Outro prod
 4. Troque cada valor solto pelo vizinho da régua. Não crie um quinto raio.
 5. Mostre antes e depois com os números, como em `LegadoAntesDepois` (11 → 3 tamanhos, 14 → 6 espaçamentos, 10 → 4 raios, 2 → 0 cinzas reprovados).
 
-## 3. Padrões de produto que a Dalva provou
+## 3. Padrões de produto que a Dalva (hoje Follou) provou
 
 - **Sessão em vez de lista.** O Hoje tem um card que é a ação ("Começar"). Dentro, uma tarefa por vez, com Feito, Adiar e Pular. Ao terminar, mostra o que mudou e já abre o próximo. É a regra do Netflix levada até o fim.
 - **Hoje escuro de manhã, claro depois.** A tela abre escura e clareia quando o dia está feito. O estado é visível sem cor: o título muda ("Manhã feita.") e o ícone vira check. Escuro aqui é estado do dia, não vitrine.

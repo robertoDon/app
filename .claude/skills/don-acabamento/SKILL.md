@@ -51,10 +51,10 @@ Seis referências. Cada uma vira regra concreta.
 
 ## 7. Régua: poucos valores, cada um com nome
 
-Origem: Design 2.0 da Dalva, aprovado em 30/10/2026. Tela com cara de "gerada" tem valor solto. A régua fecha a conta:
+Origem: Design 2.0 da Dalva (hoje Follou), aprovado em 30/10/2026. Tela com cara de "gerada" tem valor solto. A régua fecha a conta:
 
 - **Espaçamento:** 4, 8, 12, 16, 20, 24. Toque de 44.
-- **Tipo:** 3 tamanhos por tela (celular 32/36, 16/22, 12/16). Display em Sora 700, corpo em Plex Sans.
+- **Tipo:** 3 tamanhos por tela (celular 32/36, 16/22, 12/16). Display na fonte da marca (Archivo 600 no Follou), corpo em Plex Sans.
 - **Cor:** um acento por tela, só em ação. Um cinza por tema, com 4,5:1 ou mais.
 - **Símbolos:** ícones de 24 px, traço 2, pontas redondas.
 - **Estrutura:** raios 8, 16, 24 e pílula. Sombra de 1 px. Barra de abas de vidro. 150 ms.
