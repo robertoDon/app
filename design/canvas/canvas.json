@@ -106,21 +106,21 @@
    "page": "telas",
    "expand": "fill"
   },
-  "Cacada.dc.html": {
+  "Empresas.dc.html": {
    "x": 4560,
    "y": 0,
    "w": 1440,
    "h": 900,
-   "title": "3. Caçada — web",
+   "title": "3. Empresas — web",
    "page": "telas",
    "expand": "fill"
   },
-  "CacadaEntrada.dc.html": {
+  "EmpresasEntrada.dc.html": {
    "x": 6080,
    "y": 0,
    "w": 1440,
    "h": 900,
-   "title": "3. Caçada · primeira caçada — web",
+   "title": "3. Empresas · primeiras empresas — web",
    "page": "telas",
    "expand": "fill"
   },
@@ -156,20 +156,20 @@
    "title": "2. Abordagem — celular",
    "page": "telas"
   },
-  "CacadaMobile.dc.html": {
+  "EmpresasMobile.dc.html": {
    "x": 4560,
    "y": 1020,
    "w": 390,
    "h": 844,
-   "title": "3. Caçada — celular",
+   "title": "3. Empresas — celular",
    "page": "telas"
   },
-  "CacadaEntradaMobile.dc.html": {
+  "EmpresasEntradaMobile.dc.html": {
    "x": 6080,
    "y": 1020,
    "w": 390,
    "h": 844,
-   "title": "3. Caçada · primeira caçada — celular",
+   "title": "3. Empresas · primeiras empresas — celular",
    "page": "telas"
   },
   "FocoMobile.dc.html": {
@@ -226,7 +226,7 @@
    "y": 0,
    "w": 1440,
    "h": 900,
-   "title": "A conta e o motor — margem, custo medido, Caçada, dados e LGPD",
+   "title": "A conta e o motor — margem, custo medido, busca de empresas, dados e LGPD",
    "page": "conta"
   },
   "Concorrencia.dc.html": {
@@ -432,14 +432,14 @@
   "Hoje.dc.html",
   "Conversas.dc.html",
   "Conversa.dc.html",
-  "Cacada.dc.html",
-  "CacadaEntrada.dc.html",
+  "Empresas.dc.html",
+  "EmpresasEntrada.dc.html",
   "HojeMobile.dc.html",
   "ConversasMobile.dc.html",
   "ConversaMobile.dc.html",
   "AbordagemMobile.dc.html",
-  "CacadaMobile.dc.html",
-  "CacadaEntradaMobile.dc.html",
+  "EmpresasMobile.dc.html",
+  "EmpresasEntradaMobile.dc.html",
   "FocoMobile.dc.html",
   "ComoFoiMobile.dc.html",
   "FeitoMobile.dc.html",
