@@ -22,7 +22,7 @@ a{color:#1A1815}a:hover{color:#0E7038}
       <p style="margin: 0; font-size: 14px; font-weight: 600; color: #57524B">Produto</p>
       <h1 style="margin: 0; font-size: 56px; font-weight: 700; letter-spacing: -0.04em; line-height: 1.05">Três módulos. Nada além.</h1>
     </div>
-    <p style="margin: 0; max-width: 440px; font-size: 16px; line-height: 1.55; color: #57524B">O essencial, muito bem feito. Cada módulo responde uma pergunta que o fundador faz todo dia. Projetos e Grana ficam para a v2.</p>
+    <p style="margin: 0; max-width: 440px; font-size: 16px; line-height: 1.55; color: #57524B">O essencial, muito bem feito. Cada módulo responde uma pergunta que o fundador faz todo dia. Projetos e Grana saíram de vez: são o caminho para virar CRM.</p>
   </header>
 
   <section style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
@@ -48,6 +48,8 @@ a{color:#1A1815}a:hover{color:#0E7038}
     <div style="background: #FAF9F7; border-radius: 24px; padding: 24px 24px; display: flex; flex-direction: column; gap: 12px">
       <p style="margin: 0; font-size: 14px; font-weight: 600">Fica para depois</p>
       <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #1A1815">CAC e métricas avançadas, papéis e permissões, integrações (agenda, e-mail), app nativo.</p>
+      <p style="margin: 8px 0 0; font-size: 14px; font-weight: 600">Fora de propósito</p>
+      <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #1A1815">Projetos, Grana, funil por etapas e relatório de previsão. O Follou lê a conversa e diz o que fazer; não pede para o fundador manter um quadro.</p>
     </div>
     <div style="background: #100F0F; color: #F4F1EC; border-radius: 24px; padding: 24px 24px; display: flex; flex-direction: column; gap: 12px">
       <p style="margin: 0; font-size: 14px; font-weight: 600">Base técnica</p>
@@ -61,9 +63,9 @@ class Component extends DCLogic {
   renderVals() {
     return {
       mvp: [
-        { n: '1', name: 'Hoje', q: 'O que precisa de mim agora?', what: 'Três prioridades comerciais com o porquê de cada uma, a semana em números e uma frase do Follou. Dá para reordenar ou adiar.', note: 'Primeiro o próximo passo de hoje, depois a proposta e a conversa paradas.' },
-        { n: '2', name: 'Pipeline', q: 'Onde está cada venda?', what: 'Para abordar, Conversa, Proposta, Ganho ou perdido. Próximo passo com data, contatos e histórico dentro do negócio, abordagem sugerida pronta para revisar.', note: 'Para abordar fica fora da conta. Card parado fica âmbar, depois vermelho.' },
-        { n: '3', name: 'Caçada', q: 'Para quem eu vendo?', what: 'Descreve o cliente numa frase e recebe empresas reais da base de CNPJ, com fonte e data. Escolhe e manda para o Pipeline.', note: 'Buscar é grátis, quantas vezes quiser. Crédito só para enriquecer. A primeira caçada vem pronta na entrada, de graça.' }
+        { n: '1', name: 'Hoje', q: 'O que precisa de mim agora?', what: 'Três prioridades comerciais com o porquê de cada uma, a semana em números e uma frase do Follou. Dá para reordenar ou adiar. No ⌘K, a pergunta da meta (“bato a de novembro?”) responde com a rota, não com um painel.', note: 'Primeiro o próximo passo de hoje, depois a proposta e a conversa paradas.' },
+        { n: '2', name: 'Conversas', q: 'Com quem eu preciso falar?', what: 'Cada conversa com a situação lida do WhatsApp e do e-mail, o próximo passo com data e a abordagem sugerida pronta para revisar. Sem etapas nem funil para atualizar.', note: 'Precisa de você vem primeiro. Parada fica ferrugem, e a palavra “atrasado” aparece escrita.' },
+        { n: '3', name: 'Caçada', q: 'Para quem eu vendo?', what: 'Descreve o cliente numa frase e recebe empresas reais da base de CNPJ, com fonte e data. Escolhe e manda para Conversas.', note: 'Buscar é grátis, quantas vezes quiser. Crédito só para enriquecer. A primeira caçada vem pronta na entrada, de graça.' }
       ]
     };
   }

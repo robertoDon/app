@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Follou — Pergunta da meta: regras</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1440px; min-height: 1900px; box-sizing: border-box; padding: 64px 80px; background: #F4F1EC; color: #1A1815; font-family: 'IBM Plex Sans', -apple-system, system-ui, sans-serif; display: flex; flex-direction: column; gap: 24px">
+  <header style="display: flex; flex-direction: column; gap: 12px; max-width: 880px">
+    <p style="margin: 0; font-size: 13px; line-height: 18px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #57524B">A pergunta da meta · regras de resposta</p>
+    <h1 style="margin: 0; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 56px; line-height: 60px; font-weight: 600; letter-spacing: -0.04em">Ela responde com uma rota, não com um painel.</h1>
+    <p style="margin: 0; font-size: 18px; line-height: 27px; color: #57524B">Entra pelo ⌘K na web e pelo botão Perguntar no topo do Hoje, no celular. Uma pergunta, uma resposta, no máximo três passos. Se virar relatório, virou CRM.</p>
+  </header>
+  <section style="background: #FAF9F7; border: 1px solid #E3DFD7; border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 16px; "><p style="margin: 0; font-size: 13px; line-height: 18px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #57524B">Os três estados</p><div style="display: grid; grid-template-columns: 170px minmax(0, 1fr) 220px minmax(0, 1.2fr) 170px; gap: 16px; padding-bottom: 8px; font-size: 13px; font-weight: 600; color: #57524B"><span>Estado</span><span>Quando</span><span>Título</span><span>Rota</span><span>Botão principal</span></div><div style="display: grid; grid-template-columns: 170px minmax(0, 1fr) 220px minmax(0, 1.2fr) 170px; gap: 16px; padding: 14px 0; border-top: 1px solid #E3DFD7; font-size: 15px; line-height: 21px"><span style="font-weight: 600">Chega</span><span>previsão ≥ meta, com 10 ou mais negócios fechados ou perdidos</span><span style="font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-weight: 600">Chega, por R$ X.</span><span>As conversas que sustentam a meta: as que, se saírem, derrubam a previsão abaixo dela. No máximo 3.</span><span>Abrir a primeira</span></div><div style="display: grid; grid-template-columns: 170px minmax(0, 1fr) 220px minmax(0, 1.2fr) 170px; gap: 16px; padding: 14px 0; border-top: 1px solid #E3DFD7; font-size: 15px; line-height: 21px"><span style="font-weight: 600">Não chega</span><span>previsão < meta</span><span style="font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-weight: 600">Não chega: faltam R$ X.</span><span>Até 3 movimentos por ganho esperado. Diz o que a rota não cobre; o que sobra não é escondido.</span><span>Abrir a primeira</span></div><div style="display: grid; grid-template-columns: 170px minmax(0, 1fr) 220px minmax(0, 1.2fr) 170px; gap: 16px; padding: 14px 0; border-top: 1px solid #E3DFD7; font-size: 15px; line-height: 21px"><span style="font-weight: 600">Sem dados suficientes</span><span>menos de 10 negócios fechados ou perdidos</span><span style="font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-weight: 600">Ainda não dá para dizer.</span><span>Nenhuma estimativa, nenhuma barra. Diz quantos faltam e dá 2 caminhos para destravar.</span><span>Marcar os que faltam</span></div></section>
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px">
+    <section style="background: #FAF9F7; border: 1px solid #E3DFD7; border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 16px; "><p style="margin: 0; font-size: 13px; line-height: 18px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #57524B">A conta</p><ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column"><li style="padding: 10px 0; border-top: 0; font-size: 16px; line-height: 22px"><strong>Previsão</strong> = soma de valor × chance de fechar, conversa por conversa.</li><li style="padding: 10px 0; border-top: 1px solid #E3DFD7; font-size: 16px; line-height: 22px">A <strong>chance</strong> vem do histórico do próprio usuário (negócios fechados e perdidos), ajustada pelos dias sem resposta e pela abertura da proposta.</li><li style="padding: 10px 0; border-top: 1px solid #E3DFD7; font-size: 16px; line-height: 22px">O <strong>efeito</strong> de um passo = valor × (chance depois − chance antes). Sempre marcado “hipótese”.</li><li style="padding: 10px 0; border-top: 1px solid #E3DFD7; font-size: 16px; line-height: 22px">Mínimo de 10 negócios fechados ou perdidos. Abaixo disso, o estado é “sem dados”.</li><li style="padding: 10px 0; border-top: 1px solid #E3DFD7; font-size: 16px; line-height: 22px">Toda resposta mostra a fonte e a data da leitura: “38% em média, 12 negócios, lidas hoje 08:12”.</li></ul></section>
+    <section style="background: #FAF9F7; border: 1px solid #E3DFD7; border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 16px; "><p style="margin: 0; font-size: 13px; line-height: 18px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #57524B">Regras de resposta</p><ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column"><li style="padding: 10px 0; border-top: 0; font-size: 16px; line-height: 22px">Termina em ação: o botão principal abre o primeiro passo. É o único verde da tela.</li><li style="padding: 10px 0; border-top: 1px solid #E3DFD7; font-size: 16px; line-height: 22px">No máximo 3 passos, cada um com efeito em reais e prazo escrito.</li><li style="padding: 10px 0; border-top: 1px solid #E3DFD7; font-size: 16px; line-height: 22px">Diz o que a rota não cobre. “Não conta para novembro” é resposta, não falha.</li><li style="padding: 10px 0; border-top: 1px solid #E3DFD7; font-size: 16px; line-height: 22px">Sem placar: só a barra de referência (previsão e meta). Nenhum gráfico de histórico.</li><li style="padding: 10px 0; border-top: 1px solid #E3DFD7; font-size: 16px; line-height: 22px">Sem dados, sem estimativa: o estado desenhado diz quantos faltam e como destravar.</li></ul></section>
+  </div>
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px">
+    <section style="background: #FAF9F7; border: 1px solid #E3DFD7; border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 16px; "><p style="margin: 0; font-size: 13px; line-height: 18px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #57524B">O que ela não é</p><ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column"><li style="padding: 10px 0; border-top: 0; font-size: 16px; line-height: 22px">Previsão por mês, trimestre ou etapa.</li><li style="padding: 10px 0; border-top: 1px solid #E3DFD7; font-size: 16px; line-height: 22px">Histórico de metas, ranking ou meta por pessoa.</li><li style="padding: 10px 0; border-top: 1px solid #E3DFD7; font-size: 16px; line-height: 22px">Exportação, filtros e relatório. Quem precisa disso já tem CRM.</li><li style="padding: 10px 0; border-top: 1px solid #E3DFD7; font-size: 16px; line-height: 22px">Aviso de “você está abaixo da meta”. O Follou só responde quando perguntam.</li></ul></section>
+    <section style="background: #FAF9F7; border: 1px solid #E3DFD7; border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 16px; "><p style="margin: 0; font-size: 13px; line-height: 18px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #57524B">Entrada e estados vazios</p><ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column"><li style="padding: 10px 0; border-top: 0; font-size: 16px; line-height: 22px"><strong>Web:</strong> ⌘K reconhece a pergunta (“bato a meta”). Enter abre o primeiro passo, Esc fecha.</li><li style="padding: 10px 0; border-top: 1px solid #E3DFD7; font-size: 16px; line-height: 22px"><strong>Celular:</strong> botão Perguntar no topo do Hoje abre a folha, raio 24.</li><li style="padding: 10px 0; border-top: 1px solid #E3DFD7; font-size: 16px; line-height: 22px"><strong>Sem meta definida:</strong> a primeira pergunta é “Qual a meta de novembro?”, um campo numérico só.</li><li style="padding: 10px 0; border-top: 1px solid #E3DFD7; font-size: 16px; line-height: 22px"><strong>Eventos:</strong> meta_perguntada, meta_passo_aberto, meta_destravada.</li></ul></section>
+  </div>
+  <section style="background: #100F0F; color: #F4F1EC; border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 12px">
+    <p style="margin: 0; font-size: 13px; line-height: 18px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #8A8782">Contrato da resposta · proposta para o código</p>
+    <pre style="margin: 0; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 14px; line-height: 21px; color: #C9C6C0; white-space: pre-wrap">POST /api/meta/pergunta   { "mes": "2026-11" }
+
+{ "estado": "chega" | "nao_chega" | "sem_dados",
+  "meta": 15000,
+  "previsao": 12125,
+  "diferenca": -2875,
+  "base": { "fechados_ou_perdidos": 12, "taxa_media": 0.38,
+            "lido_em": "2026-10-29T08:12:00-03:00" },
+  "passos": [ { "conversa_id": "…", "titulo": "Ligar para a Acme",
+                "efeito_brl": 960, "efeito": "ganho" | "protege" | "nenhum",
+                "prazo": "2026-10-29T10:00:00-03:00", "hipotese": true } ],
+  "faltam_para_estimar": 7 }</pre>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<title>Follou — Pipeline (celular)</title>
+<title>Follou — Conversas (celular)</title>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -18,22 +18,11 @@ a:focus-visible,button:focus-visible{outline:2px solid #0E7038;outline-offset:2p
 
   <header style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
     <div>
-      <h1 style="margin: 0; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.035em">Pipeline</h1>
-      <p style="margin: 2px 0 0; font-size: 12px; line-height: 16px; color: #57524B; font-variant-numeric: tabular-nums">7 negócios abertos · R$ 29.100</p>
+      <h1 style="margin: 0; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.035em">Conversas</h1>
+      <p style="margin: 2px 0 0; font-size: 12px; line-height: 16px; color: #57524B; font-variant-numeric: tabular-nums">7 abertas · 2 precisam de você</p>
     </div>
-    <button type="button" aria-label="Novo negócio" style="width: 44px; height: 44px; flex-shrink: 0; border: 0; border-radius: 22px; background: #100F0F; color: #F4F1EC; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg></button>
+    <button type="button" aria-label="Nova conversa" style="width: 44px; height: 44px; flex-shrink: 0; border: 0; border-radius: 22px; background: #100F0F; color: #F4F1EC; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg></button>
   </header>
-
-  <div role="group" aria-label="Filtrar por etapa" style="height: 44px; box-sizing: border-box; padding: 4px; border-radius: 999px; background: #E9E5DE; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px">
-    <sc-for list="{{filtros}}" as="f" hint-placeholder-count="3">
-      <sc-if value="{{f.ativo}}" hint-placeholder-val="{{false}}">
-        <button type="button" aria-pressed="true" onClick="{{f.pick}}" style="border: 0; border-radius: 999px; background: #FAF9F7; color: #1A1815; box-shadow: 0 1px 2px rgba(16,15,15,0.08); font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px">{{f.nome}}<span style="font-size: 12px; font-weight: 600; color: #57524B; font-variant-numeric: tabular-nums">{{f.n}}</span></button>
-      </sc-if>
-      <sc-if value="{{f.inativo}}" hint-placeholder-val="{{true}}">
-        <button type="button" aria-pressed="false" onClick="{{f.pick}}" style="border: 0; border-radius: 999px; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background-color 150ms ease-out">{{f.nome}}<span style="font-size: 12px; font-weight: 600; color: #57524B; font-variant-numeric: tabular-nums">{{f.n}}</span></button>
-      </sc-if>
-    </sc-for>
-  </div>
 
   <sc-if value="{{temUrgente}}" hint-placeholder-val="{{true}}">
     <section style="display: flex; flex-direction: column; gap: 8px">
@@ -69,42 +58,34 @@ a:focus-visible,button:focus-visible{outline:2px solid #0E7038;outline-offset:2p
     </ul>
   </section>
 
+  <p style="margin: 0; font-size: 12px; line-height: 16px; color: #57524B">Lidas do WhatsApp e do e-mail, hoje 08:12. Sem etapas para atualizar. Dados de exemplo.</p>
+
   <nav aria-label="Navegação" style="position: absolute; left: 63px; bottom: 24px; width: 264px; height: 64px; box-sizing: border-box; padding: 6px; border-radius: 32px; background: rgba(255,255,255,0.72); backdrop-filter: blur(20px) saturate(1.6); -webkit-backdrop-filter: blur(20px) saturate(1.6); border: 1px solid rgba(16,15,15,0.08); box-shadow: 0 1px 2px rgba(16,15,15,0.06), 0 12px 32px rgba(16,15,15,0.14); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px">
     <a href="HojeMobile.dc.html" style="border-radius: 26px; color: #57524B; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; line-height: 16px; font-weight: 500"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 18h18"></path><path d="M7 18a5 5 0 0 1 10 0"></path><path d="M12 6v3"></path><path d="M5.6 10.6l1.6 1.6"></path><path d="M18.4 10.6l-1.6 1.6"></path></svg>Hoje</a>
-    <a href="PipelineMobile.dc.html" aria-current="page" style="border-radius: 26px; background: #100F0F; color: #F4F1EC; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; line-height: 16px; font-weight: 600"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="4.5" height="16" rx="1.5"></rect><rect x="9.75" y="4" width="4.5" height="11" rx="1.5"></rect><rect x="16" y="4" width="4.5" height="7" rx="1.5"></rect></svg>Pipeline</a>
+    <a href="ConversasMobile.dc.html" aria-current="page" style="border-radius: 26px; background: #100F0F; color: #F4F1EC; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; line-height: 16px; font-weight: 600"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"></path></svg>Conversas</a>
     <a href="CacadaMobile.dc.html" style="border-radius: 26px; color: #57524B; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; line-height: 16px; font-weight: 500"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="7.5"></circle><circle cx="12" cy="12" r="2"></circle><path d="M12 2v3"></path><path d="M12 19v3"></path><path d="M2 12h3"></path><path d="M19 12h3"></path></svg>Caçada</a>
   </nav>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
-  negocios() {
+  conversas() {
     return [
-      { nome: 'Delta Log', etapa: 'Proposta', linha2: 'Proposta · cobrar retorno do jurídico', valor: 'R$ 6.100', urgente: true, atrasado: true, hoje: false, estado: 'Atrasado 2 dias' },
-      { nome: 'Vela Apps', etapa: 'Proposta', linha2: 'Proposta · revisar o escopo', valor: 'R$ 4.000', urgente: true, atrasado: false, hoje: true, estado: 'Hoje, 16h' },
-      { nome: 'Acme', etapa: 'Proposta', linha2: 'Proposta · reunião ter 3/11, 15h', valor: 'R$ 4.800' },
-      { nome: 'Orbita', etapa: 'Proposta', linha2: 'Proposta · resposta até seg 2/11', valor: 'R$ 2.900' },
-      { nome: 'Bitfaz Software', etapa: 'Conversa', linha2: 'Conversa · caso de uso sex 30/10', valor: 'R$ 6.500' },
-      { nome: 'Serra Apps', etapa: 'Conversa', linha2: 'Conversa · demo qua 4/11', valor: 'R$ 4.800' },
-      { nome: 'Nuvem Labs', etapa: 'Conversa', linha2: 'Conversa · ver resposta seg 2/11', valor: 'sem valor', semValor: true }
+      { nome: 'Delta Log', linha2: 'Proposta enviada · cobrar o retorno do jurídico', valor: 'R$ 6.100', urgente: true, atrasado: true, hoje: false, estado: 'Atrasado 2 dias' },
+      { nome: 'Vela Apps', linha2: 'Proposta enviada · revisar o escopo', valor: 'R$ 4.000', urgente: true, atrasado: false, hoje: true, estado: 'Hoje, 16h' },
+      { nome: 'Acme', linha2: 'Reunião de fechamento · ter 3/11, 15h', valor: 'R$ 4.800' },
+      { nome: 'Orbita', linha2: 'Proposta enviada · resposta até seg 2/11', valor: 'R$ 2.900' },
+      { nome: 'Bitfaz Software', linha2: 'Em conversa · caso de uso sex 30/10', valor: 'R$ 6.500' },
+      { nome: 'Serra Apps', linha2: 'Em conversa · demo qua 4/11', valor: 'R$ 4.800' },
+      { nome: 'Nuvem Labs', linha2: 'Em conversa · ver resposta seg 2/11', valor: 'sem valor', semValor: true }
     ];
   }
   renderVals() {
-    const s = this.state || {};
-    const filtro = s.filtro ?? 'Todos';
-    const todos = this.negocios();
-    const vis = todos.filter((d) => filtro === 'Todos' || d.etapa === filtro);
     const marca = (xs) => xs.map((d, i) => ({ ...d, linha: i === 0 ? '0' : '1px solid #E9E5DE', corValor: d.semValor ? '#57524B' : '#1A1815' }));
-    const urgentes = marca(vis.filter((d) => d.urgente));
-    const emDia = marca(vis.filter((d) => !d.urgente));
-    const contar = (nome) => (nome === 'Todos' ? todos.length : todos.filter((d) => d.etapa === nome).length);
-    return {
-      filtros: ['Todos', 'Conversa', 'Proposta'].map((nome) => ({ nome, n: contar(nome), ativo: nome === filtro, inativo: nome !== filtro, pick: () => this.setState({ filtro: nome }) })),
-      urgentes, emDia,
-      temUrgente: urgentes.length > 0,
-      nUrgente: urgentes.length,
-      nEmDia: emDia.length
-    };
+    const todos = this.conversas();
+    const urgentes = marca(todos.filter((d) => d.urgente));
+    const emDia = marca(todos.filter((d) => !d.urgente));
+    return { urgentes, emDia, temUrgente: urgentes.length > 0, nUrgente: urgentes.length, nEmDia: emDia.length };
   }
 }
 </script>

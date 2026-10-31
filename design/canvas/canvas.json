@@ -88,21 +88,21 @@
    "page": "telas",
    "expand": "fill"
   },
-  "Pipeline.dc.html": {
+  "Conversas.dc.html": {
    "x": 1520,
    "y": 0,
    "w": 1440,
    "h": 900,
-   "title": "2. Pipeline — web",
+   "title": "2. Conversas — web",
    "page": "telas",
    "expand": "fill"
   },
-  "PipelineNegocio.dc.html": {
+  "Conversa.dc.html": {
    "x": 3040,
    "y": 0,
    "w": 1440,
    "h": 900,
-   "title": "2. Pipeline · negócio aberto + abordagem — web",
+   "title": "2. Conversa aberta + abordagem — web",
    "page": "telas",
    "expand": "fill"
   },
@@ -124,54 +124,36 @@
    "page": "telas",
    "expand": "fill"
   },
-  "Projetos.dc.html": {
-   "x": 7600,
-   "y": 0,
-   "w": 1440,
-   "h": 900,
-   "title": "4. Projetos — web · fora do MVP (v2)",
-   "page": "telas",
-   "expand": "fill"
-  },
-  "Grana.dc.html": {
-   "x": 9120,
-   "y": 0,
-   "w": 1440,
-   "h": 900,
-   "title": "5. Grana — web · fora do MVP (v2)",
-   "page": "telas",
-   "expand": "fill"
-  },
   "HojeMobile.dc.html": {
    "x": 0,
    "y": 1020,
    "w": 390,
    "h": 844,
-   "title": "1. Hoje — celular",
+   "title": "1. Hoje — celular (com Perguntar)",
    "page": "telas"
   },
-  "PipelineMobile.dc.html": {
+  "ConversasMobile.dc.html": {
    "x": 1520,
    "y": 1020,
    "w": 390,
    "h": 844,
-   "title": "2. Pipeline — celular",
+   "title": "2. Conversas — celular",
    "page": "telas"
   },
-  "PipelineNegocioMobile.dc.html": {
+  "ConversaMobile.dc.html": {
    "x": 3040,
    "y": 1020,
    "w": 390,
    "h": 844,
-   "title": "2. Pipeline · negócio aberto — celular",
+   "title": "2. Conversa aberta — celular",
    "page": "telas"
   },
-  "PipelineAbordagemMobile.dc.html": {
+  "AbordagemMobile.dc.html": {
    "x": 3510,
    "y": 1020,
    "w": 390,
    "h": 844,
-   "title": "2. Pipeline · abordagem — celular",
+   "title": "2. Abordagem — celular",
    "page": "telas"
   },
   "CacadaMobile.dc.html": {
@@ -188,22 +170,6 @@
    "w": 390,
    "h": 844,
    "title": "3. Caçada · primeira caçada — celular",
-   "page": "telas"
-  },
-  "ProjetosMobile.dc.html": {
-   "x": 7600,
-   "y": 1020,
-   "w": 390,
-   "h": 844,
-   "title": "4. Projetos — celular · fora do MVP (v2)",
-   "page": "telas"
-  },
-  "GranaMobile.dc.html": {
-   "x": 9120,
-   "y": 1020,
-   "w": 390,
-   "h": 844,
-   "title": "5. Grana — celular · fora do MVP (v2)",
    "page": "telas"
   },
   "FocoMobile.dc.html": {
@@ -324,24 +290,6 @@
    "page": "legado",
    "expand": "fill"
   },
-  "LegadoProjetos.dc.html": {
-   "x": 7600,
-   "y": 1560,
-   "w": 1440,
-   "h": 900,
-   "title": "Legado · Projetos — web",
-   "page": "legado",
-   "expand": "fill"
-  },
-  "LegadoGrana.dc.html": {
-   "x": 9120,
-   "y": 1560,
-   "w": 1440,
-   "h": 900,
-   "title": "Legado · Grana — web",
-   "page": "legado",
-   "expand": "fill"
-  },
   "LegadoHoje.dc.html": {
    "x": 0,
    "y": 2580,
@@ -390,22 +338,6 @@
    "title": "Legado · Caçada · primeira caçada — celular",
    "page": "legado"
   },
-  "LegadoProjetosMobile.dc.html": {
-   "x": 7600,
-   "y": 2580,
-   "w": 390,
-   "h": 844,
-   "title": "Legado · Projetos — celular",
-   "page": "legado"
-  },
-  "LegadoGranaMobile.dc.html": {
-   "x": 9120,
-   "y": 2580,
-   "w": 390,
-   "h": 844,
-   "title": "Legado · Grana — celular",
-   "page": "legado"
-  },
   "LegadoLanding.dc.html": {
    "x": 0,
    "y": 3600,
@@ -430,6 +362,65 @@
    "h": 900,
    "title": "Legado · Lista de espera",
    "page": "legado"
+  },
+  "MetaChega.dc.html": {
+   "x": 0,
+   "y": 3060,
+   "w": 1440,
+   "h": 900,
+   "title": "Meta · chega — web (⌘K)",
+   "page": "telas",
+   "expand": "fill"
+  },
+  "MetaNaoChega.dc.html": {
+   "x": 1520,
+   "y": 3060,
+   "w": 1440,
+   "h": 900,
+   "title": "Meta · não chega — web (⌘K)",
+   "page": "telas",
+   "expand": "fill"
+  },
+  "MetaSemDados.dc.html": {
+   "x": 3040,
+   "y": 3060,
+   "w": 1440,
+   "h": 900,
+   "title": "Meta · sem dados suficientes — web (⌘K)",
+   "page": "telas",
+   "expand": "fill"
+  },
+  "MetaRegras.dc.html": {
+   "x": 4560,
+   "y": 3060,
+   "w": 1440,
+   "h": 1900,
+   "title": "A pergunta da meta — regras, conta e contrato",
+   "page": "telas"
+  },
+  "MetaChegaMobile.dc.html": {
+   "x": 0,
+   "y": 4080,
+   "w": 390,
+   "h": 844,
+   "title": "Meta · chega — celular",
+   "page": "telas"
+  },
+  "MetaNaoChegaMobile.dc.html": {
+   "x": 470,
+   "y": 4080,
+   "w": 390,
+   "h": 844,
+   "title": "Meta · não chega — celular",
+   "page": "telas"
+  },
+  "MetaSemDadosMobile.dc.html": {
+   "x": 940,
+   "y": 4080,
+   "w": 390,
+   "h": 844,
+   "title": "Meta · sem dados suficientes — celular",
+   "page": "telas"
   }
  },
  "order": [
@@ -439,20 +430,16 @@
   "Regua.dc.html",
   "Sistema.dc.html",
   "Hoje.dc.html",
-  "Pipeline.dc.html",
-  "PipelineNegocio.dc.html",
+  "Conversas.dc.html",
+  "Conversa.dc.html",
   "Cacada.dc.html",
   "CacadaEntrada.dc.html",
-  "Projetos.dc.html",
-  "Grana.dc.html",
   "HojeMobile.dc.html",
-  "PipelineMobile.dc.html",
-  "PipelineNegocioMobile.dc.html",
-  "PipelineAbordagemMobile.dc.html",
+  "ConversasMobile.dc.html",
+  "ConversaMobile.dc.html",
+  "AbordagemMobile.dc.html",
   "CacadaMobile.dc.html",
   "CacadaEntradaMobile.dc.html",
-  "ProjetosMobile.dc.html",
-  "GranaMobile.dc.html",
   "FocoMobile.dc.html",
   "ComoFoiMobile.dc.html",
   "FeitoMobile.dc.html",
@@ -467,19 +454,22 @@
   "LegadoPipelineNegocio.dc.html",
   "LegadoCacada.dc.html",
   "LegadoCacadaEntrada.dc.html",
-  "LegadoProjetos.dc.html",
-  "LegadoGrana.dc.html",
   "LegadoHoje.dc.html",
   "LegadoPipelineMobile.dc.html",
   "LegadoPipelineNegocioMobile.dc.html",
   "LegadoPipelineAbordagemMobile.dc.html",
   "LegadoCacadaMobile.dc.html",
   "LegadoCacadaEntradaMobile.dc.html",
-  "LegadoProjetosMobile.dc.html",
-  "LegadoGranaMobile.dc.html",
   "LegadoLanding.dc.html",
   "LegadoLandingMobile.dc.html",
-  "LegadoWaitlist.dc.html"
+  "LegadoWaitlist.dc.html",
+  "MetaChega.dc.html",
+  "MetaNaoChega.dc.html",
+  "MetaSemDados.dc.html",
+  "MetaRegras.dc.html",
+  "MetaChegaMobile.dc.html",
+  "MetaNaoChegaMobile.dc.html",
+  "MetaSemDadosMobile.dc.html"
  ],
  "notes": {
   "t_marca": {
@@ -561,6 +551,14 @@
    "kind": "title1",
    "page": "legado",
    "maxW": 10560
+  },
+  "s_meta": {
+   "x": -560,
+   "y": 3060,
+   "text": "A pergunta da meta (⌘K)",
+   "kind": "title1",
+   "page": "telas",
+   "maxW": 440
   }
  },
  "designSystems": []
