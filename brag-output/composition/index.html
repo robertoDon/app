@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Follou</title>
+<meta name="viewport" content="width=1920, height=1080">
+<style>
+@font-face{font-family:Archivo;font-weight:600;src:url(assets/fonts/archivo-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:Archivo;font-weight:700;src:url(assets/fonts/archivo-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"IBM Plex Sans";font-weight:400;src:url(assets/fonts/ibm-plex-sans-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"IBM Plex Sans";font-weight:500;src:url(assets/fonts/ibm-plex-sans-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:"IBM Plex Sans";font-weight:600;src:url(assets/fonts/ibm-plex-sans-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"IBM Plex Mono";font-weight:400;src:url(assets/fonts/ibm-plex-mono-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"IBM Plex Mono";font-weight:500;src:url(assets/fonts/ibm-plex-mono-latin-500-normal.woff2) format("woff2")}
+:root{--carvao:#100F0F;--neve:#F4F1EC;--neve-media:#C9C6C0;--neve-fraca:#A19E98;--sinal:#3FD07F;--alerta:#E8865C;--sup:#1B1A19;--linha:#2B2A28}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;background:var(--carvao);overflow:hidden}
+body{font-family:"IBM Plex Sans",system-ui,sans-serif;color:var(--neve)}
+#root{position:relative;width:1920px;height:1080px;background:var(--carvao);overflow:hidden}
+.scene{position:absolute;inset:0;background:var(--carvao);overflow:hidden}
+.disp{font-family:Archivo,"IBM Plex Sans",sans-serif;font-weight:600;letter-spacing:-0.02em}
+.mono{font-family:"IBM Plex Mono",monospace}
+.halo{position:absolute;border-radius:50%;background:radial-gradient(closest-side,rgba(63,208,127,.55),rgba(63,208,127,0));opacity:.3}
+/* S1 */
+#s1 .wrap{position:absolute;left:230px;top:210px;width:1500px}
+#s1 .l{font-size:92px;line-height:1.12}
+#s1 .l2{margin-top:56px}
+#s1 .sig{color:var(--sinal)}
+/* S2 / S5 lockup */
+.lock{position:absolute;left:0;right:0;display:flex;align-items:center;justify-content:center}
+.word{font-family:Archivo,sans-serif;font-weight:600;letter-spacing:-0.02em;line-height:1;color:var(--neve)}
+#s2 .lock{top:380px;gap:54px}
+#s2 .word{font-size:192px}
+#s2 .sub{position:absolute;left:0;right:0;top:640px;text-align:center;font-size:56px;font-weight:500;color:var(--neve-media)}
+/* S3 window */
+#win{position:absolute;left:160px;top:80px;width:1600px;height:920px;background:var(--sup);border:1px solid var(--linha);border-radius:20px;display:flex;overflow:hidden}
+#side{width:280px;border-right:1px solid var(--linha);padding:40px 28px;background:#151413}
+#side .nav{margin-top:48px;display:flex;flex-direction:column;gap:8px}
+#side .it{font-size:28px;padding:14px 18px;border-radius:12px;color:var(--neve-fraca);display:flex;justify-content:space-between}
+#side .it.on{background:var(--linha);color:var(--neve)}
+#side .it span{display:none}
+#main{flex:1;padding:44px 52px;display:flex;gap:48px}
+#left{width:800px}
+#right{width:360px;padding-top:110px}
+.date{font-size:28px;color:var(--neve-fraca)}
+.hello{font-size:60px;margin-top:6px;line-height:1.05}
+.hsub{font-size:28px;color:var(--neve-media);margin-top:10px}
+.lab{font-size:28px;color:var(--neve-fraca);margin-top:30px;margin-bottom:12px;letter-spacing:.01em}
+#card1{position:relative;height:250px;border-radius:18px;background:#201F1D;border:1px solid #3a3836;padding:26px 30px}
+#glow1{position:absolute;left:-30px;right:-30px;top:-30px;bottom:-30px;border-radius:40px;background:radial-gradient(closest-side,rgba(63,208,127,.35),rgba(63,208,127,0));opacity:.2;pointer-events:none}
+#card1 .tag{font-size:28px;color:var(--sinal);font-weight:600;display:flex;gap:14px}
+#card1 .tt{font-size:46px;margin-top:10px;line-height:1.1}
+#card1 .ds{font-size:28px;color:var(--neve-media);margin-top:12px;line-height:1.3;width:520px}
+#btn{position:absolute;right:30px;bottom:26px;width:200px;height:64px;border-radius:14px;background:var(--sinal);color:#06210F;font-weight:600;font-size:28px;display:flex;align-items:center;justify-content:center;gap:12px}
+#done{position:absolute;inset:0;border-radius:14px;background:var(--neve);color:#06210F;display:flex;align-items:center;justify-content:center;opacity:0}
+#cur{position:absolute;width:30px;height:30px;left:0;top:0;opacity:0;z-index:5}
+.row{height:120px;border-radius:16px;background:#1d1c1a;border:1px solid var(--linha);padding:18px 26px;display:flex;align-items:center;gap:22px;margin-bottom:12px}
+.row .n{font-family:"IBM Plex Mono";font-size:28px;color:var(--neve-fraca);width:30px}
+.row .b{flex:1}
+.row .t{font-size:32px;font-weight:600}
+.row .d{font-size:28px;color:var(--neve-media);margin-top:4px}
+.row .w{display:none}
+.stat{border:1px solid var(--linha);border-radius:18px;padding:28px 30px;background:#1d1c1a}
+.stat .big{font-size:84px;color:var(--sinal);line-height:1;position:relative;height:84px}
+.stat .big span{position:absolute;left:0;top:0}
+.stat .sm{font-size:28px;color:var(--neve-media);margin-top:10px;line-height:1.3}
+.stat .rc{font-size:28px;color:var(--neve-fraca);margin-top:16px}
+/* S4 */
+#bar{position:absolute;left:260px;top:110px;width:1400px;height:150px;border-radius:24px;background:var(--sup);border:1px solid #3a3836;padding:22px 40px}
+#bar .cap{font-size:28px;color:var(--neve-fraca)}
+#bar .q{font-size:52px;margin-top:6px;white-space:nowrap}
+.ch{opacity:0}
+#caret{display:inline-block;width:4px;height:48px;background:var(--sinal);margin-left:4px;vertical-align:-8px;opacity:0}
+#ans{position:absolute;left:260px;top:312px;width:1400px;font-size:120px;line-height:1.05;opacity:0}
+#ans b{color:var(--sinal);font-weight:600}
+#meter{position:absolute;left:260px;top:520px;width:1400px;opacity:0}
+.bl{display:flex;align-items:center;gap:24px;margin-bottom:22px}
+.bl .k{width:300px;font-size:28px;color:var(--neve-media)}
+.bl .tr{flex:1;height:26px;border-radius:13px;background:var(--linha);overflow:hidden}
+.bl .fi{height:100%;border-radius:13px;width:0}
+.bl .v{width:210px;font-size:30px;font-family:"IBM Plex Mono";text-align:right}
+#prot{position:absolute;left:260px;top:760px;width:1400px;height:112px;border-radius:20px;background:var(--sup);border:1px solid var(--linha);padding:0 34px;display:flex;align-items:center;gap:26px;opacity:0}
+#prot .n{font-family:"IBM Plex Mono";font-size:30px;color:var(--sinal)}
+#prot .t{font-size:38px;font-weight:600;flex:1}
+#prot .p{font-size:32px;color:var(--sinal);font-weight:600}
+/* S5 */
+#s5 .lock{top:270px;gap:70px}
+#s5 .word{font-size:260px}
+#verbs{position:absolute;left:0;right:0;top:600px;display:flex;justify-content:center;gap:70px;font-size:64px}
+#verbs span{opacity:0}
+#verbs i{font-style:normal;color:var(--sinal)}
+#pill{position:absolute;left:0;right:0;top:790px;display:flex;justify-content:center;opacity:0}
+#pill div{background:var(--sinal);color:#06210F;font-weight:600;font-size:38px;padding:24px 56px;border-radius:999px}
+#pillsub{position:absolute;left:0;right:0;top:905px;text-align:center;font-size:30px;color:var(--neve-media);opacity:0}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="root" data-width="1920" data-height="1080">
+
+<!-- Cena 1: hook -->
+<div id="s1" class="scene clip" data-start="0" data-duration="5.42" data-track-index="3" style="z-index:1">
+  <div class="wrap">
+    <div id="l1" class="l disp">Nenhum fundador perde venda<br>por falta de esforço.</div>
+    <div id="l2" class="l l2 disp">Perde por não saber<br>por onde <span class="sig">começar o dia.</span></div>
+  </div>
+</div>
+
+<!-- Cena 2: reveal -->
+<div id="s2" class="scene clip" data-start="5.02" data-duration="3.4" data-track-index="3" style="z-index:2">
+  <div id="h2" class="halo" style="left:560px;top:100px;width:800px;height:800px"></div>
+  <div class="lock" id="lk2">
+    <svg class="" viewBox="0 0 782 641" width="183.0" height="150" fill="#3FD07F" style="display:block;flex-shrink:0"><g><path id="qa" d="M0 0H130V277A95 95 0 0 0 225 372H344V502H225A225 225 0 0 1 0 277Z"></path></g><g transform="translate(437 140)"><path id="qb" d="M0 0H130V277A95 95 0 0 0 225 372H344V502H225A225 225 0 0 1 0 277Z"></path></g></svg>
+    <div class="word" id="w2">Follou</div>
+  </div>
+  <div class="sub" id="sub2">A jogada de hoje.</div>
+</div>
+
+<!-- Cena 3: Hoje -->
+<div id="s3" class="scene clip" data-start="8.02" data-duration="5.4" data-track-index="3" style="z-index:3">
+  <div id="win">
+    <div id="side">
+      <div style="display:flex;align-items:center;gap:14px"><svg class="" viewBox="0 0 782 641" width="41.48" height="34" fill="#3FD07F" style="display:block;flex-shrink:0"><g><path id="sda" d="M0 0H130V277A95 95 0 0 0 225 372H344V502H225A225 225 0 0 1 0 277Z"></path></g><g transform="translate(437 140)"><path id="sdb" d="M0 0H130V277A95 95 0 0 0 225 372H344V502H225A225 225 0 0 1 0 277Z"></path></g></svg><span class="disp" style="font-size:42px">Follou</span></div>
+      <div class="nav">
+        <div class="it on">Hoje <span>G H</span></div>
+        <div class="it">Conversas <span>G C</span></div>
+        <div class="it">Empresas <span>G E</span></div>
+      </div>
+    </div>
+    <div id="main">
+      <div id="left">
+        <div class="date">Quinta, 29 de outubro</div>
+        <div class="hello disp">Bom dia, Roberto</div>
+        <div class="hsub">3 coisas pra hoje · uns 15 minutos</div>
+        <div class="lab" id="lab1">Sessão da manhã · 1 de 3</div>
+        <div id="card1" style="opacity:0">
+          <div id="glow1"></div>
+          <div class="tag"><span>Ligar</span><span style="color:var(--alerta)">Hoje, 10h</span></div>
+          <div class="tt disp">Ligar para a Acme</div>
+          <div class="ds">Proposta de R$ 4.800 parada há 6 dias · Júlia Prado</div>
+          <div id="btn">Começar<div id="done">Feito ✓</div></div>
+          <svg id="cur" viewBox="0 0 24 24" fill="#F4F1EC" stroke="#100F0F" stroke-width="1.5"><path d="M4 2l15 9-6.5 1.5L9.5 19z"/></svg>
+        </div>
+        <div class="lab" id="lab2" style="opacity:0;margin-top:22px;margin-bottom:10px">Depois, nesta sessão</div>
+        <div class="row" id="r2" style="opacity:0"><div class="n">2</div><div class="b"><div class="t">Enviar proposta para a Orbita</div><div class="d">Rascunho pronto · R$ 2.900 · Hoje, 17h</div></div></div>
+        <div class="row" id="r3" style="opacity:0"><div class="n">3</div><div class="b"><div class="t">Follow-up na Nuvem Labs</div><div class="d">Ana Ribeiro · parado desde segunda</div></div></div>
+      </div>
+      <div id="right">
+        <div class="stat" id="st">
+          <div class="big disp"><span id="d6">6 dias</span><span id="d7" style="opacity:0">7 dias</span></div>
+          <div class="sm">úteis seguidos de manhã feita</div>
+          <div class="rc">Recorde: 9</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Cena 4: meta -->
+<div id="s4" class="scene clip" data-start="13.02" data-duration="4.4" data-track-index="3" style="z-index:4">
+  <div id="bar">
+    <div class="cap">Pergunta ao Follou · meta de novembro: R$ 10.000</div>
+    <div class="q disp"><span class="ch" id="c0">B</span><span class="ch" id="c1">a</span><span class="ch" id="c2">t</span><span class="ch" id="c3">o</span><span class="ch" id="c4">&nbsp;</span><span class="ch" id="c5">a</span><span class="ch" id="c6">&nbsp;</span><span class="ch" id="c7">m</span><span class="ch" id="c8">e</span><span class="ch" id="c9">t</span><span class="ch" id="c10">a</span><span class="ch" id="c11">&nbsp;</span><span class="ch" id="c12">d</span><span class="ch" id="c13">e</span><span class="ch" id="c14">&nbsp;</span><span class="ch" id="c15">n</span><span class="ch" id="c16">o</span><span class="ch" id="c17">v</span><span class="ch" id="c18">e</span><span class="ch" id="c19">m</span><span class="ch" id="c20">b</span><span class="ch" id="c21">r</span><span class="ch" id="c22">o</span><span class="ch" id="c23">?</span><span id="caret"></span></div>
+  </div>
+  <div id="ans" class="disp">Chega, por <b>R$ 2.125.</b></div>
+  <div id="meter">
+    <div class="bl"><div class="k">previsão</div><div class="tr"><div class="fi" id="f1" style="background:var(--sinal)"></div></div><div class="v" style="color:var(--sinal)">R$ 12.125</div></div>
+    <div class="bl"><div class="k">meta</div><div class="tr"><div class="fi" id="f2" style="background:#8A8782"></div></div><div class="v">R$ 10.000</div></div>
+  </div>
+  <div id="prot"><div class="n">1</div><div class="t disp">Ligar para a Acme</div><div class="p">protege R$ 3.360</div></div>
+</div>
+
+<!-- Cena 5: outro -->
+<div id="s5" class="scene clip" data-start="17.02" data-duration="4.5" data-track-index="3" style="z-index:5">
+  <div id="h5" class="halo" style="left:360px;top:0px;width:1200px;height:900px"></div>
+  <div class="lock" id="lk5">
+    <svg class="" viewBox="0 0 782 641" width="243.99" height="200" fill="#3FD07F" style="display:block;flex-shrink:0"><g><path id="za" d="M0 0H130V277A95 95 0 0 0 225 372H344V502H225A225 225 0 0 1 0 277Z"></path></g><g transform="translate(437 140)"><path id="zb" d="M0 0H130V277A95 95 0 0 0 225 372H344V502H225A225 225 0 0 1 0 277Z"></path></g></svg>
+    <div class="word" id="w5">Follou</div>
+  </div>
+  <div id="verbs" class="disp"><span id="v1">Encontra<i>.</i></span><span id="v2">Aproxima<i>.</i></span><span id="v3">Executa<i>.</i></span></div>
+  <div id="pill"><div id="pillin">Testar 7 dias grátis</div></div><div id="pillsub">Sem cartão</div>
+</div>
+
+<audio id="music" src="assets/music/happy-beats-business-moves-vol-1-by-ende-dot-app.mp3" data-start="0" data-duration="21.52" data-volume="0.55" data-track-index="0" data-fade-in="0.6" data-fade-out="2"></audio>
+<audio id="sfx-reveal" src="assets/sfx/impact/impactSoft_medium_001.ogg" data-start="5.02" data-duration="0.19" data-volume="0.6" data-track-index="1" ></audio>
+<audio id="sfx-card0" src="assets/sfx/casino/card-slide-1.ogg" data-start="8.52" data-duration="0.6" data-volume="0.55" data-track-index="1" ></audio>
+<audio id="sfx-card1" src="assets/sfx/casino/card-slide-1.ogg" data-start="9.52" data-duration="0.6" data-volume="0.55" data-track-index="1" ></audio>
+<audio id="sfx-card2" src="assets/sfx/casino/card-slide-1.ogg" data-start="10.52" data-duration="0.6" data-volume="0.55" data-track-index="1" ></audio>
+<audio id="sfx-click" src="assets/sfx/interface/click_003.ogg" data-start="12.02" data-duration="0.05" data-volume="0.8" data-track-index="1" ></audio>
+<audio id="sfx-k0" src="assets/sfx/keyboard/keypress-001.wav" data-start="13.5" data-duration="0.3" data-volume="0.35" data-track-index="4" ></audio>
+<audio id="sfx-k2" src="assets/sfx/keyboard/keypress-003.wav" data-start="13.59" data-duration="0.3" data-volume="0.35" data-track-index="5" ></audio>
+<audio id="sfx-k8" src="assets/sfx/keyboard/keypress-001.wav" data-start="13.86" data-duration="0.3" data-volume="0.35" data-track-index="4" ></audio>
+<audio id="sfx-k10" src="assets/sfx/keyboard/keypress-003.wav" data-start="13.95" data-duration="0.3" data-volume="0.35" data-track-index="5" ></audio>
+<audio id="sfx-k12" src="assets/sfx/keyboard/keypress-005.wav" data-start="14.04" data-duration="0.3" data-volume="0.35" data-track-index="6" ></audio>
+<audio id="sfx-k16" src="assets/sfx/keyboard/keypress-001.wav" data-start="14.22" data-duration="0.3" data-volume="0.35" data-track-index="4" ></audio>
+<audio id="sfx-k18" src="assets/sfx/keyboard/keypress-003.wav" data-start="14.31" data-duration="0.3" data-volume="0.35" data-track-index="5" ></audio>
+<audio id="sfx-k20" src="assets/sfx/keyboard/keypress-005.wav" data-start="14.4" data-duration="0.3" data-volume="0.35" data-track-index="6" ></audio>
+<audio id="sfx-k22" src="assets/sfx/keyboard/keypress-007.wav" data-start="14.49" data-duration="0.3" data-volume="0.35" data-track-index="7" ></audio>
+<audio id="sfx-bong" src="assets/sfx/interface/bong_001.ogg" data-start="14.52" data-duration="0.13" data-volume="0.7" data-track-index="1" ></audio>
+<audio id="sfx-logo" src="assets/sfx/impact/impactBell_heavy_000.ogg" data-start="17.02" data-duration="1.5" data-volume="0.45" data-track-index="1" ></audio>
+<audio id="sfx-pill" src="assets/sfx/interface/click_002.ogg" data-start="19.02" data-duration="0.05" data-volume="0.5" data-track-index="1" ></audio>
+
+<script src="assets/gsap.min.js"></script>
+<script>
+(function(){
+  var RMS = [0.571, 0.576, 0.563, 0.537, 0.489, 0.503, 0.561, 0.594, 0.524, 0.522, 0.489, 0.505, 0.462, 0.495, 0.485, 0.477, 0.477, 0.515, 0.476, 0.506, 0.501, 0.606, 0.609, 0.565, 0.473, 0.454, 0.526, 0.551, 0.501, 0.502, 0.503, 0.502, 0.439, 0.458, 0.449, 0.433, 0.44, 0.495, 0.482, 0.533, 0.524, 0.622, 0.587, 0.56, 0.501, 0.515, 0.569, 0.583, 0.562, 0.579, 0.569, 0.536, 0.472, 0.496, 0.486, 0.485, 0.506, 0.551, 0.513, 0.529, 0.515, 0.577, 0.541, 0.512, 0.457, 0.456, 0.478, 0.487, 0.444, 0.483, 0.507, 0.552, 0.515, 0.535, 0.514, 0.508, 0.506, 0.501, 0.447, 0.482, 0.504, 0.614, 0.606, 0.578, 0.502, 0.489, 0.545, 0.565, 0.534, 0.552, 0.553, 0.553, 0.514, 0.526, 0.508, 0.489, 0.496, 0.532, 0.522, 0.549, 0.544, 0.607, 0.609, 0.566, 0.491, 0.464, 0.54, 0.545, 0.51, 0.503, 0.515, 0.513, 0.465, 0.497, 0.5, 0.464, 0.438, 0.463, 0.451, 0.507, 0.506, 0.61, 0.594, 0.563, 0.51, 0.502, 0.566, 0.566, 0.508, 0.507, 0.499, 0.514, 0.469, 0.497, 0.487, 0.498, 0.522, 0.558, 0.513, 0.528, 0.527, 0.588, 0.566, 0.523, 0.465, 0.435, 0.438, 0.454, 0.452, 0.528, 0.551, 0.551, 0.506, 0.53, 0.53, 0.495, 0.465, 0.456, 0.428, 0.596, 0.639, 0.747, 0.638, 0.621, 0.735, 0.715, 0.792, 0.655, 0.615, 0.679, 0.665, 0.684, 0.581, 0.63, 0.762, 0.735, 0.75, 0.64, 0.621, 0.684, 0.667, 0.728, 0.657, 0.637, 0.737, 0.712, 0.794, 0.663, 0.627, 0.69, 0.657, 0.649, 0.516, 0.58, 0.702, 0.661, 0.637, 0.563, 0.588, 0.71, 0.705, 0.773, 0.658, 0.608, 0.693, 0.678, 0.771, 0.656, 0.634, 0.701, 0.681, 0.683, 0.566, 0.605, 0.744, 0.706, 0.705, 0.595, 0.644];
+  var tl = gsap.timeline({ paused: true });
+  var E = 'power3.out', EI = 'power2.inOut';
+
+  // ---- cena 1: hook ----
+  gsap.set('#l1', { opacity: 1 });
+  gsap.set('#l2', { opacity: 0, y: 28 });
+  tl.to('#l1', { opacity: 0.55, duration: 0.5, ease: EI }, 2.02);
+  tl.to('#l2', { opacity: 1, y: 0, duration: 0.6, ease: E }, 2.02);
+
+  // ---- cena 2: reveal (crossfade 0.4s) ----
+  gsap.set('#s2', { opacity: 0 });
+  tl.to('#s2', { opacity: 1, duration: 0.4, ease: 'none' }, 5.02);
+  gsap.set('#qa', { opacity: 0, x: -60 });
+  gsap.set('#qb', { opacity: 0, x: 60 });
+  gsap.set(['#w2'], { opacity: 0, x: 40 });
+  gsap.set('#sub2', { opacity: 0, y: 24 });
+  tl.to('#qa', { opacity: 1, x: 0, duration: 0.6, ease: E }, 5.12);
+  tl.to('#qb', { opacity: 1, x: 0, duration: 0.6, ease: E }, 5.32);
+  tl.to('#w2', { opacity: 1, x: 0, duration: 0.6, ease: E }, 5.62);
+  tl.to('#sub2', { opacity: 1, y: 0, duration: 0.6, ease: E }, 6.42);
+
+  // ---- cena 3: Hoje ----
+  gsap.set('#s3', { opacity: 0 });
+  gsap.set('#win', { y: 40 });
+  gsap.set('#st', { opacity: 0, y: 20 });
+  tl.to('#s3', { opacity: 1, duration: 0.4, ease: 'none' }, 8.02);
+  tl.to('#win', { y: 0, duration: 0.7, ease: E }, 8.02);
+  tl.to('#card1', { opacity: 1, duration: 0.5, ease: E }, 8.52); // beat-grid: card 1 at 8.52
+  tl.fromTo('#card1', { y: 24 }, { y: 0, duration: 0.5, ease: E }, 8.52);
+  tl.to('#st', { opacity: 1, y: 0, duration: 0.5, ease: E }, 9.02);
+  tl.to('#lab2', { opacity: 1, duration: 0.4, ease: E }, 9.52);
+  tl.fromTo('#r2', { y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: E }, 9.52); // beat-grid: card 2 at 9.52
+  tl.fromTo('#r3', { y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: E }, 10.52); // beat-grid: card 3 at 10.52
+  // cursor aperta Começar (posições relativas ao card1: botão centro x=670,y=181)
+  gsap.set('#cur', { x: 780, y: 250, opacity: 0 });
+  tl.to('#cur', { opacity: 1, duration: 0.2 }, 11.1);
+  tl.to('#cur', { x: 666, y: 178, duration: 0.7, ease: EI }, 11.15);
+  tl.to('#btn', { scale: 0.94, duration: 0.08, ease: 'power1.in' }, 12.02);
+  tl.to('#btn', { scale: 1, duration: 0.2, ease: E }, 12.1);
+  tl.to('#done', { opacity: 1, duration: 0.2 }, 12.12);
+  tl.to('#cur', { opacity: 0, duration: 0.2 }, 12.3);
+  tl.to('#d6', { opacity: 0, y: -30, duration: 0.35, ease: E }, 12.35);
+  gsap.set('#d7', { y: 30 });
+  tl.to('#d7', { opacity: 1, y: 0, duration: 0.35, ease: E }, 12.35);
+
+  // ---- cena 4: meta ----
+  gsap.set('#s4', { opacity: 0 });
+  gsap.set('#bar', { y: 30, opacity: 0 });
+  tl.to('#s4', { opacity: 1, duration: 0.4, ease: 'none' }, 13.02);
+  tl.to('#bar', { y: 0, opacity: 1, duration: 0.45, ease: E }, 13.02);
+  tl.set('#caret', { opacity: 1 }, 13.4);
+  var TXT = "Bato a meta de novembro?";
+  for (var i = 0; i < TXT.length; i++) {
+    tl.set('#c' + i, { opacity: 1 }, 13.5 + i * 0.045);
+  }
+  tl.set('#caret', { opacity: 0 }, 14.6);
+  gsap.set('#ans', { y: 30 });
+  tl.to('#ans', { opacity: 1, y: 0, duration: 0.55, ease: E }, 14.52);
+  tl.to('#bar', { opacity: 0.55, duration: 0.4, ease: EI }, 14.52);
+  tl.to('#meter', { opacity: 1, duration: 0.3, ease: E }, 15.02);
+  tl.to('#f1', { width: '100%', duration: 0.7, ease: E }, 15.02);
+  tl.to('#f2', { width: '82.5%', duration: 0.7, ease: E }, 15.02);
+  gsap.set('#prot', { y: 24 });
+  tl.to('#prot', { opacity: 1, y: 0, duration: 0.5, ease: E }, 15.52);
+
+  // ---- cena 5: outro (beat-locked 17.02) ----
+  gsap.set('#s5', { opacity: 0 });
+  tl.to('#s5', { opacity: 1, duration: 0.4, ease: 'none' }, 17.02); // beat-locked: 17.02s
+  gsap.set(['#zb'], { x: 0 });
+  gsap.set('#za', { opacity: 0, x: -80 });
+  gsap.set('#zb', { opacity: 0, x: 80 });
+  gsap.set('#w5', { opacity: 0, x: 50, scale: 1 });
+  tl.to('#za', { opacity: 1, x: 0, duration: 0.7, ease: E }, 17.02);
+  tl.to('#zb', { opacity: 1, x: 0, duration: 0.7, ease: E }, 17.12);
+  tl.to('#w5', { opacity: 1, x: 0, duration: 0.7, ease: E }, 17.22);
+  gsap.set('#verbs span', { y: 18 });
+  tl.to('#v1', { opacity: 1, y: 0, duration: 0.45, ease: E }, 17.52); // beat-grid
+  tl.to('#v2', { opacity: 1, y: 0, duration: 0.45, ease: E }, 18.02);
+  tl.to('#v3', { opacity: 1, y: 0, duration: 0.45, ease: E }, 18.52);
+  gsap.set('#pill', { y: 22 });
+  tl.to(['#pill','#pillsub'], { opacity: 1, y: 0, duration: 0.5, ease: E }, 19.02);
+
+  // ---- audio-reativo sutil: RMS (0.1s) respira os halos e o brilho do cartao ----
+  function react(sel, t0, t1, base, amp) {
+    for (var t = t0; t < t1; t += 0.1) {
+      var k = Math.min(RMS.length - 1, Math.round(t * 10));
+      tl.to(sel, { opacity: base + amp * RMS[k], duration: 0.1, ease: 'none' }, t);
+    }
+  }
+  react('#h2', 5.02, 8.42, 0.22, 0.34);
+  react('#glow1', 8.52, 13.42, 0.15, 0.3);
+  react('#h5', 17.02, 21.52, 0.22, 0.34);
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines['root'] = tl;
+})();
+</script>
+</div>
+</body>
+</html>
