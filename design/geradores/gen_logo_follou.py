@@ -10,7 +10,6 @@ def svg(vb, body, bg=None):
 def sym(c): return f'<g fill="{c}">{SYMBOL_PATHS.replace("></path>", "/>")}</g>'
 files = {
     'simbolo-sinal.svg': svg(f'0 0 {SYMBOL_W} {SYMBOL_H}', sym(SINAL)),
-    'simbolo-sinal-tinta.svg': svg(f'0 0 {SYMBOL_W} {SYMBOL_H}', sym(SINAL_TINTA)),
     'simbolo-neve.svg': svg(f'0 0 {SYMBOL_W} {SYMBOL_H}', sym(NEVE)),
     'simbolo-tinta.svg': svg(f'0 0 {SYMBOL_W} {SYMBOL_H}', sym(TINTA)),
     # ícone de app: símbolo no sinal sobre carvão, com respiro de 2 t

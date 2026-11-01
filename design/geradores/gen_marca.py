@@ -45,7 +45,7 @@ def endosso(h, text=NEVE, sub=NEVE_FRACA):
 abertura = f'''
   <header style="display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 64px; align-items: end">
     <div style="display: flex; flex-direction: column; gap: 32px">
-      {lockup(56, TINTA, SINAL_TINTA)}
+      {lockup(56, TINTA, SINAL)}
       <div style="display: flex; flex-direction: column; gap: 16px">
         {kicker('Marca · v1 de 30/10/2026 · substitui a Dalva')}
         <h1 style="margin: 0; font-family: {DISPLAY}; font-size: 72px; line-height: 76px; font-weight: 600; letter-spacing: -0.035em">A jogada de hoje.</h1>
@@ -134,7 +134,7 @@ ponta          = reta, nunca arredondada</pre>
       {tile(endosso(32), 'Endosso')}
     </div>
     <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 16px">
-      {tile(lockup(48, TINTA, SINAL_TINTA), 'Horizontal no claro', dark=False)}
+      {tile(lockup(48, TINTA, SINAL), 'Horizontal no claro', dark=False)}
       {tile(symbol(64, NEVE), 'Uma cor · neve', h=200)}
       {tile(symbol(64, TINTA), 'Uma cor · tinta', dark=False)}
       {tile(endosso(32, TINTA, TINTA_MEDIA), 'Endosso no claro', dark=False)}
@@ -197,7 +197,7 @@ tipo = section(f'''
     <div style="display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr); gap: 24px">
       <div style="{BOX}; padding: 24px; display: flex; flex-direction: column; gap: 16px">
         <div style="display: flex; justify-content: space-between; align-items: baseline">{kicker('Archivo SemiBold · logotipo e títulos', TINTA)}<span style="font-family: {MONO}; font-size: 12px; color: {SINAL_TINTA}">própria</span></div>
-        <p style="margin: 0; font-family: {DISPLAY}; font-size: 96px; line-height: 1; font-weight: 600; letter-spacing: -0.02em">Fo<span style="color: {SINAL_TINTA}">ll</span>ou</p>
+        <p style="margin: 0; font-family: {DISPLAY}; font-size: 96px; line-height: 1; font-weight: 600; letter-spacing: -0.02em">Fo<span style="color: {SINAL}">ll</span>ou</p>
         {p('A escolha é pelo L: haste pesada e pé longo, então dois L seguidos criam o ritmo que o nome precisa que ninguém esqueça. Entressaca −0,02 em: fecha o par sem deixar os pés se tocarem.', TINTA_MEDIA, 14, 21)}
       </div>
       <div style="{BOX}; padding: 24px; display: flex; flex-direction: column; gap: 16px">
@@ -261,7 +261,7 @@ digitais = f'''
         <div style="display: flex; gap: 24px; align-items: flex-end">
           <figure style="margin: 0; display: flex; flex-direction: column; gap: 8px; align-items: center"><div style="width: 120px; height: 120px; background: {CARVAO}; display: flex; align-items: center; justify-content: center">{symbol(52, SINAL)}</div><figcaption style="font-family: {MONO}; font-size: 12px; color: {TINTA_MEDIA}">ícone do app</figcaption></figure>
           <figure style="margin: 0; display: flex; flex-direction: column; gap: 8px; align-items: center"><div style="width: 72px; height: 72px; background: {SINAL}; display: flex; align-items: center; justify-content: center">{symbol(30, CARVAO)}</div><figcaption style="font-family: {MONO}; font-size: 12px; color: {TINTA_MEDIA}">avatar</figcaption></figure>
-          <figure style="margin: 0; display: flex; flex-direction: column; gap: 8px; align-items: center"><div style="display: flex; align-items: center; gap: 8px; background: {AREIA}; border: 1px solid {LINHA_CLARA}; padding: 8px 12px">{single(16, SINAL_TINTA)}<span style="font-size: 13px; color: {TINTA}">Hoje · Follou</span></div><figcaption style="font-family: {MONO}; font-size: 12px; color: {TINTA_MEDIA}">aba · 16 px</figcaption></figure>
+          <figure style="margin: 0; display: flex; flex-direction: column; gap: 8px; align-items: center"><div style="display: flex; align-items: center; gap: 8px; background: {AREIA}; border: 1px solid {LINHA_CLARA}; padding: 8px 12px">{single(16, SINAL)}<span style="font-size: 13px; color: {TINTA}">Hoje · Follou</span></div><figcaption style="font-family: {MONO}; font-size: 12px; color: {TINTA_MEDIA}">aba · 16 px</figcaption></figure>
         </div>
         {p('No ícone, o símbolo fica no sinal sobre o carvão: é o que a pessoa toca toda manhã. Abaixo de 24 px entra o glifo de traço único.', TINTA_MEDIA, 14, 21)}
       </div>'''
@@ -277,7 +277,7 @@ aplic = section(f'''
 regras = ''.join(
     f'<div style="{bg}; padding: 20px; display: flex; flex-direction: column; gap: 8px"><p style="margin: 0; font-size: 16px; line-height: 22px; font-weight: 600">{t}</p>{p(d, TINTA_MEDIA, 14, 20)}</div>'
     for t, d, bg in [('1 · Um sinal por tela', 'O verde marca a decisão que vale mais hoje, e só ela. Duas coisas verdes na mesma tela: o produto não cumpriu a promessa.', BOX),
-                     ('2 · Cada sinal pertence a um fundo só', '#3FD07F só no escuro, #0E7038 só no claro. A proibição saiu do cálculo: 1,89 e 3,09.', BOX),
+                     ('2 · Cada sinal pertence a um fundo só', '#3FD07F só no escuro, #0E7038 só no claro, para texto, botão e traço. A proibição saiu do cálculo: 1,89 e 3,09. O símbolo é a exceção: fica em #3FD07F em qualquer fundo.', BOX),
                      ('3 · O duplo L é indivisível', 'Nunca abrir entressaca entre os L, quebrar a palavra em duas linhas nem estilizar um L diferente do outro.', BOX),
                      ('4 · Escuro é produto, claro é documento', 'O produto se apresenta no escuro: ícone, abertura da manhã, vitrine do app. Site, proposta e impresso são claros.', BOX),
                      ('5 · Canto reto na marca', 'Raio zero em peça de marca. A interface segue a régua do Design 2.0.', BOX),
@@ -286,7 +286,7 @@ fim = section(f'''
     {head('Regras', 'Cinco regras que dispensam consulta.')}
     <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">{regras}</div>
     <footer style="display: flex; justify-content: space-between; align-items: center; padding-top: 24px">
-      {lockup(28, TINTA, SINAL_TINTA)}
+      {lockup(28, TINTA, SINAL)}
       <span style="font-family: {SANS}; font-size: 12px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: {TINTA_MEDIA}">um produto Don · follou.com.br</span>
     </footer>''')
 

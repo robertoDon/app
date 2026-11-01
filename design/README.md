@@ -2,7 +2,7 @@
 
 A marca mudou de Dalva para Follou em 30/10/2026 (PDF de posicionamento). Só a camada de marca mudou: nome, logo, cores, fonte de display e a frase de posicionamento. UI e UX seguem o Design 2.0.
 
-Canvas do conceito do produto: https://claude.ai/artifact/JoLM6BpVWakan6zacwe6mP (v60, 31/10/2026). Sete páginas: A marca e o produto, O design, As telas, A vitrine, A conta e o motor, Contra quem a gente joga e Legado.
+Canvas do conceito do produto: https://claude.ai/artifact/JoLM6BpVWakan6zacwe6mP (v61, 01/11/2026). Sete páginas: A marca e o produto, O design, As telas, A vitrine, A conta e o motor, Contra quem a gente joga e Legado.
 
 - `canvas/` — as telas e capítulos publicados no canvas (`*.dc.html`) e o `canvas.json` com a posição e o tamanho de cada um.
 - `geradores/` — os scripts Python que geraram as telas. `follou.py` tem os tokens e o símbolo; `follou_rebrand.py` aplica a marca nas telas (idempotente); `gen_marca.py` gera o quadro de marca (Main); `gen_logo_follou.py` gera os arquivos em `logo/follou/`; `migra_conversas.py` e `migra_empresas.py` (uma vez só cada) fizeram Pipeline virar Conversas, tiraram Projetos e Grana e trocaram Caçada por Empresas; `gen_conversas.py`, `gen_meta.py` e `gen_metaregras.py` geram Conversas, a pergunta da meta e a ficha de regras. `gen_brand.py` tem os helpers (tokens, `page`, `header`); `adjust.py` e `adjust2.py` são os ajustes feitos por cima do HTML (v25 e v33, decisões de 27/10).

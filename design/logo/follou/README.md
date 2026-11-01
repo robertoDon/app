@@ -2,8 +2,7 @@
 
 Fonte: PDF "Follou — Posicionamento de marca e naming" (30/10/2026). Os arquivos saem de `../../geradores/gen_logo_follou.py`; as medidas e os tokens estão em `../../geradores/follou.py`.
 
-- `simbolo-sinal.svg`: símbolo no verde sinal, para fundo escuro.
-- `simbolo-sinal-tinta.svg`: para fundo claro.
+- `simbolo-sinal.svg`: símbolo no verde sinal (#3FD07F), em qualquer fundo. Decidido em 01/11/2026: o símbolo não usa o sinal-tinta, mesmo no claro; o sinal-tinta fica para texto, botão e traço.
 - `simbolo-neve.svg` e `simbolo-tinta.svg`: uma cor (bordado, gravação, carimbo).
 - `icone-app.svg`: símbolo no sinal sobre carvão, com respiro.
 - `favicon-16.svg`: glifo de traço único, para 16 px. Abaixo de 24 px os dois L viram pausa.

@@ -152,7 +152,7 @@ def logos(s):
         h = float(m.group(2)); fill = re.search(r'fill="(#[0-9A-Fa-f]{6})"', m.group(0))
         light_ground = not fill or fill.group(1).upper() != '#FFFFFF'
         sym_h = round(h * 0.86)
-        if light_ground: return F.lockup(sym_h, text=F.TINTA, sym=F.SINAL_TINTA)
+        if light_ground: return F.lockup(sym_h, text=F.TINTA, sym=F.SINAL)
         return F.lockup(sym_h, text=F.NEVE, sym=F.SINAL)
     return LOGO.sub(sub, s)
 
