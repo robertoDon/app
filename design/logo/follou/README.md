@@ -7,7 +7,7 @@ Fonte: PDF "Follou — Posicionamento de marca e naming" (30/10/2026). Os arquiv
 - `icone-app.svg`: símbolo no sinal sobre carvão, com respiro.
 - `favicon-16.svg`: glifo de traço único, para 16 px. Abaixo de 24 px os dois L viram pausa.
 
-O logotipo é texto em Archivo SemiBold (Google Fonts), entressaca −0,02 em, ao lado do símbolo. Ainda não há versão em curvas: para impresso, converter o texto em contorno antes de mandar.
+O logotipo é texto em Archivo SemiBold (Google Fonts), entressaca −0,02 em, ao lado do símbolo. Em 02/11/2026 o símbolo do logotipo passou a ser 1,25× maior (altura ≈ 1,0× o tamanho da fonte, espaço de 0,36× a altura do símbolo); o texto não mudou. Os símbolos sozinhos (ícone, avatar, tamanhos mínimos) seguem como estavam. Ainda não há versão em curvas: para impresso, converter o texto em contorno antes de mandar.
 
 | Token | Hex | Uso |
 |---|---|---|

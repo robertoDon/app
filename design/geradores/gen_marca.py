@@ -33,8 +33,8 @@ def section(inner, gap=32):
     return f'<section style="display: flex; flex-direction: column; gap: {gap}px; padding-top: 48px; border-top: 1px solid {LINHA_CLARA}">{inner}</section>'
 
 def vertical(h, text=NEVE, sym=SINAL):
-    return (f'<span role="img" aria-label="Follou" style="display: inline-flex; flex-direction: column; align-items: center; gap: {round(h * 0.3)}px">'
-            f'{symbol(h, sym)}<span aria-hidden="true" style="font-family: {DISPLAY}; font-weight: 600; font-size: {round(h * 1.1)}px; line-height: 1; letter-spacing: -0.02em; color: {text}">Follou</span></span>')
+    return (f'<span role="img" aria-label="Follou" style="display: inline-flex; flex-direction: column; align-items: center; gap: {round(h * 0.3 * LOCKUP_SYMBOL)}px">'
+            f'{symbol(round(h * LOCKUP_SYMBOL), sym)}<span aria-hidden="true" style="font-family: {DISPLAY}; font-weight: 600; font-size: {round(h * 1.1)}px; line-height: 1; letter-spacing: -0.02em; color: {text}">Follou</span></span>')
 
 def endosso(h, text=NEVE, sub=NEVE_FRACA):
     f = round(h * 1.28)

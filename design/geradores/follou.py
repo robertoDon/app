@@ -46,12 +46,17 @@ def single(h, color=SINAL):
             f'stroke-width="15" style="display: block; flex-shrink: 0"><path d="M24 6V58A16 16 0 0 0 40 74H66L90 50"></path></svg>')
 
 
+LOCKUP_SYMBOL = 1.25  # o símbolo é 1,25x a altura de referência (decidido em 02/11/2026); o texto não muda
+
+
 def lockup(h, text=NEVE, sym=SINAL, label='Follou'):
-    """Assinatura horizontal. h = altura do símbolo em px; o logotipo é Archivo SemiBold, entressaca -0,02 em."""
+    """Assinatura horizontal. h = altura de referência em px (o texto sai de h * 1,28); o símbolo é 1,25x h.
+    O logotipo é Archivo SemiBold, entressaca -0,02 em."""
     f = round(h * 1.28, 2)
-    gap = round(h * 0.36, 2)
+    hs = round(h * LOCKUP_SYMBOL, 2)
+    gap = round(hs * 0.36, 2)
     return (f'<span role="img" aria-label="{label}" style="display: inline-flex; align-items: center; gap: {gap}px; '
-            f'white-space: nowrap; flex-shrink: 0">{symbol(h, sym)}'
+            f'white-space: nowrap; flex-shrink: 0">{symbol(hs, sym)}'
             f'<span aria-hidden="true" style="font-family: {DISPLAY}; font-weight: 600; font-size: {f}px; line-height: 1; '
             f'letter-spacing: -0.02em; color: {text}">Follou</span></span>')
 
