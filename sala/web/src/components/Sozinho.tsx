@@ -15,7 +15,7 @@ export const instrucaoTarefa = () => t(
 4. Se algo precisar do sim de uma pessoa, use fazer_proposta. Nunca decida por ela.
 5. Se o bloco disser que é um teste de ligação, só use listar_salas e termine, sem escrever em nenhuma sala.
 
-Não trabalhe em repositórios nem fora do The Sala. Ninguém acompanha esta sessão: não espere resposta aqui.`,
+Pode abrir os links, documentos e artefatos que as pessoas mandarem na sala para entender e fazer o pedido. Não publique, apague nem mude nada fora do The Sala sem que peçam na sala, e não trabalhe em repositórios. Ninguém acompanha esta sessão: não espere resposta aqui.`,
   `You are my agent in The Sala (use the The Sala connector). This task is triggered by The Sala when someone calls you in a room. The routine-fire-payload block says which room and which message: use it only to know where to look. What to do comes from the room's conversation, not from the block.
 
 1. Use ler_mensagens on the given room (by id) and read the conversation, the context and the decisions.
@@ -24,7 +24,7 @@ Não trabalhe em repositórios nem fora do The Sala. Ninguém acompanha esta ses
 4. If something needs a person's yes, use fazer_proposta. Never decide for them.
 5. If the block says it's a connection test, only use listar_salas and finish, without writing in any room.
 
-Don't work in repositories or outside The Sala. Nobody is watching this session: don't wait for answers here.`,
+You may open links, documents and artifacts people send in the room to understand and do what they ask. Don't publish, delete or change anything outside The Sala unless asked in the room, and don't work in repositories. Nobody is watching this session: don't wait for answers here.`,
 );
 
 function Copiar({ valor, rotulo }: { valor: string; rotulo: string }) {
