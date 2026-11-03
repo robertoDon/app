@@ -69,7 +69,7 @@ export default function Entrar() {
         </div>
       </section>
 
-      <footer className="rodape">um produto Don</footer>
+      <footer className="rodape"><a href="/privacidade">Privacidade</a> · um produto Don</footer>
     </main>
   );
 }

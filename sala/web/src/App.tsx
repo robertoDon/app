@@ -7,6 +7,7 @@ import Inicio from "./pages/Inicio";
 import SalaPage from "./pages/Sala";
 import Convite from "./pages/Convite";
 import Consentimento from "./pages/Consentimento";
+import Privacidade from "./pages/Privacidade";
 
 type Auth = { sessao: Session | null; perfil: Perfil | null; recarregarPerfil: () => void };
 const AuthCtx = createContext<Auth>({ sessao: null, perfil: null, recarregarPerfil: () => {} });
@@ -34,6 +35,7 @@ export default function App() {
     <AuthCtx.Provider value={{ sessao, perfil, recarregarPerfil: () => carregarPerfil(sessao?.user.id) }}>
       <Routes>
         <Route path="/entrar" element={<Entrar />} />
+        <Route path="/privacidade" element={<Privacidade />} />
         <Route path="/oauth/consent" element={<Consentimento />} />
         <Route path="/c/:codigo" element={<Convite />} />
         <Route path="/" element={<Protegida><Inicio /></Protegida>} />

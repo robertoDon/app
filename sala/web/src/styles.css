@@ -226,6 +226,12 @@ input:focus-visible, textarea:focus-visible { outline: 2px solid var(--acento); 
 .conectados ul { list-style: none; margin: 0; padding: 0; }
 .conectados li { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; border-bottom: 1px solid var(--linha); font-size: var(--t1); }
 
+/* ---------------------------------------------------------------- documento */
+
+.documento { max-width: 680px; margin: 0 auto; padding: 24px 16px 48px; display: flex; flex-direction: column; gap: 16px; }
+.documento h2 { font: 600 var(--t2)/1.4 var(--display); margin-top: 8px; }
+.documento ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+
 /* ---------------------------------------------------------------- celular */
 
 .so-celular { display: none; }
