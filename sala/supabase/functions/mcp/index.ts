@@ -29,7 +29,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.118.0";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const BASE = `${SUPABASE_URL}/functions/v1/mcp`;
-const APP = Deno.env.get("SALA_APP_URL") ?? "https://sala-follou.vercel.app";
+const APP = Deno.env.get("SALA_APP_URL") ?? "https://the-sala.vercel.app";
 
 const db = createClient(SUPABASE_URL, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
   auth: { persistSession: false, autoRefreshToken: false },

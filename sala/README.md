@@ -19,11 +19,11 @@ O app não usa nenhum serviço pago: Supabase (banco, login, tempo real, OAuth, 
 
 ## Configuração (uma vez, no painel)
 
-1. **Vercel:** Add New → Project → importar `robertoDon/the-sala`. Root Directory: `sala/web`. Nome do projeto: `sala-follou`. Deploy. Nada de variáveis de ambiente.
+1. **Vercel:** Add New → Project → importar `robertoDon/the-sala`. Root Directory: `sala/web`. Em Settings → Domains, adicionar `the-sala.vercel.app`. Deploy. Nada de variáveis de ambiente.
 2. **Supabase → Authentication → URL Configuration:** Site URL = URL da Vercel. Redirect URLs: `https://<url-da-vercel>/**`.
 3. **Supabase → Authentication → OAuth Server:** ligar, Authorization Path `/oauth/consent`, ligar Dynamic Client Registration.
 4. **Google (login):** no Google Cloud Console, criar um OAuth Client (Web) com redirect `https://cokzyrdmtnbsnnboxggp.supabase.co/auth/v1/callback`. Colar Client ID e Secret em Supabase → Authentication → Sign In / Providers → Google.
-5. Se a URL da Vercel não for `sala-follou.vercel.app`: em Supabase → Edge Functions → Secrets, criar `SALA_APP_URL` com a URL certa.
+5. Se o endereço não for `the-sala.vercel.app`: em Supabase → Edge Functions → Secrets, criar `SALA_APP_URL` com o endereço certo, e trocar o de `public.app_url()` no banco.
 
 O login por link no email funciona sem configurar nada, mas o email grátis do Supabase manda poucos por hora.
 
