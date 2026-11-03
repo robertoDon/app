@@ -78,7 +78,8 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco }
   };
 
   const apagar = async () => {
-    if (prompt(t(`Apagar a sala e todas as mensagens, para todos? Digite o nome da sala para confirmar:\n${sala.nome}`, `Delete the room and all its messages, for everyone? Type the room name to confirm:\n${sala.nome}`)) !== sala.nome) return;
+    if (prompt(t(`Apagar a sala "${sala.nome}" e todas as mensagens, para todos? Para confirmar, digite o nome da sala: ${sala.nome}`,
+      `Delete the room "${sala.nome}" and all its messages, for everyone? To confirm, type the room name: ${sala.nome}`))?.trim() !== sala.nome) return;
     const { error } = await sb.from("salas").delete().eq("id", sala.id);
     if (error) return alert(erro(error));
     recarregar(); nav("/");

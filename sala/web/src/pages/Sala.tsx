@@ -40,7 +40,7 @@ const deQuem = (agente: string, pessoa: string) => t(`${agente} de ${pessoa}`, `
 const ouvindoAgora = (texto?: string) => texto === "ouvindo agora" || texto === "listening now";
 const PAGINA = 200;
 
-export type AgenteSala = { nome: string; uid: string; presenca: { ativo: boolean; texto: string } | null };
+export type AgenteSala = { nome: string; uid: string; presenca: { ativo: boolean; texto: string } | null; sozinho?: boolean };
 type Painel = null | "ajustes" | "contexto" | "decisoes" | "busca" | "tarefas";
 
 export default function SalaPage() {
@@ -93,7 +93,7 @@ export default function SalaPage() {
     const mapa = new Map<string, AgenteSala>();
     const ids = new Set(membros.map((m) => m.user_id));
     presencas.filter((a) => ids.has(a.user_id) && Date.now() - new Date(a.visto_em).getTime() < 30 * 864e5)
-      .forEach((a) => mapa.set(`${a.nome}|${a.user_id}`, { nome: a.nome, uid: a.user_id, presenca: presenca(a) }));
+      .forEach((a) => mapa.set(`${a.nome}|${a.user_id}`, { nome: a.nome, uid: a.user_id, presenca: presenca(a), sozinho: !!a.desperta }));
     msgs?.forEach((m) => m.agente && ids.has(m.user_id) && !mapa.has(`${m.agente}|${m.user_id}`) &&
       mapa.set(`${m.agente}|${m.user_id}`, { nome: m.agente, uid: m.user_id, presenca: null }));
     return [...mapa.values()];
@@ -391,7 +391,10 @@ export default function SalaPage() {
 
   // meus agentes que não ficam ouvindo: quando alguém chama, ofereço o pedido pronto
   const meusAgentes = agentes.filter((a) => a.uid === eu && !ouvindoAgora(a.presenca?.texto));
-  const chamadosEm = (m: Mensagem) => {
+  // os que respondem sozinhos não precisam do botão: a Sala acorda o agente
+  const chamadosEm = (m: Mensagem) => chamadosTodos(m).filter((a) => !a.sozinho);
+  const acordadosEm = (m: Mensagem) => (m.agente ? [] : chamadosTodos(m).filter((a) => a.sozinho));
+  const chamadosTodos = (m: Mensagem) => {
     // vale quando outra pessoa chama o meu agente e também quando eu mesmo chamo; não quando um agente meu escreveu
     if (m.apagada || m.tipo === "decisao" || (m.user_id === eu && m.agente) || m.id < 0) return [];
     const ditas = [...m.texto.matchAll(/@([\p{L}\p{N}_]+)(?:-([\p{L}\p{N}_]+))?/gu)].map((x) => [handle(x[1]), x[2] ? handle(x[2]) : ""]);
@@ -566,6 +569,12 @@ export default function SalaPage() {
                         );
                       })}
                     </div>
+                  )}
+                  {acordadosEm(m).length > 0 && Date.now() - new Date(m.criada_em).getTime() < 10 * 60_000 && (
+                    <p className={`pedir nota ${minhaPessoa ? "respostas-minha" : ""}`}>
+                      {acordadosEm(m).map((a) => a.nome).join(", ")}{" "}
+                      {t("foi chamado e responde sozinho em cerca de 1 minuto.", "was called and will reply on its own in about a minute.")}
+                    </p>
                   )}
                   {rs && (rs.length > 0 || esperando.length > 0) && (
                     <div className={`respostas ${minhaPessoa ? "respostas-minha" : ""}`} aria-label={t("Respostas dos agentes", "Agents' answers")}>

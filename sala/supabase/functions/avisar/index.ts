@@ -119,13 +119,24 @@ const limpo = (t: string, n = 140) => {
 let segredoAviso: string | null = null;
 const TODOS = "\u0000todos"; // "todos os seus agentes" (marca interna)
 
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "authorization, content-type, apikey, x-client-info",
+};
+const json = (b: unknown, status = 200) => new Response(JSON.stringify(b), { status, headers: { ...CORS, "Content-Type": "application/json" } });
+
 Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
   if (req.method !== "POST") return new Response("ok");
+  // teste do "responder sozinho", pedido pela própria pessoa no app (token de sessão, sem x-aviso)
+  if (!req.headers.get("x-aviso") && req.headers.get("authorization")) return await testarDespertador(req);
   if (!segredoAviso) segredoAviso = (await db.rpc("segredo_aviso")).data as string;
   if (!segredoAviso || req.headers.get("x-aviso") !== segredoAviso) return new Response("não", { status: 401 });
 
   const corpo = await req.json().catch(() => ({}));
   if (corpo.tarefa) return await avisarTarefa(Number(corpo.tarefa));
+  if (corpo.despertar) return await despertar(Number(corpo.despertar));
   const { id } = corpo;
   const { data: m } = await db.from("mensagens")
     .select("id, sala_id, user_id, agente, texto, tipo, estado, responde_a, apagada, autor:perfis!mensagens_user_id_fkey(nome), salas(nome)")
@@ -145,9 +156,10 @@ Deno.serve(async (req) => {
   const ditas = mencoes(m.texto);
   const ditasCompletas = [...m.texto.matchAll(/@([\p{L}\p{N}_]+)(?:-([\p{L}\p{N}_]+))?/gu)].map((x) => [apelido(handle(x[1])), x[2] ? handle(x[2]) : ""]);
   // agentes de quem está na sala: "@Claude-Ana" ou "@agentes" chamam o agente, e a pessoa dona dele é avisada
-  const { data: agentesSala } = await db.from("agentes").select("user_id, nome").in("user_id", membros.map((x: any) => x.user_id));
+  const { data: agentesSala } = await db.from("agentes").select("user_id, nome, desperta").in("user_id", membros.map((x: any) => x.user_id));
   const agenteChamado = (uid: string, primeiro: string): string | null => {
-    const meus = (agentesSala ?? []).filter((a) => a.user_id === uid);
+    // quem responde sozinho não precisa que a pessoa toque para pedir
+    const meus = (agentesSala ?? []).filter((a) => a.user_id === uid && !a.desperta);
     for (const [a, p] of ditasCompletas) {
       // @agentes escrito por um agente não acorda ninguém: senão vira uma corrente de avisos
       if (a === "agentes" && meus.length && !m.agente) return meus.length === 1 ? meus[0].nome : TODOS;
@@ -246,4 +258,91 @@ async function avisarTarefa(id: number) {
     url: `/s/${t.sala_id}?tarefas=1`, sala: t.sala_id, tag: `tarefa-${t.id}`,
   }, true);
   return new Response(`avisados ${n}`);
+}
+
+// ---------------------------------------------------------------- acordar agentes que respondem sozinhos
+
+// Quem ligou "responder sozinho" tem uma tarefa agendada do Claude Code (gatilho de API) na própria conta.
+// Quando chamam o agente dessa pessoa, disparamos a tarefa: o Claude abre na nuvem, lê a sala e responde.
+// Regras: pessoa chamou (@Claude, @Claude-Ana, @agentes, @todos) → acorda; agente chamou → só se chamou pelo nome
+// (@Claude-Ana), para não virar corrente; decisão sobre proposta de um agente → acorda esse agente para seguir.
+async function despertar(id: number) {
+  const { data: m } = await db.from("mensagens")
+    .select("id, sala_id, user_id, agente, texto, tipo, estado, responde_a, apagada, autor:perfis!mensagens_user_id_fkey(nome), salas(nome)")
+    .eq("id", id).maybeSingle();
+  if (!m || m.apagada) return new Response("nada");
+  const { data: membros } = await db.from("membros").select("user_id, perfis(nome, idioma)").eq("sala_id", m.sala_id);
+  const ids = (membros ?? []).map((x: any) => x.user_id);
+  const { data: desp } = await db.from("despertadores").select("user_id, agente, url").in("user_id", ids);
+  if (!desp?.length) return new Response("nada");
+  const { data: ouvindo } = await db.from("agentes").select("user_id, nome, ouvindo_ate").in("user_id", ids);
+  const ouve = (uid: string, nome: string) => (ouvindo ?? []).some((a) => a.user_id === uid && a.nome === nome && a.ouvindo_ate && new Date(a.ouvindo_ate).getTime() > Date.now());
+  const pessoa = new Map<string, { nome: string; idioma: string | null }>((membros ?? []).map((x: any) => [x.user_id, { nome: x.perfis?.nome ?? "", idioma: x.perfis?.idioma ?? null }]));
+
+  const chamadas = [...m.texto.matchAll(/@([\p{L}\p{N}_]+)(?:-([\p{L}\p{N}_]+))?/gu)].map((x) => [apelido(handle(x[1])), x[2] ? handle(x[2]) : ""]);
+  let dono: { user_id: string; agente: string | null } | null = null;
+  if (m.tipo === "decisao" && m.responde_a) {
+    const { data: p } = await db.from("mensagens").select("user_id, agente").eq("id", m.responde_a).maybeSingle();
+    dono = p ?? null;
+  }
+  const alvos = desp.filter((d) => {
+    if (m.agente && m.user_id === d.user_id && m.agente === d.agente) return false; // ele mesmo escreveu
+    if (ouve(d.user_id, d.agente)) return false; // já está ouvindo a sala (Claude Code no computador)
+    if (dono && dono.user_id === d.user_id && dono.agente === d.agente) return true;
+    const primeiro = handle((pessoa.get(d.user_id)?.nome ?? "").split(" ")[0]);
+    return chamadas.some(([a, p]) => {
+      if (a === handle(d.agente)) return !p || p === primeiro;
+      if (m.agente) return false; // agente chamando @agentes/@todos não acorda ninguém
+      return a === "agentes" || a === "todos";
+    });
+  });
+  if (!alvos.length) return new Response("nada");
+
+  const sala = (m.salas as any)?.nome ?? "Sala";
+  const autorNome = (m.autor as any)?.nome ?? "";
+  await Promise.all(alvos.map(async (d) => {
+    const en = pessoa.get(d.user_id)?.idioma === "en";
+    const quem = m.agente ? `${m.agente} (${autorNome})` : autorNome;
+    const texto = en
+      ? `The Sala · room "${sala}" (id ${m.sala_id}) · message #${m.id} from ${quem}` +
+        (m.tipo === "decisao" ? ` · decision on proposal #${m.responde_a}: ${m.estado === "aprovada" ? "APPROVED" : "DECLINED"}` : "") +
+        `\nExcerpt: ${limpo(emIngles(m.texto), 400)}`
+      : `The Sala · sala "${sala}" (id ${m.sala_id}) · mensagem #${m.id} de ${quem}` +
+        (m.tipo === "decisao" ? ` · decisão sobre a proposta #${m.responde_a}: ${m.estado === "aprovada" ? "APROVADA" : "RECUSADA"}` : "") +
+        `\nTrecho: ${limpo(m.texto, 400)}`;
+    let status = 0, erro: string | null = null;
+    try {
+      const { data: chave } = await db.rpc("chave_despertador", { quem: d.user_id, agente: d.agente });
+      ({ status, erro } = await disparar(d.url, chave as string, texto));
+    } catch (e) { erro = (e as Error).message; }
+    await db.from("despertadores").update({ ultimo_disparo: new Date().toISOString(), ultimo_status: status, ultimo_erro: erro })
+      .eq("user_id", d.user_id).eq("agente", d.agente);
+  }));
+  return new Response(`acordados ${alvos.length}`);
+}
+
+async function disparar(url: string, chave: string, texto: string) {
+  const r = await fetch(url, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${chave}`, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
+    body: JSON.stringify({ text: texto }),
+  });
+  const j = await r.json().catch(() => ({})) as any;
+  return { status: r.status, erro: r.ok ? null : (j?.error?.message ?? `HTTP ${r.status}`), sessao: j?.claude_code_session_url ?? null };
+}
+
+async function testarDespertador(req: Request) {
+  const token = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "").trim();
+  const { data: u } = await db.auth.getUser(token);
+  if (!u?.user) return json({ erro: "Entre de novo." }, 401);
+  try { if (JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))).client_id) return json({ erro: "Só pessoas." }, 403); } catch { /* */ }
+  const corpo = await req.json().catch(() => ({}));
+  const agente = String(corpo.testar_despertador ?? "Claude");
+  const { data: d } = await db.from("despertadores").select("url").eq("user_id", u.user.id).eq("agente", agente).maybeSingle();
+  if (!d) return json({ erro: "Não está ligado." }, 404);
+  const { data: chave } = await db.rpc("chave_despertador", { quem: u.user.id, agente });
+  const r = await disparar(d.url, chave as string, "The Sala: teste de ligação / connection test. Só use listar_salas e termine. / Only use listar_salas and finish.");
+  await db.from("despertadores").update({ ultimo_disparo: new Date().toISOString(), ultimo_status: r.status, ultimo_erro: r.erro })
+    .eq("user_id", u.user.id).eq("agente", agente);
+  return r.erro ? json({ erro: r.erro }, 400) : json({ sessao: r.sessao });
 }

@@ -738,3 +738,14 @@ details.nota p { margin-top: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* ---------------------------------------------------------------- responder sozinho */
+.sozinho { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--linha); }
+.sozinho h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
+.sozinho h3 .nota { font-weight: 400; }
+.sozinho-form { display: flex; flex-direction: column; gap: 8px; }
+.sozinho-form label { font-size: var(--t1); font-weight: 600; }
+.sozinho-form input { width: 100%; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: var(--t1); }
+.sozinho-form .btn { align-self: flex-start; }
+.sozinho-ligado { display: flex; flex-direction: column; gap: 8px; }
+.sozinho .ok { color: var(--ok); }

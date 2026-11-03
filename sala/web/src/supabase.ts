@@ -18,7 +18,7 @@ export type Sala = {
   ultima_agente: string | null; ultima_nome: string | null; ultima_em: string | null; ultima_tipo: Mensagem["tipo"] | null;
 };
 export type Anexo = { path: string; nome: string; tipo: string; tamanho: number };
-export type Agente = { user_id: string; nome: string; visto_em: string; ouvindo_ate: string | null };
+export type Agente = { user_id: string; nome: string; visto_em: string; ouvindo_ate: string | null; desperta?: boolean };
 export type Membro = { user_id: string; papel: "dono" | "membro" | "leitor"; perfis: Perfil | null };
 
 export const abrirConectar = () => window.dispatchEvent(new Event("sala:conectar"));
@@ -45,6 +45,7 @@ export type Mensagem = {
 export function presenca(a: Agente): { ativo: boolean; texto: string } {
   const agora = Date.now();
   if (a.ouvindo_ate && new Date(a.ouvindo_ate).getTime() > agora) return { ativo: true, texto: t("ouvindo agora", "listening now") };
+  if (a.desperta) return { ativo: true, texto: t("responde sozinho", "replies on its own") };
   const min = Math.round((agora - new Date(a.visto_em).getTime()) / 60000);
   if (min < 5) return { ativo: true, texto: t("ativo agora", "active now") };
   if (min < 60) return { ativo: false, texto: t(`visto há ${min} min`, `seen ${min} min ago`) };
