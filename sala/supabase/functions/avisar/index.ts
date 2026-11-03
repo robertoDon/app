@@ -101,7 +101,7 @@ async function empurrar(i: { endpoint: string; p256dh: string; auth: string }, d
 
 // ---------------------------------------------------------------- quem avisar
 
-const handle = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9]/g, "").toLowerCase();
+const handle = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Za-z0-9]/g, "").toLowerCase();
 // @agents/@everyone/@all (inglês) valem o mesmo que @agentes/@todos
 const ALIAS: Record<string, string> = { agents: "agentes", everyone: "todos", all: "todos" };
 const apelido = (h: string) => ALIAS[h] ?? h;

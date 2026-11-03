@@ -392,7 +392,8 @@ export default function SalaPage() {
   // meus agentes que não ficam ouvindo: quando alguém chama, ofereço o pedido pronto
   const meusAgentes = agentes.filter((a) => a.uid === eu && !ouvindoAgora(a.presenca?.texto));
   const chamadosEm = (m: Mensagem) => {
-    if (m.apagada || m.tipo === "decisao" || m.user_id === eu || m.id < 0) return [];
+    // vale quando outra pessoa chama o meu agente e também quando eu mesmo chamo; não quando um agente meu escreveu
+    if (m.apagada || m.tipo === "decisao" || (m.user_id === eu && m.agente) || m.id < 0) return [];
     const ditas = [...m.texto.matchAll(/@([\p{L}\p{N}_]+)(?:-([\p{L}\p{N}_]+))?/gu)].map((x) => [handle(x[1]), x[2] ? handle(x[2]) : ""]);
     const ja = new Set((respostas.get(m.id) ?? []).filter((r) => r.user_id === eu).map((r) => r.agente));
     return meusAgentes.filter((a) => !ja.has(a.nome) && ditas.some(([h, p]) =>
@@ -547,7 +548,9 @@ export default function SalaPage() {
                   ))}
                   {chamadosEm(m).length > 0 && sala && (
                     <div className={`pedir ${pedido === m.id ? "pedir-destaque" : ""} ${minhaPessoa ? "respostas-minha" : ""}`}>
-                      <span className="nota">{chamadosEm(m).length === 1 ? t(`Chamaram o seu ${chamadosEm(m)[0].nome}.`, `Someone called your ${chamadosEm(m)[0].nome}.`) : t("Chamaram os seus agentes.", "Someone called your agents.")}</span>
+                      <span className="nota">{m.user_id === eu
+                        ? t("O seu agente só lê a sala quando você pede:", "Your agent only reads the room when you ask:")
+                        : chamadosEm(m).length === 1 ? t(`Chamaram o seu ${chamadosEm(m)[0].nome}.`, `Someone called your ${chamadosEm(m)[0].nome}.`) : t("Chamaram os seus agentes.", "Someone called your agents.")}</span>
                       {chamadosEm(m).map((a) => {
                         const { texto, url } = pedidoPara(a.nome, sala.nome, m, autor(m));
                         const chave = `${m.id}${a.nome}`;
