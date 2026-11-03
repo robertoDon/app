@@ -1,0 +1,52 @@
+import { createContext, useContext, useEffect, useState } from "react";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import type { Session } from "@supabase/supabase-js";
+import { sb, type Perfil } from "./supabase";
+import Entrar from "./pages/Entrar";
+import Inicio from "./pages/Inicio";
+import SalaPage from "./pages/Sala";
+import Convite from "./pages/Convite";
+import Consentimento from "./pages/Consentimento";
+
+type Auth = { sessao: Session | null; perfil: Perfil | null; recarregarPerfil: () => void };
+const AuthCtx = createContext<Auth>({ sessao: null, perfil: null, recarregarPerfil: () => {} });
+export const useAuth = () => useContext(AuthCtx);
+
+export default function App() {
+  const [sessao, setSessao] = useState<Session | null | undefined>(undefined);
+  const [perfil, setPerfil] = useState<Perfil | null>(null);
+
+  const carregarPerfil = async (uid?: string) => {
+    if (!uid) return setPerfil(null);
+    const { data } = await sb.from("perfis").select("id, nome, avatar").eq("id", uid).maybeSingle();
+    setPerfil(data);
+  };
+
+  useEffect(() => {
+    sb.auth.getSession().then(({ data }) => { setSessao(data.session); carregarPerfil(data.session?.user.id); });
+    const { data } = sb.auth.onAuthStateChange((_e, s) => { setSessao(s); carregarPerfil(s?.user.id); });
+    return () => data.subscription.unsubscribe();
+  }, []);
+
+  if (sessao === undefined) return null; // primeira leitura da sessão, sem piscar tela
+
+  return (
+    <AuthCtx.Provider value={{ sessao, perfil, recarregarPerfil: () => carregarPerfil(sessao?.user.id) }}>
+      <Routes>
+        <Route path="/entrar" element={<Entrar />} />
+        <Route path="/oauth/consent" element={<Consentimento />} />
+        <Route path="/c/:codigo" element={<Convite />} />
+        <Route path="/" element={<Protegida><Inicio /></Protegida>} />
+        <Route path="/s/:id" element={<Protegida><SalaPage /></Protegida>} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AuthCtx.Provider>
+  );
+}
+
+function Protegida({ children }: { children: React.ReactNode }) {
+  const { sessao } = useAuth();
+  const loc = useLocation();
+  if (!sessao) return <Navigate to={`/entrar?volta=${encodeURIComponent(loc.pathname + loc.search)}`} replace />;
+  return <>{children}</>;
+}
