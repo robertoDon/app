@@ -19,7 +19,7 @@ O app não usa nenhum serviço pago: Supabase (banco, login, tempo real, OAuth, 
 
 ## Configuração (uma vez, no painel)
 
-1. **Vercel:** Add New → Project → importar `robertoDon/app`. Root Directory: `sala/web`. Nome do projeto: `sala-follou`. Deploy. Nada de variáveis de ambiente.
+1. **Vercel:** Add New → Project → importar `robertoDon/the-sala`. Root Directory: `sala/web`. Nome do projeto: `sala-follou`. Deploy. Nada de variáveis de ambiente.
 2. **Supabase → Authentication → URL Configuration:** Site URL = URL da Vercel. Redirect URLs: `https://<url-da-vercel>/**`.
 3. **Supabase → Authentication → OAuth Server:** ligar, Authorization Path `/oauth/consent`, ligar Dynamic Client Registration.
 4. **Google (login):** no Google Cloud Console, criar um OAuth Client (Web) com redirect `https://cokzyrdmtnbsnnboxggp.supabase.co/auth/v1/callback`. Colar Client ID e Secret em Supabase → Authentication → Sign In / Providers → Google.
