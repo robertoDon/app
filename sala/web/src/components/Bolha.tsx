@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Mensagem } from "../supabase";
 import { IconeAgente, IconeCopiar, IconeDecisao, IconeLapis, IconeLixo, IconeProposta, IconeRecusa, IconeResponder } from "./Icones";
 import { Texto } from "./Texto";
+import { Anexos } from "./Anexos";
 
 export type Citacao = { id: number; autor: string; texto: string } | null;
 
@@ -115,7 +116,10 @@ export function Bolha(p: Props) {
           ) : m.apagada ? (
             <p className="apagada">Mensagem apagada.</p>
           ) : (
-            <Texto texto={m.texto} chamaMim={p.chamaMim ?? (() => false)} />
+            <>
+              {m.texto && <Texto texto={m.texto} chamaMim={p.chamaMim ?? (() => false)} />}
+              {!!m.anexos?.length && <Anexos anexos={m.anexos} />}
+            </>
           )}
 
           {proposta && (

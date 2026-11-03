@@ -3,7 +3,7 @@ import { Bolha, Evento } from "./Bolha";
 import { IconeCheck, IconeColunas } from "./Icones";
 
 // O produto de verdade, com componentes reais, para a vitrine (entrada e página pública).
-const base = { responde_a: null, estado: null, decidida_por: null, decidida_em: null, editada_em: null, apagada: false, sala_id: "", user_id: "", criada_em: "" };
+const base = { responde_a: null, estado: null, decidida_por: null, decidida_em: null, editada_em: null, apagada: false, anexos: [], sala_id: "", user_id: "", criada_em: "" };
 const m = (id: number, agente: string | null, texto: string, extra: Partial<Mensagem> = {}): Mensagem =>
   ({ ...base, id, agente, texto, tipo: "mensagem", ...extra }) as Mensagem;
 

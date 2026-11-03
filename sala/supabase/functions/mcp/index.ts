@@ -14,6 +14,8 @@
 //   GET  /api/salas/:sala/mensagens?depois=N
 //   POST /api/salas/:sala/mensagens          {texto, proposta?, responde_a?}
 //   GET  /api/salas/:sala/decisoes           propostas pendentes e decisões
+//   POST /api/salas/:sala/arquivos           {nome, conteudo, texto?} arquivo de texto (até 1 MB)
+//   GET  /api/arquivo?caminho=...            baixa um anexo da conversa
 //   GET  /api/salas/:sala/esperar?depois=N   segura até chegar mensagem de outra pessoa/agente
 //
 // Conta (sessão de pessoa, do app web):
@@ -119,10 +121,11 @@ async function autenticar(req: Request): Promise<Quem | null> {
 // ---------------------------------------------------------------- salas e mensagens
 
 type Sala = { id: string; nome: string; contexto?: string };
+type Anexo = { path: string; nome: string; tipo: string; tamanho: number };
 type Msg = {
   id: number; sala_id: string; user_id: string; agente: string | null; texto: string; criada_em: string;
   tipo: "mensagem" | "proposta" | "decisao"; responde_a: number | null; estado: "pendente" | "aprovada" | "recusada" | null;
-  decidida_em: string | null; editada_em: string | null; apagada: boolean;
+  decidida_em: string | null; editada_em: string | null; apagada: boolean; anexos: Anexo[];
   autor?: { nome: string }; decisor?: { nome: string } | null;
 };
 
@@ -147,7 +150,7 @@ async function acharSala(q: Quem, ref?: string): Promise<Sala> {
   return s;
 }
 
-const SEL = "id, sala_id, user_id, agente, texto, criada_em, tipo, responde_a, estado, decidida_em, editada_em, apagada, " +
+const SEL = "id, sala_id, user_id, agente, texto, criada_em, tipo, responde_a, estado, decidida_em, editada_em, apagada, anexos, " +
   "autor:perfis!mensagens_user_id_fkey(nome), decisor:perfis!mensagens_decidida_por_fkey(nome)";
 
 async function ler(sala: string, depois = 0, limite = 50): Promise<Msg[]> {
@@ -162,11 +165,11 @@ async function ler(sala: string, depois = 0, limite = 50): Promise<Msg[]> {
   return (data as unknown as Msg[]).reverse();
 }
 
-type Envio = { texto: string; proposta?: boolean; responde_a?: number | null };
+type Envio = { texto: string; proposta?: boolean; responde_a?: number | null; anexos?: Anexo[] };
 
 async function enviar(q: Quem, sala: string, e: Envio): Promise<Msg> {
   const texto = (e.texto ?? "").trim();
-  if (!texto) throw new Falha("Falta o texto.");
+  if (!texto && !e.anexos?.length) throw new Falha("Falta o texto.");
   if (texto.length > 20000) throw new Falha("Mensagem acima de 20.000 caracteres.");
   let responde = Number(e.responde_a) || null;
   // sem responde_a: liga à última mensagem que chamou este agente e que ele ainda não respondeu
@@ -179,7 +182,7 @@ async function enviar(q: Quem, sala: string, e: Envio): Promise<Msg> {
     }
   }
   const { data, error } = await db.from("mensagens")
-    .insert({ sala_id: sala, user_id: q.userId, agente: q.agente, texto, tipo: e.proposta ? "proposta" : "mensagem", responde_a: responde })
+    .insert({ sala_id: sala, user_id: q.userId, agente: q.agente, texto, tipo: e.proposta ? "proposta" : "mensagem", responde_a: responde, anexos: e.anexos ?? [] })
     .select(SEL).single();
   if (error) throw new Falha(error.message, 429);
   return data as unknown as Msg;
@@ -218,6 +221,7 @@ function meChamou(q: Quem, texto: string) {
 }
 
 const quemEscreveu = (m: Msg) => (m.agente ? `${m.agente} de ${m.autor?.nome ?? "?"}` : `${m.autor?.nome ?? "?"} (pessoa)`);
+const tamanho = (b: number) => (b < 1024 ? `${b} B` : b < 1048576 ? `${Math.round(b / 1024)} KB` : `${(b / 1048576).toFixed(1)} MB`);
 const quando = (iso: string) => iso.slice(0, 16).replace("T", " ") + " UTC";
 
 function rotulo(m: Msg) {
@@ -236,7 +240,8 @@ const formatar = (ms: Msg[], q?: Quem) =>
       const chamou = q && !minha(q, m) && !m.apagada && meChamou(q, m.texto) ? "  ← chamou você" : "";
       const resp = m.responde_a && m.tipo !== "decisao" ? ` · responde a #${m.responde_a}` : "";
       const ed = m.editada_em && !m.apagada ? " · (editada)" : "";
-      return `#${m.id} · ${quando(m.criada_em)} · ${quemEscreveu(m)}${rotulo(m)}${resp}${ed}${chamou}\n${m.apagada ? "(mensagem apagada)" : m.texto}`;
+      const anexos = (m.anexos ?? []).map((a) => `\n📎 ${a.nome} (${a.tipo}, ${tamanho(a.tamanho)}) · ler_arquivo: ${a.path}`).join("");
+      return `#${m.id} · ${quando(m.criada_em)} · ${quemEscreveu(m)}${rotulo(m)}${resp}${ed}${chamou}\n${m.apagada ? "(mensagem apagada)" : m.texto}${anexos}`;
     }).join("\n\n")
     : "(nenhuma mensagem nova)";
 
@@ -264,6 +269,57 @@ async function cabecalho(s: Sala) {
   return `Sala "${s.nome}"${s.contexto ? `\nContexto da sala: ${s.contexto}` : ""}${r ? `\n${r}` : ""}`;
 }
 
+// ---------------------------------------------------------------- arquivos
+
+const TEXTO = /^(text\/|application\/(json|xml|csv|javascript|x-yaml|yaml|sql|x-sh|markdown))/;
+const ehTexto = (tipo: string, nome: string) => TEXTO.test(tipo) || /\.(md|txt|csv|json|ya?ml|xml|html?|js|ts|tsx|py|sql|sh|css)$/i.test(nome);
+
+const tipoPorNome = (nome: string) => {
+  const ext = nome.split(".").pop()?.toLowerCase() ?? "";
+  return ({ md: "text/markdown", txt: "text/plain", csv: "text/csv", json: "application/json", html: "text/html", htm: "text/html",
+    xml: "application/xml", yaml: "application/yaml", yml: "application/yaml", js: "text/javascript", ts: "text/plain", py: "text/x-python",
+    sql: "application/sql", css: "text/css" } as Record<string, string>)[ext] ?? "text/plain";
+};
+
+async function subirTexto(q: Quem, sala: string, nome: string, conteudo: string): Promise<Anexo> {
+  const limpo = (nome || "arquivo.txt").replace(/[\/\\?%*:|"<>\x00-\x1f]/g, "-").slice(0, 120);
+  const bytes = new TextEncoder().encode(conteudo ?? "");
+  if (!bytes.length) throw new Falha("O arquivo está vazio.");
+  if (bytes.length > 1048576) throw new Falha("Arquivo de texto acima de 1 MB.");
+  const tipo = tipoPorNome(limpo);
+  const path = `${sala}/${q.userId}/${crypto.randomUUID()}-${limpo}`;
+  const { error } = await db.storage.from("arquivos").upload(path, bytes, { contentType: `${tipo}; charset=utf-8` });
+  if (error) throw new Falha(`Não deu para guardar o arquivo: ${error.message}`, 500);
+  return { path, nome: limpo, tipo, tamanho: bytes.length };
+}
+
+type Conteudo = { type: "text"; text: string } | { type: "image"; data: string; mimeType: string };
+
+// devolve o arquivo em forma que o agente lê: texto, imagem, ou um link temporário
+async function lerArquivo(q: Quem, caminho: string): Promise<Conteudo[]> {
+  const path = (caminho ?? "").trim().replace(/^\/+/, "");
+  const salaId = path.split("/")[0];
+  if (!(await salasDe(q)).some((s) => s.id === salaId)) throw new Falha("Arquivo não encontrado nas suas salas.", 404);
+  const { data: info } = await db.from("mensagens").select("anexos").eq("sala_id", salaId).filter("anexos", "cs", JSON.stringify([{ path }])).limit(1).maybeSingle();
+  const a = (info?.anexos as Anexo[] | undefined)?.find((x) => x.path === path);
+  if (!a) throw new Falha("Arquivo não encontrado nas suas salas.", 404);
+  if (ehTexto(a.tipo, a.nome) && a.tamanho <= 300_000) {
+    const { data, error } = await db.storage.from("arquivos").download(path);
+    if (error || !data) throw new Falha("Não deu para abrir o arquivo.", 500);
+    return [{ type: "text", text: `${a.nome}\n\n${await data.text()}` }];
+  }
+  if (a.tipo.startsWith("image/") && a.tamanho <= 4_000_000) {
+    const { data, error } = await db.storage.from("arquivos").download(path);
+    if (error || !data) throw new Falha("Não deu para abrir o arquivo.", 500);
+    const b = new Uint8Array(await data.arrayBuffer());
+    let bin = "";
+    for (let i = 0; i < b.length; i += 0x8000) bin += String.fromCharCode(...b.subarray(i, i + 0x8000));
+    return [{ type: "text", text: a.nome }, { type: "image", data: btoa(bin), mimeType: a.tipo }];
+  }
+  const { data } = await db.storage.from("arquivos").createSignedUrl(path, 3600);
+  return [{ type: "text", text: `${a.nome} (${a.tipo}, ${tamanho(a.tamanho)}). Baixe por este link, válido por 1 hora:\n${data?.signedUrl ?? "(sem link)"}` }];
+}
+
 // ---------------------------------------------------------------- instruções
 
 function regras(q?: Quem) {
@@ -273,6 +329,7 @@ function regras(q?: Quem) {
 - Ao responder uma mensagem, passe responde_a com o id dela (#N). Assim a sala mostra as respostas dos agentes lado a lado.
 - Quando algo precisar do sim de uma pessoa (gastar, publicar, mudar plano, escolher entre opções), use fazer_proposta em vez de decidir sozinho. As pessoas aprovam ou recusam na sala.
 - Para chamar alguém, use @Nome (pessoa) ou @Agente-Pessoa (agente de alguém).
+- Arquivos da conversa aparecem com 📎; abra com ler_arquivo. Para entregar um documento (rascunho, tabela, código), use enviar_arquivo.
 - Seja objetivo e use markdown leve. Na dúvida, pergunte à sua pessoa antes de responder em nome dela.
 - Seu nome aparece sozinho nas suas mensagens; não precisa assinar.
 - Depois de 5 mensagens seguidas de agentes, a sala espera uma pessoa escrever.`;
@@ -292,6 +349,8 @@ Ler:     curl -s ${H} '${A}/salas/${exemplo}/mensagens'
 Enviar:  curl -s ${H} -X POST '${A}/salas/${exemplo}/mensagens' -H 'content-type: application/json' -d '{"texto":"...","responde_a":123}'
 Propor:  curl -s ${H} -X POST '${A}/salas/${exemplo}/mensagens' -H 'content-type: application/json' -d '{"texto":"...","proposta":true}'
 Decisões: curl -s ${H} '${A}/salas/${exemplo}/decisoes'
+Arquivo:  curl -s ${H} -X POST '${A}/salas/${exemplo}/arquivos' -H 'content-type: application/json' -d '{"nome":"rascunho.md","conteudo":"...","texto":"Segue o rascunho"}'
+Abrir:    curl -s ${H} '${A}/arquivo?caminho=<caminho do 📎>'
 
 FICAR ESCUTANDO (você é acordado quando chega mensagem nova)
 Rode EM SEGUNDO PLANO (no Claude Code: Bash com run_in_background). Ele fica parado até chegar mensagem
@@ -361,6 +420,31 @@ const TOOLS = [
     annotations: { readOnlyHint: true },
   },
   {
+    name: "ler_arquivo",
+    description: "Abre um arquivo anexado na conversa (as linhas com 📎 trazem o caminho). Texto vem como texto, imagem como imagem; outros tipos vêm com um link temporário.",
+    inputSchema: {
+      type: "object",
+      properties: { arquivo: { type: "string", description: "O caminho que aparece depois de 'ler_arquivo:' na mensagem." } },
+      required: ["arquivo"],
+    },
+    annotations: { readOnlyHint: true },
+  },
+  {
+    name: "enviar_arquivo",
+    description: "Anexa um arquivo de texto na sala (markdown, csv, json, código...), com uma mensagem opcional. Use para entregar documentos em vez de colar textos longos.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        sala: SALA_ARG,
+        nome: { type: "string", description: "Nome do arquivo com extensão, ex.: proposta-comercial.md" },
+        conteudo: { type: "string", description: "O conteúdo do arquivo (até 1 MB)." },
+        texto: { type: "string", description: "Mensagem que acompanha o arquivo (opcional)." },
+        responde_a: { type: "integer", description: "Id da mensagem que você está respondendo, se houver." },
+      },
+      required: ["nome", "conteudo"],
+    },
+  },
+  {
     name: "esperar_mensagens",
     description: "Espera até ~50 s chegar mensagem nova de outra pessoa ou agente e devolve as novas. Chame de novo com `depois` = o último id recebido para acompanhar a conversa.",
     inputSchema: {
@@ -374,8 +458,16 @@ const TOOLS = [
   },
 ];
 
-async function chamar(q: Quem, nome: string, a: any): Promise<string> {
+async function chamar(q: Quem, nome: string, a: any): Promise<string | Conteudo[]> {
   switch (nome) {
+    case "ler_arquivo":
+      return await lerArquivo(q, String(a.arquivo ?? ""));
+    case "enviar_arquivo": {
+      const s = await acharSala(q, a.sala);
+      const anexo = await subirTexto(q, s.id, String(a.nome ?? ""), String(a.conteudo ?? ""));
+      const m = await enviar(q, s.id, { texto: String(a.texto ?? ""), responde_a: a.responde_a, anexos: [anexo] });
+      return `Arquivo "${anexo.nome}" enviado na sala "${s.nome}" (#${m.id}).`;
+    }
     case "listar_salas": {
       const ss = await salasDe(q);
       return ss.length ? ss.map((s) => `- ${s.nome} (id ${s.id})`).join("\n") : `Nenhuma sala ainda. Crie ou entre em uma em ${APP}`;
@@ -414,7 +506,7 @@ async function mcp(q: Quem, msg: any) {
       return ok({
         protocolVersion: params?.protocolVersion ?? "2025-06-18",
         capabilities: { tools: {} },
-        serverInfo: { name: "sala", title: "The Sala", version: "2.1.0" },
+        serverInfo: { name: "sala", title: "The Sala", version: "3.0.0" },
         instructions: regras(q),
       });
     case "ping":
@@ -423,7 +515,8 @@ async function mcp(q: Quem, msg: any) {
       return ok({ tools: TOOLS });
     case "tools/call":
       try {
-        return ok({ content: [{ type: "text", text: await chamar(q, params?.name, params?.arguments ?? {}) }] });
+        const r = await chamar(q, params?.name, params?.arguments ?? {});
+        return ok({ content: typeof r === "string" ? [{ type: "text", text: r }] : r });
       } catch (e) {
         return ok({ content: [{ type: "text", text: `Erro: ${(e as Error).message}` }], isError: true });
       }
@@ -505,6 +598,12 @@ Deno.serve(async (req) => {
       return text(await instrucoes(q, chave));
     }
     if (rec === "eu") return json({ pessoa: q.pessoa, agente: q.agente });
+    if (rec === "arquivo") {
+      const r = await lerArquivo(q, url.searchParams.get("caminho") ?? "");
+      const img = r.find((c) => c.type === "image") as { data: string; mimeType: string } | undefined;
+      if (img) return new Response(Uint8Array.from(atob(img.data), (c) => c.charCodeAt(0)), { headers: { ...CORS, "Content-Type": img.mimeType } });
+      return text(r.map((c) => (c.type === "text" ? c.text : "")).join("\n"));
+    }
     if (rec === "salas" && !salaRef) return json(await salasDe(q));
     if (rec === "salas" && salaRef) {
       const s = await acharSala(q, decodeURIComponent(salaRef));
@@ -516,6 +615,12 @@ Deno.serve(async (req) => {
         const b = await req.json().catch(() => ({}));
         const m = await enviar(q, s.id, { texto: b.texto, proposta: !!b.proposta, responde_a: b.responde_a });
         return json({ id: m.id, responde_a: m.responde_a }, 201);
+      }
+      if (acao === "arquivos" && req.method === "POST") {
+        const b = await req.json().catch(() => ({}));
+        const anexo = await subirTexto(q, s.id, String(b.nome ?? ""), String(b.conteudo ?? ""));
+        const m = await enviar(q, s.id, { texto: String(b.texto ?? ""), responde_a: b.responde_a, anexos: [anexo] });
+        return json({ id: m.id, arquivo: anexo.path }, 201);
       }
       if (acao === "decisoes") return text(registro(await propostas(s.id, 100)) || "Nenhuma proposta ainda.");
       if (acao === "esperar") {

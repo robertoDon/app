@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "../App";
 import { Layout, useSalas } from "../components/Layout";
 import { Bolha, Evento, type Citacao } from "../components/Bolha";
@@ -11,9 +11,9 @@ import { Busca } from "../components/Busca";
 import { Avisos } from "../components/Avisos";
 import { handle } from "../components/Texto";
 import {
-  IconeAjustes, IconeAgente, IconeBusca, IconeCheck, IconeColunas, IconeConvite, IconeDecisao, IconePlugue, IconeProposta, IconeVoltar,
+  IconeAjustes, IconeAgente, IconeBusca, IconeCheck, IconeClipe, IconeColunas, IconeConvite, IconeDecisao, IconePlugue, IconeProposta, IconeVoltar,
 } from "../components/Icones";
-import { abrirConectar, copiarTexto, presenca, sb, ultimaSala, type Agente, type Membro, type Mensagem } from "../supabase";
+import { abrirConectar, copiarTexto, presenca, sb, subirArquivo, ultimaSala, type Agente, type Anexo, type Membro, type Mensagem } from "../supabase";
 
 const hora = (iso: string) => new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 const completo = (iso: string) => new Date(iso).toLocaleString("pt-BR", { dateStyle: "long", timeStyle: "short" });
@@ -34,6 +34,7 @@ type Painel = null | "ajustes" | "contexto" | "decisoes" | "busca";
 
 export default function SalaPage() {
   const { id = "" } = useParams();
+  const [busca, setBusca] = useSearchParams();
   const { sessao, perfil } = useAuth();
   const eu = sessao!.user.id;
   const { salas, recarregar } = useSalas();
@@ -61,6 +62,9 @@ export default function SalaPage() {
   const rolarPara = useRef<number | null>(null);
   const salaAtual = useRef(id); // respostas atrasadas de outra sala são ignoradas
   const longe = useRef(false);  // vendo uma janela antiga: o que chega ao vivo não entra no meio
+  const marco = useRef<{ sala: string; ate: number } | null>(null); // até onde você tinha lido ao abrir a sala
+  const [arrastando, setArrastando] = useState(false);
+  if (sala && marco.current?.sala !== id) marco.current = { sala: id, ate: Number(sala.lido_ate ?? 0) };
 
   const nomes = useMemo(() => new Map(membros.map((m) => [m.user_id, m.perfis?.nome ?? "Alguém"])), [membros]);
   const nome = useCallback((uid: string | null) => (uid && nomes.get(uid)) || "Alguém", [nomes]);
@@ -109,7 +113,12 @@ export default function SalaPage() {
     setTemAnteriores(d.length === PAGINA);
     setTemPosteriores(false); longe.current = false;
     noFim.current = true;
-    setMsgs([...mapa.values()].sort((a, b) => a.id - b.id));
+    const todas = [...mapa.values()].sort((a, b) => a.id - b.id);
+    // muitas novas: abre no começo delas, não no fim
+    const ate = marco.current?.sala === sid ? marco.current.ate : 0;
+    const novas = ate ? todas.filter((m) => m.id > ate && !(m.user_id === eu && !m.agente)) : [];
+    if (novas.length > 6) { rolarPara.current = -1; noFim.current = false; }
+    setMsgs(todas);
   }, []);
 
   useEffect(() => {
@@ -157,7 +166,7 @@ export default function SalaPage() {
     const reserva = window.setTimeout(primeira, 4000);
     const t = window.setInterval(() => setRelogio((n) => n + 1), 60_000);
     return () => { sb.removeChannel(canal); window.clearInterval(t); window.clearTimeout(reserva); };
-  }, [id, carregarRecentes]);
+  }, [id, carregarRecentes]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const atualizarPresenca = (a: Agente) =>
     setPresencas((ps) => [...ps.filter((x) => !(x.user_id === a.user_id && x.nome === a.nome)), a]);
@@ -167,6 +176,11 @@ export default function SalaPage() {
     const f = feed.current;
     if (!f) return;
     if (manterRolagem.current !== null) { f.scrollTop = f.scrollHeight - manterRolagem.current; manterRolagem.current = null; return; }
+    if (rolarPara.current === -1) {
+      rolarPara.current = null;
+      const alvo = document.getElementById("novas");
+      if (alvo) { alvo.scrollIntoView({ block: "start" }); return; }
+    }
     if (rolarPara.current !== null) {
       const alvo = document.getElementById(`m${rolarPara.current}`);
       rolarPara.current = null;
@@ -179,7 +193,7 @@ export default function SalaPage() {
   useEffect(() => {
     const marcar = () => {
       const ultimo = msgs?.reduce((n, m) => (m.id > n ? m.id : n), 0) ?? 0;
-      if (document.hidden || !ultimo || ultimo <= lido.current) return;
+      if (document.hidden || !ultimo || ultimo <= lido.current || marco.current?.sala !== id) return;
       lido.current = ultimo;
       sb.rpc("marcar_lida", { sala: id, ate: ultimo }).then(() => recarregar());
     };
@@ -187,6 +201,11 @@ export default function SalaPage() {
     document.addEventListener("visibilitychange", marcar);
     return () => document.removeEventListener("visibilitychange", marcar);
   }, [msgs, id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // sala recém-criada de um modelo: abre o contexto para completar
+  useEffect(() => {
+    if (busca.get("contexto") && sala) { setPainel("contexto"); setBusca({}, { replace: true }); }
+  }, [busca, sala]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // atalhos: / busca, D decisões
   useEffect(() => {
@@ -237,7 +256,7 @@ export default function SalaPage() {
 
   const mandar = async (temp: Mensagem) => {
     const { data, error } = await sb.from("mensagens")
-      .insert({ sala_id: id, user_id: eu, texto: temp.texto, tipo: temp.tipo, estado: temp.estado, responde_a: temp.responde_a })
+      .insert({ sala_id: id, user_id: eu, texto: temp.texto, tipo: temp.tipo, estado: temp.estado, responde_a: temp.responde_a, anexos: temp.anexos })
       .select("*").single();
     setMsgs((a) => {
       if (!a) return a;
@@ -247,13 +266,13 @@ export default function SalaPage() {
     });
   };
 
-  const enviar = (texto: string, proposta: boolean) => {
+  const enviar = (texto: string, proposta: boolean, anexos: Anexo[]) => {
     if (longe.current) carregarRecentes(id);
     noFim.current = true;
     const temp: Mensagem = {
       id: -Date.now(), sala_id: id, user_id: eu, agente: null, texto, criada_em: new Date().toISOString(),
       tipo: proposta ? "proposta" : "mensagem", estado: proposta ? "pendente" : null, responde_a: respondendo?.id ?? null,
-      decidida_por: null, decidida_em: null, editada_em: null, apagada: false, pendente: true,
+      decidida_por: null, decidida_em: null, editada_em: null, apagada: false, anexos, pendente: true,
     };
     setRespondendo(null);
     setMsgs((a) => [...(a ?? []), temp]);
@@ -285,7 +304,9 @@ export default function SalaPage() {
     if (!confirm(`Apagar esta mensagem ${de}? O texto some para todos, pessoas e agentes.`)) return;
     const { error } = await sb.rpc("apagar_mensagem", { mensagem: m.id });
     if (error) return alert(error.message);
-    setMsgs((a) => a?.map((x) => (x.id === m.id ? { ...x, apagada: true, texto: "Mensagem apagada." } : x)) ?? a);
+    const meus = (m.anexos ?? []).map((a) => a.path).filter((p) => p.split("/")[1] === eu);
+    if (meus.length) sb.storage.from("arquivos").remove(meus);
+    setMsgs((a) => a?.map((x) => (x.id === m.id ? { ...x, apagada: true, texto: "Mensagem apagada.", anexos: [] } : x)) ?? a);
   };
 
   const responder = (m: Mensagem) => {
@@ -325,10 +346,28 @@ export default function SalaPage() {
   };
   const comparando = comparar !== null ? porId.get(comparar) : undefined;
 
+  // "enquanto você esteve fora": onde começam as novas e o que pede a sua atenção
+  const ateMarco = marco.current?.sala === id ? marco.current.ate : 0;
+  const novas = ateMarco && msgs ? msgs.filter((m) => m.id > ateMarco && !(m.user_id === eu && !m.agente) && m.id > 0) : [];
+  const primeiraNova = novas[0]?.id;
+  const chamaram = novas.filter((m) => !m.apagada && [...m.texto.matchAll(/@[\p{L}\p{N}_]+(?:-[\p{L}\p{N}_]+)?/gu)].some((x) => chamaMim(x[0]))).length;
+  const paraDecidir = novas.filter((m) => m.tipo === "proposta" && m.estado === "pendente").length;
+  const decididas = novas.filter((m) => m.tipo === "decisao").length;
+  const resumo = novas.length ? [
+    `${novas.length} ${novas.length === 1 ? "nova" : "novas"} desde a sua última visita`,
+    chamaram && `chamaram você ${chamaram}×`,
+    paraDecidir && `${paraDecidir} ${paraDecidir === 1 ? "proposta" : "propostas"} para decidir`,
+    decididas && `${decididas} ${decididas === 1 ? "decisão" : "decisões"}`,
+  ].filter(Boolean).join(" · ") : "";
+
   return (
     <Layout salas={salas} recarregar={recarregar} foco>
       <div className="sala">
-        <div className="sala-principal">
+        <div className={`sala-principal ${arrastando ? "arrastando" : ""}`}
+          onDragOver={(e) => { if (e.dataTransfer.types.includes("Files")) { e.preventDefault(); setArrastando(true); } }}
+          onDragLeave={(e) => { if (e.currentTarget === e.target || !e.currentTarget.contains(e.relatedTarget as Node)) setArrastando(false); }}
+          onDrop={(e) => { if (e.dataTransfer.files.length) { e.preventDefault(); compor.current?.anexar([...e.dataTransfer.files]); } setArrastando(false); }}>
+          {arrastando && <div className="solte" aria-hidden><IconeClipe /> Solte para anexar</div>}
           <header className="sala-topo">
             <Link to="/" className="btn-icone so-celular" aria-label="Voltar para as salas"><IconeVoltar /></Link>
             <div className="sala-titulo">
@@ -397,11 +436,15 @@ export default function SalaPage() {
             {msgs?.map((m, i) => {
               const ant = msgs[i - 1];
               const novoDia = !ant || new Date(ant.criada_em).toDateString() !== new Date(m.criada_em).toDateString();
+              const marcoAqui = m.id === primeiraNova && resumo ? (
+                <div className="novas" id="novas" role="separator" aria-label="Novas desde a sua última visita"><span>{resumo}</span></div>
+              ) : null;
               if (m.tipo === "decisao") {
                 const p = m.responde_a ? porId.get(m.responde_a) : undefined;
                 return (
                   <div key={m.id} className="msg-bloco">
                     {novoDia && <div className="dia" role="separator"><span>{dia(m.criada_em)}</span></div>}
+                    {marcoAqui}
                     <Evento m={m} quem={m.user_id === eu ? "Você" : nome(m.user_id)} de={p ? autor(p) : ""} quando={hora(m.criada_em)} irPara={irPara} />
                   </div>
                 );
@@ -418,6 +461,7 @@ export default function SalaPage() {
               return (
                 <div key={m.id} className="msg-bloco">
                   {novoDia && <div className="dia" role="separator"><span>{dia(m.criada_em)}</span></div>}
+                  {marcoAqui}
                   <Bolha m={m} nome={nome(m.user_id)} quando={hora(m.criada_em)} quandoCompleto={completo(m.criada_em)}
                     minha={minhaPessoa} continua={continua} chamaMim={chamaMim} destaque={destaque === m.id}
                     decisor={m.decidida_por ? (m.decidida_por === eu ? "você" : nome(m.decidida_por)) : undefined}
@@ -456,7 +500,7 @@ export default function SalaPage() {
           {temPosteriores && (
             <div className="anteriores"><button className="btn btn-pequeno" onClick={() => carregarRecentes(id)}>Ir para as mensagens mais recentes</button></div>
           )}
-          <Compor key={id} ref={compor} sugestoesBase={sugestoes} respondendo={respondendo} cancelarResposta={() => setRespondendo(null)} enviar={enviar} />
+          <Compor key={id} ref={compor} subir={(f) => subirArquivo(id, eu, f)} sugestoesBase={sugestoes} respondendo={respondendo} cancelarResposta={() => setRespondendo(null)} enviar={enviar} />
         </div>
 
         {(painel === "ajustes" || painel === "contexto") && sala && (

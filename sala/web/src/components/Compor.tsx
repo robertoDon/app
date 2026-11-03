@@ -1,26 +1,46 @@
 import { forwardRef, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { handle } from "./Texto";
-import { IconeAgente, IconeEnviar, IconeFechar, IconeProposta, IconeResponder } from "./Icones";
+import { IconeAgente, IconeArquivo, IconeClipe, IconeEnviar, IconeFechar, IconeProposta, IconeResponder } from "./Icones";
 import type { Citacao } from "./Bolha";
+import { tamanhoLegivel, type Anexo } from "../supabase";
+
+type Subindo = { id: string; nome: string; tamanho: number; previa?: string; anexo?: Anexo; erro?: string };
 
 export type Sugestao = { handle: string; rotulo: string; agente?: boolean };
-export type ComporApi = { focar: () => void; inserir: (t: string) => void };
+export type ComporApi = { focar: () => void; inserir: (t: string) => void; anexar: (fs: File[]) => void };
 
 type Props = {
   sugestoesBase: Sugestao[];
   respondendo: Citacao;
   cancelarResposta: () => void;
-  enviar: (texto: string, proposta: boolean) => void;
+  enviar: (texto: string, proposta: boolean, anexos: Anexo[]) => void;
+  subir: (f: File) => Promise<Anexo>;
 };
 
 // Barra de escrever: @menção com sugestões, responder a uma mensagem e "fazer proposta".
-export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBase, respondendo, cancelarResposta, enviar }, ref) {
+export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBase, respondendo, cancelarResposta, enviar, subir }, ref) {
   const [texto, setTexto] = useState("");
   const [proposta, setProposta] = useState(false);
   const [busca, setBusca] = useState<string | null>(null); // texto depois do @ que está sendo digitado
   const [escolha, setEscolha] = useState(0);
   const caixa = useRef<HTMLTextAreaElement>(null);
   const cursorPendente = useRef<number | null>(null);
+  const seletor = useRef<HTMLInputElement>(null);
+  const [arquivos, setArquivos] = useState<Subindo[]>([]);
+  const enviando = arquivos.some((a) => !a.anexo && !a.erro);
+  const prontos = arquivos.filter((a) => a.anexo).map((a) => a.anexo!);
+
+  const anexar = (fs: File[]) => {
+    const novos = fs.slice(0, 10 - arquivos.length).map((f) => ({
+      id: crypto.randomUUID(), nome: f.name || "arquivo", tamanho: f.size,
+      previa: f.type.startsWith("image/") ? URL.createObjectURL(f) : undefined, f,
+    }));
+    setArquivos((a) => [...a, ...novos.map(({ f: _f, ...x }) => x)]); // eslint-disable-line @typescript-eslint/no-unused-vars
+    novos.forEach(({ id, f }) => subir(f)
+      .then((anexo) => setArquivos((a) => a.map((x) => (x.id === id ? { ...x, anexo } : x))))
+      .catch((e) => setArquivos((a) => a.map((x) => (x.id === id ? { ...x, erro: (e as Error).message } : x)))));
+    caixa.current?.focus();
+  };
 
   const ajustarAltura = () => {
     const c = caixa.current;
@@ -28,13 +48,14 @@ export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBa
   };
 
   useImperativeHandle(ref, () => ({
+    anexar,
     focar: () => caixa.current?.focus(),
     inserir: (t: string) => {
       const novo = texto && !texto.endsWith(" ") ? `${texto} ${t}` : texto + t;
       cursorPendente.current = novo.length;
       setTexto(novo);
     },
-  }), [texto]);
+  }), [texto, arquivos]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // depois de escolher uma @menção, o cursor vai para logo depois dela, no mesmo ciclo da tela
   useLayoutEffect(() => {
@@ -70,9 +91,10 @@ export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBa
 
   const mandar = () => {
     const t = texto.trim();
-    if (!t) return;
-    enviar(t, proposta);
-    setTexto(""); setBusca(null); setProposta(false);
+    if ((!t && !prontos.length) || enviando) return;
+    enviar(t, proposta, prontos);
+    arquivos.forEach((a) => a.previa && URL.revokeObjectURL(a.previa));
+    setTexto(""); setBusca(null); setProposta(false); setArquivos([]);
   };
 
   return (
@@ -92,6 +114,19 @@ export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBa
       )}
 
       <div className={`compor-caixa ${proposta ? "compor-proposta" : ""}`} onClick={() => caixa.current?.focus()}>
+        {arquivos.length > 0 && (
+          <ul className="compor-arquivos" aria-label="Arquivos para enviar">
+            {arquivos.map((a) => (
+              <li key={a.id} className={a.erro ? "erro" : a.anexo ? "" : "subindo"} title={a.erro ?? a.nome}>
+                {a.previa ? <img src={a.previa} alt="" /> : <span className="anexo-icone" aria-hidden><IconeArquivo tamanho={16} /></span>}
+                <span className="anexo-info"><strong>{a.nome}</strong>
+                  <span className="nota">{a.erro ? "Não enviou" : a.anexo ? tamanhoLegivel(a.tamanho) : "Enviando…"}</span></span>
+                <button type="button" className="btn-acao" aria-label={`Tirar ${a.nome}`}
+                  onClick={(e) => { e.stopPropagation(); setArquivos((x) => x.filter((y) => y.id !== a.id)); }}><IconeFechar tamanho={14} /></button>
+              </li>
+            ))}
+          </ul>
+        )}
         {(respondendo || proposta) && (
           <div className="compor-topo">
             {respondendo && (
@@ -114,6 +149,7 @@ export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBa
             placeholder={proposta ? "O que você propõe? Diga o que muda." : "Escreva aqui · @ chama alguém"}
             onChange={(e) => { setTexto(e.target.value); acharBusca(e.target.value, e.target.selectionStart); }}
             onBlur={() => setBusca(null)}
+            onPaste={(e) => { const fs = [...e.clipboardData.files]; if (fs.length) { e.preventDefault(); anexar(fs); } }}
             onKeyDown={(e) => {
               if (sugestoes.length) {
                 if (e.key === "ArrowDown") { e.preventDefault(); setEscolha((i) => (i + 1) % sugestoes.length); return; }
@@ -124,12 +160,15 @@ export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBa
               if (e.key === "Escape" && (respondendo || proposta)) { e.preventDefault(); cancelarResposta(); setProposta(false); return; }
               if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); mandar(); }
             }} />
+          <input ref={seletor} type="file" multiple hidden onChange={(e) => { anexar([...(e.target.files ?? [])]); e.target.value = ""; }} />
+          <button type="button" className="btn-acao btn-clipe" title="Anexar arquivo (até 10 MB) · também dá para colar ou arrastar" aria-label="Anexar arquivo"
+            onClick={(e) => { e.stopPropagation(); seletor.current?.click(); }}><IconeClipe tamanho={18} /></button>
           <button type="button" className={`btn-acao btn-propor ${proposta ? "ativo" : ""}`} aria-pressed={proposta}
             onClick={(e) => { e.stopPropagation(); setProposta((v) => !v); caixa.current?.focus(); }}
             title={proposta ? "Voltar a mensagem comum" : "Fazer uma proposta: pedir que as pessoas aprovem ou recusem"}>
             <IconeProposta tamanho={18} /><span className="some-celular">{proposta ? "Proposta" : "Propor"}</span>
           </button>
-          <button className="btn-enviar" disabled={!texto.trim()} title={proposta ? "Propor (Enter)" : "Enviar (Enter)"} aria-label={proposta ? "Enviar proposta" : "Enviar"}>
+          <button className="btn-enviar" disabled={(!texto.trim() && !prontos.length) || enviando} title={proposta ? "Propor (Enter)" : "Enviar (Enter)"} aria-label={proposta ? "Enviar proposta" : "Enviar"}>
             <IconeEnviar tamanho={18} />
           </button>
         </div>

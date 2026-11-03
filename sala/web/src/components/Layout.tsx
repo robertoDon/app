@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../App";
 import { sb, type Sala } from "../supabase";
 import { IconeAgente, IconeMais, IconePlugue, IconeProposta, Marca } from "./Icones";
 import { Conectar } from "./Conectar";
 import { Conta } from "./Conta";
+import { NovaSala } from "./NovaSala";
 
 // Lista de salas com não lidas e prévia, ao vivo. Também mantém o contador na aba do navegador.
 export function useSalas() {
@@ -59,9 +60,7 @@ export function Layout({ children, salas, recarregar, foco }: {
 }) {
   const { perfil } = useAuth();
   const { id } = useParams();
-  const nav = useNavigate();
   const [criando, setCriando] = useState(false);
-  const [nome, setNome] = useState("");
   const [conectar, setConectar] = useState(false);
   const [conta, setConta] = useState(false);
 
@@ -78,15 +77,6 @@ export function Layout({ children, salas, recarregar, foco }: {
     return () => { window.removeEventListener("keydown", tecla); window.removeEventListener("sala:conectar", abrir); };
   }, []);
 
-  const criar = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!nome.trim()) return;
-    const sid = await novaSala(nome.trim());
-    setNome(""); setCriando(false);
-    recarregar();
-    nav(`/s/${sid}`);
-  };
-
   return (
     <div className={`app ${foco ? "app-foco" : ""}`}>
       <nav className="lateral" aria-label="Salas">
@@ -98,15 +88,6 @@ export function Layout({ children, salas, recarregar, foco }: {
             <IconeMais tamanho={18} />
           </button>
         </div>
-
-        {criando && (
-          <form className="nova-sala" onSubmit={criar}>
-            <label className="sr" htmlFor="nova">Nome da nova sala</label>
-            <input id="nova" autoFocus placeholder="Nome da sala e Enter" value={nome} maxLength={80}
-              onChange={(e) => setNome(e.target.value)} onBlur={() => !nome && setCriando(false)}
-              onKeyDown={(e) => e.key === "Escape" && setCriando(false)} />
-          </form>
-        )}
 
         <ul className="lista-salas">
           {salas === null && [0, 1, 2].map((i) => <li key={i} className="esqueleto" aria-hidden />)}
@@ -159,6 +140,7 @@ export function Layout({ children, salas, recarregar, foco }: {
 
       {conectar && <Conectar fechar={() => setConectar(false)} />}
       {conta && <Conta fechar={() => setConta(false)} />}
+      {criando && <NovaSala fechar={() => setCriando(false)} aoCriar={recarregar} />}
     </div>
   );
 }
