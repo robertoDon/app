@@ -1,4 +1,4 @@
-# Dalva
+# The Sala
 
 ## Git
 
