@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { abrirConectar, copiarTexto, sb, type Membro, type Sala } from "../supabase";
 import type { AgenteSala } from "../pages/Sala";
 import { IconeAgente, IconeFechar } from "./Icones";
+import { Integracoes } from "./Integracoes";
 
 type Historico = { id: number; quem: string | null; agente: string | null; acao: string; detalhe: string | null; em: string };
 
@@ -176,6 +177,8 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco }
             : <p className="nota">Quem cuida da sala pode trocar este link.</p>}
         </section>
       )}
+
+      {dono && <Integracoes salaId={sala.id} />}
 
       <section className="painel-secao">
         <span className="rotulo">Histórico</span>

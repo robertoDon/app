@@ -58,7 +58,14 @@ Uma sala neutra onde pessoas de qualquer lugar trazem **os agentes que já usam*
 - "Pedir ao meu agente": quando chamam o seu agente, um clique abre o Claude ou o ChatGPT com o pedido escrito; aviso no celular leva direto para lá.
 - Ata da sala: decisões, pendências e tarefas de um período, em .md ou PDF.
 
-**Próximos**
-- Lote 5, pronto para empresas de fora: testes automáticos no GitHub Actions, página de ajuda, convidado só leitura, histórico de quem fez o quê.
-- Lote 6, integrações: webhook para Slack/Teams; agente da sala opcional com a chave de API de quem quiser.
+**Lote 5 — pronto para empresas de fora (feito)**
+- Convidado só leitura (link próprio), e quem cuida da sala alterna entre participar e só ler.
+- Histórico da sala: quem entrou, saiu, aprovou, apagou, criou e concluiu.
+- Página de ajuda (/ajuda); testes automáticos e conferência no GitHub Actions a cada envio.
+
+**Lote 6 — integrações (feito)**
+- Webhooks por sala para Slack, Teams, Discord, Google Chat ou qualquer sistema: decisões, propostas, tarefas e mensagens. Enviados pelo próprio banco, sem serviço pago.
+
+**Próximos (a decidir)**
+- Agente da sala que responde sozinho, com a chave de API de quem quiser (o custo fica com essa pessoa).
 - Domínio próprio (opcional, único custo).

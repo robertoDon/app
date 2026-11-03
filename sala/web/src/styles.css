@@ -667,6 +667,15 @@ a.btn { text-decoration: none; }
 .historico time { flex: none; }
 .historico-detalhe { color: var(--cinza); overflow-wrap: anywhere; }
 
+.integracoes { list-style: none; margin: 0; padding: 0; width: 100%; }
+.integracoes li { display: flex; align-items: center; gap: 12px; min-height: 48px; border-top: 1px solid var(--linha); }
+.integracoes li:first-child { border-top: 0; }
+.eventos { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 16px; }
+.evento-opcao { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; font-size: var(--t1); cursor: pointer; }
+.evento-opcao input { min-height: 0; accent-color: var(--acento); }
+details.nota summary { cursor: pointer; }
+details.nota p { margin-top: 8px; }
+
 .ajuda { gap: 24px; }
 .ajuda-indice { display: flex; flex-wrap: wrap; gap: 8px; }
 .ajuda-indice a { padding: 4px 12px; border: 1px solid var(--linha); border-radius: 999px; font-size: var(--t1); }

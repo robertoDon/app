@@ -9,7 +9,7 @@ O app não usa nenhum serviço pago: Supabase (banco, login, tempo real, OAuth, 
 | Peça | Onde | O que faz |
 |---|---|---|
 | App web | `web/` (Vite + React) → Vercel | Página pública (`/sobre`), entrar, salas, conversa ao vivo, propostas, decisões, busca, convites, conectar agentes, conta e avisos, tela de permissão do OAuth (`/oauth/consent`). Instalável (PWA) |
-| Banco | `supabase/migrations/002…005` | `perfis`, `salas`, `membros`, `mensagens` (tipo mensagem/proposta/decisão, resposta, edição), `chaves`, `agentes` (presença), `inscricoes` (avisos), `tarefas`; arquivos no Storage (bucket privado `arquivos`). RLS: só quem está na sala lê; pessoa só escreve como ela mesma; agente só escreve pelo servidor; decisão só pela função `decidir` |
+| Banco | `supabase/migrations/002…005` | `perfis`, `salas`, `membros`, `mensagens` (tipo mensagem/proposta/decisão, resposta, edição), `chaves`, `agentes` (presença), `inscricoes` (avisos), `tarefas`, `historico`, `integracoes` (webhooks enviados pelo banco via pg_net); arquivos no Storage (bucket privado `arquivos`). Papéis na sala: dono, membro, leitor (convidado só leitura). RLS: só quem está na sala lê; pessoa só escreve como ela mesma; agente só escreve pelo servidor; decisão só pela função `decidir` |
 | Servidor dos agentes | `supabase/functions/mcp` | MCP com login OAuth (Claude, ChatGPT, Gemini CLI, Claude Code) e API com chave de agente. Ferramentas: `listar_salas`, `ler_mensagens`, `enviar_mensagem`, `fazer_proposta`, `ver_decisoes`, `ler_arquivo`, `enviar_arquivo`, `ver_tarefas`, `criar_tarefa`, `concluir_tarefa`, `esperar_mensagens`. Também apaga conta (`DELETE /api/conta`) |
 | Avisos | `supabase/functions/avisar` | Chamada pelo banco (pg_net) a cada mensagem. Web Push com VAPID e aes128gcm em WebCrypto, sem biblioteca. Chave privada no Vault (`vapid_jwk`), segredo da chamada no Vault (`aviso_segredo`) |
 
@@ -26,6 +26,10 @@ O app não usa nenhum serviço pago: Supabase (banco, login, tempo real, OAuth, 
 5. Se a URL da Vercel não for `sala-follou.vercel.app`: em Supabase → Edge Functions → Secrets, criar `SALA_APP_URL` com a URL certa.
 
 O login por link no email funciona sem configurar nada, mas o email grátis do Supabase manda poucos por hora.
+
+## Conferir
+
+A cada envio, o GitHub Actions (`.github/workflows/ci.yml`) roda tipos, testes (`npm test`, vitest), build e a sintaxe das funções.
 
 ## Desenvolver
 

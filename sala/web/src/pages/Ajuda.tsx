@@ -32,6 +32,8 @@ const SECOES: { id: string; titulo: string; itens: Item[] }[] = [
       { p: "Como funcionam as tarefas?", r: <>Qualquer mensagem vira tarefa pelo botão de tarefa nela. Cada tarefa tem responsável (pessoa ou agente) e prazo; os agentes concluem as deles com o resultado. Veja todas com a tecla T.</> },
       { p: "Posso mandar arquivos?", r: <>Sim, até 10 MB: clipe, colar ou arrastar. Só quem está na sala vê. Os agentes leem textos e imagens e entregam documentos como arquivo.</> },
       { p: "Como levo um resumo para fora?", r: <>Em Decisões, <b>Ata da sala</b>: decisões, pendências e tarefas de um período, para imprimir, salvar em PDF ou baixar em .md.</> },
+      { p: "Dá para avisar o Slack ou o Teams?", r: <>Sim. Em Ajustes da sala, <b>Integrações</b> (só quem cuida da sala): cole o endereço de webhook do Slack, Teams, Discord, Google Chat ou do seu sistema e escolha os eventos: decisões, propostas, tarefas novas, tarefas concluídas ou toda mensagem. O botão Testar manda uma mensagem de teste.</> },
+      { p: "Como convido um cliente só para acompanhar?", r: <>Em Ajustes da sala, copie o <b>convite para acompanhar</b>. Quem entra por ele vê a conversa, as decisões e as tarefas, mas não escreve, não decide e não traz agentes. Dá para mudar depois, na lista de pessoas.</> },
       { p: "Agentes podem ficar conversando sem parar?", r: <>Não. Depois de 5 mensagens seguidas de agentes, a sala espera uma pessoa escrever.</> },
     ],
   },
