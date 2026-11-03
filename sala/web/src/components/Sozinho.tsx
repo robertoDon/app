@@ -104,21 +104,40 @@ export function Sozinho() {
             <button className="btn btn-pequeno" onClick={testar} disabled={indo}>{t("Testar", "Test")}</button>
             <button className="btn btn-pequeno" onClick={desligar} disabled={indo}>{t("Desligar", "Turn off")}</button>
           </div>
+          <p className="nota">{en
+            ? <>Write <code>@Claude</code> in a room and the answer arrives in about a minute. If it doesn't, open <a className="link" href="https://claude.ai/code/routines" target="_blank" rel="noopener noreferrer">claude.ai/code/routines</a> → <b>The Sala</b> → latest run to see what happened.</>
+            : <>Escreva <code>@Claude</code> numa sala e a resposta chega em cerca de 1 minuto. Se não chegar, abra <a className="link" href="https://claude.ai/code/routines" target="_blank" rel="noopener noreferrer">claude.ai/code/routines</a> → <b>The Sala</b> → última execução para ver o que houve.</>}</p>
           {ligado.ultimo_status === 401 || ligado.ultimo_status === 404 ? (
             <p className="nota">{t("A chave não vale mais (a tarefa foi apagada ou gerou chave nova). Desligue e ligue de novo com a chave atual.", "The key is no longer valid (the task was deleted or a new key was generated). Turn it off and on again with the current key.")}</p>
           ) : null}
         </div>
       ) : (
         <>
-          <ol className="passos">
-            <li>{en ? <>First connect Claude to The Sala (steps above).</> : <>Primeiro conecte o Claude ao The Sala (passos acima).</>}</li>
+          <ol className="passos passos-sozinho">
+            <li>{en
+              ? <><b>Connect Claude to The Sala first</b> (steps above). The task uses that connector.</>
+              : <><b>Conecte o Claude ao The Sala antes</b> (passos acima). A tarefa usa esse conector.</>}</li>
             <li>{en ? <>Open </> : <>Abra </>}<a className="link" href="https://claude.ai/code/routines" target="_blank" rel="noopener noreferrer">claude.ai/code/routines <IconeAbrir tamanho={14} /></a>
-              {en ? <> and create a <b>new task</b> named <b>The Sala</b>.</> : <> e crie uma <b>nova tarefa</b> com o nome <b>The Sala</b>.</>}</li>
-            <li>{en ? <>In <b>Instructions</b>, paste this text:</> : <>Em <b>Instruções</b>, cole este texto:</>}{" "}
+              {en ? <> (<b>Scheduled tasks</b>) and click <b>New task</b>.</> : <> (<b>Tarefas agendadas</b>) e clique em <b>Nova tarefa</b>.</>}</li>
+            <li>{en
+              ? <>In the instructions box, paste this text. Leave <b>Auto</b> and <b>Default model</b> as they are.</>
+              : <>Na caixa de instruções, cole este texto. Deixe <b>Auto</b> e <b>Modelo padrão</b> como estão.</>}{" "}
               <Copiar valor={instrucaoTarefa()} rotulo={t("Copiar instruções", "Copy instructions")} /></li>
-            <li>{en ? <>In <b>Connectors</b>, keep <b>The Sala</b> and remove the others. You don't need a repository.</> : <>Em <b>Conectores</b>, deixe o <b>The Sala</b> e tire os outros. Não precisa de repositório.</>}</li>
-            <li>{en ? <>In <b>Select a trigger</b>, choose <b>API</b> and click <b>Create</b>. Copy the <b>URL</b> and the <b>token</b> it shows (the token appears only once).</> : <>Em <b>Gatilho</b>, escolha <b>API</b> e clique em <b>Criar</b>. Copie a <b>URL</b> e o <b>token</b> que aparecem (o token só aparece uma vez).</>}</li>
-            <li>{en ? <>Paste both here:</> : <>Cole os dois aqui:</>}</li>
+            <li>{en
+              ? <>In <b>Trigger</b>, switch <b>Schedule</b> to <b>API</b>. If a time shows up (like “Daily 09:00”), remove that line: the task should only run when The Sala calls it.</>
+              : <>Em <b>Acionamento</b>, troque <b>Agendamento</b> por <b>API</b>. Se aparecer um horário (tipo “Diariamente 09:00”), apague essa linha: a tarefa só deve rodar quando a Sala chamar.</>}</li>
+            <li>{en ? <>Open <b>Advanced settings</b>:</> : <>Abra <b>Configurações avançadas</b>:</>}
+              <ul>
+                <li>{en
+                  ? <><b>General</b>: leave <b>Repository</b> and <b>Project</b> as “None”. If <b>API</b> doesn't show up in the trigger list, pick any of your repositories here; Claude won't touch it.</>
+                  : <><b>Geral</b>: deixe <b>Repositório</b> e <b>Projeto</b> em “Nenhuma seleção”. Se <b>API</b> não aparecer no Acionamento, escolha qualquer repositório seu aqui; o Claude não mexe nele.</>}</li>
+                <li>{en ? <><b>Connectors</b>: keep only <b>The Sala</b>.</> : <><b>Conectores</b>: deixe só o <b>The Sala</b>.</>}</li>
+                <li>{en ? <><b>Notifications</b>: turn off if you don't want an alert after every reply.</> : <><b>Notificações</b>: desligue se não quiser um aviso a cada resposta.</>}</li>
+              </ul></li>
+            <li>{en
+              ? <>Click <b>Create</b>. A window shows the <b>URL</b> (ends in <code>/fire</code>) and the <b>token</b> (starts with <code>sk-ant-oat01-</code>). Copy both before closing: the token is shown only once. Lost it? Open the task, <b>Edit</b>, and click <b>Generate token</b> on the API trigger.</>
+              : <>Clique em <b>Criar</b>. Abre uma janela com a <b>URL</b> (termina em <code>/fire</code>) e o <b>token</b> (começa com <code>sk-ant-oat01-</code>). Copie os dois antes de fechar: o token só aparece uma vez. Perdeu? Abra a tarefa, clique em <b>Editar</b> e em <b>Gerar token</b> no acionamento API.</>}</li>
+            <li>{en ? <>Paste both below and click <b>Turn on and test</b>.</> : <>Cole os dois aqui embaixo e clique em <b>Ligar e testar</b>.</>}</li>
           </ol>
           <form className="sozinho-form" onSubmit={ligar}>
             <label htmlFor="sozinho-url">{t("URL do gatilho", "Trigger URL")}</label>

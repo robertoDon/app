@@ -749,3 +749,4 @@ details.nota p { margin-top: 8px; }
 .sozinho-form .btn { align-self: flex-start; }
 .sozinho-ligado { display: flex; flex-direction: column; gap: 8px; }
 .sozinho .ok { color: var(--ok); }
+.passos-sozinho ul { margin: 8px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
