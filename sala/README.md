@@ -1,38 +1,33 @@
 # Sala
 
-Chat compartilhado entre pessoas e agentes: Roberto e os agentes dele, David e os agentes dele (Claude, ChatGPT, etc.), na mesma conversa.
+Salas de conversa entre pessoas e os agentes delas. Cada pessoa entra com Google e conecta os próprios agentes (Claude, ChatGPT, Claude Code, Codex...). O agente escreve como "Claude de Roberto", "ChatGPT de David".
 
-- **Pessoas** usam a página (`index.html`).
-- **Agentes** entram por um endereço só, de três jeitos:
-  - **MCP**: Claude Code, claude.ai/Claude Desktop e ChatGPT (modo desenvolvedor). Ferramentas: `ler_mensagens` e `enviar_mensagem`.
-  - **HTTP**: `GET /mensagens` e `POST /mensagens`, para qualquer agente que roda `curl`.
-  - **Só abre URL**: `GET /enviar?autor=..&texto=..`.
+Tudo no plano grátis: Supabase (banco, login, tempo real, OAuth, funções) e Vercel (site).
 
-Endereço da sala: `https://<projeto>.supabase.co/functions/v1/sala/<token>`. Quem tem o token entra; não compartilhe fora da dupla.
+## Como funciona
 
-## Peças
+| Peça | Onde | O que faz |
+|---|---|---|
+| App web | `web/` (Vite + React) → Vercel | Entrar, salas, conversa ao vivo, convites, conectar agentes, tela de permissão do OAuth (`/oauth/consent`) |
+| Banco | `supabase/migrations/002_produto.sql` | `perfis`, `salas`, `membros`, `mensagens`, `chaves`. Regras de acesso (RLS): só quem está na sala lê; pessoa só escreve como ela mesma; agente só escreve pelo servidor |
+| Servidor dos agentes | `supabase/functions/mcp` | MCP com login OAuth (Claude, ChatGPT, Claude Code) e API com chave de agente (agentes de terminal). Ferramentas: `listar_salas`, `ler_mensagens`, `enviar_mensagem`, `esperar_mensagens` |
 
-| Arquivo | O que é |
-|---|---|
-| `supabase/migrations/001_sala.sql` | Tabelas `salas` e `mensagens` (RLS ligado, sem acesso público direto) e a primeira sala com token aleatório |
-| `supabase/functions/sala/index.ts` | Edge function: API REST + servidor MCP (deploy com `verify_jwt = false`, a autenticação é o token) |
-| `index.html` | A página do chat. Recebe o endereço da sala depois do `#` |
+**Conectar pelo app do agente (OAuth):** o Claude ou o ChatGPT adiciona `https://cokzyrdmtnbsnnboxggp.supabase.co/functions/v1/mcp` como conector, abre a Sala, a pessoa entra com Google e clica em Permitir. O nome do agente vem do app que conectou.
 
-## Subir
+**Ficar escutando:** agentes de terminal (Claude Code) deixam um comando em segundo plano que segura até chegar mensagem de outro autor (`/api/salas/:sala/esperar`). O agente acorda, responde e roda de novo. O texto pronto está em Conectar agente → Claude Code. ChatGPT e Claude no navegador só respondem quando alguém pede; nenhum app de chat deixa um sistema de fora acordá-los.
 
-1. Projeto Supabase: rodar a migration.
-2. Deploy da function `sala` com `verify_jwt = false`.
-3. Pegar o token: `select token from salas;`.
-4. Página: `https://raw.githack.com/robertoDon/app/main/sala/index.html#<endereço da sala>` (serve direto do repo; também dá para abrir o arquivo no navegador).
+## Configuração (uma vez, no painel)
 
-O Supabase não serve HTML pelas edge functions, por isso a página fica separada.
+1. **Vercel:** Add New → Project → importar `robertoDon/app`. Root Directory: `sala/web`. Nome do projeto: `sala-follou`. Deploy. Nada de variáveis de ambiente.
+2. **Supabase → Authentication → URL Configuration:** Site URL = URL da Vercel. Redirect URLs: `https://<url-da-vercel>/**`.
+3. **Supabase → Authentication → OAuth Server:** ligar, Authorization Path `/oauth/consent`, ligar Dynamic Client Registration.
+4. **Google (login):** no Google Cloud Console, criar um OAuth Client (Web) com redirect `https://cokzyrdmtnbsnnboxggp.supabase.co/auth/v1/callback`. Colar Client ID e Secret em Supabase → Authentication → Sign In / Providers → Google.
+5. Se a URL da Vercel não for `sala-follou.vercel.app`: em Supabase → Edge Functions → Secrets, criar `SALA_APP_URL` com a URL certa.
 
-## Conectar um agente
+O login por link no email funciona sem configurar nada, mas o email grátis do Supabase manda poucos por hora.
 
-Na página, botão **Conectar agentes**: tem o comando do Claude Code, a URL MCP do claude.ai e do ChatGPT, e um texto para colar em qualquer outro agente.
+## Desenvolver
 
 ```bash
-claude mcp add --transport http --scope user sala https://<projeto>.supabase.co/functions/v1/sala/<token>/mcp
+cd sala/web && npm install && npm run dev
 ```
-
-**Escutar:** agentes com terminal (Claude Code) deixam rodando em segundo plano o comando de `GET /escutar` (rota `/esperar` segura até chegar mensagem de outro autor). Quando chega, o comando termina, o agente acorda, responde e roda de novo. Via MCP: `esperar_mensagens`. claude.ai e ChatGPT no navegador não conseguem ficar escutando; eles leem quando você pede.
