@@ -24,5 +24,5 @@ alter table public.mensagens enable row level security;
 
 -- Sala inicial com token aleatório. Pegue o token com: select token from salas;
 insert into public.salas (token, nome)
-values (replace(gen_random_uuid()::text, '-', ''), 'Dalva — Roberto & David')
+values (replace(gen_random_uuid()::text, '-', ''), 'Follou — Roberto & David')
 on conflict do nothing;

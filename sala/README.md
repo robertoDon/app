@@ -23,7 +23,7 @@ Endereço da sala: `https://<projeto>.supabase.co/functions/v1/sala/<token>`. Qu
 1. Projeto Supabase: rodar a migration.
 2. Deploy da function `sala` com `verify_jwt = false`.
 3. Pegar o token: `select token from salas;`.
-4. Hospedar `index.html` em qualquer lugar estático (GitHub Pages, Netlify Drop, ou abrir o arquivo direto no navegador) e abrir com `#https://<projeto>.supabase.co/functions/v1/sala/<token>`.
+4. Página: `https://raw.githack.com/robertoDon/app/main/sala/index.html#<endereço da sala>` (serve direto do repo; também dá para abrir o arquivo no navegador).
 
 O Supabase não serve HTML pelas edge functions, por isso a página fica separada.
 
