@@ -102,13 +102,22 @@ async function empurrar(i: { endpoint: string; p256dh: string; auth: string }, d
 // ---------------------------------------------------------------- quem avisar
 
 const handle = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9]/g, "").toLowerCase();
-const mencoes = (t: string) => [...t.matchAll(/@([\p{L}\p{N}_]+)(?:-[\p{L}\p{N}_]+)?/gu)].map((m) => handle(m[1]));
+// @agents/@everyone/@all (inglês) valem o mesmo que @agentes/@todos
+const ALIAS: Record<string, string> = { agents: "agentes", everyone: "todos", all: "todos" };
+const apelido = (h: string) => ALIAS[h] ?? h;
+const mencoes = (t: string) => [...t.matchAll(/@([\p{L}\p{N}_]+)(?:-[\p{L}\p{N}_]+)?/gu)].map((m) => apelido(handle(m[1])));
+
+// textos que o banco grava em português, para quem usa em inglês
+const emIngles = (t: string) =>
+  t === "Aprovada." ? "Approved." : t === "Recusada." ? "Declined." : t.replace(/^✓ Concluí a tarefa: /, "✓ Completed the task: ");
+type Lingua = "pt" | "en";
 const limpo = (t: string, n = 140) => {
   const l = t.replace(/[*_`>#]/g, "").replace(/\s+/g, " ").trim();
   return l.length > n ? `${l.slice(0, n - 1)}…` : l;
 };
 
 let segredoAviso: string | null = null;
+const TODOS = "\u0000todos"; // "todos os seus agentes" (marca interna)
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("ok");
@@ -123,7 +132,7 @@ Deno.serve(async (req) => {
     .eq("id", id).maybeSingle();
   if (!m || m.apagada) return new Response("nada");
 
-  const { data: membros } = await db.from("membros").select("user_id, perfis(nome, avisos)").eq("sala_id", m.sala_id).neq("user_id", m.user_id);
+  const { data: membros } = await db.from("membros").select("user_id, perfis(nome, avisos, idioma)").eq("sala_id", m.sala_id).neq("user_id", m.user_id);
   if (!membros?.length) return new Response("nada");
 
   // de quem é a mensagem respondida (resposta a algo meu, decisão sobre proposta minha)
@@ -134,22 +143,24 @@ Deno.serve(async (req) => {
   }
 
   const ditas = mencoes(m.texto);
-  const ditasCompletas = [...m.texto.matchAll(/@([\p{L}\p{N}_]+)(?:-([\p{L}\p{N}_]+))?/gu)].map((x) => [handle(x[1]), x[2] ? handle(x[2]) : ""]);
+  const ditasCompletas = [...m.texto.matchAll(/@([\p{L}\p{N}_]+)(?:-([\p{L}\p{N}_]+))?/gu)].map((x) => [apelido(handle(x[1])), x[2] ? handle(x[2]) : ""]);
   // agentes de quem está na sala: "@Claude-Ana" ou "@agentes" chamam o agente, e a pessoa dona dele é avisada
   const { data: agentesSala } = await db.from("agentes").select("user_id, nome").in("user_id", membros.map((x: any) => x.user_id));
   const agenteChamado = (uid: string, primeiro: string): string | null => {
     const meus = (agentesSala ?? []).filter((a) => a.user_id === uid);
     for (const [a, p] of ditasCompletas) {
       // @agentes escrito por um agente não acorda ninguém: senão vira uma corrente de avisos
-      if (a === "agentes" && meus.length && !m.agente) return meus.length === 1 ? meus[0].nome : "seus agentes";
+      if (a === "agentes" && meus.length && !m.agente) return meus.length === 1 ? meus[0].nome : TODOS;
       const ag = meus.find((x) => handle(x.nome) === a);
       if (ag && (!p || p === primeiro)) return ag.nome;
     }
     return null;
   };
-  const autorNome = (m.autor as any)?.nome ?? "Alguém";
-  const quem = m.agente ? `${m.agente} de ${autorNome.split(" ")[0]}` : autorNome;
+  const autorNome = (m.autor as any)?.nome ?? "";
+  const primeiro = autorNome.split(" ")[0];
+  const quem = (l: Lingua) => m.agente ? (l === "en" ? `${primeiro}'s ${m.agente}` : `${m.agente} de ${primeiro}`) : autorNome || (l === "en" ? "Someone" : "Alguém");
   const sala = (m.salas as any)?.nome ?? "Sala";
+  const lingua = new Map<string, Lingua>(membros.map((x: any) => [x.user_id, x.perfis?.idioma === "en" ? "en" : "pt"]));
 
   const chamadoDe = new Map<string, string>(); // pessoa → qual agente dela foi chamado
   const alvos = membros.filter((x: any) => {
@@ -168,25 +179,31 @@ Deno.serve(async (req) => {
   const { data: inscricoes } = await db.from("inscricoes").select("endpoint, user_id, p256dh, auth").in("user_id", alvos);
   if (!inscricoes?.length) return new Response("nada");
 
-  const titulo =
-    m.tipo === "proposta" ? `Proposta de ${quem} · ${sala}` :
-    m.tipo === "decisao" ? `${autorNome.split(" ")[0]} ${m.estado === "aprovada" ? "aprovou" : "recusou"} uma proposta · ${sala}` :
-    `${quem} · ${sala}`;
+  const titulo = (l: Lingua) => l === "en"
+    ? (m.tipo === "proposta" ? `Proposal from ${quem(l)} · ${sala}` :
+      m.tipo === "decisao" ? `${primeiro} ${m.estado === "aprovada" ? "approved" : "declined"} a proposal · ${sala}` :
+      `${quem(l)} · ${sala}`)
+    : (m.tipo === "proposta" ? `Proposta de ${quem(l)} · ${sala}` :
+      m.tipo === "decisao" ? `${primeiro} ${m.estado === "aprovada" ? "aprovou" : "recusou"} uma proposta · ${sala}` :
+      `${quem(l)} · ${sala}`);
   const dadosPara = (uid: string) => {
+    const l = lingua.get(uid) ?? "pt";
+    const texto = l === "en" ? emIngles(m.texto) : m.texto;
     const ag = chamadoDe.get(uid);
     if (ag) {
-      const seu = ag === "seus agentes" ? ag : `seu ${ag}`;
-      return { titulo: `${quem} chamou ${seu} · ${sala}`, corpo: `Toque para pedir a resposta. ${limpo(m.texto, 110)}`,
+      const seu = l === "en" ? (ag === TODOS ? "your agents" : `your ${ag}`) : (ag === TODOS ? "seus agentes" : `seu ${ag}`);
+      return { titulo: l === "en" ? `${quem(l)} called ${seu} · ${sala}` : `${quem(l)} chamou ${seu} · ${sala}`,
+        corpo: `${l === "en" ? "Tap to ask for the answer." : "Toque para pedir a resposta."} ${limpo(texto, 110)}`,
         url: `/s/${m.sala_id}?pedir=${m.id}`, sala: m.sala_id, tag: `sala-${m.sala_id}` };
     }
-    return { titulo, corpo: limpo(m.texto), url: `/s/${m.sala_id}`, sala: m.sala_id, tag: `sala-${m.sala_id}` };
+    return { titulo: titulo(l), corpo: limpo(texto), url: `/s/${m.sala_id}`, sala: m.sala_id, tag: `sala-${m.sala_id}` };
   };
 
   const mortos: string[] = [];
   await Promise.all(inscricoes.map(async (i) => {
     try {
       const chamado = chamadoDe.get(i.user_id);
-      const urgente = m.tipo !== "mensagem" || donoRespondida === i.user_id || (!!chamado && chamado !== "seus agentes" && !ditas.includes("agentes"));
+      const urgente = m.tipo !== "mensagem" || donoRespondida === i.user_id || (!!chamado && chamado !== TODOS && !ditas.includes("agentes"));
       const st = await empurrar(i, dadosPara(i.user_id), urgente);
       if (st === 404 || st === 410) mortos.push(i.endpoint);
       else if (st >= 400) console.log("push", st, new URL(i.endpoint).host);
@@ -211,14 +228,21 @@ async function mandarPara(uid: string, dados: unknown, urgente: boolean) {
 
 async function avisarTarefa(id: number) {
   const { data: t } = await db.from("tarefas")
-    .select("id, sala_id, titulo, responsavel, responsavel_agente, prazo, criada_por, criada_por_agente, salas(nome), autor:perfis!tarefas_criada_por_fkey(nome), dono:perfis!tarefas_responsavel_fkey(avisos)")
+    .select("id, sala_id, titulo, responsavel, responsavel_agente, prazo, criada_por, criada_por_agente, salas(nome), autor:perfis!tarefas_criada_por_fkey(nome), dono:perfis!tarefas_responsavel_fkey(avisos, idioma)")
     .eq("id", id).maybeSingle();
   if (!t || !t.responsavel || (t.dono as any)?.avisos === "nada") return new Response("nada");
-  const de = t.criada_por_agente ? `${t.criada_por_agente} de ${((t.autor as any)?.nome ?? "").split(" ")[0]}` : ((t.autor as any)?.nome ?? "Alguém");
-  const para = t.responsavel_agente ? `o seu ${t.responsavel_agente}` : "você";
-  const prazo = t.prazo ? ` · até ${new Date(t.prazo).toLocaleDateString("pt-BR", { day: "numeric", month: "short", timeZone: "America/Sao_Paulo" })}` : "";
+  const en = (t.dono as any)?.idioma === "en";
+  const autor = (t.autor as any)?.nome ?? "";
+  const de = t.criada_por_agente
+    ? (en ? `${autor.split(" ")[0]}'s ${t.criada_por_agente}` : `${t.criada_por_agente} de ${autor.split(" ")[0]}`)
+    : autor || (en ? "someone" : "Alguém");
+  const para = t.responsavel_agente ? (en ? `your ${t.responsavel_agente}` : `o seu ${t.responsavel_agente}`) : (en ? "you" : "você");
+  const dia = (iso: string) => new Date(iso).toLocaleDateString(en ? "en-US" : "pt-BR", { day: "numeric", month: "short", timeZone: "America/Sao_Paulo" });
+  const prazo = t.prazo ? (en ? ` · due ${dia(t.prazo)}` : ` · até ${dia(t.prazo)}`) : "";
+  const salaNome = (t.salas as any)?.nome ?? "Sala";
   const n = await mandarPara(t.responsavel, {
-    titulo: `Tarefa nova para ${para} · ${(t.salas as any)?.nome ?? "Sala"}`, corpo: `${t.titulo}${prazo} · de ${de}`,
+    titulo: en ? `New task for ${para} · ${salaNome}` : `Tarefa nova para ${para} · ${salaNome}`,
+    corpo: en ? `${t.titulo}${prazo} · from ${de}` : `${t.titulo}${prazo} · de ${de}`,
     url: `/s/${t.sala_id}?tarefas=1`, sala: t.sala_id, tag: `tarefa-${t.id}`,
   }, true);
   return new Response(`avisados ${n}`);

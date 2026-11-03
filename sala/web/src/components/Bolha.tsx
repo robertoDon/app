@@ -3,6 +3,7 @@ import type { Mensagem } from "../supabase";
 import { IconeAgente, IconeCopiar, IconeDecisao, IconeLapis, IconeLixo, IconeProposta, IconeRecusa, IconeResponder, IconeTarefa } from "./Icones";
 import { Texto } from "./Texto";
 import { Anexos } from "./Anexos";
+import { gravado, locale, t as tr } from "../i18n";
 
 export type Citacao = { id: number; autor: string; texto: string } | null;
 
@@ -28,7 +29,7 @@ type Props = {
   irPara?: (id: number) => void;
 };
 
-const hora = (iso?: string | null) => (iso ? new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "");
+const hora = (iso?: string | null) => (iso ? new Date(iso).toLocaleTimeString(locale(), { hour: "2-digit", minute: "2-digit" }) : "");
 
 // Pessoa: bolha clara (a minha, escura). Agente: fundo suave + ícone + "Claude · de Ana".
 // Proposta: cartão com Aprovar e Recusar. Estado nunca só por cor: sempre ícone e texto.
@@ -81,27 +82,27 @@ export function Bolha(p: Props) {
           {m.agente ? (
             <>
               <span className="msg-selo"><IconeAgente tamanho={14} /> {m.agente}</span>
-              <span className="msg-de">de {nome}</span>
+              <span className="msg-de">{tr(`de ${nome}`, `${nome}'s agent`)}</span>
             </>
           ) : (
-            <strong>{minha ? "Você" : nome}</strong>
+            <strong>{minha ? tr("Você", "You") : nome}</strong>
           )}
           {p.quando && <time title={p.quandoCompleto}>{p.quando}</time>}
-          {m.editada_em && !m.apagada && <span className="msg-de" title={`Editada às ${hora(m.editada_em)}`}>· editada</span>}
+          {m.editada_em && !m.apagada && <span className="msg-de" title={tr(`Editada às ${hora(m.editada_em)}`, `Edited at ${hora(m.editada_em)}`)}>· {tr("editada", "edited")}</span>}
         </header>
       )}
 
       <div className="msg-linha">
         <div className="msg-corpo">
-          {proposta && <p className="proposta-rotulo"><IconeProposta tamanho={14} /> Proposta</p>}
+          {proposta && <p className="proposta-rotulo"><IconeProposta tamanho={14} /> {tr("Proposta", "Proposal")}</p>}
           {citacao && (
-            <button type="button" className="citacao" onClick={() => p.irPara?.(citacao.id)} title="Ir para a mensagem">
+            <button type="button" className="citacao" onClick={() => p.irPara?.(citacao.id)} title={tr("Ir para a mensagem", "Go to message")}>
               <IconeResponder tamanho={14} /> <strong>{citacao.autor}</strong> <span>{citacao.texto}</span>
             </button>
           )}
           {editando ? (
             <div className="editar">
-              <label className="sr" htmlFor={`ed${m.id}`}>Editar mensagem</label>
+              <label className="sr" htmlFor={`ed${m.id}`}>{tr("Editar mensagem", "Edit message")}</label>
               <textarea id={`ed${m.id}`} ref={caixa} value={rascunho} maxLength={20000}
                 onChange={(e) => { setRascunho(e.target.value); e.target.style.height = "auto"; e.target.style.height = `${e.target.scrollHeight}px`; }}
                 onKeyDown={(e) => {
@@ -109,16 +110,16 @@ export function Bolha(p: Props) {
                   if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); salvar(); }
                 }} />
               <div className="linha">
-                <button type="button" className="btn btn-pequeno btn-cheio" disabled={ocupado} onClick={salvar}>Salvar</button>
-                <button type="button" className="btn btn-pequeno" onClick={() => { setEditando(false); setRascunho(m.texto); }}>Cancelar</button>
-                <span className="nota">Enter salva · Esc cancela</span>
+                <button type="button" className="btn btn-pequeno btn-cheio" disabled={ocupado} onClick={salvar}>{tr("Salvar", "Save")}</button>
+                <button type="button" className="btn btn-pequeno" onClick={() => { setEditando(false); setRascunho(m.texto); }}>{tr("Cancelar", "Cancel")}</button>
+                <span className="nota">{tr("Enter salva · Esc cancela", "Enter to save · Esc to cancel")}</span>
               </div>
             </div>
           ) : m.apagada ? (
-            <p className="apagada">Mensagem apagada.</p>
+            <p className="apagada">{tr("Mensagem apagada.", "Message deleted.")}</p>
           ) : (
             <>
-              {m.texto && <Texto texto={m.texto} chamaMim={p.chamaMim ?? (() => false)} />}
+              {m.texto && <Texto texto={gravado(m.texto)} chamaMim={p.chamaMim ?? (() => false)} />}
               {!!m.anexos?.length && <Anexos anexos={m.anexos} />}
             </>
           )}
@@ -129,30 +130,30 @@ export function Bolha(p: Props) {
                 p.decidir ? (
                   recusando ? (
                     <form className="recusar" onSubmit={(e) => { e.preventDefault(); decidir(false); }}>
-                      <label className="sr" htmlFor={`nota${m.id}`}>Por que recusar</label>
-                      <input id={`nota${m.id}`} autoFocus placeholder="Por quê? O agente lê isto. (opcional)" value={nota} maxLength={2000}
+                      <label className="sr" htmlFor={`nota${m.id}`}>{tr("Por que recusar", "Why decline")}</label>
+                      <input id={`nota${m.id}`} autoFocus placeholder={tr("Por quê? O agente lê isto. (opcional)", "Why? The agent will read this. (optional)")} value={nota} maxLength={2000}
                         onChange={(e) => setNota(e.target.value)} onKeyDown={(e) => e.key === "Escape" && setRecusando(false)} />
                       <div className="linha">
-                        <button className="btn btn-pequeno" disabled={ocupado}>Recusar proposta</button>
-                        <button type="button" className="btn btn-pequeno btn-texto" onClick={() => setRecusando(false)}>Voltar</button>
+                        <button className="btn btn-pequeno" disabled={ocupado}>{tr("Recusar proposta", "Decline proposal")}</button>
+                        <button type="button" className="btn btn-pequeno btn-texto" onClick={() => setRecusando(false)}>{tr("Voltar", "Back")}</button>
                       </div>
                     </form>
                   ) : (
                     <div className="linha">
                       <button type="button" className="btn btn-pequeno btn-cheio" disabled={ocupado} onClick={() => decidir(true)}>
-                        <IconeDecisao tamanho={16} /> Aprovar
+                        <IconeDecisao tamanho={16} /> {tr("Aprovar", "Approve")}
                       </button>
                       <button type="button" className="btn btn-pequeno" disabled={ocupado} onClick={() => setRecusando(true)}>
-                        <IconeRecusa tamanho={16} /> Recusar
+                        <IconeRecusa tamanho={16} /> {tr("Recusar", "Decline")}
                       </button>
-                      <span className="nota">Aguardando decisão</span>
+                      <span className="nota">{tr("Aguardando decisão", "Awaiting decision")}</span>
                     </div>
                   )
-                ) : <span className="nota">Aguardando decisão</span>
+                ) : <span className="nota">{tr("Aguardando decisão", "Awaiting decision")}</span>
               ) : (
                 <p className={`decidida decidida-${m.estado}`}>
                   {m.estado === "aprovada" ? <IconeDecisao tamanho={16} /> : <IconeRecusa tamanho={16} />}
-                  {m.estado === "aprovada" ? "Aprovada" : "Recusada"}{p.decisor ? ` por ${p.decisor}` : ""}
+                  {m.estado === "aprovada" ? tr("Aprovada", "Approved") : tr("Recusada", "Declined")}{p.decisor ? tr(` por ${p.decisor}`, ` by ${p.decisor}`) : ""}
                   {m.decidida_em && <time>· {hora(m.decidida_em)}</time>}
                 </p>
               )}
@@ -161,17 +162,17 @@ export function Bolha(p: Props) {
         </div>
 
         {temAcoes && !editando && (
-          <div className="msg-acoes" role="toolbar" aria-label="Ações da mensagem">
-            {p.responder && <button type="button" className="btn-acao" onClick={p.responder} title="Responder" aria-label="Responder"><IconeResponder tamanho={16} /></button>}
+          <div className="msg-acoes" role="toolbar" aria-label={tr("Ações da mensagem", "Message actions")}>
+            {p.responder && <button type="button" className="btn-acao" onClick={p.responder} title={tr("Responder", "Reply")} aria-label={tr("Responder", "Reply")}><IconeResponder tamanho={16} /></button>}
             {p.copiar && (
-              <button type="button" className="btn-acao" title={copiado ? "Copiado" : "Copiar texto"} aria-label="Copiar texto"
+              <button type="button" className="btn-acao" title={copiado ? tr("Copiado", "Copied") : tr("Copiar texto", "Copy text")} aria-label={tr("Copiar texto", "Copy text")}
                 onClick={async () => { if (await p.copiar!()) { setCopiado(true); setTimeout(() => setCopiado(false), 1200); } }}>
                 {copiado ? <IconeDecisao tamanho={16} /> : <IconeCopiar tamanho={16} />}
               </button>
             )}
-            {p.virarTarefa && <button type="button" className="btn-acao" onClick={p.virarTarefa} title="Virar tarefa" aria-label="Virar tarefa"><IconeTarefa tamanho={16} /></button>}
-            {p.editar && <button type="button" className="btn-acao" onClick={() => { setRascunho(m.texto); setEditando(true); }} title="Editar" aria-label="Editar"><IconeLapis tamanho={16} /></button>}
-            {p.apagar && <button type="button" className="btn-acao" onClick={p.apagar} title="Apagar" aria-label="Apagar"><IconeLixo tamanho={16} /></button>}
+            {p.virarTarefa && <button type="button" className="btn-acao" onClick={p.virarTarefa} title={tr("Virar tarefa", "Make it a task")} aria-label={tr("Virar tarefa", "Make it a task")}><IconeTarefa tamanho={16} /></button>}
+            {p.editar && <button type="button" className="btn-acao" onClick={() => { setRascunho(m.texto); setEditando(true); }} title={tr("Editar", "Edit")} aria-label={tr("Editar", "Edit")}><IconeLapis tamanho={16} /></button>}
+            {p.apagar && <button type="button" className="btn-acao" onClick={p.apagar} title={tr("Apagar", "Delete")} aria-label={tr("Apagar", "Delete")}><IconeLixo tamanho={16} /></button>}
           </div>
         )}
       </div>
@@ -179,7 +180,7 @@ export function Bolha(p: Props) {
       {erro && <p className="msg-erro" role="alert">{erro}</p>}
       {m.falhou && (
         <p className="msg-erro" role="alert">
-          Não enviou. <button type="button" className="link" onClick={p.tentarDeNovo}>Tentar de novo</button>
+          {tr("Não enviou.", "Not sent.")} <button type="button" className="link" onClick={p.tentarDeNovo}>{tr("Tentar de novo", "Try again")}</button>
         </p>
       )}
     </article>
@@ -194,8 +195,8 @@ export function Evento({ m, quem, de, quando, irPara }: { m: Mensagem; quem: str
     <div className={`evento evento-${m.estado}`} id={`m${m.id}`}>
       <span className="evento-icone" aria-hidden>{aprovou ? <IconeDecisao tamanho={16} /> : <IconeRecusa tamanho={16} />}</span>
       <span className="evento-texto">
-        <strong>{quem}</strong> {aprovou ? "aprovou" : "recusou"}{" "}
-        <button type="button" className="link" onClick={() => m.responde_a && irPara?.(m.responde_a)}>a proposta{de ? ` de ${de}` : ""}</button>
+        <strong>{quem}</strong> {aprovou ? tr("aprovou", "approved") : tr("recusou", "declined")}{" "}
+        <button type="button" className="link" onClick={() => m.responde_a && irPara?.(m.responde_a)}>{de ? tr(`a proposta de ${de}`, `the proposal from ${de}`) : tr("a proposta", "the proposal")}</button>
         {nota && <span className="evento-nota">“{nota}”</span>}
       </span>
       <time>{quando}</time>

@@ -6,6 +6,16 @@ import type { ReactNode } from "react";
 export const handle = (s: string) =>
   s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9]/g, "").toLowerCase();
 
+// Menções coletivas, em português e em inglês: @agentes = @agents; @todos = @everyone = @all.
+export const AGENTES = ["agentes", "agents"];
+export const TODOS = ["todos", "everyone", "all"];
+/** O handle (já normalizado) chama todos os agentes da sala. */
+export const chamaAgentes = (h: string) => AGENTES.includes(h);
+/** O handle (já normalizado) chama todo mundo, pessoas e agentes. */
+export const chamaTodos = (h: string) => TODOS.includes(h);
+/** Texto com @agentes/@todos (ou @agents/@everyone/@all) como menção inteira. */
+export const MENCAO_COLETIVA = new RegExp(`@(${[...AGENTES, ...TODOS].join("|")})(?![\\p{L}\\p{N}_])`, "iu");
+
 const INLINE =
   /(`[^`\n]+`)|(\*\*[^*\n]+\*\*)|(\*[^*\s\n][^*\n]*\*|_[^_\s\n][^_\n]*_)|(https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"])|(@[\p{L}\p{N}_]+(?:-[\p{L}\p{N}_]+)?)/gu;
 

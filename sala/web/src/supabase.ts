@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { definirIdioma, t, type Idioma } from "./i18n";
 
 // Chave publicável: pode ficar no código. Quem protege os dados são as regras (RLS) do banco.
 export const SUPABASE_URL = "https://cokzyrdmtnbsnnboxggp.supabase.co";
@@ -10,7 +11,7 @@ export const sb = createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: { flowType: "pkce", persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
 });
 
-export type Perfil = { id: string; nome: string; avatar: string | null; avisos?: "tudo" | "mencoes" | "nada" };
+export type Perfil = { id: string; nome: string; avatar: string | null; avisos?: "tudo" | "mencoes" | "nada"; idioma?: Idioma | null };
 export type Sala = {
   id: string; nome: string; convite: string | null; convite_leitura: string | null; contexto: string; papel: "dono" | "membro" | "leitor";
   nao_lidas: number; pendentes: number; lido_ate: number; minhas_tarefas: number; ultima_id: number | null; ultima_texto: string | null;
@@ -43,20 +44,20 @@ export type Mensagem = {
 // Presença do agente, em texto (nunca só cor): "ouvindo agora", "visto há 3 h"
 export function presenca(a: Agente): { ativo: boolean; texto: string } {
   const agora = Date.now();
-  if (a.ouvindo_ate && new Date(a.ouvindo_ate).getTime() > agora) return { ativo: true, texto: "ouvindo agora" };
+  if (a.ouvindo_ate && new Date(a.ouvindo_ate).getTime() > agora) return { ativo: true, texto: t("ouvindo agora", "listening now") };
   const min = Math.round((agora - new Date(a.visto_em).getTime()) / 60000);
-  if (min < 5) return { ativo: true, texto: "ativo agora" };
-  if (min < 60) return { ativo: false, texto: `visto há ${min} min` };
+  if (min < 5) return { ativo: true, texto: t("ativo agora", "active now") };
+  if (min < 60) return { ativo: false, texto: t(`visto há ${min} min`, `seen ${min} min ago`) };
   const h = Math.round(min / 60);
-  if (h < 24) return { ativo: false, texto: `visto há ${h} h` };
+  if (h < 24) return { ativo: false, texto: t(`visto há ${h} h`, `seen ${h} h ago`) };
   const d = Math.round(h / 24);
-  return { ativo: false, texto: d === 1 ? "visto ontem" : `visto há ${d} dias` };
+  return { ativo: false, texto: d === 1 ? t("visto ontem", "seen yesterday") : t(`visto há ${d} dias`, `seen ${d} days ago`) };
 }
 
 export async function apagarConta() {
   const { data } = await sb.auth.getSession();
   const r = await fetch(`${MCP_URL}/api/conta`, { method: "DELETE", headers: { Authorization: `Bearer ${data.session?.access_token}` } });
-  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).erro ?? "Não deu para apagar a conta agora.");
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).erro ?? t("Não deu para apagar a conta agora.", "Couldn't delete the account right now."));
   await sb.auth.signOut();
 }
 
@@ -70,6 +71,13 @@ export async function entrarComGoogle(volta: string) {
 
 export async function entrarComEmail(email: string, volta: string) {
   return sb.auth.signInWithOtp({ email, options: { emailRedirectTo: volta } });
+}
+
+/** Troca o idioma neste aparelho e no perfil (avisos, agentes e integrações seguem). */
+export async function trocarIdioma(i: Idioma) {
+  definirIdioma(i);
+  const { data } = await sb.auth.getSession();
+  if (data.session) await sb.from("perfis").update({ idioma: i }).eq("id", data.session.user.id);
 }
 
 export const ultimaSala = {
@@ -88,11 +96,11 @@ export const chaveDoNome = (nome: string) => {
 };
 
 export async function subirArquivo(sala: string, eu: string, f: File): Promise<Anexo> {
-  if (f.size > LIMITE_ARQUIVO) throw new Error(`${f.name} passa de 10 MB.`);
+  if (f.size > LIMITE_ARQUIVO) throw new Error(t(`${f.name} passa de 10 MB.`, `${f.name} is over 10 MB.`));
   const nome = (f.name || "arquivo").replace(/[\/\\\x00-\x1f]/g, "-").trim().slice(0, 200) || "arquivo";
   const path = `${sala}/${eu}/${crypto.randomUUID()}-${chaveDoNome(nome)}`;
   const { error } = await sb.storage.from("arquivos").upload(path, f, { contentType: f.type || "application/octet-stream" });
-  if (error) throw new Error(`Não deu para enviar ${nome}: ${error.message}`);
+  if (error) throw new Error(t(`Não deu para enviar ${nome}: ${error.message}`, `Couldn't upload ${nome}: ${error.message}`));
   return { path, nome, tipo: f.type || "application/octet-stream", tamanho: f.size };
 }
 
@@ -110,7 +118,7 @@ export async function linksDe(paths: string[], baixar = false): Promise<Record<s
 }
 
 export const tamanhoLegivel = (b: number) =>
-  b < 1024 ? `${b} B` : b < 1048576 ? `${Math.round(b / 1024)} KB` : `${(b / 1048576).toFixed(1).replace(".", ",")} MB`;
+  b < 1024 ? `${b} B` : b < 1048576 ? `${Math.round(b / 1024)} KB` : `${t((b / 1048576).toFixed(1).replace(".", ","), (b / 1048576).toFixed(1))} MB`;
 
 // ---------------------------------------------------------------- tarefas
 
@@ -128,8 +136,11 @@ export const atrasada = (t: Tarefa) => t.estado === "aberta" && !!t.prazo && new
 
 // Claude e ChatGPT abrem com o pedido já escrito; nos outros, o pedido vai para a área de transferência.
 export function pedidoPara(agente: string, sala: string, m: { id: number }, autor: string) {
-  const texto = `Leia a sala "${sala}" no The Sala e responda à mensagem #${m.id} de ${autor}. ` +
-    `Use ler_mensagens para ver a conversa e enviar_mensagem com responde_a=${m.id} para responder. Se precisar de uma decisão, use fazer_proposta.`;
+  const texto = t(
+    `Leia a sala "${sala}" no The Sala e responda à mensagem #${m.id} de ${autor}. ` +
+    `Use ler_mensagens para ver a conversa e enviar_mensagem com responde_a=${m.id} para responder. Se precisar de uma decisão, use fazer_proposta.`,
+    `Read the room "${sala}" on The Sala and reply to message #${m.id} from ${autor}. ` +
+    `Use ler_mensagens to see the conversation and enviar_mensagem with responde_a=${m.id} to reply. If you need a decision, use fazer_proposta.`);
   const a = agente.toLowerCase();
   const url = a === "claude" ? `https://claude.ai/new?q=${encodeURIComponent(texto)}`
     : a === "chatgpt" ? `https://chatgpt.com/?q=${encodeURIComponent(texto)}`

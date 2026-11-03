@@ -505,7 +505,7 @@ mark { background: rgba(47,91,234,.18); color: inherit; border-radius: 2px; padd
 .vitrine-card .msg-acoes { display: none; }
 .vitrine-topo .nota { margin-left: auto; font-weight: 400; }
 .vitrine-flutua {
-  position: absolute; right: -40px; bottom: -88px; width: 320px; padding: 12px 16px; transform: rotate(2deg);
+  position: absolute; right: -40px; top: calc(100% - 16px); width: 320px; padding: 12px 16px; transform: rotate(2deg);
   display: flex; flex-direction: column; gap: 8px;
 }
 .vitrine-rotulo { display: flex; align-items: center; gap: 8px; font-size: var(--t1); font-weight: 600; }
@@ -523,7 +523,7 @@ mark { background: rgba(47,91,234,.18); color: inherit; border-radius: 2px; padd
 }
 .hero-texto { display: flex; flex-direction: column; gap: 24px; }
 .hero-texto .display { font-size: 48px; line-height: 1.05; } /* hero: única exceção da régua */
-.hero-vitrine { display: grid; place-items: center; padding: 48px 56px 112px; border-radius: var(--r3); background: #0E0E10; }
+.hero-vitrine { display: grid; place-items: center; padding: 48px 56px 200px; border-radius: var(--r3); background: #0E0E10; }
 .secao { max-width: 1200px; margin: 0 auto; padding: 96px 24px 0; display: flex; flex-direction: column; gap: 24px; }
 .secao > .sub { max-width: 640px; }
 .passos-landing { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
@@ -725,7 +725,7 @@ details.nota p { margin-top: 8px; }
   .hero { grid-template-columns: 1fr; padding: 24px 16px 48px; gap: 32px; }
   .hero-texto .display { font-size: 36px; }
   .hero-vitrine { padding: 24px 16px 48px; }
-  .vitrine-flutua { position: relative; right: auto; bottom: auto; width: 100%; margin-top: 12px; transform: none; }
+  .vitrine-flutua { position: relative; right: auto; top: auto; width: 100%; margin-top: 12px; transform: none; }
   .secao { padding: 64px 16px 0; }
   .passos-landing, .recursos { grid-template-columns: 1fr; }
   .landing-topo { padding: 12px 16px; }

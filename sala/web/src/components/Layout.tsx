@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../App";
 import { sb, type Sala } from "../supabase";
+import { gravado, locale, t } from "../i18n";
 import { IconeAgente, IconeCaixa, IconeMais, IconePlugue, IconeProposta, Marca } from "./Icones";
 import { Conectar } from "./Conectar";
 import { Conta } from "./Conta";
@@ -46,10 +47,10 @@ const quando = (iso: string | null) => {
   if (!iso) return "";
   const d = new Date(iso);
   const hoje = new Date();
-  if (d.toDateString() === hoje.toDateString()) return d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  if (d.toDateString() === hoje.toDateString()) return d.toLocaleTimeString(locale(), { hour: "2-digit", minute: "2-digit" });
   const ontem = new Date(hoje); ontem.setDate(hoje.getDate() - 1);
-  if (d.toDateString() === ontem.toDateString()) return "ontem";
-  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }).replace(".", "");
+  if (d.toDateString() === ontem.toDateString()) return t("ontem", "yesterday");
+  return d.toLocaleDateString(locale(), { day: "2-digit", month: "short" }).replace(".", "");
 };
 
 export function Layout({ children, salas, recarregar, foco }: {
@@ -79,12 +80,12 @@ export function Layout({ children, salas, recarregar, foco }: {
 
   return (
     <div className={`app ${foco ? "app-foco" : ""}`}>
-      <nav className="lateral" aria-label="Salas">
-        <div className="lateral-topo"><Link to="/" aria-label="Início"><Marca /></Link></div>
+      <nav className="lateral" aria-label={t("Salas", "Rooms")}>
+        <div className="lateral-topo"><Link to="/" aria-label={t("Início", "Home")}><Marca /></Link></div>
 
         <div className="lateral-titulo">
-          <span>Salas</span>
-          <button className="btn-icone" onClick={() => setCriando(true)} title="Nova sala (N)" aria-label="Nova sala">
+          <span>{t("Salas", "Rooms")}</span>
+          <button className="btn-icone" onClick={() => setCriando(true)} title={t("Nova sala (N)", "New room (N)")} aria-label={t("Nova sala", "New room")}>
             <IconeMais tamanho={18} />
           </button>
         </div>
@@ -107,20 +108,20 @@ export function Layout({ children, salas, recarregar, foco }: {
                       <span className="sala-previa">
                         {s.ultima_texto ? (
                           <>{s.ultima_agente && <IconeAgente tamanho={12} />}{s.ultima_agente ?? s.ultima_nome?.split(" ")[0]}
-                            {s.ultima_tipo === "proposta" ? " propôs" : s.ultima_tipo === "decisao" ? " decidiu" : ""}: {s.ultima_texto.replace(/\*\*|__|`|^#+\s/gm, "")}</>
-                        ) : "Sem mensagens ainda"}
+                            {s.ultima_tipo === "proposta" ? t(" propôs", " proposed") : s.ultima_tipo === "decisao" ? t(" decidiu", " decided") : ""}: {gravado(s.ultima_texto).replace(/\*\*|__|`|^#+\s/gm, "")}</>
+                        ) : t("Sem mensagens ainda", "No messages yet")}
                       </span>
                       {Number(s.minhas_tarefas) > 0 && (
-                        <span className="sala-pendentes" title={`${s.minhas_tarefas} ${Number(s.minhas_tarefas) === 1 ? "tarefa sua aberta" : "tarefas suas abertas"}`} aria-label={`${s.minhas_tarefas} tarefas suas`}>
+                        <span className="sala-pendentes" title={`${s.minhas_tarefas} ${Number(s.minhas_tarefas) === 1 ? t("tarefa sua aberta", "open task assigned to you") : t("tarefas suas abertas", "open tasks assigned to you")}`} aria-label={`${s.minhas_tarefas} ${Number(s.minhas_tarefas) === 1 ? t("tarefa sua", "task for you") : t("tarefas suas", "tasks for you")}`}>
                           <IconeCaixa tamanho={12} />{s.minhas_tarefas}
                         </span>
                       )}
                       {Number(s.pendentes) > 0 && (
-                        <span className="sala-pendentes" title={`${s.pendentes} ${Number(s.pendentes) === 1 ? "proposta aguardando" : "propostas aguardando"} decisão`} aria-label={`${s.pendentes} para decidir`}>
+                        <span className="sala-pendentes" title={`${s.pendentes} ${Number(s.pendentes) === 1 ? t("proposta aguardando decisão", "proposal awaiting a decision") : t("propostas aguardando decisão", "proposals awaiting a decision")}`} aria-label={`${s.pendentes} ${t("para decidir", "to decide")}`}>
                           <IconeProposta tamanho={12} />{s.pendentes}
                         </span>
                       )}
-                      {novas > 0 && !ativa && <span className="sala-novas" aria-label={`${novas} não lidas`}>{novas > 99 ? "99+" : novas}</span>}
+                      {novas > 0 && !ativa && <span className="sala-novas" aria-label={`${novas} ${novas === 1 ? t("não lida", "unread") : t("não lidas", "unread")}`}>{novas > 99 ? "99+" : novas}</span>}
                     </span>
                   </span>
                 </Link>
@@ -130,13 +131,13 @@ export function Layout({ children, salas, recarregar, foco }: {
         </ul>
 
         <div className="lateral-base">
-          <button className="btn btn-largo" onClick={() => setConectar(true)} title="Conectar agente (A)">
-            <IconePlugue tamanho={18} /> Conectar agente
+          <button className="btn btn-largo" onClick={() => setConectar(true)} title={t("Conectar agente (A)", "Connect agent (A)")}>
+            <IconePlugue tamanho={18} /> {t("Conectar agente", "Connect agent")}
           </button>
-          <button className="eu" onClick={() => setConta(true)} title="Sua conta, avisos e sair">
+          <button className="eu" onClick={() => setConta(true)} title={t("Sua conta, avisos e sair", "Your account, notifications and sign out")}>
             {perfil?.avatar ? <img src={perfil.avatar} alt="" className="avatar" referrerPolicy="no-referrer" /> : <span className="avatar">{perfil?.nome?.[0]}</span>}
             <span className="eu-nome">{perfil?.nome}</span>
-            <span className="nota">Conta</span>
+            <span className="nota">{t("Conta", "Account")}</span>
           </button>
         </div>
       </nav>

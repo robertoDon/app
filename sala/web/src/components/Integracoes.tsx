@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { sb } from "../supabase";
+import { erro as msgErro, idioma, t } from "../i18n";
 
 type Integracao = { id: number; url: string; eventos: string[]; criada_em: string };
 
-const EVENTOS = [
-  { id: "decisao", rotulo: "Decisões" },
-  { id: "proposta", rotulo: "Propostas novas" },
-  { id: "tarefa_nova", rotulo: "Tarefas novas" },
-  { id: "tarefa_feita", rotulo: "Tarefas concluídas" },
-  { id: "mensagem", rotulo: "Toda mensagem" },
+const eventosDisponiveis = () => [
+  { id: "decisao", rotulo: t("Decisões", "Decisions") },
+  { id: "proposta", rotulo: t("Propostas novas", "Proposals") },
+  { id: "tarefa_nova", rotulo: t("Tarefas novas", "New tasks") },
+  { id: "tarefa_feita", rotulo: t("Tarefas concluídas", "Completed tasks") },
+  { id: "mensagem", rotulo: t("Toda mensagem", "Every message") },
 ];
 
 const servico = (url: string) => {
@@ -28,6 +29,7 @@ export function Integracoes({ salaId }: { salaId: string }) {
   const [erro, setErro] = useState("");
   const [testado, setTestado] = useState<number | null>(null);
   const [abrindo, setAbrindo] = useState(false);
+  const EVENTOS = eventosDisponiveis();
 
   const carregar = () => sb.from("integracoes").select("id, url, eventos, criada_em").eq("sala_id", salaId).order("id")
     .then(({ data }) => setLista((data as Integracao[]) ?? []));
@@ -37,26 +39,27 @@ export function Integracoes({ salaId }: { salaId: string }) {
     e.preventDefault();
     setErro("");
     const { error } = await sb.rpc("criar_integracao", { sala: salaId, url: url.trim(), eventos });
-    if (error) return setErro(error.message.includes("check constraint") ? "Confira o endereço: precisa começar com https://" : error.message);
+    if (error) return setErro(error.message.includes("check constraint") ? t("Confira o endereço: precisa começar com https://", "Check the address: it must start with https://") : msgErro(error));
     setUrl(""); setAbrindo(false); carregar();
   };
 
   const testar = async (i: Integracao) => {
     const { error } = await sb.rpc("testar_integracao", { integracao: i.id });
-    if (error) return alert(error.message);
+    if (error) return alert(msgErro(error));
     setTestado(i.id); setTimeout(() => setTestado(null), 2500);
   };
 
   const apagar = async (i: Integracao) => {
-    if (!confirm(`Desligar a integração com ${servico(i.url)}?`)) return;
-    await sb.rpc("apagar_integracao", { integracao: i.id });
+    if (!confirm(t(`Desligar a integração com ${servico(i.url)}?`, `Turn off the ${servico(i.url)} integration?`))) return;
+    const { error } = await sb.rpc("apagar_integracao", { integracao: i.id });
+    if (error) alert(msgErro(error));
     carregar();
   };
 
   return (
     <section className="painel-secao">
-      <span className="rotulo">Integrações</span>
-      <p className="nota">Avise o Slack, o Teams, o Discord, o Google Chat ou um sistema seu quando algo acontecer aqui.</p>
+      <span className="rotulo">{t("Integrações", "Integrations")}</span>
+      <p className="nota">{t("Avise o Slack, o Teams, o Discord, o Google Chat ou um sistema seu quando algo acontecer aqui.", "Notify Slack, Teams, Discord, Google Chat or your own system when something happens here.")}</p>
       {lista && lista.length > 0 && (
         <ul className="integracoes">
           {lista.map((i) => (
@@ -65,8 +68,8 @@ export function Integracoes({ salaId }: { salaId: string }) {
                 <span className="presenca">{i.eventos.map((e) => EVENTOS.find((x) => x.id === e)?.rotulo).join(", ")}</span>
               </span>
               <span className="linha">
-                <button className="btn btn-pequeno btn-texto" onClick={() => testar(i)}>{testado === i.id ? "Enviado" : "Testar"}</button>
-                <button className="btn btn-pequeno" onClick={() => apagar(i)}>Desligar</button>
+                <button className="btn btn-pequeno btn-texto" onClick={() => testar(i)}>{testado === i.id ? t("Enviado", "Sent") : t("Testar", "Test")}</button>
+                <button className="btn btn-pequeno" onClick={() => apagar(i)}>{t("Desligar", "Turn off")}</button>
               </span>
             </li>
           ))}
@@ -74,10 +77,10 @@ export function Integracoes({ salaId }: { salaId: string }) {
       )}
       {abrindo ? (
         <form className="tarefa-form" onSubmit={salvar}>
-          <label className="sr" htmlFor="int-url">Endereço do webhook</label>
+          <label className="sr" htmlFor="int-url">{t("Endereço do webhook", "Webhook URL")}</label>
           <input id="int-url" autoFocus type="url" placeholder="https://hooks.slack.com/services/…" value={url} onChange={(e) => setUrl(e.target.value)} />
           <fieldset className="eventos">
-            <legend className="sr">Quando avisar</legend>
+            <legend className="sr">{t("Quando avisar", "When to notify")}</legend>
             {EVENTOS.map((ev) => (
               <label key={ev.id} className="evento-opcao">
                 <input type="checkbox" checked={eventos.includes(ev.id)}
@@ -87,17 +90,19 @@ export function Integracoes({ salaId }: { salaId: string }) {
             ))}
           </fieldset>
           <details className="nota">
-            <summary>Onde pego esse endereço?</summary>
-            <p><b>Slack:</b> api.slack.com/apps → crie um app → Incoming Webhooks → Add New Webhook. <b>Teams:</b> no canal, Fluxos de trabalho → “Postar em um canal quando uma solicitação de webhook for recebida”. <b>Discord:</b> configurações do canal → Integrações → Webhooks. <b>Google Chat:</b> no espaço, Apps e integrações → Webhooks. Qualquer outro sistema recebe um JSON com o evento.</p>
+            <summary>{t("Onde pego esse endereço?", "Where do I get this URL?")}</summary>
+            {idioma() === "pt"
+              ? <p><b>Slack:</b> api.slack.com/apps → crie um app → Incoming Webhooks → Add New Webhook. <b>Teams:</b> no canal, Fluxos de trabalho → “Postar em um canal quando uma solicitação de webhook for recebida”. <b>Discord:</b> configurações do canal → Integrações → Webhooks. <b>Google Chat:</b> no espaço, Apps e integrações → Webhooks. Qualquer outro sistema recebe um JSON com o evento.</p>
+              : <p><b>Slack:</b> api.slack.com/apps → create an app → Incoming Webhooks → Add New Webhook. <b>Teams:</b> in the channel, Workflows → “Post to a channel when a webhook request is received”. <b>Discord:</b> channel settings → Integrations → Webhooks. <b>Google Chat:</b> in the space, Apps &amp; integrations → Webhooks. Any other system gets a JSON with the event.</p>}
           </details>
           {erro && <p className="nota erro" role="alert">{erro}</p>}
           <div className="linha">
-            <button className="btn btn-pequeno btn-cheio" disabled={!url.trim() || !eventos.length}>Ligar</button>
-            <button type="button" className="btn btn-pequeno btn-texto" onClick={() => { setAbrindo(false); setErro(""); }}>Cancelar</button>
+            <button className="btn btn-pequeno btn-cheio" disabled={!url.trim() || !eventos.length}>{t("Ligar", "Turn on")}</button>
+            <button type="button" className="btn btn-pequeno btn-texto" onClick={() => { setAbrindo(false); setErro(""); }}>{t("Cancelar", "Cancel")}</button>
           </div>
         </form>
       ) : (
-        (lista?.length ?? 0) < 5 && <button className="btn btn-pequeno" onClick={() => setAbrindo(true)}>Ligar integração</button>
+        (lista?.length ?? 0) < 5 && <button className="btn btn-pequeno" onClick={() => setAbrindo(true)}>{t("Ligar integração", "Add integration")}</button>
       )}
     </section>
   );

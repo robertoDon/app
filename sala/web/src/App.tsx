@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, Fragment, useContext, useEffect, useState } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import type { Session } from "@supabase/supabase-js";
 import { sb, type Perfil } from "./supabase";
@@ -10,6 +10,7 @@ import Consentimento from "./pages/Consentimento";
 import Privacidade from "./pages/Privacidade";
 import Landing from "./pages/Landing";
 import Ajuda from "./pages/Ajuda";
+import { definirIdioma, escolhido, idioma, useIdioma } from "./i18n";
 
 type Auth = { sessao: Session | null; perfil: Perfil | null; recarregarPerfil: () => void };
 const AuthCtx = createContext<Auth>({ sessao: null, perfil: null, recarregarPerfil: () => {} });
@@ -18,11 +19,17 @@ export const useAuth = () => useContext(AuthCtx);
 export default function App() {
   const [sessao, setSessao] = useState<Session | null | undefined>(undefined);
   const [perfil, setPerfil] = useState<Perfil | null>(null);
+  const lingua = useIdioma();
 
   const carregarPerfil = async (uid?: string) => {
     if (!uid) return setPerfil(null);
-    const { data } = await sb.from("perfis").select("id, nome, avatar, avisos").eq("id", uid).maybeSingle();
+    const { data } = await sb.from("perfis").select("id, nome, avatar, avisos, idioma").eq("id", uid).maybeSingle();
     setPerfil(data);
+    // idioma: a escolha feita neste aparelho vale; sem escolha aqui, vale a do perfil. O perfil sempre fica sabendo.
+    if (data) {
+      if (!escolhido() && data.idioma) definirIdioma(data.idioma, false);
+      else if (data.idioma !== idioma()) sb.from("perfis").update({ idioma: idioma() }).eq("id", uid).then(() => {});
+    }
   };
 
   useEffect(() => {
@@ -35,6 +42,7 @@ export default function App() {
 
   return (
     <AuthCtx.Provider value={{ sessao, perfil, recarregarPerfil: () => carregarPerfil(sessao?.user.id) }}>
+      <Fragment key={lingua /* trocar o idioma redesenha tudo, sem perder a sessão */}>
       <Routes>
         <Route path="/entrar" element={<Entrar />} />
         <Route path="/privacidade" element={<Privacidade />} />
@@ -46,6 +54,7 @@ export default function App() {
         <Route path="/s/:id" element={<Protegida><SalaPage /></Protegida>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </Fragment>
     </AuthCtx.Provider>
   );
 }

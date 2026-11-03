@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { sb, type Mensagem } from "../supabase";
 import { IconeBusca, IconeFechar } from "./Icones";
+import { gravado, locale, t as tr } from "../i18n";
 
 type Props = { salaId: string; autor: (m: Mensagem) => string; irPara: (id: number) => void; fechar: () => void };
 
@@ -41,27 +42,27 @@ export function Busca({ salaId, autor, irPara, fechar }: Props) {
   }, [fechar]);
 
   return (
-    <aside className="painel" aria-label="Buscar na sala">
+    <aside className="painel" aria-label={tr("Buscar na sala", "Search the room")}>
       <header className="painel-topo">
-        <h2>Buscar</h2>
-        <button className="btn-icone" onClick={fechar} aria-label="Fechar busca"><IconeFechar /></button>
+        <h2>{tr("Buscar", "Search")}</h2>
+        <button className="btn-icone" onClick={fechar} aria-label={tr("Fechar busca", "Close search")}><IconeFechar /></button>
       </header>
       <section className="painel-secao">
-        <label className="sr" htmlFor="busca">Buscar nas mensagens</label>
+        <label className="sr" htmlFor="busca">{tr("Buscar nas mensagens", "Search messages")}</label>
         <div className="campo-icone">
           <IconeBusca tamanho={18} />
-          <input id="busca" type="search" autoFocus placeholder="Palavra, número, nome…" value={termo} onChange={(e) => setTermo(e.target.value)} />
+          <input id="busca" type="search" autoFocus placeholder={tr("Palavra, número, nome…", "Word, number, name…")} value={termo} onChange={(e) => setTermo(e.target.value)} />
         </div>
-        {res === null && <p className="nota">Procura em toda a conversa, inclusive no que os agentes escreveram.</p>}
-        {res && !res.length && <p className="nota">Nada com “{termo.trim()}” nesta sala.</p>}
+        {res === null && <p className="nota">{tr("Procura em toda a conversa, inclusive no que os agentes escreveram.", "Searches the whole conversation, including what agents wrote.")}</p>}
+        {res && !res.length && <p className="nota">{tr(`Nada com “${termo.trim()}” nesta sala.`, `Nothing matching “${termo.trim()}” in this room.`)}</p>}
       </section>
       {res && res.length > 0 && (
         <ul className="resultados">
           {res.map((m) => (
             <li key={m.id}>
               <button onClick={() => irPara(m.id)}>
-                <span className="nota">{autor(m)} · {new Date(m.criada_em).toLocaleDateString("pt-BR", { day: "numeric", month: "short" }).replace(".", "")}</span>
-                <span className="resultado-texto">{trecho(m.texto, termo.trim())}</span>
+                <span className="nota">{autor(m)} · {new Date(m.criada_em).toLocaleDateString(locale(), { day: "numeric", month: "short" }).replace(".", "")}</span>
+                <span className="resultado-texto">{trecho(gravado(m.texto), termo.trim())}</span>
               </button>
             </li>
           ))}

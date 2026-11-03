@@ -1,9 +1,12 @@
 // Testes das partes que não podem quebrar sem ninguém ver: nomes de arquivo, pedido ao agente,
 // menções, markdown seguro, presença e tarefas atrasadas.
-import { describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { atrasada, chaveDoNome, pedidoPara, presenca, type Tarefa } from "../supabase";
-import { Texto, handle } from "../components/Texto";
+import { MENCAO_COLETIVA, Texto, chamaAgentes, chamaTodos, handle } from "../components/Texto";
+import { definirIdioma, erro, gravado, t } from "../i18n";
+
+beforeEach(() => definirIdioma("pt", false));
 
 const CHAVE_VALIDA = /^[A-Za-z0-9._-]{1,120}$/; // a mesma regra do banco (preparar_mensagem)
 
@@ -45,6 +48,17 @@ describe("menções", () => {
     expect(handle("José")).toBe("jose");
     expect(handle("Claude Code")).toBe("claudecode");
   });
+  test("@agentes e @todos também em inglês", () => {
+    for (const h of ["agentes", "agents"]) expect(chamaAgentes(handle(h))).toBe(true);
+    for (const h of ["todos", "everyone", "all", "Everyone"]) expect(chamaTodos(handle(h))).toBe(true);
+    expect(chamaAgentes("agent")).toBe(false);
+    expect(chamaTodos("allison")).toBe(false);
+  });
+  test("pergunta a todos os agentes, em qualquer idioma", () => {
+    for (const t of ["@agentes o que acham?", "@agents what do you think?", "oi @todos", "hey @everyone", "@all, ok?", "@Agents!"])
+      expect(MENCAO_COLETIVA.test(t)).toBe(true);
+    for (const t of ["@agentesx", "@allison oi", "@agent", "sem menção"]) expect(MENCAO_COLETIVA.test(t)).toBe(false);
+  });
 });
 
 describe("markdown seguro", () => {
@@ -80,5 +94,33 @@ describe("presença e prazos", () => {
     expect(atrasada(tarefa(new Date(+agora + 86_400_000).toISOString()))).toBe(false);
     expect(atrasada(tarefa(new Date(+agora - 1000).toISOString(), "feita"))).toBe(false);
     expect(atrasada(tarefa(null))).toBe(false);
+  });
+});
+
+describe("idioma", () => {
+  test("português e inglês lado a lado", () => {
+    expect(t("Entrar", "Sign in")).toBe("Entrar");
+    definirIdioma("en", false);
+    expect(t("Entrar", "Sign in")).toBe("Sign in");
+  });
+  test("presença em inglês", () => {
+    definirIdioma("en", false);
+    const p = presenca({ user_id: "u", nome: "Claude", visto_em: new Date(Date.now() - 3 * 3600_000).toISOString(), ouvindo_ate: null });
+    expect(p.texto).toBe("seen 3 h ago");
+  });
+  test("erros do banco e textos gravados viram inglês", () => {
+    definirIdioma("en", false);
+    expect(erro({ message: "Esta tarefa acabou de ser concluída. Veja a lista atualizada." })).toBe("This task was just completed. Check the updated list.");
+    expect(erro("Algo que não conhecemos")).toBe("Algo que não conhecemos");
+    expect(gravado("Aprovada.")).toBe("Approved.");
+    expect(gravado("✓ Concluí a tarefa: **Revisar**\n\nok")).toBe("✓ Completed the task: **Revisar**\n\nok");
+  });
+  test("em português nada muda", () => {
+    expect(erro({ message: "Tarefa não encontrada." })).toBe("Tarefa não encontrada.");
+    expect(gravado("Aprovada.")).toBe("Aprovada.");
+  });
+  test("pedido ao agente em inglês", () => {
+    definirIdioma("en", false);
+    expect(pedidoPara("Gemini", "Follou", { id: 7 }, "Ana").texto).toMatch(/^Read the room "Follou"/);
   });
 });

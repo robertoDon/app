@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { Layout, useSalas } from "../components/Layout";
-import { MODELOS, NovaSala } from "../components/NovaSala";
+import { modelos, NovaSala } from "../components/NovaSala";
+import { t } from "../i18n";
 import { ultimaSala } from "../supabase";
 
 // Abre no próximo passo: a última sala aberta, senão a primeira, senão "crie a sua".
@@ -26,10 +27,10 @@ export default function Inicio() {
     <Layout salas={salas} recarregar={recarregar}>
       {salas && !salas.length && (
         <section className="vazio">
-          <h1 className="display">Crie sua primeira sala.</h1>
-          <p className="sub">Uma sala por assunto. Depois é só chamar quem trabalha com você e conectar os agentes de cada um.</p>
+          <h1 className="display">{t("Crie sua primeira sala.", "Create your first room.")}</h1>
+          <p className="sub">{t("Uma sala por assunto. Depois é só chamar quem trabalha com você e conectar os agentes de cada um.", "One room per topic. Then invite the people you work with, and everyone connects their own agents.")}</p>
           <div className="modelos-inicio">
-            {MODELOS.map((m) => (
+            {modelos().map((m) => (
               <button key={m.id} className="modelo" onClick={() => setCriar(m.id)}>
                 <strong>{m.titulo}</strong><span className="nota">{m.texto}</span>
               </button>

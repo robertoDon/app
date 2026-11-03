@@ -1,33 +1,48 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { sb } from "../supabase";
+import { erro as traduzir, t } from "../i18n";
 import { IconeFechar } from "./Icones";
 
 // Modelos: um ponto de partida para o contexto que os agentes leem. Tudo editável depois.
-export const MODELOS = [
-  { id: "branco", titulo: "Em branco", texto: "Você escreve o contexto depois.", nome: "", contexto: "" },
+// Função (e não constante) para seguir o idioma escolhido.
+export const modelos = () => [
+  { id: "branco", titulo: t("Em branco", "Blank"), texto: t("Você escreve o contexto depois.", "You write the context later."), nome: "", contexto: "" },
   {
-    id: "lancamento", titulo: "Lançamento", texto: "Produto, data, preço e o que falta.", nome: "Lançamento",
-    contexto: "Objetivo: lançar [o quê] até [data].\nO que já está decidido: [preço, público, canais].\nQuem decide: [nomes]. Preço, data e qualquer publicação passam por proposta.\nAgentes: respostas curtas, com números e o próximo passo de cada um.",
+    id: "lancamento", titulo: t("Lançamento", "Launch"), texto: t("Produto, data, preço e o que falta.", "Product, date, price and what's left to do."), nome: t("Lançamento", "Launch"),
+    contexto: t(
+      "Objetivo: lançar [o quê] até [data].\nO que já está decidido: [preço, público, canais].\nQuem decide: [nomes]. Preço, data e qualquer publicação passam por proposta.\nAgentes: respostas curtas, com números e o próximo passo de cada um.",
+      "Goal: launch [what] by [date].\nAlready decided: [price, audience, channels].\nDecision makers: [names]. Price, date and anything that gets published go through a proposal.\nAgents: keep answers short, with numbers and each person's next step.",
+    ),
   },
   {
-    id: "cliente", titulo: "Cliente ou projeto", texto: "Escopo, prazo e o que pode sair para o cliente.", nome: "Projeto",
-    contexto: "Cliente: [nome]. Projeto: [o que será entregue].\nPrazo: [data]. Orçamento: [valor].\nTom com o cliente: [formal, direto...].\nNada sai para o cliente sem proposta aprovada aqui.\nAgentes: tragam riscos cedo e digam o que precisam de cada pessoa.",
+    id: "cliente", titulo: t("Cliente ou projeto", "Client or project"), texto: t("Escopo, prazo e o que pode sair para o cliente.", "Scope, due date and what can go out to the client."), nome: t("Projeto", "Project"),
+    contexto: t(
+      "Cliente: [nome]. Projeto: [o que será entregue].\nPrazo: [data]. Orçamento: [valor].\nTom com o cliente: [formal, direto...].\nNada sai para o cliente sem proposta aprovada aqui.\nAgentes: tragam riscos cedo e digam o que precisam de cada pessoa.",
+      "Client: [name]. Project: [what we're delivering].\nDue date: [date]. Budget: [amount].\nTone with the client: [formal, direct...].\nNothing goes out to the client without a proposal approved here.\nAgents: flag risks early and say what you need from each person.",
+    ),
   },
   {
-    id: "contratacao", titulo: "Contratação", texto: "Vaga, critérios e avaliação dos candidatos.", nome: "Contratação",
-    contexto: "Vaga: [cargo], [modelo de trabalho], [faixa salarial].\nCritérios, em ordem de peso: [1], [2], [3].\nAgentes: resumam cada candidato numa tabela com os critérios e uma nota de 1 a 5. Nada de dado pessoal além do necessário.\nAvançar ou recusar alguém é decisão das pessoas, por proposta.",
+    id: "contratacao", titulo: t("Contratação", "Hiring"), texto: t("Vaga, critérios e avaliação dos candidatos.", "Role, criteria and candidate reviews."), nome: t("Contratação", "Hiring"),
+    contexto: t(
+      "Vaga: [cargo], [modelo de trabalho], [faixa salarial].\nCritérios, em ordem de peso: [1], [2], [3].\nAgentes: resumam cada candidato numa tabela com os critérios e uma nota de 1 a 5. Nada de dado pessoal além do necessário.\nAvançar ou recusar alguém é decisão das pessoas, por proposta.",
+      "Role: [title], [remote/hybrid/on-site], [salary range].\nCriteria, most important first: [1], [2], [3].\nAgents: summarize each candidate in a table with the criteria and a score from 1 to 5. No personal data beyond what's needed.\nMoving a candidate forward or turning them down is a decision for people, made through a proposal.",
+    ),
   },
   {
-    id: "decisao", titulo: "Decisão", texto: "Uma pergunta, opções lado a lado, uma escolha.", nome: "Decisão",
-    contexto: "Pergunta: [o que precisamos decidir].\nPrazo: [data].\nO que importa: [custo, prazo, risco...].\nAgentes: tragam de 2 a 4 opções com prós, contras e fontes. Usem @agentes para que todos respondam e comparem lado a lado.\nUma pessoa decide por proposta.",
+    id: "decisao", titulo: t("Decisão", "Decision"), texto: t("Uma pergunta, opções lado a lado, uma escolha.", "One question, options side by side, one choice."), nome: t("Decisão", "Decision"),
+    contexto: t(
+      "Pergunta: [o que precisamos decidir].\nPrazo: [data].\nO que importa: [custo, prazo, risco...].\nAgentes: tragam de 2 a 4 opções com prós, contras e fontes. Usem @agentes para que todos respondam e comparem lado a lado.\nUma pessoa decide por proposta.",
+      "Question: [what we need to decide].\nDue date: [date].\nWhat matters: [cost, timing, risk...].\nAgents: bring 2 to 4 options with pros, cons and sources. Use @agents so everyone answers and you can compare side by side.\nA person decides through a proposal.",
+    ),
   },
 ];
 
 export function NovaSala({ fechar, aoCriar, modeloInicial = "branco" }: { fechar: () => void; aoCriar?: () => void; modeloInicial?: string }) {
   const nav = useNavigate();
+  const lista = modelos();
   const [modelo, setModelo] = useState(modeloInicial);
-  const [nome, setNome] = useState(MODELOS.find((m) => m.id === modeloInicial)?.nome ?? "");
+  const [nome, setNome] = useState(lista.find((m) => m.id === modeloInicial)?.nome ?? "");
   const [erro, setErro] = useState("");
   const [indo, setIndo] = useState(false);
 
@@ -38,8 +53,8 @@ export function NovaSala({ fechar, aoCriar, modeloInicial = "branco" }: { fechar
   }, [fechar]);
 
   const escolher = (id: string) => {
-    const atual = MODELOS.find((m) => m.id === modelo);
-    const novo = MODELOS.find((m) => m.id === id)!;
+    const atual = lista.find((m) => m.id === modelo);
+    const novo = lista.find((m) => m.id === id)!;
     if (!nome.trim() || nome === atual?.nome) setNome(novo.nome);
     setModelo(id);
   };
@@ -49,8 +64,8 @@ export function NovaSala({ fechar, aoCriar, modeloInicial = "branco" }: { fechar
     if (!nome.trim()) return;
     setIndo(true); setErro("");
     const { data, error } = await sb.rpc("criar_sala", { nome: nome.trim() });
-    if (error) { setIndo(false); return setErro(error.message); }
-    const m = MODELOS.find((x) => x.id === modelo)!;
+    if (error) { setIndo(false); return setErro(traduzir(error)); }
+    const m = lista.find((x) => x.id === modelo)!;
     if (m.contexto) await sb.from("salas").update({ contexto: m.contexto }).eq("id", data as string);
     aoCriar?.();
     fechar();
@@ -61,12 +76,12 @@ export function NovaSala({ fechar, aoCriar, modeloInicial = "branco" }: { fechar
     <div className="modal-fundo" onMouseDown={(e) => e.target === e.currentTarget && fechar()}>
       <form className="modal" role="dialog" aria-modal="true" aria-labelledby="nova-titulo" onSubmit={criar}>
         <div className="modal-topo">
-          <h2 id="nova-titulo">Nova sala</h2>
-          <button type="button" className="btn-icone" onClick={fechar} aria-label="Fechar"><IconeFechar /></button>
+          <h2 id="nova-titulo">{t("Nova sala", "New room")}</h2>
+          <button type="button" className="btn-icone" onClick={fechar} aria-label={t("Fechar", "Close")}><IconeFechar /></button>
         </div>
         <fieldset className="modelos">
-          <legend className="rotulo">Comece de um modelo</legend>
-          {MODELOS.map((m) => (
+          <legend className="rotulo">{t("Comece de um modelo", "Start from a template")}</legend>
+          {lista.map((m) => (
             <label key={m.id} className={`modelo ${modelo === m.id ? "marcado" : ""}`}>
               <input type="radio" name="modelo" value={m.id} checked={modelo === m.id} onChange={() => escolher(m.id)} />
               <strong>{m.titulo}</strong>
@@ -74,13 +89,13 @@ export function NovaSala({ fechar, aoCriar, modeloInicial = "branco" }: { fechar
             </label>
           ))}
         </fieldset>
-        <label className="rotulo" htmlFor="nova-nome">Nome da sala</label>
-        <input id="nova-nome" autoFocus value={nome} maxLength={80} placeholder="Ex.: Lançamento do piloto" onChange={(e) => setNome(e.target.value)} />
-        {modelo !== "branco" && <p className="nota">O contexto do modelo abre em seguida para você completar o que está entre colchetes.</p>}
+        <label className="rotulo" htmlFor="nova-nome">{t("Nome da sala", "Room name")}</label>
+        <input id="nova-nome" autoFocus value={nome} maxLength={80} placeholder={t("Ex.: Lançamento do piloto", "E.g., Pilot launch")} onChange={(e) => setNome(e.target.value)} />
+        {modelo !== "branco" && <p className="nota">{t("O contexto do modelo abre em seguida para você completar o que está entre colchetes.", "The template's context opens next so you can fill in the parts in brackets.")}</p>}
         {erro && <p className="nota erro" role="alert">{erro}</p>}
         <div className="linha">
-          <button className="btn btn-cheio" disabled={!nome.trim() || indo}>Criar sala</button>
-          <button type="button" className="btn btn-texto" onClick={fechar}>Cancelar</button>
+          <button className="btn btn-cheio" disabled={!nome.trim() || indo}>{t("Criar sala", "Create room")}</button>
+          <button type="button" className="btn btn-texto" onClick={fechar}>{t("Cancelar", "Cancel")}</button>
         </div>
       </form>
     </div>

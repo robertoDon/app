@@ -3,10 +3,11 @@ import { handle } from "./Texto";
 import { IconeAgente, IconeArquivo, IconeClipe, IconeEnviar, IconeFechar, IconeProposta, IconeResponder } from "./Icones";
 import type { Citacao } from "./Bolha";
 import { sb, tamanhoLegivel, type Anexo } from "../supabase";
+import { erro, t as tr } from "../i18n";
 
 type Subindo = { id: string; nome: string; tamanho: number; previa?: string; anexo?: Anexo; erro?: string };
 
-export type Sugestao = { handle: string; rotulo: string; agente?: boolean };
+export type Sugestao = { handle: string; rotulo: string; agente?: boolean; apelidos?: string[] }; // apelidos: "@all" também acha "@everyone"
 export type ComporApi = { focar: () => void; inserir: (t: string) => void; anexar: (fs: File[]) => void };
 
 type Props = {
@@ -33,13 +34,13 @@ export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBa
 
   const anexar = (fs: File[]) => {
     const novos = fs.slice(0, 10 - arquivos.length).map((f) => ({
-      id: crypto.randomUUID(), nome: f.name || "arquivo", tamanho: f.size,
+      id: crypto.randomUUID(), nome: f.name || tr("arquivo", "file"), tamanho: f.size,
       previa: f.type.startsWith("image/") ? URL.createObjectURL(f) : undefined, f,
     }));
     setArquivos((a) => [...a, ...novos.map(({ f: _f, ...x }) => x)]); // eslint-disable-line @typescript-eslint/no-unused-vars
     novos.forEach(({ id, f }) => subir(f)
       .then((anexo) => setArquivos((a) => a.map((x) => (x.id === id ? { ...x, anexo } : x))))
-      .catch((e) => setArquivos((a) => a.map((x) => (x.id === id ? { ...x, erro: (e as Error).message } : x)))));
+      .catch((e) => setArquivos((a) => a.map((x) => (x.id === id ? { ...x, erro: erro(e) } : x)))));
     caixa.current?.focus();
   };
 
@@ -72,7 +73,7 @@ export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBa
   const sugestoes = useMemo(() => {
     if (busca === null) return [];
     const b = handle(busca);
-    return sugestoesBase.filter((s) => s.handle && handle(s.handle).startsWith(b)).slice(0, 6);
+    return sugestoesBase.filter((s) => s.handle && [s.handle, ...(s.apelidos ?? [])].some((h) => handle(h).startsWith(b))).slice(0, 6);
   }, [busca, sugestoesBase]);
 
   const acharBusca = (valor: string, cursor: number) => {
@@ -101,7 +102,7 @@ export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBa
   return (
     <form className="compor" onSubmit={(e) => { e.preventDefault(); mandar(); }}>
       {sugestoes.length > 0 && (
-        <ul className="sugestoes" role="listbox" aria-label="Mencionar">
+        <ul className="sugestoes" role="listbox" aria-label={tr("Mencionar", "Mention")}>
           {sugestoes.map((s, i) => (
             <li key={s.handle} role="option" aria-selected={i === escolha}>
               <button type="button" className={i === escolha ? "ativa" : ""} onMouseDown={(e) => { e.preventDefault(); escolher(s); }}>
@@ -116,13 +117,13 @@ export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBa
 
       <div className={`compor-caixa ${proposta ? "compor-proposta" : ""}`} onClick={() => caixa.current?.focus()}>
         {arquivos.length > 0 && (
-          <ul className="compor-arquivos" aria-label="Arquivos para enviar">
+          <ul className="compor-arquivos" aria-label={tr("Arquivos para enviar", "Files to send")}>
             {arquivos.map((a) => (
               <li key={a.id} className={a.erro ? "erro" : a.anexo ? "" : "subindo"} title={a.erro ?? a.nome}>
                 {a.previa ? <img src={a.previa} alt="" /> : <span className="anexo-icone" aria-hidden><IconeArquivo tamanho={16} /></span>}
                 <span className="anexo-info"><strong>{a.nome}</strong>
-                  <span className="nota">{a.erro ? "Não enviou" : a.anexo ? tamanhoLegivel(a.tamanho) : "Enviando…"}</span></span>
-                <button type="button" className="btn-acao" aria-label={`Tirar ${a.nome}`}
+                  <span className="nota">{a.erro ? tr("Não enviou", "Upload failed") : a.anexo ? tamanhoLegivel(a.tamanho) : tr("Enviando…", "Uploading…")}</span></span>
+                <button type="button" className="btn-acao" aria-label={tr(`Tirar ${a.nome}`, `Remove ${a.nome}`)}
                   onClick={(e) => {
                     e.stopPropagation();
                     if (a.anexo) sb.storage.from("arquivos").remove([a.anexo.path]); // não fica guardado sem uso
@@ -136,22 +137,24 @@ export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBa
           <div className="compor-topo">
             {respondendo && (
               <span className="compor-chip">
-                <IconeResponder tamanho={14} /> Respondendo a <strong>{respondendo.autor}</strong>
+                <IconeResponder tamanho={14} /> {tr("Respondendo a", "Replying to")} <strong>{respondendo.autor}</strong>
                 <span className="compor-chip-texto">{respondendo.texto}</span>
-                <button type="button" className="btn-acao" onClick={(e) => { e.stopPropagation(); cancelarResposta(); }} aria-label="Não responder"><IconeFechar tamanho={14} /></button>
+                <button type="button" className="btn-acao" onClick={(e) => { e.stopPropagation(); cancelarResposta(); }} aria-label={tr("Não responder", "Cancel reply")}><IconeFechar tamanho={14} /></button>
               </span>
             )}
             {proposta && (
               <span className="compor-chip">
-                <IconeProposta tamanho={14} /> <strong>Proposta</strong> · as pessoas da sala aprovam ou recusam
+                <IconeProposta tamanho={14} /> <strong>{tr("Proposta", "Proposal")}</strong> · {tr("as pessoas da sala aprovam ou recusam", "people in the room approve or decline")}
               </span>
             )}
           </div>
         )}
         <div className="compor-linha">
-          <label className="sr" htmlFor="texto">Mensagem</label>
+          <label className="sr" htmlFor="texto">{tr("Mensagem", "Message")}</label>
           <textarea id="texto" ref={caixa} rows={1} value={texto}
-            placeholder={proposta ? (estreito ? "O que você propõe?" : "O que você propõe? Diga o que muda.") : (estreito ? "Escreva aqui" : "Escreva aqui · @ chama alguém")}
+            placeholder={proposta
+              ? (estreito ? tr("O que você propõe?", "What do you propose?") : tr("O que você propõe? Diga o que muda.", "What do you propose? Say what changes."))
+              : (estreito ? tr("Escreva aqui", "Write a message") : tr("Escreva aqui · @ chama alguém", "Write a message · @ to mention someone"))}
             onChange={(e) => { setTexto(e.target.value); acharBusca(e.target.value, e.target.selectionStart); }}
             onBlur={() => setBusca(null)}
             onPaste={(e) => { const fs = [...e.clipboardData.files]; if (fs.length) { e.preventDefault(); anexar(fs); } }}
@@ -166,20 +169,20 @@ export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBa
               if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); mandar(); }
             }} />
           <input ref={seletor} type="file" multiple hidden onChange={(e) => { anexar([...(e.target.files ?? [])]); e.target.value = ""; }} />
-          <button type="button" className="btn-acao btn-clipe" title="Anexar arquivo (até 10 MB) · também dá para colar ou arrastar" aria-label="Anexar arquivo"
+          <button type="button" className="btn-acao btn-clipe" title={tr("Anexar arquivo (até 10 MB) · também dá para colar ou arrastar", "Attach file (up to 10 MB) · you can also paste or drag it in")} aria-label={tr("Anexar arquivo", "Attach file")}
             onClick={(e) => { e.stopPropagation(); seletor.current?.click(); }}><IconeClipe tamanho={18} /></button>
           <button type="button" className={`btn-acao btn-propor ${proposta ? "ativo" : ""}`} aria-pressed={proposta}
             onClick={(e) => { e.stopPropagation(); setProposta((v) => !v); caixa.current?.focus(); }}
-            title={proposta ? "Voltar a mensagem comum" : "Fazer uma proposta: pedir que as pessoas aprovem ou recusem"}>
-            <IconeProposta tamanho={18} /><span className="some-celular">{proposta ? "Proposta" : "Propor"}</span>
+            title={proposta ? tr("Voltar a mensagem comum", "Back to a regular message") : tr("Fazer uma proposta: pedir que as pessoas aprovem ou recusem", "Make a proposal: ask people to approve or decline")}>
+            <IconeProposta tamanho={18} /><span className="some-celular">{proposta ? tr("Proposta", "Proposal") : tr("Propor", "Propose")}</span>
           </button>
-          <button className="btn-enviar" disabled={(!texto.trim() && !prontos.length) || enviando} title={proposta ? "Propor (Enter)" : "Enviar (Enter)"} aria-label={proposta ? "Enviar proposta" : "Enviar"}>
+          <button className="btn-enviar" disabled={(!texto.trim() && !prontos.length) || enviando} title={proposta ? tr("Propor (Enter)", "Propose (Enter)") : tr("Enviar (Enter)", "Send (Enter)")} aria-label={proposta ? tr("Enviar proposta", "Send proposal") : tr("Enviar", "Send")}>
             <IconeEnviar tamanho={18} />
           </button>
         </div>
       </div>
       <p className="compor-dica" aria-hidden>
-        <kbd>@</kbd> chama alguém · <kbd>@agentes</kbd> pergunta a todos · <kbd>Enter</kbd> envia · <kbd>Shift</kbd> + <kbd>Enter</kbd> quebra linha
+        <kbd>@</kbd> {tr("chama alguém", "mentions someone")} · <kbd>{tr("@agentes", "@agents")}</kbd> {tr("pergunta a todos", "asks all agents")} · <kbd>Enter</kbd> {tr("envia", "sends")} · <kbd>Shift</kbd> + <kbd>Enter</kbd> {tr("quebra linha", "new line")}
       </p>
     </form>
   );

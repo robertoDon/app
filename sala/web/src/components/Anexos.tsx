@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { linksDe, tamanhoLegivel, type Anexo } from "../supabase";
 import { IconeArquivo, IconeBaixar } from "./Icones";
+import { t } from "../i18n";
 
 const ehImagem = (a: Anexo) => a.tipo.startsWith("image/") && !a.tipo.includes("svg");
 
@@ -32,7 +33,7 @@ export function Anexos({ anexos }: { anexos: Anexo[] }) {
         </div>
       )}
       {outros.map((a) => (
-        <a key={a.path} className="anexo-arquivo" href={baixar[a.path] || undefined} title={`Baixar ${a.nome}`}>
+        <a key={a.path} className="anexo-arquivo" href={baixar[a.path] || undefined} title={t(`Baixar ${a.nome}`, `Download ${a.nome}`)}>
           <span className="anexo-icone" aria-hidden><IconeArquivo tamanho={18} /></span>
           <span className="anexo-info"><strong>{a.nome}</strong><span className="nota">{tamanhoLegivel(a.tamanho)}</span></span>
           <IconeBaixar tamanho={16} />
