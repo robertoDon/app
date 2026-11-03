@@ -32,7 +32,7 @@ export const Marca = () => (
       <circle cx="12" cy="16" r="4.5" fill="var(--fundo)" />
       <circle cx="21" cy="16" r="4.5" fill="none" stroke="var(--fundo)" strokeWidth="2.2" />
     </svg>
-    <span>Sala</span>
+    <span>The Sala</span>
   </div>
 );
 
@@ -48,3 +48,13 @@ export const IconeAjustes = ({ tamanho }: P) => (
   <svg {...base(tamanho)}><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0" /><circle cx="16" cy="6" r="2" /><circle cx="10" cy="12" r="2" /><circle cx="18" cy="18" r="2" /></svg>
 );
 export const IconeCheck = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M5 12l5 5L20 7" /></svg>;
+export const IconeResponder = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M9 14 4 9l5-5" /><path d="M4 9h10a6 6 0 0 1 6 6v5" /></svg>;
+export const IconeLapis = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M4 20h4L19 9l-4-4L4 16v4ZM13 7l4 4" /></svg>;
+export const IconeLixo = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" /></svg>;
+export const IconeBusca = ({ tamanho }: P) => <svg {...base(tamanho)}><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>;
+export const IconeDecisao = ({ tamanho }: P) => <svg {...base(tamanho)}><circle cx="12" cy="12" r="9" /><path d="m8 12 3 3 5-6" /></svg>;
+export const IconeRecusa = ({ tamanho }: P) => <svg {...base(tamanho)}><circle cx="12" cy="12" r="9" /><path d="m9 9 6 6M15 9l-6 6" /></svg>;
+export const IconeColunas = ({ tamanho }: P) => <svg {...base(tamanho)}><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M9 4v16M15 4v16" /></svg>;
+export const IconeSino = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4l2-2ZM10 21h4" /></svg>;
+export const IconeProposta = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M5 4h14v16l-7-4-7 4V4Z" /></svg>;
+export const IconeMais3 = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M6 12h.01M12 12h.01M18 12h.01" /></svg>;

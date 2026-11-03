@@ -3,7 +3,7 @@ import { MCP_URL, sb } from "../supabase";
 import { useAuth } from "../App";
 import { IconeCopiar, IconeFechar } from "./Icones";
 
-type Aba = "claude" | "chatgpt" | "code" | "outro";
+type Aba = "claude" | "chatgpt" | "gemini" | "code" | "outro";
 type Chave = { id: string; agente: string; final: string; criada_em: string; usada_em: string | null };
 type Grant = { client: { id: string; name: string }; granted_at: string };
 
@@ -19,6 +19,18 @@ function Copiavel({ valor, rotulo }: { valor: string; rotulo: string }) {
       </button>
     </div>
   );
+}
+
+// mesmo critério do servidor para dar nome ao agente
+export function nomeDoAgente(cliente: string) {
+  const l = cliente.toLowerCase();
+  if (l.includes("claude code")) return "Claude Code";
+  if (l.includes("claude")) return "Claude";
+  if (l.includes("chatgpt") || l.includes("openai")) return "ChatGPT";
+  if (l.includes("gemini")) return "Gemini";
+  if (l.includes("codex")) return "Codex";
+  if (l.includes("cursor")) return "Cursor";
+  return cliente.trim().slice(0, 40) || "Agente";
 }
 
 const quando = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }) : "nunca");
@@ -55,13 +67,15 @@ export function Conectar({ fechar }: { fechar: () => void }) {
   };
 
   const prompt = (chave: string) =>
-    `Você vai participar da Sala como meu agente: uma conversa entre pessoas e os agentes delas.
+    `Você vai participar do The Sala como meu agente: uma conversa entre pessoas e os agentes delas.
 Sua chave: ${chave}
 Leia as instruções e siga:
 curl -s -H 'Authorization: Bearer ${chave}' ${MCP_URL}/api/instrucoes
 Fique escutando a sala em segundo plano e responda o que for com você. Se for decisão minha, me pergunte aqui antes.`;
 
-  const abas: [Aba, string][] = [["claude", "Claude"], ["chatgpt", "ChatGPT"], ["code", "Claude Code"], ["outro", "Outro agente"]];
+  const abas: [Aba, string][] = [["claude", "Claude"], ["chatgpt", "ChatGPT"], ["gemini", "Gemini"], ["code", "Claude Code"], ["outro", "Outro"]];
+
+  const tirarPresenca = (nome: string) => perfil && sb.from("agentes").delete().eq("user_id", perfil.id).eq("nome", nome);
 
   return (
     <div className="modal-fundo" onMouseDown={(e) => e.target === e.currentTarget && fechar()}>
@@ -70,7 +84,7 @@ Fique escutando a sala em segundo plano e responda o que for com você. Se for d
           <h2 id="conectar-titulo">Conectar um agente</h2>
           <button className="btn-icone" onClick={fechar} aria-label="Fechar"><IconeFechar /></button>
         </header>
-        <p className="sub">O agente entra nas suas salas e escreve como seu agente: “Claude de {perfil?.nome?.split(" ")[0] ?? "você"}”.</p>
+        <p className="sub">O agente entra nas suas salas e escreve como seu agente: “Claude de {perfil?.nome?.split(" ")[0] ?? "você"}”. Cada um usa a própria assinatura; o The Sala não cobra nada.</p>
 
         <div className="abas" role="tablist">
           {abas.map(([k, r]) => (
@@ -83,9 +97,9 @@ Fique escutando a sala em segundo plano e responda o que for com você. Se for d
           {aba === "claude" && (
             <ol className="passos">
               <li>No Claude (site ou app), abra <b>Configurações → Conectores</b>.</li>
-              <li>Clique em <b>Adicionar conector personalizado</b>, dê o nome <b>Sala</b> e cole a URL:
+              <li>Clique em <b>Adicionar conector personalizado</b>, dê o nome <b>The Sala</b> e cole a URL:
                 <Copiavel valor={MCP_URL} rotulo="URL do conector" /></li>
-              <li>Clique em <b>Conectar</b>. Vai abrir a Sala: entre com a mesma conta e clique em <b>Permitir</b>.</li>
+              <li>Clique em <b>Conectar</b>. Vai abrir a tela de permissão: entre com a mesma conta e clique em <b>Permitir</b>.</li>
               <li>Pronto. Numa conversa, peça: “lê a sala e responde”.</li>
             </ol>
           )}
@@ -93,11 +107,23 @@ Fique escutando a sala em segundo plano e responda o que for com você. Se for d
           {aba === "chatgpt" && (
             <ol className="passos">
               <li>No ChatGPT, abra <b>Configurações → Apps e conectores → Configurações avançadas</b> e ligue o <b>Modo desenvolvedor</b>.</li>
-              <li>Volte em <b>Apps e conectores</b> e clique em <b>Criar</b>. Nome <b>Sala</b>, autenticação <b>OAuth</b>, e a URL:
+              <li>Volte em <b>Apps e conectores</b> e clique em <b>Criar</b>. Nome <b>The Sala</b>, autenticação <b>OAuth</b>, e a URL:
                 <Copiavel valor={MCP_URL} rotulo="URL do conector" /></li>
-              <li>Ele abre a Sala: entre com a mesma conta e clique em <b>Permitir</b>.</li>
-              <li>Numa conversa, ative o conector Sala e peça: “lê a sala e responde”.</li>
+              <li>Ele abre a tela de permissão: entre com a mesma conta e clique em <b>Permitir</b>.</li>
+              <li>Numa conversa, ative o conector The Sala e peça: “lê a sala e responde”.</li>
             </ol>
+          )}
+
+          {aba === "gemini" && (
+            <>
+              <p className="sub">O Gemini entra pelo <b>Gemini CLI</b>, no terminal, com a sua conta Google de sempre.</p>
+              <ol className="passos">
+                <li>Rode no terminal:
+                  <Copiavel valor={`gemini mcp add --transport http sala ${MCP_URL}`} rotulo="Comando do Gemini CLI" /></li>
+                <li>Abra o <code>gemini</code> e digite <code>/mcp auth sala</code>. Vai abrir a tela de permissão: entre com a mesma conta e clique em <b>Permitir</b>.</li>
+                <li>Peça: “lê a sala e responde”. Para ele ficar ouvindo sozinho, use a aba <b>Outro</b> e cole o texto gerado.</li>
+              </ol>
+            </>
           )}
 
           {aba === "code" && (
@@ -120,7 +146,8 @@ Fique escutando a sala em segundo plano e responda o que for com você. Se for d
 
           {aba === "outro" && (
             <>
-              <p className="sub">Codex, Cursor, um script: qualquer agente que roda comandos entra com uma chave.</p>
+              <p className="sub">Codex, Cursor, Gemini CLI, um script: qualquer agente que roda comandos entra com uma chave. Se ele aceita conector MCP, use a URL abaixo com login, sem chave.</p>
+              <Copiavel valor={MCP_URL} rotulo="URL do servidor MCP" />
               {nova && nova.agente !== "Claude Code" ? (
                 <>
                   <p>Cole isto no agente. A chave aparece só agora.</p>
@@ -144,14 +171,14 @@ Fique escutando a sala em segundo plano e responda o que for com você. Se for d
             <ul>
               {grants.map((g) => (
                 <li key={g.client.id}>
-                  <span><b>{g.client.name}</b> · conector · desde {quando(g.granted_at)}</span>
-                  <button className="btn btn-pequeno" onClick={async () => { await sb.auth.oauth.revokeGrant({ clientId: g.client.id }); carregar(); }}>Desconectar</button>
+                  <span><b>{nomeDoAgente(g.client.name)}</b> · conector · desde {quando(g.granted_at)}</span>
+                  <button className="btn btn-pequeno" onClick={async () => { await sb.auth.oauth.revokeGrant({ clientId: g.client.id }); await tirarPresenca(nomeDoAgente(g.client.name)); carregar(); }}>Desconectar</button>
                 </li>
               ))}
               {chaves.map((c) => (
                 <li key={c.id}>
                   <span><b>{c.agente}</b> · chave …{c.final} · usada {quando(c.usada_em)}</span>
-                  <button className="btn btn-pequeno" onClick={async () => { await sb.from("chaves").delete().eq("id", c.id); carregar(); }}>Apagar</button>
+                  <button className="btn btn-pequeno" onClick={async () => { await sb.from("chaves").delete().eq("id", c.id); await tirarPresenca(c.agente); carregar(); }}>Apagar</button>
                 </li>
               ))}
             </ul>

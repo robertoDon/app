@@ -2,11 +2,18 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../App";
 import { Layout, useSalas } from "../components/Layout";
-import { Bolha } from "../components/Bolha";
+import { Bolha, Evento, type Citacao } from "../components/Bolha";
 import { Ajustes } from "../components/Ajustes";
+import { Compor, type ComporApi, type Sugestao } from "../components/Compor";
+import { Decisoes } from "../components/Decisoes";
+import { Comparar, type Esperando } from "../components/Comparar";
+import { Busca } from "../components/Busca";
+import { Avisos } from "../components/Avisos";
 import { handle } from "../components/Texto";
-import { IconeAjustes, IconeAgente, IconeCheck, IconeConvite, IconeEnviar, IconePlugue, IconeVoltar } from "../components/Icones";
-import { abrirConectar, sb, ultimaSala, type Membro, type Mensagem } from "../supabase";
+import {
+  IconeAjustes, IconeAgente, IconeBusca, IconeCheck, IconeColunas, IconeConvite, IconeDecisao, IconePlugue, IconeProposta, IconeVoltar,
+} from "../components/Icones";
+import { abrirConectar, copiarTexto, presenca, sb, ultimaSala, type Agente, type Membro, type Mensagem } from "../supabase";
 
 const hora = (iso: string) => new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 const completo = (iso: string) => new Date(iso).toLocaleString("pt-BR", { dateStyle: "long", timeStyle: "short" });
@@ -18,8 +25,12 @@ const dia = (iso: string) => {
   if (d.toDateString() === ontem.toDateString()) return "Ontem";
   return d.toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: d.getFullYear() === hoje.getFullYear() ? undefined : "numeric" });
 };
+const umaLinha = (t: string, n = 90) => { const l = t.replace(/\s+/g, " ").trim(); return l.length > n ? `${l.slice(0, n - 1)}…` : l; };
+const perguntaATodos = (m: Mensagem) => !m.agente && m.tipo === "mensagem" && !m.apagada && /@(agentes|todos)(?![\p{L}\p{N}_])/iu.test(m.texto);
+const PAGINA = 200;
 
-type Sugestao = { handle: string; rotulo: string; agente?: boolean };
+export type AgenteSala = { nome: string; uid: string; presenca: { ativo: boolean; texto: string } | null };
+type Painel = null | "ajustes" | "contexto" | "decisoes" | "busca";
 
 export default function SalaPage() {
   const { id = "" } = useParams();
@@ -27,40 +38,42 @@ export default function SalaPage() {
   const eu = sessao!.user.id;
   const { salas, recarregar } = useSalas();
   const sala = salas?.find((s) => s.id === id);
+  const dono = sala?.papel === "dono";
 
   const [membros, setMembros] = useState<Membro[]>([]);
+  const [presencas, setPresencas] = useState<Agente[]>([]);
   const [msgs, setMsgs] = useState<Mensagem[] | null>(null);
-  const [texto, setTexto] = useState("");
+  const [temAnteriores, setTemAnteriores] = useState(false);
   const [convite, setConvite] = useState(false);
   const [copiado, setCopiado] = useState(false);
-  const [ajustes, setAjustes] = useState<false | true | "contexto">(false);
-  const [busca, setBusca] = useState<string | null>(null); // texto depois do @ que está sendo digitado
-  const [escolha, setEscolha] = useState(0);
+  const [painel, setPainel] = useState<Painel>(null);
+  const [respondendo, setRespondendo] = useState<Citacao>(null);
+  const [comparar, setComparar] = useState<number | null>(null);
+  const [destaque, setDestaque] = useState<number | null>(null);
+  const [versaoDecisoes, setVersaoDecisoes] = useState(0);
+  const [, setRelogio] = useState(0); // refaz "visto há…" de tempos em tempos
   const feed = useRef<HTMLDivElement>(null);
-  const caixa = useRef<HTMLTextAreaElement>(null);
+  const compor = useRef<ComporApi>(null);
   const noFim = useRef(true);
   const lido = useRef(0);
-  const cursorPendente = useRef<number | null>(null);
-
-  // depois de escolher uma @menção, o cursor vai para logo depois dela, no mesmo ciclo da tela
-  useLayoutEffect(() => {
-    const c = caixa.current;
-    if (c && cursorPendente.current !== null) {
-      c.focus();
-      c.setSelectionRange(cursorPendente.current, cursorPendente.current);
-      cursorPendente.current = null;
-    }
-  }, [texto]);
+  const manterRolagem = useRef<number | null>(null);
+  const rolarPara = useRef<number | null>(null);
 
   const nomes = useMemo(() => new Map(membros.map((m) => [m.user_id, m.perfis?.nome ?? "Alguém"])), [membros]);
-  const primeiro = (uid: string) => (nomes.get(uid) ?? "Alguém").split(" ")[0];
+  const nome = useCallback((uid: string | null) => (uid && nomes.get(uid)) || "Alguém", [nomes]);
+  const primeiro = useCallback((uid: string) => nome(uid).split(" ")[0], [nome]);
+  const autor = useCallback((m: Mensagem) => (m.agente ? `${m.agente} de ${primeiro(m.user_id)}` : nome(m.user_id)), [nome, primeiro]);
 
-  // agentes que já falaram aqui (Claude de Ana, ChatGPT de Bruno...)
-  const agentes = useMemo(() => {
-    const vistos = new Map<string, { agente: string; uid: string }>();
-    msgs?.forEach((m) => m.agente && vistos.set(`${m.agente}|${m.user_id}`, { agente: m.agente, uid: m.user_id }));
-    return [...vistos.values()];
-  }, [msgs]);
+  // agentes da sala: os conectados de quem está aqui (com presença) e os que já falaram
+  const agentes = useMemo<AgenteSala[]>(() => {
+    const mapa = new Map<string, AgenteSala>();
+    const ids = new Set(membros.map((m) => m.user_id));
+    presencas.filter((a) => ids.has(a.user_id) && Date.now() - new Date(a.visto_em).getTime() < 30 * 864e5)
+      .forEach((a) => mapa.set(`${a.nome}|${a.user_id}`, { nome: a.nome, uid: a.user_id, presenca: presenca(a) }));
+    msgs?.forEach((m) => m.agente && ids.has(m.user_id) && !mapa.has(`${m.agente}|${m.user_id}`) &&
+      mapa.set(`${m.agente}|${m.user_id}`, { nome: m.agente, uid: m.user_id, presenca: null }));
+    return [...mapa.values()];
+  }, [presencas, msgs, membros]);
 
   const meuPrimeiro = handle((perfil?.nome ?? "").split(" ")[0]);
   const chamaMim = useCallback((mencao: string) => {
@@ -68,53 +81,76 @@ export default function SalaPage() {
     return h === "todos" || (!!meuPrimeiro && h === meuPrimeiro);
   }, [meuPrimeiro]);
 
-  const sugestoes = useMemo<Sugestao[]>(() => {
-    if (busca === null) return [];
-    const todas: Sugestao[] = [
-      { handle: "agentes", rotulo: "Todos os agentes da sala", agente: true },
-      ...agentes.map((a) => ({ handle: `${a.agente.replace(/\s/g, "")}-${primeiro(a.uid)}`, rotulo: `${a.agente} de ${nomes.get(a.uid) ?? "?"}`, agente: true })),
-      ...membros.filter((m) => m.user_id !== eu).map((m) => ({ handle: (m.perfis?.nome ?? "").split(" ")[0], rotulo: m.perfis?.nome ?? "" })),
-      { handle: "todos", rotulo: "Todo mundo, pessoas e agentes" },
-    ];
-    const b = handle(busca);
-    return todas.filter((s) => s.handle && handle(s.handle).startsWith(b)).slice(0, 6);
-  }, [busca, agentes, membros, eu, nomes]); // eslint-disable-line react-hooks/exhaustive-deps
+  const sugestoes = useMemo<Sugestao[]>(() => [
+    { handle: "agentes", rotulo: "Todos os agentes da sala respondem", agente: true },
+    ...agentes.map((a) => ({ handle: `${a.nome.replace(/\s/g, "")}-${primeiro(a.uid)}`, rotulo: `${a.nome} de ${nome(a.uid)}`, agente: true })),
+    ...membros.filter((m) => m.user_id !== eu).map((m) => ({ handle: (m.perfis?.nome ?? "").split(" ")[0], rotulo: m.perfis?.nome ?? "" })),
+    { handle: "todos", rotulo: "Todo mundo, pessoas e agentes" },
+  ], [agentes, membros, eu, nome, primeiro]);
+
+  const porId = useMemo(() => new Map((msgs ?? []).map((m) => [m.id, m])), [msgs]);
+  const respostas = useMemo(() => {
+    const r = new Map<number, Mensagem[]>();
+    msgs?.forEach((m) => { if (m.agente && m.responde_a && !m.apagada) r.set(m.responde_a, [...(r.get(m.responde_a) ?? []), m]); });
+    return r;
+  }, [msgs]);
 
   // ---------------------------------------------------------------- carregar e ouvir
 
   useEffect(() => {
     if (!id) return;
     ultimaSala.set(id);
-    setMsgs(null); setAjustes(false); setConvite(false);
+    setMsgs(null); setPainel(null); setConvite(false); setRespondendo(null); setComparar(null);
     noFim.current = true; lido.current = 0;
 
     const carregarMembros = () =>
       sb.from("membros").select("user_id, papel, perfis(id, nome, avatar)").eq("sala_id", id).order("entrou_em")
         .then(({ data }) => setMembros((data as unknown as Membro[]) ?? []));
-    carregarMembros();
+    const carregarPresencas = () => sb.from("agentes").select("*").then(({ data }) => setPresencas((data as Agente[]) ?? []));
+    carregarMembros(); carregarPresencas();
 
-    sb.from("mensagens").select("*").eq("sala_id", id).order("id", { ascending: false }).limit(200)
-      .then(({ data }) => setMsgs(((data as Mensagem[]) ?? []).reverse()));
+    sb.from("mensagens").select("*").eq("sala_id", id).order("id", { ascending: false }).limit(PAGINA)
+      .then(({ data }) => {
+        const d = (data as Mensagem[]) ?? [];
+        setTemAnteriores(d.length === PAGINA);
+        setMsgs(d.reverse());
+      });
 
     const canal = sb.channel(`sala:${id}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "mensagens", filter: `sala_id=eq.${id}` }, (p) => {
         const m = p.new as Mensagem;
+        if (m.tipo !== "mensagem") setVersaoDecisoes((v) => v + 1);
         setMsgs((atual) => {
           if (!atual || atual.some((x) => x.id === m.id)) return atual;
-          const i = atual.findIndex((x) => x.pendente && x.texto === m.texto && x.user_id === m.user_id && !m.agente);
+          const i = atual.findIndex((x) => x.pendente && x.texto === m.texto && x.user_id === m.user_id && !m.agente && x.tipo === m.tipo);
           if (i >= 0) { const c = [...atual]; c[i] = m; return c; }
           return [...atual, m];
         });
       })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "mensagens", filter: `sala_id=eq.${id}` }, (p) => {
+        const m = p.new as Mensagem;
+        if (m.tipo === "proposta") setVersaoDecisoes((v) => v + 1);
+        setMsgs((atual) => atual?.map((x) => (x.id === m.id ? { ...x, ...m } : x)) ?? atual);
+      })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "membros", filter: `sala_id=eq.${id}` }, carregarMembros)
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "membros" }, carregarMembros)
+      .on("postgres_changes", { event: "*", schema: "public", table: "agentes" }, carregarPresencas)
       .subscribe();
-    return () => { sb.removeChannel(canal); };
+    const t = window.setInterval(() => setRelogio((n) => n + 1), 60_000);
+    return () => { sb.removeChannel(canal); window.clearInterval(t); };
   }, [id]);
 
+  // rolagem: grudada no fim; mantém o lugar ao carregar anteriores; vai até a mensagem pedida
   useLayoutEffect(() => {
     const f = feed.current;
-    if (f && noFim.current) f.scrollTop = f.scrollHeight;
+    if (!f) return;
+    if (manterRolagem.current !== null) { f.scrollTop = f.scrollHeight - manterRolagem.current; manterRolagem.current = null; return; }
+    if (rolarPara.current !== null) {
+      const alvo = document.getElementById(`m${rolarPara.current}`);
+      rolarPara.current = null;
+      if (alvo) { alvo.scrollIntoView({ block: "center" }); return; }
+    }
+    if (noFim.current) f.scrollTop = f.scrollHeight;
   }, [msgs]);
 
   // marca como lida o que está na tela
@@ -130,58 +166,103 @@ export default function SalaPage() {
     return () => document.removeEventListener("visibilitychange", marcar);
   }, [msgs, id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ---------------------------------------------------------------- enviar
+  // atalhos: / busca, D decisões
+  useEffect(() => {
+    const tecla = (e: KeyboardEvent) => {
+      const digitando = (e.target as HTMLElement)?.closest("input, textarea, [contenteditable]");
+      if (digitando || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === "/") { e.preventDefault(); setPainel("busca"); }
+      if (e.key === "d") { e.preventDefault(); setPainel((p) => (p === "decisoes" ? null : "decisoes")); }
+    };
+    window.addEventListener("keydown", tecla);
+    return () => window.removeEventListener("keydown", tecla);
+  }, []);
 
-  const mandar = async (t: string, tempId: number) => {
-    const { data, error } = await sb.from("mensagens").insert({ sala_id: id, user_id: eu, texto: t }).select("*").single();
+  const carregarAnteriores = async () => {
+    if (!msgs?.length) return;
+    const { data } = await sb.from("mensagens").select("*").eq("sala_id", id).lt("id", msgs[0].id).order("id", { ascending: false }).limit(PAGINA);
+    const d = ((data as Mensagem[]) ?? []).reverse();
+    setTemAnteriores(d.length === PAGINA);
+    const f = feed.current;
+    if (f) manterRolagem.current = f.scrollHeight - f.scrollTop;
+    setMsgs((a) => [...d, ...(a ?? [])]);
+  };
+
+  const irPara = useCallback(async (alvo: number) => {
+    if (window.matchMedia("(max-width: 720px)").matches) setPainel(null);
+    setDestaque(alvo); window.setTimeout(() => setDestaque((d) => (d === alvo ? null : d)), 1600);
+    const el = document.getElementById(`m${alvo}`);
+    if (el) { noFim.current = false; el.scrollIntoView({ block: "center", behavior: "smooth" }); return; }
+    // fora do que está carregado: carrega a partir dela
+    const { data } = await sb.from("mensagens").select("*").eq("sala_id", id).gte("id", alvo).order("id").limit(1000);
+    noFim.current = false; rolarPara.current = alvo;
+    setTemAnteriores(true);
+    setMsgs((data as Mensagem[]) ?? []);
+  }, [id]);
+
+  // ---------------------------------------------------------------- enviar e agir
+
+  const mandar = async (temp: Mensagem) => {
+    const { data, error } = await sb.from("mensagens")
+      .insert({ sala_id: id, user_id: eu, texto: temp.texto, tipo: temp.tipo, estado: temp.estado, responde_a: temp.responde_a })
+      .select("*").single();
     setMsgs((a) => {
       if (!a) return a;
-      if (error) return a.map((x) => (x.id === tempId ? { ...x, pendente: false, falhou: true } : x));
-      if (a.some((x) => x.id === data.id)) return a.filter((x) => x.id !== tempId);
-      return a.map((x) => (x.id === tempId ? (data as Mensagem) : x));
+      if (error) return a.map((x) => (x.id === temp.id ? { ...x, pendente: false, falhou: true } : x));
+      if (a.some((x) => x.id === data.id)) return a.filter((x) => x.id !== temp.id);
+      return a.map((x) => (x.id === temp.id ? (data as Mensagem) : x));
     });
   };
 
-  const enviar = () => {
-    const t = texto.trim();
-    if (!t) return;
-    setTexto(""); setBusca(null);
-    if (caixa.current) caixa.current.style.height = "auto";
+  const enviar = (texto: string, proposta: boolean) => {
     noFim.current = true;
-    const temp: Mensagem = { id: -Date.now(), sala_id: id, user_id: eu, agente: null, texto: t, criada_em: new Date().toISOString(), pendente: true };
+    const temp: Mensagem = {
+      id: -Date.now(), sala_id: id, user_id: eu, agente: null, texto, criada_em: new Date().toISOString(),
+      tipo: proposta ? "proposta" : "mensagem", estado: proposta ? "pendente" : null, responde_a: respondendo?.id ?? null,
+      decidida_por: null, decidida_em: null, editada_em: null, apagada: false, pendente: true,
+    };
+    setRespondendo(null);
     setMsgs((a) => [...(a ?? []), temp]);
-    mandar(t, temp.id);
+    mandar(temp);
   };
 
   const tentarDeNovo = (m: Mensagem) => {
     setMsgs((a) => a?.map((x) => (x.id === m.id ? { ...x, pendente: true, falhou: false } : x)) ?? a);
-    mandar(m.texto, m.id);
+    mandar(m);
   };
 
-  // ---------------------------------------------------------------- @menção
-
-  const acharBusca = (valor: string, cursor: number) => {
-    const m = valor.slice(0, cursor).match(/(?:^|\s)@([\p{L}\p{N}_-]*)$/u);
-    setBusca(m ? m[1] : null);
-    setEscolha(0);
+  const decidir = async (pid: number, aprovar: boolean, nota?: string) => {
+    const { error } = await sb.rpc("decidir", { proposta: pid, aprovar, nota: nota ?? null });
+    if (error) return error.message;
+    setMsgs((a) => a?.map((x) => (x.id === pid ? { ...x, estado: aprovar ? "aprovada" : "recusada", decidida_por: eu, decidida_em: new Date().toISOString() } : x)) ?? a);
+    recarregar();
+    return null;
   };
 
-  const escolher = (s: Sugestao) => {
-    const c = caixa.current;
-    if (!c) return;
-    const cursor = c.selectionStart;
-    const antes = texto.slice(0, cursor).replace(/@([\p{L}\p{N}_-]*)$/u, `@${s.handle} `);
-    const novo = antes + texto.slice(cursor);
-    cursorPendente.current = antes.length;
-    setTexto(novo); setBusca(null);
+  const editar = async (mid: number, texto: string) => {
+    const { error } = await sb.rpc("editar_mensagem", { mensagem: mid, texto });
+    if (error) return error.message;
+    setMsgs((a) => a?.map((x) => (x.id === mid ? { ...x, texto, editada_em: new Date().toISOString() } : x)) ?? a);
+    return null;
+  };
+
+  const apagar = async (m: Mensagem) => {
+    const de = m.user_id === eu ? (m.agente ? `do seu ${m.agente}` : "sua") : `de ${autor(m)}`;
+    if (!confirm(`Apagar esta mensagem ${de}? O texto some para todos, pessoas e agentes.`)) return;
+    const { error } = await sb.rpc("apagar_mensagem", { mensagem: m.id });
+    if (error) return alert(error.message);
+    setMsgs((a) => a?.map((x) => (x.id === m.id ? { ...x, apagada: true, texto: "Mensagem apagada." } : x)) ?? a);
+  };
+
+  const responder = (m: Mensagem) => {
+    setRespondendo({ id: m.id, autor: autor(m), texto: umaLinha(m.texto) });
+    compor.current?.focar();
   };
 
   // ---------------------------------------------------------------- tela
 
   const link = sala ? `${window.location.origin}/c/${sala.convite}` : "";
-  const copiar = async () => {
-    try { await navigator.clipboard.writeText(link); setCopiado(true); setTimeout(() => setCopiado(false), 1500); } catch { /* sem clipboard */ }
-  };
+  const copiarConvite = async () => { if (await copiarTexto(link)) { setCopiado(true); setTimeout(() => setCopiado(false), 1500); } };
 
   if (salas && !sala) {
     return (
@@ -198,8 +279,17 @@ export default function SalaPage() {
   const passos = [
     { feito: membros.length > 1, titulo: "Chame as pessoas", texto: "Mande o link do convite.", acao: () => setConvite(true), botao: "Copiar convite", icone: <IconeConvite tamanho={18} /> },
     { feito: agentes.some((a) => a.uid === eu), titulo: "Conecte o seu agente", texto: "Claude, ChatGPT, Claude Code ou outro.", acao: abrirConectar, botao: "Conectar agente", icone: <IconePlugue tamanho={18} /> },
-    { feito: !!sala?.contexto, titulo: "Conte do que se trata", texto: "Todo agente lê o contexto antes de responder.", acao: () => setAjustes("contexto"), botao: "Escrever contexto", icone: <IconeAjustes tamanho={18} /> },
+    { feito: !!sala?.contexto, titulo: "Conte do que se trata", texto: "Todo agente lê o contexto antes de responder.", acao: () => setPainel("contexto"), botao: "Escrever contexto", icone: <IconeAjustes tamanho={18} /> },
   ];
+  const pendentes = Number(sala?.pendentes ?? 0);
+  const ouvindo = agentes.filter((a) => a.presenca?.texto === "ouvindo agora");
+
+  const esperandoDe = (q: Mensagem): Esperando[] => {
+    const ja = new Set((respostas.get(q.id) ?? []).map((r) => `${r.agente}|${r.user_id}`));
+    return agentes.filter((a) => !ja.has(`${a.nome}|${a.uid}`) && a.presenca)
+      .map((a) => ({ nome: a.nome, dono: nome(a.uid), status: a.presenca!.texto }));
+  };
+  const comparando = comparar !== null ? porId.get(comparar) : undefined;
 
   return (
     <Layout salas={salas} recarregar={recarregar} foco>
@@ -208,26 +298,37 @@ export default function SalaPage() {
           <header className="sala-topo">
             <Link to="/" className="btn-icone so-celular" aria-label="Voltar para as salas"><IconeVoltar /></Link>
             <div className="sala-titulo">
-              <h1>{sala?.nome ?? " "}</h1>
+              <h1>{sala?.nome ?? " "}</h1>
               <p className="quem">
                 {membros.map((m) => m.perfis?.nome?.split(" ")[0]).filter(Boolean).join(", ")}
-                {agentes.length > 0 && <> · <IconeAgente tamanho={12} /> {agentes.map((a) => `${a.agente} de ${primeiro(a.uid)}`).join(", ")}</>}
+                {agentes.length > 0 && <> · <IconeAgente tamanho={12} /> {agentes.length} {agentes.length === 1 ? "agente" : "agentes"}</>}
+                {ouvindo.length > 0 && <> · <span className="ponto ponto-mini" aria-hidden /> {ouvindo.length === 1 ? `${ouvindo[0].nome} de ${primeiro(ouvindo[0].uid)} ouvindo` : `${ouvindo.length} ouvindo`}</>}
               </p>
             </div>
-            <button className="btn" onClick={() => setConvite((v) => !v)} aria-expanded={convite}>
+            <button className={`btn-icone ${painel === "decisoes" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "decisoes" ? null : "decisoes"))}
+              aria-expanded={painel === "decisoes"} aria-label={pendentes ? `Decisões, ${pendentes} aguardando` : "Decisões"} title="Decisões (D)">
+              <IconeDecisao />
+              {pendentes > 0 && <span className="selo-num" aria-hidden>{pendentes}</span>}
+            </button>
+            <button className={`btn-icone ${painel === "busca" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "busca" ? null : "busca"))}
+              aria-expanded={painel === "busca"} aria-label="Buscar na sala" title="Buscar (/)">
+              <IconeBusca />
+            </button>
+            <button className="btn btn-convidar" onClick={() => setConvite((v) => !v)} aria-expanded={convite} aria-label="Convidar pessoas" title="Convidar pessoas">
               <IconeConvite tamanho={18} /> <span className="some-celular">Convidar</span>
             </button>
-            <button className="btn-icone" onClick={() => setAjustes((v) => (v ? false : true))} aria-expanded={!!ajustes} aria-label="Ajustes da sala" title="Ajustes da sala">
+            <button className={`btn-icone ${painel === "ajustes" || painel === "contexto" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "ajustes" || p === "contexto" ? null : "ajustes"))}
+              aria-expanded={painel === "ajustes"} aria-label="Ajustes da sala" title="Ajustes da sala">
               <IconeAjustes />
             </button>
           </header>
 
           {convite && sala && (
             <div className="convite" role="region" aria-label="Convite">
-              <p>Quem abrir este link entra na sala e pode conectar os próprios agentes.</p>
+              <p>Quem abrir este link entra na sala e pode conectar os próprios agentes. Serve para gente de qualquer empresa.</p>
               <div className="linha">
                 <input readOnly value={link} onFocus={(e) => e.target.select()} aria-label="Link do convite" />
-                <button className="btn btn-cheio" onClick={copiar}>{copiado ? "Copiado" : "Copiar link"}</button>
+                <button className="btn btn-cheio" onClick={copiarConvite}>{copiado ? "Copiado" : "Copiar link"}</button>
               </div>
             </div>
           )}
@@ -236,7 +337,11 @@ export default function SalaPage() {
             onScroll={(e) => { const f = e.currentTarget; noFim.current = f.scrollHeight - f.scrollTop - f.clientHeight < 80; }}>
             {msgs === null && <div className="feed-esqueleto" aria-hidden><span /><span /><span /></div>}
 
-            {msgs !== null && passos.some((p) => !p.feito) && (msgs.length < 4) && (
+            {temAnteriores && msgs && (
+              <div className="anteriores"><button className="btn btn-pequeno" onClick={carregarAnteriores}>Mostrar mensagens anteriores</button></div>
+            )}
+
+            {msgs !== null && passos.some((p) => !p.feito) && msgs.length < 4 && (
               <section className="passos-sala" aria-label="Próximos passos">
                 <h2>{msgs.length ? "Para a sala render mais" : "Sala pronta. Três passos e ela ganha vida."}</h2>
                 <ol>
@@ -251,70 +356,88 @@ export default function SalaPage() {
               </section>
             )}
 
+            {msgs !== null && msgs.length > 0 && msgs.length < 12 && !msgs.some((m) => m.tipo !== "mensagem") && agentes.length > 0 && (
+              <p className="dica-sala"><IconeProposta tamanho={16} /> Peça uma decisão com <strong>Propor</strong>, ou pergunte a todos os agentes com <strong>@agentes</strong> e compare as respostas.</p>
+            )}
+
             {msgs?.map((m, i) => {
               const ant = msgs[i - 1];
               const novoDia = !ant || new Date(ant.criada_em).toDateString() !== new Date(m.criada_em).toDateString();
+              if (m.tipo === "decisao") {
+                const p = m.responde_a ? porId.get(m.responde_a) : undefined;
+                return (
+                  <div key={m.id} className="msg-bloco">
+                    {novoDia && <div className="dia" role="separator"><span>{dia(m.criada_em)}</span></div>}
+                    <Evento m={m} quem={m.user_id === eu ? "Você" : nome(m.user_id)} de={p ? autor(p) : ""} quando={hora(m.criada_em)} irPara={irPara} />
+                  </div>
+                );
+              }
               const continua = !novoDia && !!ant && ant.user_id === m.user_id && ant.agente === m.agente && !ant.falhou &&
-                new Date(m.criada_em).getTime() - new Date(ant.criada_em).getTime() < 5 * 60_000;
+                ant.tipo === "mensagem" && !m.responde_a && new Date(m.criada_em).getTime() - new Date(ant.criada_em).getTime() < 5 * 60_000;
+              const citada = m.responde_a ? porId.get(m.responde_a) : undefined;
+              // respostas seguidas à mesma pergunta não repetem a citação: a pergunta está logo acima
+              const emSequencia = !!m.responde_a && msgs.slice(msgs.findIndex((x) => x.id === m.responde_a) + 1, i)
+                .every((x) => x.responde_a === m.responde_a) && porId.has(m.responde_a);
+              const minhaPessoa = m.user_id === eu && !m.agente;
+              const decidida = m.tipo === "proposta" && m.estado !== "pendente";
+              const rs = perguntaATodos(m) ? respostas.get(m.id) ?? [] : null;
+              const esperando = rs ? esperandoDe(m) : [];
               return (
                 <div key={m.id} className="msg-bloco">
                   {novoDia && <div className="dia" role="separator"><span>{dia(m.criada_em)}</span></div>}
-                  <Bolha nome={nomes.get(m.user_id) ?? "Alguém"} agente={m.agente} texto={m.texto}
-                    quando={hora(m.criada_em)} quandoCompleto={completo(m.criada_em)}
-                    minha={m.user_id === eu && !m.agente} pendente={m.pendente} falhou={m.falhou} continua={continua}
-                    chamaMim={chamaMim} tentarDeNovo={() => tentarDeNovo(m)} />
+                  <Bolha m={m} nome={nome(m.user_id)} quando={hora(m.criada_em)} quandoCompleto={completo(m.criada_em)}
+                    minha={minhaPessoa} continua={continua} chamaMim={chamaMim} destaque={destaque === m.id}
+                    decisor={m.decidida_por ? (m.decidida_por === eu ? "você" : nome(m.decidida_por)) : undefined}
+                    citacao={m.responde_a && !emSequencia ? { id: m.responde_a, autor: citada ? autor(citada) : "Mensagem anterior", texto: citada ? umaLinha(citada.texto, 120) : "" } : null}
+                    responder={m.id > 0 ? () => responder(m) : undefined}
+                    copiar={() => copiarTexto(m.texto)}
+                    editar={minhaPessoa && !decidida && m.id > 0 ? (t) => editar(m.id, t) : undefined}
+                    apagar={(m.user_id === eu || dono) && m.id > 0 ? () => apagar(m) : undefined}
+                    decidir={m.tipo === "proposta" ? (a, n) => decidir(m.id, a, n) : undefined}
+                    tentarDeNovo={() => tentarDeNovo(m)} irPara={irPara} />
+                  {rs && (rs.length > 0 || esperando.length > 0) && (
+                    <div className={`respostas ${minhaPessoa ? "respostas-minha" : ""}`} aria-label="Respostas dos agentes">
+                      {rs.map((r) => (
+                        <button key={r.id} className="resp-chip" onClick={() => irPara(r.id)}>
+                          <IconeCheck tamanho={14} /> {r.agente} de {primeiro(r.user_id)}
+                        </button>
+                      ))}
+                      {esperando.map((e) => (
+                        <span key={`${e.nome}${e.dono}`} className="resp-chip resp-esperando" title={e.status}>
+                          <span className="resp-anel" aria-hidden /> {e.nome} de {e.dono.split(" ")[0]} · {e.status.startsWith("ouvindo") ? "pensando" : "sem resposta"}
+                        </span>
+                      ))}
+                      {rs.length > 0 && (
+                        <button className="btn btn-pequeno" onClick={() => setComparar(m.id)}>
+                          <IconeColunas tamanho={16} /> {rs.length > 1 ? "Comparar lado a lado" : "Ver resposta"}
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
 
-          <form className="compor" onSubmit={(e) => { e.preventDefault(); enviar(); }}>
-            {sugestoes.length > 0 && (
-              <ul className="sugestoes" role="listbox" aria-label="Mencionar">
-                {sugestoes.map((s, i) => (
-                  <li key={s.handle} role="option" aria-selected={i === escolha}>
-                    <button type="button" className={i === escolha ? "ativa" : ""} onMouseDown={(e) => { e.preventDefault(); escolher(s); }}>
-                      {s.agente ? <IconeAgente tamanho={16} /> : <span className="avatar avatar-mini">{s.handle[0]?.toUpperCase()}</span>}
-                      <span className="sug-handle">@{s.handle}</span>
-                      <span className="sug-rotulo">{s.rotulo}</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <div className="compor-caixa" onClick={() => caixa.current?.focus()}>
-              <label className="sr" htmlFor="texto">Mensagem</label>
-              <textarea id="texto" ref={caixa} rows={1} value={texto} placeholder="Escreva aqui · @ chama alguém"
-                onChange={(e) => {
-                  setTexto(e.target.value);
-                  acharBusca(e.target.value, e.target.selectionStart);
-                  e.target.style.height = "auto"; e.target.style.height = `${Math.min(e.target.scrollHeight, 200)}px`;
-                }}
-                onBlur={() => setBusca(null)}
-                onKeyDown={(e) => {
-                  if (sugestoes.length) {
-                    if (e.key === "ArrowDown") { e.preventDefault(); setEscolha((i) => (i + 1) % sugestoes.length); return; }
-                    if (e.key === "ArrowUp") { e.preventDefault(); setEscolha((i) => (i - 1 + sugestoes.length) % sugestoes.length); return; }
-                    if (e.key === "Enter" || e.key === "Tab") { e.preventDefault(); escolher(sugestoes[escolha]); return; }
-                    if (e.key === "Escape") { e.preventDefault(); setBusca(null); return; }
-                  }
-                  if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); enviar(); }
-                }} />
-              <button className="btn-enviar" disabled={!texto.trim()} title="Enviar (Enter)" aria-label="Enviar">
-                <IconeEnviar tamanho={18} />
-              </button>
-            </div>
-            <p className="compor-dica" aria-hidden>
-              <kbd>@</kbd> chama alguém · <kbd>Enter</kbd> envia · <kbd>Shift</kbd> + <kbd>Enter</kbd> quebra linha
-            </p>
-          </form>
+          <Avisos />
+          <Compor ref={compor} sugestoesBase={sugestoes} respondendo={respondendo} cancelarResposta={() => setRespondendo(null)} enviar={enviar} />
         </div>
 
-        {ajustes && sala && (
-          <Ajustes sala={sala} membros={membros} eu={eu} fechar={() => setAjustes(false)} recarregar={recarregar}
-            foco={ajustes === "contexto" ? "contexto" : undefined} />
+        {(painel === "ajustes" || painel === "contexto") && sala && (
+          <Ajustes sala={sala} membros={membros} agentes={agentes} eu={eu} fechar={() => setPainel(null)} recarregar={recarregar}
+            foco={painel === "contexto" ? "contexto" : undefined} />
         )}
+        {painel === "decisoes" && sala && (
+          <Decisoes salaId={sala.id} salaNome={sala.nome} versao={versaoDecisoes} autor={autor} nome={nome}
+            decidir={decidir} irPara={irPara} fechar={() => setPainel(null)} />
+        )}
+        {painel === "busca" && sala && <Busca salaId={sala.id} autor={autor} irPara={irPara} fechar={() => setPainel(null)} />}
       </div>
+
+      {comparando && (
+        <Comparar pergunta={comparando} autorPergunta={comparando.user_id === eu ? "Você" : nome(comparando.user_id)}
+          respostas={respostas.get(comparando.id) ?? []} autor={autor} esperando={esperandoDe(comparando)} fechar={() => setComparar(null)} />
+      )}
     </Layout>
   );
 }

@@ -8,6 +8,7 @@ import SalaPage from "./pages/Sala";
 import Convite from "./pages/Convite";
 import Consentimento from "./pages/Consentimento";
 import Privacidade from "./pages/Privacidade";
+import Landing from "./pages/Landing";
 
 type Auth = { sessao: Session | null; perfil: Perfil | null; recarregarPerfil: () => void };
 const AuthCtx = createContext<Auth>({ sessao: null, perfil: null, recarregarPerfil: () => {} });
@@ -19,7 +20,7 @@ export default function App() {
 
   const carregarPerfil = async (uid?: string) => {
     if (!uid) return setPerfil(null);
-    const { data } = await sb.from("perfis").select("id, nome, avatar").eq("id", uid).maybeSingle();
+    const { data } = await sb.from("perfis").select("id, nome, avatar, avisos").eq("id", uid).maybeSingle();
     setPerfil(data);
   };
 
@@ -38,7 +39,8 @@ export default function App() {
         <Route path="/privacidade" element={<Privacidade />} />
         <Route path="/oauth/consent" element={<Consentimento />} />
         <Route path="/c/:codigo" element={<Convite />} />
-        <Route path="/" element={<Protegida><Inicio /></Protegida>} />
+        <Route path="/" element={sessao ? <Inicio /> : <Landing />} />
+        <Route path="/sobre" element={<Landing />} />
         <Route path="/s/:id" element={<Protegida><SalaPage /></Protegida>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

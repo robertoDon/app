@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../App";
 import { sb, type Sala } from "../supabase";
-import { IconeAgente, IconeMais, IconePlugue, IconeSair, Marca } from "./Icones";
+import { IconeAgente, IconeMais, IconePlugue, IconeProposta, Marca } from "./Icones";
 import { Conectar } from "./Conectar";
+import { Conta } from "./Conta";
 
 // Lista de salas com não lidas e prévia, ao vivo. Também mantém o contador na aba do navegador.
 export function useSalas() {
@@ -28,7 +29,7 @@ export function useSalas() {
 
   useEffect(() => {
     const total = (salas ?? []).reduce((n, s) => n + Number(s.nao_lidas), 0);
-    document.title = total ? `(${total}) Sala` : "Sala";
+    document.title = total ? `(${total}) The Sala` : "The Sala";
   }, [salas]);
 
   return { salas, recarregar: carregar };
@@ -56,14 +57,13 @@ export function Layout({ children, salas, recarregar, foco }: {
   recarregar: () => void;
   foco?: boolean; // no celular, mostra só o conteúdo (a sala aberta)
 }) {
-  const { perfil, recarregarPerfil } = useAuth();
+  const { perfil } = useAuth();
   const { id } = useParams();
   const nav = useNavigate();
   const [criando, setCriando] = useState(false);
   const [nome, setNome] = useState("");
   const [conectar, setConectar] = useState(false);
-  const [editandoNome, setEditandoNome] = useState(false);
-  const [meuNome, setMeuNome] = useState("");
+  const [conta, setConta] = useState(false);
 
   useEffect(() => {
     const tecla = (e: KeyboardEvent) => {
@@ -85,14 +85,6 @@ export function Layout({ children, salas, recarregar, foco }: {
     setNome(""); setCriando(false);
     recarregar();
     nav(`/s/${sid}`);
-  };
-
-  const salvarNome = async () => {
-    const n = meuNome.trim();
-    setEditandoNome(false);
-    if (!n || !perfil || n === perfil.nome) return;
-    await sb.from("perfis").update({ nome: n }).eq("id", perfil.id);
-    recarregarPerfil();
   };
 
   return (
@@ -133,9 +125,15 @@ export function Layout({ children, salas, recarregar, foco }: {
                     <span className="sala-linha">
                       <span className="sala-previa">
                         {s.ultima_texto ? (
-                          <>{s.ultima_agente && <IconeAgente tamanho={12} />}{s.ultima_agente ?? s.ultima_nome?.split(" ")[0]}: {s.ultima_texto}</>
+                          <>{s.ultima_agente && <IconeAgente tamanho={12} />}{s.ultima_agente ?? s.ultima_nome?.split(" ")[0]}
+                            {s.ultima_tipo === "proposta" ? " propôs" : s.ultima_tipo === "decisao" ? " decidiu" : ""}: {s.ultima_texto}</>
                         ) : "Sem mensagens ainda"}
                       </span>
+                      {Number(s.pendentes) > 0 && (
+                        <span className="sala-pendentes" title={`${s.pendentes} ${Number(s.pendentes) === 1 ? "proposta aguardando" : "propostas aguardando"} decisão`} aria-label={`${s.pendentes} para decidir`}>
+                          <IconeProposta tamanho={12} />{s.pendentes}
+                        </span>
+                      )}
                       {novas > 0 && !ativa && <span className="sala-novas" aria-label={`${novas} não lidas`}>{novas > 99 ? "99+" : novas}</span>}
                     </span>
                   </span>
@@ -149,27 +147,18 @@ export function Layout({ children, salas, recarregar, foco }: {
           <button className="btn btn-largo" onClick={() => setConectar(true)} title="Conectar agente (A)">
             <IconePlugue tamanho={18} /> Conectar agente
           </button>
-          <div className="eu">
+          <button className="eu" onClick={() => setConta(true)} title="Sua conta, avisos e sair">
             {perfil?.avatar ? <img src={perfil.avatar} alt="" className="avatar" referrerPolicy="no-referrer" /> : <span className="avatar">{perfil?.nome?.[0]}</span>}
-            {editandoNome ? (
-              <input className="eu-input" autoFocus value={meuNome} maxLength={60} aria-label="Seu nome"
-                onChange={(e) => setMeuNome(e.target.value)} onBlur={salvarNome}
-                onKeyDown={(e) => { if (e.key === "Enter") salvarNome(); if (e.key === "Escape") setEditandoNome(false); }} />
-            ) : (
-              <button className="eu-nome" title="Mudar seu nome" onClick={() => { setMeuNome(perfil?.nome ?? ""); setEditandoNome(true); }}>
-                {perfil?.nome}
-              </button>
-            )}
-            <button className="btn-icone" onClick={() => sb.auth.signOut()} title="Sair" aria-label="Sair">
-              <IconeSair tamanho={18} />
-            </button>
-          </div>
+            <span className="eu-nome">{perfil?.nome}</span>
+            <span className="nota">Conta</span>
+          </button>
         </div>
       </nav>
 
       <div className="conteudo">{children}</div>
 
       {conectar && <Conectar fechar={() => setConectar(false)} />}
+      {conta && <Conta fechar={() => setConta(false)} />}
     </div>
   );
 }

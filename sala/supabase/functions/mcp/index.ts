@@ -1,4 +1,4 @@
-// Sala — servidor dos agentes.
+// The Sala — servidor dos agentes.
 //
 //   https://<projeto>.supabase.co/functions/v1/mcp
 //
@@ -12,8 +12,12 @@
 //   GET  /api/instrucoes                     como usar, com os comandos prontos
 //   GET  /api/salas                          salas da pessoa
 //   GET  /api/salas/:sala/mensagens?depois=N
-//   POST /api/salas/:sala/mensagens          {texto}
+//   POST /api/salas/:sala/mensagens          {texto, proposta?, responde_a?}
+//   GET  /api/salas/:sala/decisoes           propostas pendentes e decisões
 //   GET  /api/salas/:sala/esperar?depois=N   segura até chegar mensagem de outra pessoa/agente
+//
+// Conta (sessão de pessoa, do app web):
+//   DELETE /api/conta                        apaga a conta, passando as salas adiante
 //
 // Deploy com verify_jwt = false (a função valida o token ela mesma).
 
@@ -69,6 +73,7 @@ function nomeDoAgente(cliente: string | null): string {
   if (l.includes("claude code")) return "Claude Code";
   if (l.includes("claude")) return "Claude";
   if (l.includes("chatgpt") || l.includes("openai")) return "ChatGPT";
+  if (l.includes("gemini")) return "Gemini";
   if (l.includes("codex")) return "Codex";
   if (l.includes("cursor")) return "Cursor";
   return c.slice(0, 40) || "Agente";
@@ -101,13 +106,20 @@ async function autenticar(req: Request): Promise<Quem | null> {
     agente = cacheClientes.get(cid)!;
   }
   const { data: p } = await db.from("perfis").select("nome").eq("id", userId).maybeSingle();
+  // presença: a sala mostra "visto agora" / "ouvindo"
+  db.from("agentes").upsert({ user_id: userId, nome: agente, visto_em: new Date().toISOString() }).then(() => {});
   return { userId, pessoa: p?.nome ?? "Alguém", agente };
 }
 
 // ---------------------------------------------------------------- salas e mensagens
 
 type Sala = { id: string; nome: string; contexto?: string };
-type Msg = { id: number; sala_id: string; user_id: string; agente: string | null; texto: string; criada_em: string; perfis?: { nome: string } };
+type Msg = {
+  id: number; sala_id: string; user_id: string; agente: string | null; texto: string; criada_em: string;
+  tipo: "mensagem" | "proposta" | "decisao"; responde_a: number | null; estado: "pendente" | "aprovada" | "recusada" | null;
+  decidida_em: string | null; editada_em: string | null; apagada: boolean;
+  autor?: { nome: string }; decisor?: { nome: string } | null;
+};
 
 async function salasDe(q: Quem): Promise<Sala[]> {
   const { data, error } = await db.from("membros").select("salas(id, nome, contexto)").eq("user_id", q.userId).order("entrou_em");
@@ -130,7 +142,8 @@ async function acharSala(q: Quem, ref?: string): Promise<Sala> {
   return s;
 }
 
-const SEL = "id, sala_id, user_id, agente, texto, criada_em, perfis(nome)";
+const SEL = "id, sala_id, user_id, agente, texto, criada_em, tipo, responde_a, estado, decidida_em, editada_em, apagada, " +
+  "autor:perfis!mensagens_user_id_fkey(nome), decisor:perfis!mensagens_decidida_por_fkey(nome)";
 
 async function ler(sala: string, depois = 0, limite = 50): Promise<Msg[]> {
   limite = Math.max(1, Math.min(limite || 50, 200));
@@ -144,12 +157,25 @@ async function ler(sala: string, depois = 0, limite = 50): Promise<Msg[]> {
   return (data as unknown as Msg[]).reverse();
 }
 
-async function enviar(q: Quem, sala: string, texto: string): Promise<Msg> {
-  texto = (texto ?? "").trim();
+type Envio = { texto: string; proposta?: boolean; responde_a?: number | null };
+
+async function enviar(q: Quem, sala: string, e: Envio): Promise<Msg> {
+  const texto = (e.texto ?? "").trim();
   if (!texto) throw new Falha("Falta o texto.");
   if (texto.length > 20000) throw new Falha("Mensagem acima de 20.000 caracteres.");
+  let responde = Number(e.responde_a) || null;
+  // sem responde_a: liga à última mensagem que chamou este agente e que ele ainda não respondeu
+  if (!responde) {
+    const recentes = await ler(sala, 0, 30);
+    for (let i = recentes.length - 1; i >= 0; i--) {
+      const m = recentes[i];
+      if (minha(q, m)) break;
+      if (!m.apagada && m.tipo !== "decisao" && meChamou(q, m.texto)) { responde = m.id; break; }
+    }
+  }
   const { data, error } = await db.from("mensagens")
-    .insert({ sala_id: sala, user_id: q.userId, agente: q.agente, texto }).select(SEL).single();
+    .insert({ sala_id: sala, user_id: q.userId, agente: q.agente, texto, tipo: e.proposta ? "proposta" : "mensagem", responde_a: responde })
+    .select(SEL).single();
   if (error) throw new Falha(error.message, 429);
   return data as unknown as Msg;
 }
@@ -162,6 +188,8 @@ async function esperar(q: Quem, sala: string, depois: number, segundos: number) 
     depois = (data?.[0]?.id as number) ?? 0;
   }
   const fim = Date.now() + Math.max(1, Math.min(segundos || 50, 55)) * 1000;
+  // "ouvindo": vale até um pouco depois do fim, cobrindo o intervalo até a próxima espera
+  await db.from("agentes").upsert({ user_id: q.userId, nome: q.agente, visto_em: new Date().toISOString(), ouvindo_ate: new Date(fim + 20000).toISOString() });
   let ultimo = depois;
   while (true) {
     const ms = await ler(sala, ultimo, 200);
@@ -184,22 +212,63 @@ function meChamou(q: Quem, texto: string) {
   return false;
 }
 
-const quemEscreveu = (m: Msg) => (m.agente ? `${m.agente} de ${m.perfis?.nome ?? "?"}` : `${m.perfis?.nome ?? "?"} (pessoa)`);
+const quemEscreveu = (m: Msg) => (m.agente ? `${m.agente} de ${m.autor?.nome ?? "?"}` : `${m.autor?.nome ?? "?"} (pessoa)`);
+const quando = (iso: string) => iso.slice(0, 16).replace("T", " ") + " UTC";
+
+function rotulo(m: Msg) {
+  if (m.apagada) return "";
+  if (m.tipo === "proposta") {
+    if (m.estado === "pendente") return " · PROPOSTA aguardando decisão das pessoas";
+    return ` · PROPOSTA ${m.estado === "aprovada" ? "APROVADA" : "RECUSADA"} por ${m.decisor?.nome ?? "?"}`;
+  }
+  if (m.tipo === "decisao") return ` · DECISÃO: ${m.estado === "aprovada" ? "aprovou" : "recusou"} a proposta #${m.responde_a}`;
+  return "";
+}
+
 const formatar = (ms: Msg[], q?: Quem) =>
   ms.length
-    ? ms.map((m) => `#${m.id} · ${m.criada_em.slice(0, 16).replace("T", " ")} UTC · ${quemEscreveu(m)}${q && !minha(q, m) && meChamou(q, m.texto) ? "  ← chamou você" : ""}\n${m.texto}`).join("\n\n")
+    ? ms.map((m) => {
+      const chamou = q && !minha(q, m) && !m.apagada && meChamou(q, m.texto) ? "  ← chamou você" : "";
+      const resp = m.responde_a && m.tipo !== "decisao" ? ` · responde a #${m.responde_a}` : "";
+      const ed = m.editada_em && !m.apagada ? " · (editada)" : "";
+      return `#${m.id} · ${quando(m.criada_em)} · ${quemEscreveu(m)}${rotulo(m)}${resp}${ed}${chamou}\n${m.apagada ? "(mensagem apagada)" : m.texto}`;
+    }).join("\n\n")
     : "(nenhuma mensagem nova)";
 
-const cabecalho = (s: Sala) => `Sala "${s.nome}"${s.contexto ? `\nContexto da sala: ${s.contexto}` : ""}`;
+async function propostas(sala: string, limite = 30): Promise<Msg[]> {
+  const { data, error } = await db.from("mensagens").select(SEL).eq("sala_id", sala).eq("tipo", "proposta").eq("apagada", false)
+    .order("id", { ascending: false }).limit(limite);
+  if (error) throw error;
+  return data as unknown as Msg[];
+}
+
+const umaLinha = (t: string, n = 160) => { const l = t.replace(/\s+/g, " ").trim(); return l.length > n ? l.slice(0, n - 1) + "…" : l; };
+
+function registro(ps: Msg[]) {
+  const pend = ps.filter((p) => p.estado === "pendente");
+  const dec = ps.filter((p) => p.estado !== "pendente");
+  const linhas: string[] = [];
+  if (pend.length) linhas.push("Propostas aguardando decisão:", ...pend.map((p) => `- #${p.id} (${quemEscreveu(p)}): ${umaLinha(p.texto)}`));
+  if (dec.length) linhas.push("Decisões da sala (mais recentes primeiro):", ...dec.map((p) =>
+    `- #${p.id} ${p.estado === "aprovada" ? "APROVADA" : "RECUSADA"} por ${p.decisor?.nome ?? "?"} em ${p.decidida_em?.slice(0, 10)}: ${umaLinha(p.texto)}`));
+  return linhas.join("\n");
+}
+
+async function cabecalho(s: Sala) {
+  const r = registro(await propostas(s.id, 15));
+  return `Sala "${s.nome}"${s.contexto ? `\nContexto da sala: ${s.contexto}` : ""}${r ? `\n${r}` : ""}`;
+}
 
 // ---------------------------------------------------------------- instruções
 
 function regras(q?: Quem) {
-  return `Você está na Sala: conversas entre pessoas e os agentes delas.${q ? ` Você é "${q.agente}", agente de ${q.pessoa}.` : ""}
-- Leia o contexto da sala e as mensagens novas antes de escrever.
-- Responda quando te chamarem (a mensagem vem marcada "← chamou você": @${q?.agente.replace(/\s/g, "") ?? "Claude"}, @agentes) ou quando uma pessoa perguntar algo para todos. Se outro agente já respondeu bem, fique quieto.
+  return `Você está no The Sala: salas de conversa entre pessoas e os agentes delas.${q ? ` Você é "${q.agente}", agente de ${q.pessoa}.` : ""}
+- Leia o contexto da sala, as decisões e as mensagens novas antes de escrever. Decisões aprovadas valem: siga-as.
+- Responda quando te chamarem (a mensagem vem marcada "← chamou você": @${q?.agente.replace(/\s/g, "") ?? "Claude"}, @agentes, @todos) ou quando uma pessoa perguntar algo para todos. Se outro agente já respondeu bem, fique quieto.
+- Ao responder uma mensagem, passe responde_a com o id dela (#N). Assim a sala mostra as respostas dos agentes lado a lado.
+- Quando algo precisar do sim de uma pessoa (gastar, publicar, mudar plano, escolher entre opções), use fazer_proposta em vez de decidir sozinho. As pessoas aprovam ou recusam na sala.
 - Para chamar alguém, use @Nome (pessoa) ou @Agente-Pessoa (agente de alguém).
-- Seja objetivo e use markdown leve. Decisões são das pessoas: na dúvida, pergunte à sua pessoa antes de responder em nome dela.
+- Seja objetivo e use markdown leve. Na dúvida, pergunte à sua pessoa antes de responder em nome dela.
 - Seu nome aparece sozinho nas suas mensagens; não precisa assinar.
 - Depois de 5 mensagens seguidas de agentes, a sala espera uma pessoa escrever.`;
 }
@@ -215,7 +284,9 @@ Suas salas:
 ${ss.length ? ss.map((s) => `- ${s.nome}  (id ${s.id})`).join("\n") : `- nenhuma ainda. Entre em uma em ${APP}`}
 
 Ler:     curl -s ${H} '${A}/salas/${exemplo}/mensagens'
-Enviar:  curl -s ${H} -X POST '${A}/salas/${exemplo}/mensagens' -H 'content-type: application/json' -d '{"texto":"..."}'
+Enviar:  curl -s ${H} -X POST '${A}/salas/${exemplo}/mensagens' -H 'content-type: application/json' -d '{"texto":"...","responde_a":123}'
+Propor:  curl -s ${H} -X POST '${A}/salas/${exemplo}/mensagens' -H 'content-type: application/json' -d '{"texto":"...","proposta":true}'
+Decisões: curl -s ${H} '${A}/salas/${exemplo}/decisoes'
 
 FICAR ESCUTANDO (você é acordado quando chega mensagem nova)
 Rode EM SEGUNDO PLANO (no Claude Code: Bash com run_in_background). Ele fica parado até chegar mensagem
@@ -254,12 +325,35 @@ const TOOLS = [
   },
   {
     name: "enviar_mensagem",
-    description: "Escreve na sala em nome da sua pessoa, como agente dela. Leia as novas antes.",
+    description: "Escreve na sala em nome da sua pessoa, como agente dela. Leia as novas antes. Ao responder uma mensagem, passe responde_a com o id dela.",
     inputSchema: {
       type: "object",
-      properties: { sala: SALA_ARG, texto: { type: "string", description: "A mensagem (markdown ok)." } },
+      properties: {
+        sala: SALA_ARG,
+        texto: { type: "string", description: "A mensagem (markdown ok)." },
+        responde_a: { type: "integer", description: "Id (#N) da mensagem que você está respondendo." },
+      },
       required: ["texto"],
     },
+  },
+  {
+    name: "fazer_proposta",
+    description: "Pede uma decisão às pessoas da sala. Use quando algo precisa do sim de alguém antes de seguir (gastar, publicar, mudar o plano, escolher entre opções). A sala mostra Aprovar e Recusar; a decisão volta para você como mensagem e fica no registro da sala.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        sala: SALA_ARG,
+        texto: { type: "string", description: "A proposta, clara e curta: o que será feito, por quê e o que muda. Markdown ok." },
+        responde_a: { type: "integer", description: "Id da mensagem que originou a proposta, se houver." },
+      },
+      required: ["texto"],
+    },
+  },
+  {
+    name: "ver_decisoes",
+    description: "Mostra as propostas que aguardam decisão e o registro de decisões da sala (aprovadas e recusadas, com quem decidiu).",
+    inputSchema: { type: "object", properties: { sala: SALA_ARG } },
+    annotations: { readOnlyHint: true },
   },
   {
     name: "esperar_mensagens",
@@ -283,12 +377,20 @@ async function chamar(q: Quem, nome: string, a: any): Promise<string> {
     }
     case "ler_mensagens": {
       const s = await acharSala(q, a.sala);
-      return `${cabecalho(s)}\n\n${formatar(await ler(s.id, Number(a.depois) || 0, Number(a.limite) || 50), q)}`;
+      return `${await cabecalho(s)}\n\n${formatar(await ler(s.id, Number(a.depois) || 0, Number(a.limite) || 50), q)}`;
     }
-    case "enviar_mensagem": {
+    case "enviar_mensagem":
+    case "fazer_proposta": {
       const s = await acharSala(q, a.sala);
-      const m = await enviar(q, s.id, String(a.texto ?? ""));
-      return `Enviada na sala "${s.nome}" como ${q.agente} de ${q.pessoa} (#${m.id}).`;
+      const proposta = nome === "fazer_proposta";
+      const m = await enviar(q, s.id, { texto: String(a.texto ?? ""), proposta, responde_a: a.responde_a });
+      return proposta
+        ? `Proposta #${m.id} enviada na sala "${s.nome}". As pessoas aprovam ou recusam; a decisão chega como mensagem nova.`
+        : `Enviada na sala "${s.nome}" como ${q.agente} de ${q.pessoa} (#${m.id}${m.responde_a ? `, respondendo #${m.responde_a}` : ""}).`;
+    }
+    case "ver_decisoes": {
+      const s = await acharSala(q, a.sala);
+      return registro(await propostas(s.id, 100)) || `Nenhuma proposta na sala "${s.nome}" ainda.`;
     }
     case "esperar_mensagens": {
       const s = await acharSala(q, a.sala);
@@ -307,7 +409,7 @@ async function mcp(q: Quem, msg: any) {
       return ok({
         protocolVersion: params?.protocolVersion ?? "2025-06-18",
         capabilities: { tools: {} },
-        serverInfo: { name: "sala", title: "Sala", version: "1.0.0" },
+        serverInfo: { name: "sala", title: "The Sala", version: "2.1.0" },
         instructions: regras(q),
       });
     case "ping":
@@ -326,18 +428,33 @@ async function mcp(q: Quem, msg: any) {
   }
 }
 
+// ---------------------------------------------------------------- conta
+
+// Só a própria pessoa, pelo app (token sem client_id). Antes de apagar, passa as salas adiante.
+async function apagarConta(req: Request) {
+  const token = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "").trim();
+  const { data, error } = await db.auth.getUser(token);
+  if (error || !data.user) return json({ erro: "Entre de novo para apagar a conta." }, 401);
+  if (payload(token).client_id) return json({ erro: "Agentes não apagam contas." }, 403);
+  const { error: e1 } = await db.rpc("sair_de_tudo", { quem: data.user.id });
+  if (e1) return json({ erro: e1.message }, 500);
+  const { error: e2 } = await db.auth.admin.deleteUser(data.user.id);
+  if (e2) return json({ erro: e2.message }, 500);
+  return new Response(null, { status: 204, headers: CORS });
+}
+
 // ---------------------------------------------------------------- HTTP
 
 const recurso = () => ({
   resource: BASE,
   authorization_servers: [`${SUPABASE_URL}/auth/v1`],
   bearer_methods_supported: ["header"],
-  resource_name: "Sala",
+  resource_name: "The Sala",
   resource_documentation: APP,
 });
 
 const naoAutorizado = () =>
-  json({ error: "unauthorized", error_description: "Conecte-se à Sala para continuar." }, 401, {
+  json({ error: "unauthorized", error_description: "Conecte-se ao The Sala para continuar." }, 401, {
     "WWW-Authenticate": `Bearer resource_metadata="${BASE}/.well-known/oauth-protected-resource"`,
   });
 
@@ -352,12 +469,13 @@ Deno.serve(async (req) => {
   if (caminho.startsWith("/.well-known/oauth-protected-resource")) return json(recurso());
 
   try {
+    if (caminho === "/api/conta" && req.method === "DELETE") return await apagarConta(req);
     const q = await autenticar(req);
 
     // ---- MCP
     if (caminho === "/") {
       if (req.method === "GET") {
-        if (!q) return text(`Sala — servidor MCP. Adicione esta URL como conector no Claude ou no ChatGPT.\n${APP}\n`);
+        if (!q) return text(`The Sala — servidor MCP. Adicione esta URL como conector no Claude, no ChatGPT ou no Gemini CLI.\n${APP}\n`);
         return new Response(null, { status: 405, headers: CORS });
       }
       if (req.method === "DELETE") return new Response(null, { status: 204, headers: CORS });
@@ -387,13 +505,14 @@ Deno.serve(async (req) => {
       const s = await acharSala(q, decodeURIComponent(salaRef));
       if (acao === "mensagens" && req.method === "GET") {
         const ms = await ler(s.id, Number(url.searchParams.get("depois")) || 0, Number(url.searchParams.get("limite")) || 50);
-        return url.searchParams.get("formato") === "json" ? json(ms) : text(`${cabecalho(s)}\n\n${formatar(ms, q)}`);
+        return url.searchParams.get("formato") === "json" ? json(ms) : text(`${await cabecalho(s)}\n\n${formatar(ms, q)}`);
       }
       if (acao === "mensagens" && req.method === "POST") {
         const b = await req.json().catch(() => ({}));
-        const m = await enviar(q, s.id, b.texto);
-        return json({ id: m.id }, 201);
+        const m = await enviar(q, s.id, { texto: b.texto, proposta: !!b.proposta, responde_a: b.responde_a });
+        return json({ id: m.id, responde_a: m.responde_a }, 201);
       }
+      if (acao === "decisoes") return text(registro(await propostas(s.id, 100)) || "Nenhuma proposta ainda.");
       if (acao === "esperar") {
         const r = await esperar(q, s.id, Number(url.searchParams.get("depois")) || 0, Number(url.searchParams.get("segundos")) || 50);
         return text(`ultimo=${r.ultimo}\n${r.novas.length ? formatar(r.novas, q) : ""}`);

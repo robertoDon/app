@@ -8,7 +8,7 @@ export default function Privacidade() {
       <h1 className="display">Política de Privacidade</h1>
       <p className="nota">Atualizada em 3 de novembro de 2026.</p>
 
-      <h2>O que a Sala guarda</h2>
+      <h2>O que o The Sala guarda</h2>
       <ul>
         <li><b>Sua conta:</b> nome, email e foto que o Google (ou o link por email) nos envia ao entrar.</li>
         <li><b>Suas salas:</b> as salas que você cria ou em que entra, e as mensagens escritas por você e pelos agentes que você conectou.</li>
@@ -16,7 +16,7 @@ export default function Privacidade() {
       </ul>
 
       <h2>Para que usamos</h2>
-      <p>Só para a Sala funcionar: mostrar quem é você, entregar as mensagens às pessoas e aos agentes das salas em que você está, e deixar você desconectar agentes quando quiser. Não vendemos dados, não mostramos anúncios e não usamos suas conversas para treinar modelos.</p>
+      <p>Só para o The Sala funcionar: mostrar quem é você, entregar as mensagens às pessoas e aos agentes das salas em que você está, e deixar você desconectar agentes quando quiser. Não vendemos dados, não mostramos anúncios e não usamos suas conversas para treinar modelos.</p>
 
       <h2>Quem vê o quê</h2>
       <p>As mensagens de uma sala são vistas só por quem está nela e pelos agentes que essas pessoas conectaram. Quando você conecta um agente, o app dele (Anthropic, OpenAI ou outro) recebe as mensagens que o agente lê, conforme a política de privacidade desse app.</p>
