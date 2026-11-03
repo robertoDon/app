@@ -44,6 +44,7 @@ export default function SalaPage() {
   const [presencas, setPresencas] = useState<Agente[]>([]);
   const [msgs, setMsgs] = useState<Mensagem[] | null>(null);
   const [temAnteriores, setTemAnteriores] = useState(false);
+  const [temPosteriores, setTemPosteriores] = useState(false); // depois de pular para uma mensagem antiga
   const [convite, setConvite] = useState(false);
   const [copiado, setCopiado] = useState(false);
   const [painel, setPainel] = useState<Painel>(null);
@@ -58,6 +59,8 @@ export default function SalaPage() {
   const lido = useRef(0);
   const manterRolagem = useRef<number | null>(null);
   const rolarPara = useRef<number | null>(null);
+  const salaAtual = useRef(id); // respostas atrasadas de outra sala são ignoradas
+  const longe = useRef(false);  // vendo uma janela antiga: o que chega ao vivo não entra no meio
 
   const nomes = useMemo(() => new Map(membros.map((m) => [m.user_id, m.perfis?.nome ?? "Alguém"])), [membros]);
   const nome = useCallback((uid: string | null) => (uid && nomes.get(uid)) || "Alguém", [nomes]);
@@ -97,36 +100,49 @@ export default function SalaPage() {
 
   // ---------------------------------------------------------------- carregar e ouvir
 
+  const carregarRecentes = useCallback(async (sid: string, buffer: Mensagem[] = []) => {
+    const { data } = await sb.from("mensagens").select("*").eq("sala_id", sid).order("id", { ascending: false }).limit(PAGINA);
+    if (salaAtual.current !== sid) return;
+    const d = (data as Mensagem[]) ?? [];
+    const mapa = new Map<number, Mensagem>();
+    [...d, ...buffer].forEach((m) => mapa.set(m.id, { ...mapa.get(m.id), ...m }));
+    setTemAnteriores(d.length === PAGINA);
+    setTemPosteriores(false); longe.current = false;
+    noFim.current = true;
+    setMsgs([...mapa.values()].sort((a, b) => a.id - b.id));
+  }, []);
+
   useEffect(() => {
     if (!id) return;
+    salaAtual.current = id;
     ultimaSala.set(id);
     setMsgs(null); setPainel(null); setConvite(false); setRespondendo(null); setComparar(null);
+    setTemAnteriores(false); setTemPosteriores(false); longe.current = false;
     noFim.current = true; lido.current = 0;
+    let carregado = false;
+    const buffer: Mensagem[] = []; // o que chega ao vivo antes da primeira leitura terminar
 
     const carregarMembros = () =>
       sb.from("membros").select("user_id, papel, perfis(id, nome, avatar)").eq("sala_id", id).order("entrou_em")
-        .then(({ data }) => setMembros((data as unknown as Membro[]) ?? []));
-    const carregarPresencas = () => sb.from("agentes").select("*").then(({ data }) => setPresencas((data as Agente[]) ?? []));
-    carregarMembros(); carregarPresencas();
+        .then(({ data }) => { if (salaAtual.current === id) setMembros((data as unknown as Membro[]) ?? []); });
+    sb.from("agentes").select("*").then(({ data }) => setPresencas((data as Agente[]) ?? []));
+    carregarMembros();
 
-    sb.from("mensagens").select("*").eq("sala_id", id).order("id", { ascending: false }).limit(PAGINA)
-      .then(({ data }) => {
-        const d = (data as Mensagem[]) ?? [];
-        setTemAnteriores(d.length === PAGINA);
-        setMsgs(d.reverse());
+    const chegou = (m: Mensagem) => {
+      if (m.tipo !== "mensagem") setVersaoDecisoes((v) => v + 1);
+      if (longe.current) { setTemPosteriores(true); return; }
+      setMsgs((atual) => {
+        if (!atual) { buffer.push(m); return atual; }
+        if (atual.some((x) => x.id === m.id)) return atual;
+        const i = atual.findIndex((x) => x.pendente && x.texto === m.texto && x.user_id === m.user_id && !m.agente && x.tipo === m.tipo);
+        if (i >= 0) { const c = [...atual]; c[i] = m; return c; }
+        return [...atual, m];
       });
+    };
+    const primeira = () => { if (!carregado) { carregado = true; carregarRecentes(id, buffer); } };
 
     const canal = sb.channel(`sala:${id}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "mensagens", filter: `sala_id=eq.${id}` }, (p) => {
-        const m = p.new as Mensagem;
-        if (m.tipo !== "mensagem") setVersaoDecisoes((v) => v + 1);
-        setMsgs((atual) => {
-          if (!atual || atual.some((x) => x.id === m.id)) return atual;
-          const i = atual.findIndex((x) => x.pendente && x.texto === m.texto && x.user_id === m.user_id && !m.agente && x.tipo === m.tipo);
-          if (i >= 0) { const c = [...atual]; c[i] = m; return c; }
-          return [...atual, m];
-        });
-      })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "mensagens", filter: `sala_id=eq.${id}` }, (p) => chegou(p.new as Mensagem))
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "mensagens", filter: `sala_id=eq.${id}` }, (p) => {
         const m = p.new as Mensagem;
         if (m.tipo === "proposta") setVersaoDecisoes((v) => v + 1);
@@ -134,11 +150,17 @@ export default function SalaPage() {
       })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "membros", filter: `sala_id=eq.${id}` }, carregarMembros)
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "membros" }, carregarMembros)
-      .on("postgres_changes", { event: "*", schema: "public", table: "agentes" }, carregarPresencas)
-      .subscribe();
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "agentes" }, (p) => atualizarPresenca(p.new as Agente))
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "agentes" }, (p) => atualizarPresenca(p.new as Agente))
+      // assina antes de ler: nada que chegue no meio se perde
+      .subscribe((status) => { if (status === "SUBSCRIBED" || status === "CHANNEL_ERROR" || status === "TIMED_OUT") primeira(); });
+    const reserva = window.setTimeout(primeira, 4000);
     const t = window.setInterval(() => setRelogio((n) => n + 1), 60_000);
-    return () => { sb.removeChannel(canal); window.clearInterval(t); };
-  }, [id]);
+    return () => { sb.removeChannel(canal); window.clearInterval(t); window.clearTimeout(reserva); };
+  }, [id, carregarRecentes]);
+
+  const atualizarPresenca = (a: Agente) =>
+    setPresencas((ps) => [...ps.filter((x) => !(x.user_id === a.user_id && x.nome === a.nome)), a]);
 
   // rolagem: grudada no fim; mantém o lugar ao carregar anteriores; vai até a mensagem pedida
   useLayoutEffect(() => {
@@ -180,7 +202,9 @@ export default function SalaPage() {
 
   const carregarAnteriores = async () => {
     if (!msgs?.length) return;
-    const { data } = await sb.from("mensagens").select("*").eq("sala_id", id).lt("id", msgs[0].id).order("id", { ascending: false }).limit(PAGINA);
+    const sid = id;
+    const { data } = await sb.from("mensagens").select("*").eq("sala_id", sid).lt("id", msgs[0].id).order("id", { ascending: false }).limit(PAGINA);
+    if (salaAtual.current !== sid) return;
     const d = ((data as Mensagem[]) ?? []).reverse();
     setTemAnteriores(d.length === PAGINA);
     const f = feed.current;
@@ -193,11 +217,20 @@ export default function SalaPage() {
     setDestaque(alvo); window.setTimeout(() => setDestaque((d) => (d === alvo ? null : d)), 1600);
     const el = document.getElementById(`m${alvo}`);
     if (el) { noFim.current = false; el.scrollIntoView({ block: "center", behavior: "smooth" }); return; }
-    // fora do que está carregado: carrega a partir dela
-    const { data } = await sb.from("mensagens").select("*").eq("sala_id", id).gte("id", alvo).order("id").limit(1000);
+    // fora do que está carregado: abre uma janela em volta dela
+    const sid = id;
+    const [antes, depois] = await Promise.all([
+      sb.from("mensagens").select("*").eq("sala_id", sid).lt("id", alvo).order("id", { ascending: false }).limit(50),
+      sb.from("mensagens").select("*").eq("sala_id", sid).gte("id", alvo).order("id").limit(PAGINA),
+    ]);
+    if (salaAtual.current !== sid) return;
+    const a = ((antes.data as Mensagem[]) ?? []).reverse();
+    const d = (depois.data as Mensagem[]) ?? [];
     noFim.current = false; rolarPara.current = alvo;
-    setTemAnteriores(true);
-    setMsgs((data as Mensagem[]) ?? []);
+    setTemAnteriores(a.length === 50);
+    const recortada = d.length === PAGINA;
+    setTemPosteriores(recortada); longe.current = recortada;
+    setMsgs([...a, ...d]);
   }, [id]);
 
   // ---------------------------------------------------------------- enviar e agir
@@ -215,6 +248,7 @@ export default function SalaPage() {
   };
 
   const enviar = (texto: string, proposta: boolean) => {
+    if (longe.current) carregarRecentes(id);
     noFim.current = true;
     const temp: Mensagem = {
       id: -Date.now(), sala_id: id, user_id: eu, agente: null, texto, criada_em: new Date().toISOString(),
@@ -379,7 +413,6 @@ export default function SalaPage() {
               const emSequencia = !!m.responde_a && msgs.slice(msgs.findIndex((x) => x.id === m.responde_a) + 1, i)
                 .every((x) => x.responde_a === m.responde_a) && porId.has(m.responde_a);
               const minhaPessoa = m.user_id === eu && !m.agente;
-              const decidida = m.tipo === "proposta" && m.estado !== "pendente";
               const rs = perguntaATodos(m) ? respostas.get(m.id) ?? [] : null;
               const esperando = rs ? esperandoDe(m) : [];
               return (
@@ -391,9 +424,9 @@ export default function SalaPage() {
                     citacao={m.responde_a && !emSequencia ? { id: m.responde_a, autor: citada ? autor(citada) : "Mensagem anterior", texto: citada ? umaLinha(citada.texto, 120) : "" } : null}
                     responder={m.id > 0 ? () => responder(m) : undefined}
                     copiar={() => copiarTexto(m.texto)}
-                    editar={minhaPessoa && !decidida && m.id > 0 ? (t) => editar(m.id, t) : undefined}
+                    editar={minhaPessoa && m.tipo === "mensagem" && m.id > 0 ? (t) => editar(m.id, t) : undefined}
                     apagar={(m.user_id === eu || dono) && m.id > 0 ? () => apagar(m) : undefined}
-                    decidir={m.tipo === "proposta" ? (a, n) => decidir(m.id, a, n) : undefined}
+                    decidir={m.tipo === "proposta" && m.id > 0 ? (a, n) => decidir(m.id, a, n) : undefined}
                     tentarDeNovo={() => tentarDeNovo(m)} irPara={irPara} />
                   {rs && (rs.length > 0 || esperando.length > 0) && (
                     <div className={`respostas ${minhaPessoa ? "respostas-minha" : ""}`} aria-label="Respostas dos agentes">
@@ -420,7 +453,10 @@ export default function SalaPage() {
           </div>
 
           <Avisos />
-          <Compor ref={compor} sugestoesBase={sugestoes} respondendo={respondendo} cancelarResposta={() => setRespondendo(null)} enviar={enviar} />
+          {temPosteriores && (
+            <div className="anteriores"><button className="btn btn-pequeno" onClick={() => carregarRecentes(id)}>Ir para as mensagens mais recentes</button></div>
+          )}
+          <Compor key={id} ref={compor} sugestoesBase={sugestoes} respondendo={respondendo} cancelarResposta={() => setRespondendo(null)} enviar={enviar} />
         </div>
 
         {(painel === "ajustes" || painel === "contexto") && sala && (

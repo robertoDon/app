@@ -80,6 +80,7 @@ function nomeDoAgente(cliente: string | null): string {
 }
 
 const cacheClientes = new Map<string, string>();
+const ultimaPresenca = new Map<string, number>();
 
 async function autenticar(req: Request): Promise<Quem | null> {
   const h = req.headers.get("authorization") ?? "";
@@ -106,8 +107,12 @@ async function autenticar(req: Request): Promise<Quem | null> {
     agente = cacheClientes.get(cid)!;
   }
   const { data: p } = await db.from("perfis").select("nome").eq("id", userId).maybeSingle();
-  // presença: a sala mostra "visto agora" / "ouvindo"
-  db.from("agentes").upsert({ user_id: userId, nome: agente, visto_em: new Date().toISOString() }).then(() => {});
+  // presença: a sala mostra "visto agora" / "ouvindo". No máximo uma escrita por minuto por agente.
+  const chavePresenca = `${userId}|${agente}`;
+  if (Date.now() - (ultimaPresenca.get(chavePresenca) ?? 0) > 60_000) {
+    ultimaPresenca.set(chavePresenca, Date.now());
+    db.from("agentes").upsert({ user_id: userId, nome: agente, visto_em: new Date().toISOString() }).then(() => {});
+  }
   return { userId, pessoa: p?.nome ?? "Alguém", agente };
 }
 
