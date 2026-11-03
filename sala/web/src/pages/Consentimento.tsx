@@ -66,7 +66,7 @@ export default function Consentimento() {
               <button className="btn btn-cheio btn-grande" onClick={() => decidir(true)} disabled={indo} autoFocus>{t("Permitir", "Allow")}</button>
               <button className="btn btn-grande" onClick={() => decidir(false)} disabled={indo}>{t("Agora não", "Not now")}</button>
             </div>
-            <p className="nota">{t(`Entrando como ${sessao.user.email}.`, `Signed in as ${sessao.user.email}.`)} <button className="link" onClick={() => sb.auth.signOut()}>{t("Trocar de conta", "Switch account")}</button></p>
+            <p className="nota">{t(`Entrando como ${sessao.user.email}.`, `Signed in as ${sessao.user.email}.`)} <button className="link" onClick={() => sb.auth.signOut({ scope: "local" })}>{t("Trocar de conta", "Switch account")}</button></p>
           </>
         )}
       </div>

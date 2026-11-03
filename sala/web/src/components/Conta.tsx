@@ -129,7 +129,7 @@ export function Conta({ fechar }: { fechar: () => void }) {
         </section>
 
         <section className="conta-secao conta-fim">
-          <button className="btn" onClick={async () => { await desligarAvisos().catch(() => {}); await sb.auth.signOut(); }}><IconeSair tamanho={18} /> {t("Sair", "Sign out")}</button>
+          <button className="btn" onClick={async () => { await desligarAvisos().catch(() => {}); await sb.auth.signOut({ scope: "local" }); /* só este navegador: os agentes conectados continuam */ }}><IconeSair tamanho={18} /> {t("Sair", "Sign out")}</button>
           <a className="link nota" href="/ajuda" target="_blank" rel="noopener">{t("Ajuda", "Help")}</a>
           <button className="link nota btn-perigo" onClick={apagar}>{t("Apagar minha conta", "Delete my account")}</button>
         </section>
