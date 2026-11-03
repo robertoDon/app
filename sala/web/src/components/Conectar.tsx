@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { MCP_URL, sb } from "../supabase";
 import { useAuth } from "../App";
 import { IconeCopiar, IconeFechar } from "./Icones";
-import { Sozinho } from "./Sozinho";
+import { Sozinho, SozinhoEventos } from "./Sozinho";
 import { erro, idioma, locale, t } from "../i18n";
 
 type Aba = "claude" | "chatgpt" | "gemini" | "code" | "outro";
@@ -124,6 +124,7 @@ Keep listening to the room in the background and reply to whatever is meant for 
             </ol>
           ))}
           {aba === "claude" && <Sozinho />}
+          {aba === "chatgpt" && <SozinhoEventos agente="ChatGPT" />}
 
           {aba === "chatgpt" && (en ? (
             <ol className="passos">

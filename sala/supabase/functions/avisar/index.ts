@@ -273,8 +273,19 @@ async function despertar(id: number) {
   if (!m || m.apagada) return new Response("nada");
   const { data: membros } = await db.from("membros").select("user_id, perfis(nome, idioma)").eq("sala_id", m.sala_id);
   const ids = (membros ?? []).map((x: any) => x.user_id);
-  const { data: desp } = await db.from("despertadores").select("user_id, agente, url").in("user_id", ids);
-  if (!desp?.length) return new Response("nada");
+  const { data: despC } = await db.from("despertadores").select("user_id, agente, url").in("user_id", ids);
+  const { data: insc } = await db.from("eventos_inscricoes").select("id, user_id, agente, url, argumentos, expira").in("user_id", ids);
+  const salaNomeMin = ((m.salas as any)?.nome ?? "").toLowerCase();
+  // tarefa do Claude (gatilho de API) ou evento MCP (ChatGPT e outros que assinam)
+  type Alvo = { user_id: string; agente: string; url: string; evento?: string };
+  const desp: Alvo[] = [
+    ...(despC ?? []),
+    ...(insc ?? []).filter((e) => (!e.expira || new Date(e.expira).getTime() > Date.now()) && (() => {
+      const f = String((e.argumentos as any)?.sala ?? "").trim().toLowerCase();
+      return !f || f === m.sala_id || f === salaNomeMin || salaNomeMin.includes(f);
+    })()).map((e) => ({ user_id: e.user_id, agente: e.agente, url: e.url, evento: e.id })),
+  ];
+  if (!desp.length) return new Response("nada");
   const { data: ouvindo } = await db.from("agentes").select("user_id, nome, ouvindo_ate").in("user_id", ids);
   const ouve = (uid: string, nome: string) => (ouvindo ?? []).some((a) => a.user_id === uid && a.nome === nome && a.ouvindo_ate && new Date(a.ouvindo_ate).getTime() > Date.now());
   const pessoa = new Map<string, { nome: string; idioma: string | null }>((membros ?? []).map((x: any) => [x.user_id, { nome: x.perfis?.nome ?? "", idioma: x.perfis?.idioma ?? null }]));
@@ -311,6 +322,22 @@ async function despertar(id: number) {
         (m.tipo === "decisao" ? ` · decisão sobre a proposta #${m.responde_a}: ${m.estado === "aprovada" ? "APROVADA" : "RECUSADA"}` : "") +
         `\nTrecho: ${limpo(m.texto, 400)}`;
     let status = 0, erro: string | null = null;
+    if (d.evento) {
+      const motivo = m.tipo === "decisao" ? "decisao" : "chamado";
+      const dados = {
+        sala_id: m.sala_id, sala, mensagem: m.id, autor: quem, motivo, trecho: limpo(en ? emIngles(m.texto) : m.texto, 400),
+        instrucao: en
+          ? `Use ler_mensagens on room ${m.sala_id} and reply to message #${m.id} with enviar_mensagem (responde_a=${m.id}).` +
+            (motivo === "decisao" ? " It's a decision on your proposal: follow it and tell the room what you did." : "")
+          : `Use ler_mensagens na sala ${m.sala_id} e responda à mensagem #${m.id} com enviar_mensagem (responde_a=${m.id}).` +
+            (motivo === "decisao" ? " É uma decisão sobre a sua proposta: siga-a e conte na sala o que fez." : ""),
+      };
+      try { ({ status, erro } = await entregarEvento(d.evento, d.url, `evt_${m.id}_${d.evento.slice(4, 16)}`, dados)); }
+      catch (e) { erro = (e as Error).message; }
+      if (status === 404 || status === 410) await db.rpc("apagar_inscricao_evento", { id: d.evento });
+      else await db.from("eventos_inscricoes").update({ ultimo_envio: new Date().toISOString(), ultimo_status: status, ultimo_erro: erro }).eq("id", d.evento);
+      return;
+    }
     try {
       const { data: chave } = await db.rpc("chave_despertador", { quem: d.user_id, agente: d.agente });
       ({ status, erro } = await disparar(d.url, chave as string, texto));
@@ -345,4 +372,36 @@ async function testarDespertador(req: Request) {
   await db.from("despertadores").update({ ultimo_disparo: new Date().toISOString(), ultimo_status: r.status, ultimo_erro: r.erro })
     .eq("user_id", u.user.id).eq("agente", agente);
   return r.erro ? json({ erro: r.erro }, 400) : json({ sessao: r.sessao });
+}
+
+// ---------------------------------------------------------------- entrega de evento MCP (Standard Webhooks)
+
+const b64 = (b: Uint8Array) => { let s = ""; for (const x of b) s += String.fromCharCode(x); return btoa(s); };
+async function assinarWebhook(segredo: string, id: string, ts: number, corpo: string) {
+  const chave = Uint8Array.from(atob(segredo.slice(6).replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
+  const k = await crypto.subtle.importKey("raw", chave, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  return `v1,${b64(new Uint8Array(await crypto.subtle.sign("HMAC", k, txt(`${id}.${ts}.${corpo}`))))}`;
+}
+
+async function entregarEvento(inscricao: string, url: string, eventId: string, dados: unknown) {
+  const { data: segredo } = await db.rpc("segredo_evento", { id: inscricao });
+  if (!segredo) return { status: 0, erro: "sem segredo" };
+  const corpo = JSON.stringify({ eventId, name: "sala.chamado", timestamp: new Date().toISOString(), data: dados, cursor: null });
+  let ultimo = { status: 0, erro: "não enviado" as string | null };
+  for (const espera of [0, 2000]) {   // uma nova tentativa em falha temporária, mesmo eventId
+    if (espera) await new Promise((r) => setTimeout(r, espera));
+    const ts = Math.floor(Date.now() / 1000);
+    try {
+      const r = await fetch(url, {
+        method: "POST", redirect: "manual", signal: AbortSignal.timeout(10_000),
+        headers: { "Content-Type": "application/json", "webhook-id": eventId, "webhook-timestamp": String(ts),
+          "webhook-signature": await assinarWebhook(segredo as string, eventId, ts, corpo), "X-MCP-Subscription-Id": inscricao },
+        body: corpo,
+      });
+      await r.body?.cancel();
+      ultimo = { status: r.status, erro: r.ok ? null : `HTTP ${r.status}` };
+      if (r.ok || (r.status >= 400 && r.status < 500)) break;
+    } catch (e) { ultimo = { status: 0, erro: (e as Error).message }; }
+  }
+  return ultimo;
 }

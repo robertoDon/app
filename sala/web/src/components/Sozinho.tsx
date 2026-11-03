@@ -160,3 +160,81 @@ export function Sozinho() {
     </section>
   );
 }
+
+// ---------------------------------------------------------------- ChatGPT (e outros que assinam eventos MCP)
+
+type Ev = { id: string; agente: string; evento: string; expira: string | null; criado_em: string; ultimo_envio: string | null; ultimo_status: number | null; ultimo_erro: string | null };
+
+export const pedidoEventos = () => t(
+  `Assine o evento "sala.chamado" do conector The Sala, para todas as minhas salas. Sempre que ele chegar:
+1. Use ler_mensagens na sala indicada no evento e leia a conversa, o contexto e as decisões.
+2. Responda à mensagem indicada com enviar_mensagem, passando responde_a com o número dela. Se pedirem, crie ou conclua tarefas, envie arquivos ou faça uma proposta.
+3. Se for uma decisão sobre uma proposta sua, siga o que foi decidido e conte na sala o que fez.
+4. Se algo precisar do sim de uma pessoa, use fazer_proposta. Nunca decida por ela.
+Não faça nada fora do The Sala.`,
+  `Subscribe to the "sala.chamado" event from the The Sala connector, for all my rooms. Whenever it arrives:
+1. Use ler_mensagens on the room named in the event and read the conversation, the context and the decisions.
+2. Reply to the named message with enviar_mensagem, passing responde_a with its number. If asked, create or complete tasks, send files or make a proposal.
+3. If it's a decision on one of your proposals, follow what was decided and tell the room what you did.
+4. If something needs a person's yes, use fazer_proposta. Never decide for them.
+Don't do anything outside The Sala.`,
+);
+
+export function SozinhoEventos({ agente }: { agente: string }) {
+  const [lista, setLista] = useState<Ev[] | null>(null);
+  const en = idioma() === "en";
+  const carregar = async () => {
+    const { data } = await sb.rpc("meus_eventos");
+    setLista(((data as Ev[]) ?? []).filter((e) => e.agente === agente && (!e.expira || new Date(e.expira).getTime() > Date.now())));
+  };
+  useEffect(() => {
+    carregar();
+    const i = setInterval(carregar, 10_000); // a inscrição chega enquanto a pessoa faz o passo a passo no ChatGPT
+    return () => clearInterval(i);
+  }, []);
+  const ativo = lista?.[0];
+
+  const desligar = async () => {
+    if (!confirm(t(`Desligar? O ${agente} para de ser acordado pela Sala. Apague também a tarefa no ${agente}.`, `Turn it off? ${agente} stops being woken by The Sala. Also delete the task in ${agente}.`))) return;
+    await sb.rpc("desligar_eventos", { agente });
+    carregar();
+  };
+
+  return (
+    <section className="sozinho">
+      <h3>{t("Responder sozinho", "Reply on its own")} <span className="nota">{t("opcional · ChatGPT Plus, Pro, Business, Enterprise ou Edu", "optional · ChatGPT Plus, Pro, Business, Enterprise or Edu")}</span></h3>
+      <p className="sub">{t(
+        `Quando chamarem o seu ${agente} numa sala, ele recebe um aviso, lê a conversa e responde sozinho. Usa a sua assinatura; o The Sala não cobra nada.`,
+        `When someone calls your ${agente} in a room, it gets a notice, reads the conversation and replies on its own. It uses your subscription; The Sala doesn't charge anything.`)}</p>
+      {lista === null ? null : ativo ? (
+        <div className="sozinho-ligado">
+          <p><strong className="ok">{t("Ligado", "On")}</strong>{" · "}
+            {ativo.ultimo_envio
+              ? <>{t("último chamado", "last call")} {quando(ativo.ultimo_envio)}{ativo.ultimo_erro ? <> · <span className="atrasada">{ativo.ultimo_erro}</span></> : " · ok"}</>
+              : t("ainda não foi chamado", "not called yet")}</p>
+          <p className="nota">{en
+            ? <>Write <code>@{agente}</code> in a room and it should reply in a minute or two. The {agente} task renews this on its own.</>
+            : <>Escreva <code>@{agente}</code> numa sala e ele deve responder em 1 ou 2 minutos. A tarefa do {agente} renova isso sozinha.</>}</p>
+          <div className="linha"><button className="btn btn-pequeno" onClick={desligar}>{t("Desligar", "Turn off")}</button></div>
+        </div>
+      ) : (
+        <>
+          <ol className="passos passos-sozinho">
+            <li>{en ? <><b>Connect {agente} to The Sala first</b> (steps above).</> : <><b>Conecte o {agente} ao The Sala antes</b> (passos acima).</>}</li>
+            <li>{en
+              ? <>In ChatGPT on the web, start a chat in <b>Work</b> mode (in the desktop app: <b>Work</b> and <b>Cloud</b>) and turn on the <b>The Sala</b> connector.</>
+              : <>No ChatGPT, pelo site, abra uma conversa no modo <b>Work</b> (no app de computador: <b>Work</b> e <b>Cloud</b>) e ligue o conector <b>The Sala</b>.</>}</li>
+            <li>{en ? <>Send this message:</> : <>Mande esta mensagem:</>}{" "}
+              <Copiar valor={pedidoEventos()} rotulo={t("Copiar mensagem", "Copy message")} /></li>
+            <li>{en
+              ? <>If ChatGPT asks to confirm creating the task, confirm. When it's set up, this box shows <b>On</b> (it checks every 10 seconds).</>
+              : <>Se o ChatGPT pedir para confirmar a criação da tarefa, confirme. Quando estiver pronto, este quadro mostra <b>Ligado</b> (ele confere a cada 10 segundos).</>}</li>
+          </ol>
+          <p className="nota">{t(
+            "Este recurso do ChatGPT é novo. Se ele disser que o conector não oferece eventos, é porque ainda não aceita conectores personalizados: use o botão “Pedir ao ChatGPT” na sala.",
+            "This ChatGPT feature is new. If it says the connector doesn't offer events, it doesn't accept custom connectors yet: use the “Ask ChatGPT” button in the room.")}</p>
+        </>
+      )}
+    </section>
+  );
+}

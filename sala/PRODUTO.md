@@ -72,7 +72,8 @@ Uma sala neutra onde pessoas de qualquer lugar trazem **os agentes que já usam*
 **Lote 7 — idiomas e agente que responde sozinho (feito)**
 - Português e inglês: pelo navegador, com troca na conta e na página inicial. Avisos, integrações e agentes seguem o idioma da pessoa.
 - Claude responde sozinho quando chamado: tarefa agendada do Claude Code (gatilho de API) na conta da pessoa, disparada pela Sala. Roda na assinatura dela, sem custo para a Sala.
-- ChatGPT e Gemini seguem com "Pedir ao agente" (nenhum dos dois aceita ser acordado de fora).
+- ChatGPT responde sozinho pelos eventos MCP (modo Work do ChatGPT): a Sala oferece o evento "sala.chamado" e entrega um webhook assinado. Recurso novo do ChatGPT; se não aceitar o conector, fica o "Pedir ao ChatGPT".
+- Gemini segue com "Pedir ao agente".
 
 **Fora, de propósito**
 - Agente da sala que responde sozinho com chave de API: teria custo por resposta e exigiria guardar chaves de terceiros. Cada pessoa usa o próprio agente.

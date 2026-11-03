@@ -715,6 +715,118 @@ async function chamar(q: Quem, nome: string, a: any): Promise<string | Conteudo[
   throw new Falha(tr(q, `Ferramenta desconhecida: ${nome}`, `Unknown tool: ${nome}`));
 }
 
+// ---------------------------------------------------------------- eventos (MCP Events: ChatGPT modo Work e outros)
+
+// O agente assina "sala.chamado"; quando chamam o agente numa sala (ou decidem uma proposta dele), a Sala entrega
+// um webhook assinado (Standard Webhooks) e o app do agente roda a tarefa: lê a sala e responde.
+const EVENTO = "sala.chamado";
+class ErroRpc extends Error {
+  constructor(public code: number, msg: string, public data?: unknown) { super(msg); }
+}
+
+const catalogo = (q: Quem) => [{
+  name: EVENTO,
+  description: tr(q,
+    "Chamaram você numa sala do The Sala (@Agente, @Agente-Pessoa, @agentes ou @todos), ou as pessoas decidiram uma proposta sua. Ao receber: use ler_mensagens na sala do evento e responda com enviar_mensagem, passando responde_a com o número da mensagem.",
+    "Someone called you in a The Sala room (@Agent, @Agent-Person, @agents or @everyone), or people decided on one of your proposals. When it arrives: use ler_mensagens on the event's room and reply with enviar_mensagem, passing responde_a with the message number."),
+  delivery: ["webhook"],
+  inputSchema: {
+    type: "object",
+    properties: { sala: { type: "string", description: tr(q, "Opcional: só esta sala (nome ou id). Vazio = todas as suas salas.", "Optional: only this room (name or id). Empty = all your rooms.") } },
+    additionalProperties: false,
+  },
+  payloadSchema: {
+    type: "object",
+    properties: {
+      sala_id: { type: "string" }, sala: { type: "string" }, mensagem: { type: "integer" }, autor: { type: "string" },
+      motivo: { type: "string", enum: ["chamado", "decisao"] }, trecho: { type: "string" }, instrucao: { type: "string" },
+    },
+    required: ["sala_id", "sala", "mensagem", "motivo", "instrucao"],
+  },
+}];
+
+const canonico = (v: unknown): string => Array.isArray(v) ? `[${v.map(canonico).join(",")}]`
+  : v && typeof v === "object" ? `{${Object.keys(v as object).sort().map((k) => `${JSON.stringify(k)}:${canonico((v as any)[k])}`).join(",")}}`
+  : JSON.stringify(v ?? null);
+
+// endereço de entrega: https público, sem rede interna
+function urlPublica(u: unknown): u is string {
+  if (typeof u !== "string" || u.length > 2000) return false;
+  try {
+    const x = new URL(u);
+    return x.protocol === "https:" && !/^(localhost|.*\.local|.*\.internal|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|0\.|\[|metadata)/i.test(x.hostname);
+  } catch { return false; }
+}
+
+const b64 = (b: Uint8Array) => { let s = ""; for (const x of b) s += String.fromCharCode(x); return btoa(s); };
+function chaveWebhook(secret: string): Uint8Array | null {
+  if (typeof secret !== "string" || !/^whsec_[A-Za-z0-9+/=_-]+$/.test(secret)) return null;
+  try {
+    const k = Uint8Array.from(atob(secret.slice(6).replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
+    return k.length >= 24 && k.length <= 64 ? k : null;
+  } catch { return null; }
+}
+async function assinar(chave: Uint8Array, id: string, ts: number, corpo: string) {
+  const k = await crypto.subtle.importKey("raw", chave, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  return `v1,${b64(new Uint8Array(await crypto.subtle.sign("HMAC", k, new TextEncoder().encode(`${id}.${ts}.${corpo}`))))}`;
+}
+
+async function verificar(url: string, chave: Uint8Array, inscricao: string) {
+  const challenge = crypto.randomUUID() + crypto.randomUUID();
+  const corpo = JSON.stringify({ type: "verification", challenge });
+  const id = `msg_verificacao_${crypto.randomUUID()}`;
+  const ts = Math.floor(Date.now() / 1000);
+  let r: Response;
+  try {
+    r = await fetch(url, {
+      method: "POST", redirect: "manual", signal: AbortSignal.timeout(10_000),
+      headers: { "Content-Type": "application/json", "webhook-id": id, "webhook-timestamp": String(ts),
+        "webhook-signature": await assinar(chave, id, ts, corpo), "X-MCP-Subscription-Id": inscricao },
+      body: corpo,
+    });
+  } catch (e) {
+    throw new ErroRpc(-32015, "Callback verification failed", { reason: (e as Error).name === "TimeoutError" ? "timeout" : "unreachable" });
+  }
+  const j = await r.json().catch(() => ({})) as any;
+  const a = new TextEncoder().encode(String(j?.challenge ?? "")), b = new TextEncoder().encode(challenge);
+  let igual = r.ok && a.length === b.length;
+  for (let i = 0; i < b.length; i++) igual = igual && a[i] === b[i];
+  if (!igual) throw new ErroRpc(-32015, "Callback verification failed", { reason: r.ok ? "challenge_failed" : `http_${r.status}` });
+}
+
+const DIA = 864e5;
+async function inscrever(q: Quem, p: any) {
+  if (p?.name !== EVENTO) throw new ErroRpc(-32602, `Unknown event: ${p?.name}`);
+  const d = p.delivery ?? {};
+  if (d.mode !== "webhook") throw new ErroRpc(-32602, "Only webhook delivery is supported");
+  if (!urlPublica(d.url)) throw new ErroRpc(-32602, "Callback URL must be public https");
+  const chave = chaveWebhook(d.secret);
+  if (!chave) throw new ErroRpc(-32602, "Secret must be whsec_ with 24-64 bytes");
+  const args = p.arguments ?? {};
+  if (typeof args !== "object" || Array.isArray(args) || Object.keys(args).some((k) => k !== "sala") || (args.sala !== undefined && typeof args.sala !== "string")) {
+    throw new ErroRpc(-32602, "Invalid arguments");
+  }
+  if (args.sala) await acharSala(q, args.sala); // só salas da pessoa
+  const id = "sub_" + (await sha256(`${q.userId}|${q.agente}|${d.url}|${EVENTO}|${canonico(args)}`)).slice(0, 40);
+  const { data: existe } = await db.from("eventos_inscricoes").select("id").eq("id", id).maybeSingle();
+  if (!existe) await verificar(d.url, chave, id);
+  const ttl = typeof p.ttlMs === "number" ? Math.max(3600_000, Math.min(p.ttlMs, 30 * DIA)) : 7 * DIA;
+  const expira = new Date(Date.now() + ttl).toISOString();
+  const { error } = await db.rpc("salvar_inscricao_evento", {
+    id, quem: q.userId, agente: q.agente, evento: EVENTO, argumentos: args, url: d.url, segredo: d.secret, expira,
+  });
+  if (error) throw new ErroRpc(-32603, error.message);
+  return { id, refreshBefore: expira, cursor: null, truncated: false };
+}
+
+async function desinscrever(q: Quem, p: any) {
+  const url = p?.delivery?.url;
+  if (typeof url !== "string") return {};
+  const id = "sub_" + (await sha256(`${q.userId}|${q.agente}|${url}|${p?.name}|${canonico(p?.arguments ?? {})}`)).slice(0, 40);
+  await db.rpc("apagar_inscricao_evento", { id });
+  return {};
+}
+
 async function mcp(q: Quem, msg: any) {
   const { id, method, params } = msg ?? {};
   const ok = (result: unknown) => ({ jsonrpc: "2.0", id, result });
@@ -722,14 +834,26 @@ async function mcp(q: Quem, msg: any) {
     case "initialize":
       return ok({
         protocolVersion: params?.protocolVersion ?? "2025-06-18",
-        capabilities: { tools: {} },
-        serverInfo: { name: "sala", title: "The Sala", version: "4.2.0" },
+        capabilities: { tools: {}, events: {} },
+        serverInfo: { name: "sala", title: "The Sala", version: "4.3.0" },
         instructions: regras(q),
       });
+    case "server/discover": // MCP 2.0
+      return ok({ capabilities: { tools: {}, events: {} }, serverInfo: { name: "sala", title: "The Sala", version: "4.3.0" }, instructions: regras(q) });
     case "ping":
       return ok({});
     case "tools/list":
       return ok({ tools: ferramentas(q) });
+    case "events/list":
+      return ok({ events: catalogo(q) });
+    case "events/subscribe":
+    case "events/unsubscribe":
+      try {
+        return ok(method === "events/subscribe" ? await inscrever(q, params) : await desinscrever(q, params));
+      } catch (e) {
+        const er = e instanceof ErroRpc ? e : new ErroRpc(-32603, (e as Error).message);
+        return { jsonrpc: "2.0", id, error: { code: er.code, message: er.message, ...(er.data ? { data: er.data } : {}) } };
+      }
     case "tools/call":
       try {
         const r = await chamar(q, params?.name, params?.arguments ?? {});
