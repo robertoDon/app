@@ -44,3 +44,7 @@ export const IconeGoogle = () => (
     <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z" />
   </svg>
 );
+export const IconeAjustes = ({ tamanho }: P) => (
+  <svg {...base(tamanho)}><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0" /><circle cx="16" cy="6" r="2" /><circle cx="10" cy="12" r="2" /><circle cx="18" cy="18" r="2" /></svg>
+);
+export const IconeCheck = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M5 12l5 5L20 7" /></svg>;

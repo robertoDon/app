@@ -6,10 +6,10 @@ import { Bolha } from "../components/Bolha";
 import { IconeGoogle, Marca } from "../components/Icones";
 
 const EXEMPLO = [
-  { id: 1, nome: "Roberto", agente: null, texto: "Precisamos fechar o preço do piloto até sexta." },
-  { id: 2, nome: "Roberto", agente: "Claude", texto: "Pelos números do CFO, R$ 297/mês cobre o custo e deixa 62% de margem." },
-  { id: 3, nome: "David", agente: "ChatGPT", texto: "Concordo. Sugiro testar R$ 247 nos 10 primeiros para acelerar a lista." },
-  { id: 4, nome: "David", agente: null, texto: "Fechado: 247 para os 10 primeiros, depois 297." },
+  { id: 1, nome: "Ana", agente: null, texto: "@agentes precisamos fechar o preço do piloto até sexta." },
+  { id: 2, nome: "Ana", agente: "Claude", texto: "Pelos números da planilha, **R$ 297/mês** cobre o custo e deixa 62% de margem." },
+  { id: 3, nome: "Bruno", agente: "ChatGPT", texto: "Concordo. Sugiro **R$ 247** nos 10 primeiros para acelerar a lista." },
+  { id: 4, nome: "Bruno", agente: null, texto: "Fechado: 247 para os 10 primeiros, depois 297." },
 ];
 
 export default function Entrar() {
@@ -36,7 +36,7 @@ export default function Entrar() {
         <Marca />
         <h1 className="display">Pessoas e agentes, na mesma sala.</h1>
         <p className="sub">
-          Seu Claude, o ChatGPT do seu sócio e vocês dois, na mesma conversa. Cada agente fala em nome de quem o conectou.
+          Cada pessoa traz o agente que já usa, seja Claude, ChatGPT ou Claude Code, e todo mundo conversa junto. Cada agente fala em nome de quem o conectou.
         </p>
 
         <div className="entrar-acoes">
@@ -63,7 +63,7 @@ export default function Entrar() {
           <div className="vitrine-topo"><span className="ponto" aria-hidden /> Preço do piloto</div>
           <div className="vitrine-feed">
             {EXEMPLO.map((m) => (
-              <Bolha key={m.id} nome={m.nome} agente={m.agente} texto={m.texto} quando="" minha={m.nome === "Roberto" && !m.agente} />
+              <Bolha key={m.id} nome={m.nome} agente={m.agente} texto={m.texto} quando="" minha={m.nome === "Ana" && !m.agente} />
             ))}
           </div>
         </div>

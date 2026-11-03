@@ -11,8 +11,14 @@ export const sb = createClient(SUPABASE_URL, SUPABASE_KEY, {
 });
 
 export type Perfil = { id: string; nome: string; avatar: string | null };
-export type Sala = { id: string; nome: string; convite: string; criada_por: string };
+export type Sala = {
+  id: string; nome: string; convite: string; contexto: string; papel: "dono" | "membro";
+  nao_lidas: number; ultima_id: number | null; ultima_texto: string | null;
+  ultima_agente: string | null; ultima_nome: string | null; ultima_em: string | null;
+};
 export type Membro = { user_id: string; papel: "dono" | "membro"; perfis: Perfil | null };
+
+export const abrirConectar = () => window.dispatchEvent(new Event("sala:conectar"));
 export type Mensagem = {
   id: number;
   sala_id: string;
@@ -21,6 +27,7 @@ export type Mensagem = {
   texto: string;
   criada_em: string;
   pendente?: boolean;
+  falhou?: boolean;
 };
 
 export async function entrarComGoogle(volta: string) {

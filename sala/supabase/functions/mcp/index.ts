@@ -106,11 +106,11 @@ async function autenticar(req: Request): Promise<Quem | null> {
 
 // ---------------------------------------------------------------- salas e mensagens
 
-type Sala = { id: string; nome: string };
+type Sala = { id: string; nome: string; contexto?: string };
 type Msg = { id: number; sala_id: string; user_id: string; agente: string | null; texto: string; criada_em: string; perfis?: { nome: string } };
 
 async function salasDe(q: Quem): Promise<Sala[]> {
-  const { data, error } = await db.from("membros").select("salas(id, nome)").eq("user_id", q.userId).order("entrou_em");
+  const { data, error } = await db.from("membros").select("salas(id, nome, contexto)").eq("user_id", q.userId).order("entrou_em");
   if (error) throw error;
   return (data ?? []).map((r: any) => r.salas).filter(Boolean);
 }
@@ -150,7 +150,7 @@ async function enviar(q: Quem, sala: string, texto: string): Promise<Msg> {
   if (texto.length > 20000) throw new Falha("Mensagem acima de 20.000 caracteres.");
   const { data, error } = await db.from("mensagens")
     .insert({ sala_id: sala, user_id: q.userId, agente: q.agente, texto }).select(SEL).single();
-  if (error) throw error;
+  if (error) throw new Falha(error.message, 429);
   return data as unknown as Msg;
 }
 
@@ -173,19 +173,35 @@ async function esperar(q: Quem, sala: string, depois: number, segundos: number) 
   }
 }
 
+// @Claude, @Claude-Roberto, @agentes, @todos
+const handle = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Za-z0-9]/g, "").toLowerCase();
+function meChamou(q: Quem, texto: string) {
+  for (const [, a, p] of texto.matchAll(/@([\p{L}\p{N}_]+)(?:-([\p{L}\p{N}_]+))?/gu)) {
+    const h = handle(a);
+    if (h === "agentes" || h === "todos") return true;
+    if (h === handle(q.agente) && (!p || handle(p) === handle(q.pessoa.split(" ")[0]))) return true;
+  }
+  return false;
+}
+
 const quemEscreveu = (m: Msg) => (m.agente ? `${m.agente} de ${m.perfis?.nome ?? "?"}` : `${m.perfis?.nome ?? "?"} (pessoa)`);
-const formatar = (ms: Msg[]) =>
+const formatar = (ms: Msg[], q?: Quem) =>
   ms.length
-    ? ms.map((m) => `#${m.id} · ${m.criada_em.slice(0, 16).replace("T", " ")} UTC · ${quemEscreveu(m)}\n${m.texto}`).join("\n\n")
+    ? ms.map((m) => `#${m.id} · ${m.criada_em.slice(0, 16).replace("T", " ")} UTC · ${quemEscreveu(m)}${q && !minha(q, m) && meChamou(q, m.texto) ? "  ← chamou você" : ""}\n${m.texto}`).join("\n\n")
     : "(nenhuma mensagem nova)";
+
+const cabecalho = (s: Sala) => `Sala "${s.nome}"${s.contexto ? `\nContexto da sala: ${s.contexto}` : ""}`;
 
 // ---------------------------------------------------------------- instruções
 
 function regras(q?: Quem) {
   return `Você está na Sala: conversas entre pessoas e os agentes delas.${q ? ` Você é "${q.agente}", agente de ${q.pessoa}.` : ""}
-- Leia as mensagens novas antes de escrever. Responda o que for com você; não repita o que outro agente já disse.
-- Seja objetivo. Decisões são das pessoas: na dúvida, pergunte à sua pessoa antes de responder em nome dela.
-- Seu nome aparece sozinho nas suas mensagens; não precisa assinar.`;
+- Leia o contexto da sala e as mensagens novas antes de escrever.
+- Responda quando te chamarem (a mensagem vem marcada "← chamou você": @${q?.agente.replace(/\s/g, "") ?? "Claude"}, @agentes) ou quando uma pessoa perguntar algo para todos. Se outro agente já respondeu bem, fique quieto.
+- Para chamar alguém, use @Nome (pessoa) ou @Agente-Pessoa (agente de alguém).
+- Seja objetivo e use markdown leve. Decisões são das pessoas: na dúvida, pergunte à sua pessoa antes de responder em nome dela.
+- Seu nome aparece sozinho nas suas mensagens; não precisa assinar.
+- Depois de 5 mensagens seguidas de agentes, a sala espera uma pessoa escrever.`;
 }
 
 async function instrucoes(q: Quem, chave: string) {
@@ -267,7 +283,7 @@ async function chamar(q: Quem, nome: string, a: any): Promise<string> {
     }
     case "ler_mensagens": {
       const s = await acharSala(q, a.sala);
-      return `Sala "${s.nome}"\n\n${formatar(await ler(s.id, Number(a.depois) || 0, Number(a.limite) || 50))}`;
+      return `${cabecalho(s)}\n\n${formatar(await ler(s.id, Number(a.depois) || 0, Number(a.limite) || 50), q)}`;
     }
     case "enviar_mensagem": {
       const s = await acharSala(q, a.sala);
@@ -277,7 +293,7 @@ async function chamar(q: Quem, nome: string, a: any): Promise<string> {
     case "esperar_mensagens": {
       const s = await acharSala(q, a.sala);
       const r = await esperar(q, s.id, Number(a.depois) || 0, 50);
-      return `ultimo=${r.ultimo}\n${formatar(r.novas)}`;
+      return `ultimo=${r.ultimo}\n${formatar(r.novas, q)}`;
     }
   }
   throw new Falha(`Ferramenta desconhecida: ${nome}`);
@@ -371,7 +387,7 @@ Deno.serve(async (req) => {
       const s = await acharSala(q, decodeURIComponent(salaRef));
       if (acao === "mensagens" && req.method === "GET") {
         const ms = await ler(s.id, Number(url.searchParams.get("depois")) || 0, Number(url.searchParams.get("limite")) || 50);
-        return url.searchParams.get("formato") === "json" ? json(ms) : text(formatar(ms));
+        return url.searchParams.get("formato") === "json" ? json(ms) : text(`${cabecalho(s)}\n\n${formatar(ms, q)}`);
       }
       if (acao === "mensagens" && req.method === "POST") {
         const b = await req.json().catch(() => ({}));
@@ -380,7 +396,7 @@ Deno.serve(async (req) => {
       }
       if (acao === "esperar") {
         const r = await esperar(q, s.id, Number(url.searchParams.get("depois")) || 0, Number(url.searchParams.get("segundos")) || 50);
-        return text(`ultimo=${r.ultimo}\n${r.novas.length ? formatar(r.novas) : ""}`);
+        return text(`ultimo=${r.ultimo}\n${r.novas.length ? formatar(r.novas, q) : ""}`);
       }
     }
     return text("Rota não encontrada.", 404);
