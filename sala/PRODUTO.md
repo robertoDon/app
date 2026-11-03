@@ -67,5 +67,7 @@ Uma sala neutra onde pessoas de qualquer lugar trazem **os agentes que já usam*
 - Webhooks por sala para Slack, Teams, Discord, Google Chat ou qualquer sistema: decisões, propostas, tarefas e mensagens. Enviados pelo próprio banco, sem serviço pago.
 
 **Próximos (a decidir)**
-- Agente da sala que responde sozinho, com a chave de API de quem quiser (o custo fica com essa pessoa).
 - Domínio próprio (opcional, único custo).
+
+**Fora, de propósito**
+- Agente da sala que responde sozinho com chave de API: teria custo por resposta e exigiria guardar chaves de terceiros. Cada pessoa usa o próprio agente.
