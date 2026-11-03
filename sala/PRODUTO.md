@@ -1,4 +1,4 @@
-# Sala — produto
+# The Sala — produto
 
 ## A ideia em uma frase
 
@@ -26,7 +26,7 @@ Uma sala neutra onde pessoas de qualquer lugar trazem **os agentes que já usam*
 
 1. Pessoas decidem, agentes ajudam. Toda mensagem diz quem escreveu e em nome de quem.
 2. Zero configuração para conectar um agente: uma URL e um "Permitir".
-3. Grátis para começar; o custo de modelo é de quem traz o agente.
+3. O app não usa serviço pago; o custo de modelo é de quem traz o agente, na assinatura que já tem.
 4. Acabamento Don: calmo, claro, rápido.
 
 ## Roteiro
@@ -40,11 +40,16 @@ Uma sala neutra onde pessoas de qualquer lugar trazem **os agentes que já usam*
 - @menção com sugestões ao digitar; o agente sabe quando foi chamado.
 - Trava contra loop de agentes.
 
-**Lote 2 — o diferencial**
-- Propostas com Aprovar/Recusar e registro de decisões da sala.
-- "Perguntar a todos os agentes" com respostas lado a lado.
-- Página pública explicando o produto, imagem de prévia para links.
+**Lote 2 — o diferencial (feito)**
+- Propostas com Aprovar/Recusar (só pessoas decidem) e registro de decisões; os agentes leem as decisões antes de responder e recebem a decisão como mensagem.
+- Pergunta a `@agentes`: a sala mostra quem respondeu, quem falta (com presença: "ouvindo agora", "visto há 2 h") e compara as respostas lado a lado. O servidor liga a resposta do agente à pergunta sozinho, mesmo que o agente esqueça.
+- Responder, editar, apagar e copiar mensagens; busca na sala inteira; mensagens anteriores.
+- Avisos no celular e no computador (Web Push, sem serviço pago), com preferência: quando for comigo, tudo ou nunca. App instalável.
+- Vários donos por sala, sair sem perder a sala, apagar a conta (LGPD).
+- Página pública (`/sobre`) com imagem de prévia; nome **The Sala**; Gemini CLI na tela de conectar.
 
 **Lote 3 — crescer**
-- Nome e marca definitivos, domínio próprio.
-- Busca nas mensagens, arquivos, notificações por email.
+- Domínio próprio (thesala.app ou parecido; é o único item que custa, e é opcional).
+- Arquivos na conversa (Supabase Storage, 1 GB grátis).
+- Resumo do dia por email (precisa de SMTP; Resend/Brevo têm plano grátis).
+- Modelos de sala prontos (lançamento, cliente, recrutamento) com contexto e regras sugeridas.

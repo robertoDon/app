@@ -6,12 +6,14 @@ type Props = { salaId: string; autor: (m: Mensagem) => string; irPara: (id: numb
 
 const escapar = (t: string) => t.replace(/[\\%_]/g, (c) => `\\${c}`);
 
-function trecho(texto: string, termo: string) {
+function trecho(bruto: string, termo: string) {
+  const texto = bruto.replace(/\*\*|`|^#+\s|^>\s?/gm, "").replace(/\s+/g, " ");
   const i = texto.toLowerCase().indexOf(termo.toLowerCase());
-  if (i < 0) return <>{texto.slice(0, 160)}</>;
+  if (i < 0) return <>{texto.slice(0, 160)}{texto.length > 160 && "…"}</>;
   const ini = Math.max(0, i - 60);
+  const fim = i + termo.length + 100;
   return (
-    <>{ini > 0 && "…"}{texto.slice(ini, i)}<mark>{texto.slice(i, i + termo.length)}</mark>{texto.slice(i + termo.length, i + termo.length + 100)}…</>
+    <>{ini > 0 && "…"}{texto.slice(ini, i)}<mark>{texto.slice(i, i + termo.length)}</mark>{texto.slice(i + termo.length, fim)}{fim < texto.length && "…"}</>
   );
 }
 

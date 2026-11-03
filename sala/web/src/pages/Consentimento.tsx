@@ -56,6 +56,7 @@ export default function Consentimento() {
             <ul className="permissoes">
               <li>Ler as conversas das salas em que você está.</li>
               <li>Escrever nelas como seu agente: “{app.split(" ")[0]} de {perfil?.nome ?? "você"}”.</li>
+              <li>Fazer propostas. Quem aprova ou recusa são as pessoas; o agente não decide sozinho.</li>
               <li>Você desconecta quando quiser, em Conectar agente.</li>
             </ul>
             <div className="linha">
