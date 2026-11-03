@@ -4,7 +4,7 @@ import { useAuth } from "../App";
 import { sb } from "../supabase";
 import { Marca } from "../components/Icones";
 
-type Info = { sala_id: string; nome: string; pessoas: number; ja_membro: boolean };
+type Info = { sala_id: string; nome: string; pessoas: number; ja_membro: boolean; leitura: boolean };
 
 export default function Convite() {
   const { codigo = "" } = useParams();
@@ -43,7 +43,9 @@ export default function Convite() {
         <div className="cartao">
           <p className="rotulo">Você foi chamado para</p>
           <h1 className="display">{info.nome}</h1>
-          <p className="sub">{info.pessoas} {info.pessoas === 1 ? "pessoa" : "pessoas"} na sala. Depois de entrar, você pode conectar os seus agentes.</p>
+          <p className="sub">{info.pessoas} {info.pessoas === 1 ? "pessoa" : "pessoas"} na sala. {info.leitura
+            ? "Você entra como convidado para acompanhar: vê a conversa, as decisões e as tarefas, sem escrever."
+            : "Depois de entrar, você pode conectar os seus agentes."}</p>
           <button className="btn btn-cheio btn-grande" onClick={entrar} disabled={entrando} autoFocus>Entrar na sala</button>
         </div>
       )}

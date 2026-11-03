@@ -14,7 +14,7 @@ type Dados = { propostas: Mensagem[]; notas: Map<number, string>; tarefas: Taref
 // Ata da sala: decisões e tarefas de um período (e a conversa, se quiser), em .md ou para imprimir/PDF.
 export function Ata({ salaId, salaNome, autor, nome, fechar }: Props) {
   const [dias, setDias] = useState<7 | 30 | 0>(7);
-  const [conversa, setConversa] = useState(false);
+  const [incluirConversa, setConversa] = useState(false);
   const [indo, setIndo] = useState(false);
 
   useEffect(() => {
@@ -25,18 +25,28 @@ export function Ata({ salaId, salaNome, autor, nome, fechar }: Props) {
 
   const juntar = async (): Promise<Dados> => {
     const desde = dias ? new Date(Date.now() - dias * 864e5).toISOString() : null;
-    let qp = sb.from("mensagens").select("*").eq("sala_id", salaId).in("tipo", ["proposta", "decisao"]).eq("apagada", false).order("id");
-    if (desde) qp = qp.gte("criada_em", desde);
+    // propostas: criadas ou decididas no período, e todas as que ainda esperam decisão
+    let qp = sb.from("mensagens").select("*").eq("sala_id", salaId).eq("tipo", "proposta").eq("apagada", false).order("id");
+    if (desde) qp = qp.or(`criada_em.gte.${desde},decidida_em.gte.${desde},estado.eq.pendente`);
+    let qd = sb.from("mensagens").select("*").eq("sala_id", salaId).eq("tipo", "decisao").order("id");
+    if (desde) qd = qd.gte("criada_em", desde);
     let qt = sb.from("tarefas").select("*").eq("sala_id", salaId).neq("estado", "cancelada").order("id");
     if (desde) qt = qt.or(`criada_em.gte.${desde},concluida_em.gte.${desde},estado.eq.aberta`);
-    const [p, t, c] = await Promise.all([
-      qp, qt,
-      conversa ? (() => { let q = sb.from("mensagens").select("*").eq("sala_id", salaId).eq("apagada", false).order("id").limit(3000); if (desde) q = q.gte("criada_em", desde); return q; })() : Promise.resolve({ data: null }),
-    ]);
-    const todas = (p.data as Mensagem[]) ?? [];
+    const [p, dec, t] = await Promise.all([qp, qd, qt]);
+    let conversa: Mensagem[] | null = null;
+    if (incluirConversa) {
+      conversa = [];
+      for (let de = 0; de < 10000; de += 1000) { // o servidor entrega no máximo 1.000 por vez
+        let q = sb.from("mensagens").select("*").eq("sala_id", salaId).eq("apagada", false).order("id").range(de, de + 999);
+        if (desde) q = q.gte("criada_em", desde);
+        const { data } = await q;
+        conversa.push(...((data as Mensagem[]) ?? []));
+        if (!data || data.length < 1000) break;
+      }
+    }
     const notas = new Map<number, string>();
-    todas.filter((m) => m.tipo === "decisao" && m.responde_a && m.texto !== "Aprovada." && m.texto !== "Recusada.").forEach((m) => notas.set(m.responde_a!, m.texto));
-    return { propostas: todas.filter((m) => m.tipo === "proposta"), notas, tarefas: (t.data as Tarefa[]) ?? [], conversa: (c.data as Mensagem[] | null), desde };
+    ((dec.data as Mensagem[]) ?? []).filter((m) => m.responde_a && m.texto !== "Aprovada." && m.texto !== "Recusada.").forEach((m) => notas.set(m.responde_a!, m.texto));
+    return { propostas: (p.data as Mensagem[]) ?? [], notas, tarefas: (t.data as Tarefa[]) ?? [], conversa, desde };
   };
 
   const quemFaz = (t: Tarefa) => (t.responsavel_agente ? `${t.responsavel_agente} de ${nome(t.responsavel).split(" ")[0]}` : t.responsavel ? nome(t.responsavel) : "sem responsável");
@@ -129,7 +139,7 @@ p{margin:0 0 8px}.item{padding-left:4px}.sub{padding-left:24px;color:#5F5F66}@me
           ))}
         </fieldset>
         <label className="opcao">
-          <input type="checkbox" checked={conversa} onChange={(e) => setConversa(e.target.checked)} />
+          <input type="checkbox" checked={incluirConversa} onChange={(e) => setConversa(e.target.checked)} />
           <span><strong>Incluir a conversa inteira</strong><span className="nota">Fica bem mais longa. Sem ela, a ata tem só o que foi decidido e combinado.</span></span>
         </label>
         <div className="linha">

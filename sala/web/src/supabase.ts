@@ -12,13 +12,13 @@ export const sb = createClient(SUPABASE_URL, SUPABASE_KEY, {
 
 export type Perfil = { id: string; nome: string; avatar: string | null; avisos?: "tudo" | "mencoes" | "nada" };
 export type Sala = {
-  id: string; nome: string; convite: string; contexto: string; papel: "dono" | "membro";
+  id: string; nome: string; convite: string | null; convite_leitura: string | null; contexto: string; papel: "dono" | "membro" | "leitor";
   nao_lidas: number; pendentes: number; lido_ate: number; minhas_tarefas: number; ultima_id: number | null; ultima_texto: string | null;
   ultima_agente: string | null; ultima_nome: string | null; ultima_em: string | null; ultima_tipo: Mensagem["tipo"] | null;
 };
 export type Anexo = { path: string; nome: string; tipo: string; tamanho: number };
 export type Agente = { user_id: string; nome: string; visto_em: string; ouvindo_ate: string | null };
-export type Membro = { user_id: string; papel: "dono" | "membro"; perfis: Perfil | null };
+export type Membro = { user_id: string; papel: "dono" | "membro" | "leitor"; perfis: Perfil | null };
 
 export const abrirConectar = () => window.dispatchEvent(new Event("sala:conectar"));
 export type Mensagem = {
@@ -81,10 +81,16 @@ export const ultimaSala = {
 
 export const LIMITE_ARQUIVO = 10 * 1024 * 1024;
 
+// o armazenamento só aceita letras sem acento, números, ponto, hífen e sublinhado na chave; o nome real fica na mensagem
+export const chaveDoNome = (nome: string) => {
+  const limpo = nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Za-z0-9._-]+/g, "-").replace(/\.{2,}/g, ".").replace(/^[-.]+|-+$/g, "");
+  return (limpo || "arquivo").slice(-120);
+};
+
 export async function subirArquivo(sala: string, eu: string, f: File): Promise<Anexo> {
   if (f.size > LIMITE_ARQUIVO) throw new Error(`${f.name} passa de 10 MB.`);
-  const nome = (f.name || "arquivo").replace(/[\/\\?%*:|"<>\x00-\x1f]/g, "-").slice(0, 120);
-  const path = `${sala}/${eu}/${crypto.randomUUID()}-${nome}`;
+  const nome = (f.name || "arquivo").replace(/[\/\\\x00-\x1f]/g, "-").trim().slice(0, 200) || "arquivo";
+  const path = `${sala}/${eu}/${crypto.randomUUID()}-${chaveDoNome(nome)}`;
   const { error } = await sb.storage.from("arquivos").upload(path, f, { contentType: f.type || "application/octet-stream" });
   if (error) throw new Error(`Não deu para enviar ${nome}: ${error.message}`);
   return { path, nome, tipo: f.type || "application/octet-stream", tamanho: f.size };

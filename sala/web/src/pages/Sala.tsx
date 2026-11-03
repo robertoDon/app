@@ -45,6 +45,7 @@ export default function SalaPage() {
   const { salas, recarregar } = useSalas();
   const sala = salas?.find((s) => s.id === id);
   const dono = sala?.papel === "dono";
+  const leitor = sala?.papel === "leitor"; // convidado: lê tudo, não escreve
 
   const [membros, setMembros] = useState<Membro[]>([]);
   const [presencas, setPresencas] = useState<Agente[]>([]);
@@ -147,9 +148,18 @@ export default function SalaPage() {
     sb.from("agentes").select("*").then(({ data }) => setPresencas((data as Agente[]) ?? []));
     carregarMembros();
     setTarefas(null);
-    sb.from("tarefas").select("*").eq("sala_id", id).order("id", { ascending: false }).limit(300)
-      .then(({ data }) => { if (salaAtual.current === id) setTarefas((data as Tarefa[]) ?? []); });
-    const mudouTarefa = (t: Tarefa) => setTarefas((ts) => (ts ? [t, ...ts.filter((x) => x.id !== t.id)] : ts));
+    const bufferTarefas: Tarefa[] = []; // o que muda ao vivo antes da leitura terminar
+    const carregarTarefas = () => sb.from("tarefas").select("*").eq("sala_id", id).order("id", { ascending: false }).limit(300)
+      .then(({ data }) => {
+        if (salaAtual.current !== id) return;
+        const mapa = new Map(((data as Tarefa[]) ?? []).map((t) => [t.id, t]));
+        bufferTarefas.forEach((t) => mapa.set(t.id, t));
+        setTarefas([...mapa.values()].sort((a, b) => b.id - a.id));
+      });
+    const mudouTarefa = (t: Tarefa) => setTarefas((ts) => {
+      if (!ts) { bufferTarefas.push(t); return ts; }
+      return [t, ...ts.filter((x) => x.id !== t.id)];
+    });
 
     const chegou = (m: Mensagem) => {
       if (m.tipo !== "mensagem") setVersaoDecisoes((v) => v + 1);
@@ -162,7 +172,7 @@ export default function SalaPage() {
         return [...atual, m];
       });
     };
-    const primeira = () => { if (!carregado) { carregado = true; carregarRecentes(id, buffer); } };
+    const primeira = () => { if (!carregado) { carregado = true; carregarRecentes(id, buffer); carregarTarefas(); } };
 
     const canal = sb.channel(`sala:${id}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "mensagens", filter: `sala_id=eq.${id}` }, (p) => chegou(p.new as Mensagem))
@@ -403,7 +413,7 @@ export default function SalaPage() {
     <Layout salas={salas} recarregar={recarregar} foco>
       <div className="sala">
         <div className={`sala-principal ${arrastando ? "arrastando" : ""}`}
-          onDragOver={(e) => { if (e.dataTransfer.types.includes("Files")) { e.preventDefault(); setArrastando(true); } }}
+          onDragOver={(e) => { if (!leitor && e.dataTransfer.types.includes("Files")) { e.preventDefault(); setArrastando(true); } }}
           onDragLeave={(e) => { if (e.currentTarget === e.target || !e.currentTarget.contains(e.relatedTarget as Node)) setArrastando(false); }}
           onDrop={(e) => { if (e.dataTransfer.files.length) { e.preventDefault(); compor.current?.anexar([...e.dataTransfer.files]); } setArrastando(false); }}>
           {arrastando && <div className="solte" aria-hidden><IconeClipe /> Solte para anexar</div>}
@@ -431,9 +441,9 @@ export default function SalaPage() {
               aria-expanded={painel === "busca"} aria-label="Buscar na sala" title="Buscar (/)">
               <IconeBusca />
             </button>
-            <button className="btn btn-convidar" onClick={() => setConvite((v) => !v)} aria-expanded={convite} aria-label="Convidar pessoas" title="Convidar pessoas">
+            {!leitor && <button className="btn btn-convidar" onClick={() => setConvite((v) => !v)} aria-expanded={convite} aria-label="Convidar pessoas" title="Convidar pessoas">
               <IconeConvite tamanho={18} /> <span className="some-celular">Convidar</span>
-            </button>
+            </button>}
             <button className={`btn-icone ${painel === "ajustes" || painel === "contexto" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "ajustes" || p === "contexto" ? null : "ajustes"))}
               aria-expanded={painel === "ajustes"} aria-label="Ajustes da sala" title="Ajustes da sala">
               <IconeAjustes />
@@ -458,7 +468,7 @@ export default function SalaPage() {
               <div className="anteriores"><button className="btn btn-pequeno" onClick={carregarAnteriores}>Mostrar mensagens anteriores</button></div>
             )}
 
-            {msgs !== null && passos.some((p) => !p.feito) && msgs.length < 4 && (
+            {msgs !== null && !leitor && passos.some((p) => !p.feito) && msgs.length < 4 && (
               <section className="passos-sala" aria-label="Próximos passos">
                 <h2>{msgs.length ? "Para a sala render mais" : "Sala pronta. Três passos e ela ganha vida."}</h2>
                 <ol>
@@ -510,12 +520,12 @@ export default function SalaPage() {
                     minha={minhaPessoa} continua={continua} chamaMim={chamaMim} destaque={destaque === m.id}
                     decisor={m.decidida_por ? (m.decidida_por === eu ? "você" : nome(m.decidida_por)) : undefined}
                     citacao={m.responde_a && !emSequencia ? { id: m.responde_a, autor: citada ? autor(citada) : "Mensagem anterior", texto: citada ? umaLinha(citada.texto, 120) : "" } : null}
-                    responder={m.id > 0 ? () => responder(m) : undefined}
+                    responder={m.id > 0 && !leitor ? () => responder(m) : undefined}
                     copiar={() => copiarTexto(m.texto)}
                     editar={minhaPessoa && m.tipo === "mensagem" && m.id > 0 ? (t) => editar(m.id, t) : undefined}
                     apagar={(m.user_id === eu || dono) && m.id > 0 ? () => apagar(m) : undefined}
-                    decidir={m.tipo === "proposta" && m.id > 0 ? (a, n) => decidir(m.id, a, n) : undefined}
-                    virarTarefa={m.id > 0 && !m.apagada ? () => {
+                    decidir={m.tipo === "proposta" && m.id > 0 && !leitor ? (a, n) => decidir(m.id, a, n) : undefined}
+                    virarTarefa={m.id > 0 && !m.apagada && !leitor ? () => {
                       const t = m.texto.replace(/[*_`#>]/g, "").replace(/@[\p{L}\p{N}_-]+/gu, "").split("\n").map((x) => x.trim()).find(Boolean) ?? "";
                       setRascunho({ titulo: t.slice(0, 120), origem: m.id, responsavel: valorResp(m.user_id, m.agente) });
                       setPainel("tarefas");
@@ -571,11 +581,13 @@ export default function SalaPage() {
             })}
           </div>
 
-          <Avisos />
+          {!leitor && <Avisos />}
           {temPosteriores && (
             <div className="anteriores"><button className="btn btn-pequeno" onClick={() => carregarRecentes(id)}>Ir para as mensagens mais recentes</button></div>
           )}
-          <Compor key={id} ref={compor} subir={(f) => subirArquivo(id, eu, f)} sugestoesBase={sugestoes} respondendo={respondendo} cancelarResposta={() => setRespondendo(null)} enviar={enviar} />
+          {leitor ? (
+            <p className="so-leitura" role="status">Você está acompanhando esta sala como convidado: vê a conversa, as decisões e as tarefas, mas não escreve. Para participar, peça a quem cuida da sala.</p>
+          ) : <Compor key={id} ref={compor} subir={(f) => subirArquivo(id, eu, f)} sugestoesBase={sugestoes} respondendo={respondendo} cancelarResposta={() => setRespondendo(null)} enviar={enviar} />}
         </div>
 
         {(painel === "ajustes" || painel === "contexto") && sala && (

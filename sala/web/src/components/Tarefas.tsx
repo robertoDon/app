@@ -136,7 +136,7 @@ export function Tarefas({ salaId, tarefas, membros, agentes, eu, nome, rascunho,
   };
 
   const reabrir = async (t: Tarefa) => {
-    const { error } = await sb.rpc("editar_tarefa", { tarefa: t.id, titulo: t.titulo, responsavel: t.responsavel, responsavel_agente: t.responsavel_agente, prazo: t.prazo, estado: "aberta" });
+    const { error } = await sb.rpc("editar_tarefa", { tarefa: t.id, titulo: t.titulo, responsavel: t.responsavel, responsavel_agente: t.responsavel_agente, prazo: t.prazo, estado: "aberta", reabrir: true });
     if (error) alert(error.message);
   };
 

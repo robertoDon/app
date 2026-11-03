@@ -655,6 +655,18 @@ button.tarefa-marca:hover { background: var(--suave); color: var(--tinta); }
 .pedir-destaque { border: 1px solid var(--acento); box-shadow: 0 0 0 3px color-mix(in srgb, var(--acento) 18%, transparent); }
 a.btn { text-decoration: none; }
 
+/* ---------------------------------------------------------------- lote 5 */
+
+.so-leitura {
+  max-width: 760px; width: calc(100% - 48px); margin: 0 auto calc(12px + env(safe-area-inset-bottom)); padding: 12px 16px;
+  border: 1px dashed var(--linha); border-radius: var(--r2); color: var(--cinza); font-size: var(--t1); text-align: center;
+}
+.historico { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; }
+.historico li { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--linha); font-size: var(--t1); }
+.historico li:first-child { border-top: 0; }
+.historico time { flex: none; }
+.historico-detalhe { color: var(--cinza); overflow-wrap: anywhere; }
+
 /* ---------------------------------------------------------------- celular */
 
 .so-celular { display: none; }

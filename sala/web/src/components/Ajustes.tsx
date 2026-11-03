@@ -4,6 +4,8 @@ import { abrirConectar, copiarTexto, sb, type Membro, type Sala } from "../supab
 import type { AgenteSala } from "../pages/Sala";
 import { IconeAgente, IconeFechar } from "./Icones";
 
+type Historico = { id: number; quem: string | null; agente: string | null; acao: string; detalhe: string | null; em: string };
+
 type Props = { sala: Sala; membros: Membro[]; agentes: AgenteSala[]; eu: string; fechar: () => void; recarregar: () => void; foco?: "contexto" };
 
 export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco }: Props) {
@@ -13,7 +15,15 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco }
   const [contexto, setContexto] = useState(sala.contexto);
   const [salvo, setSalvo] = useState("");
   const [copiado, setCopiado] = useState(false);
-  const link = `${window.location.origin}/c/${sala.convite}`;
+  const link = sala.convite ? `${window.location.origin}/c/${sala.convite}` : "";
+  const linkLeitura = sala.convite_leitura ? `${window.location.origin}/c/${sala.convite_leitura}` : "";
+  const [copiadoLeitura, setCopiadoLeitura] = useState(false);
+  const [historico, setHistorico] = useState<Historico[] | null>(null);
+  const verHistorico = async () => {
+    const { data } = await sb.from("historico").select("*").eq("sala_id", sala.id).order("id", { ascending: false }).limit(60);
+    setHistorico((data as Historico[]) ?? []);
+  };
+  const nomeDe = (uid: string | null) => membros.find((m) => m.user_id === uid)?.perfis?.nome ?? "Alguém";
 
   useEffect(() => { setNome(sala.nome); setContexto(sala.contexto); }, [sala.id]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -38,6 +48,11 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco }
   const remover = async (m: Membro) => {
     if (!confirm(`Tirar ${m.perfis?.nome} da sala? Os agentes dessa pessoa também saem.`)) return;
     await sb.from("membros").delete().eq("sala_id", sala.id).eq("user_id", m.user_id);
+  };
+
+  const mudarPapel = async (m: Membro, papel: "membro" | "leitor") => {
+    const { error } = await sb.rpc("mudar_papel", { sala: sala.id, pessoa: m.user_id, papel });
+    if (error) alert(error.message);
   };
 
   const tornarDono = async (m: Membro) => {
@@ -99,14 +114,20 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco }
           {membros.map((m) => (
             <li key={m.user_id}>
               {m.perfis?.avatar ? <img className="avatar" src={m.perfis.avatar} alt="" referrerPolicy="no-referrer" /> : <span className="avatar">{m.perfis?.nome?.[0]}</span>}
-              <span className="pessoa-nome">{m.perfis?.nome}{m.user_id === eu && " (você)"}</span>
-              {m.papel === "dono" ? <span className="nota">cuida da sala</span>
-                : dono && (
-                  <span className="linha">
-                    <button className="btn btn-pequeno btn-texto" onClick={() => tornarDono(m)}>Tornar dono</button>
-                    <button className="btn btn-pequeno" onClick={() => remover(m)}>Tirar</button>
-                  </span>
-                )}
+              <span className="pessoa-nome">{m.perfis?.nome}{m.user_id === eu && " (você)"}
+                <span className="presenca">{m.papel === "dono" ? "cuida da sala" : m.papel === "leitor" ? "convidado, só lê" : "participa"}</span>
+              </span>
+              {m.papel !== "dono" && dono && (
+                <span className="linha">
+                  {m.papel === "leitor"
+                    ? <button className="btn btn-pequeno btn-texto" onClick={() => mudarPapel(m, "membro")}>Liberar para escrever</button>
+                    : <>
+                        <button className="btn btn-pequeno btn-texto" onClick={() => mudarPapel(m, "leitor")} title="A pessoa e os agentes dela só leem">Só ler</button>
+                        <button className="btn btn-pequeno btn-texto" onClick={() => tornarDono(m)}>Tornar dono</button>
+                      </>}
+                  <button className="btn btn-pequeno" onClick={() => remover(m)}>Tirar</button>
+                </span>
+              )}
             </li>
           ))}
         </ul>
@@ -129,16 +150,50 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco }
         <button className="btn btn-pequeno" onClick={abrirConectar}>Conectar o meu agente</button>
       </section>
 
+      {link && (
+        <section className="painel-secao">
+          <span className="rotulo">Convite para participar</span>
+          <p className="nota">Quem entrar por este link escreve, decide e conecta os próprios agentes.</p>
+          <div className="linha">
+            <input readOnly value={link} aria-label="Link do convite para participar" onFocus={(e) => e.target.select()} />
+            <button className="btn btn-pequeno" onClick={async () => {
+              if (await copiarTexto(link)) { setCopiado(true); setTimeout(() => setCopiado(false), 1500); }
+            }}>{copiado ? "Copiado" : "Copiar"}</button>
+          </div>
+          {linkLeitura && (
+            <>
+              <span className="rotulo">Convite para acompanhar</span>
+              <p className="nota">Para clientes ou quem só precisa ver. Lê tudo, mas não escreve, não decide e não traz agentes.</p>
+              <div className="linha">
+                <input readOnly value={linkLeitura} aria-label="Link do convite para acompanhar" onFocus={(e) => e.target.select()} />
+                <button className="btn btn-pequeno" onClick={async () => {
+                  if (await copiarTexto(linkLeitura)) { setCopiadoLeitura(true); setTimeout(() => setCopiadoLeitura(false), 1500); }
+                }}>{copiadoLeitura ? "Copiado" : "Copiar"}</button>
+              </div>
+            </>
+          )}
+          {dono ? <button className="link nota" onClick={trocarConvite}>Trocar os links de convite</button>
+            : <p className="nota">Quem cuida da sala pode trocar este link.</p>}
+        </section>
+      )}
+
       <section className="painel-secao">
-        <span className="rotulo">Convite</span>
-        <div className="linha">
-          <input readOnly value={link} aria-label="Link do convite" onFocus={(e) => e.target.select()} />
-          <button className="btn btn-pequeno" onClick={async () => {
-            if (await copiarTexto(link)) { setCopiado(true); setTimeout(() => setCopiado(false), 1500); }
-          }}>{copiado ? "Copiado" : "Copiar"}</button>
-        </div>
-        {dono && <button className="link nota" onClick={trocarConvite}>Trocar o link do convite</button>}
-        {!dono && <p className="nota">Quem cuida da sala pode trocar este link.</p>}
+        <span className="rotulo">Histórico</span>
+        {historico === null ? (
+          <>
+            <p className="nota">Quem entrou, saiu, aprovou, apagou, criou e concluiu tarefas. Fica registrado para todos da sala.</p>
+            <button className="btn btn-pequeno" onClick={verHistorico}>Ver histórico</button>
+          </>
+        ) : historico.length ? (
+          <ol className="historico">
+            {historico.map((h) => (
+              <li key={h.id}>
+                <span><strong>{h.agente ? `${h.agente} de ${nomeDe(h.quem).split(" ")[0]}` : nomeDe(h.quem)}</strong> {h.acao}{h.detalhe ? <> <span className="historico-detalhe">{h.detalhe}</span></> : null}</span>
+                <time className="nota">{new Date(h.em).toLocaleString("pt-BR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).replace(".", "")}</time>
+              </li>
+            ))}
+          </ol>
+        ) : <p className="nota">Nada registrado ainda.</p>}
       </section>
 
       <section className="painel-secao painel-fim">

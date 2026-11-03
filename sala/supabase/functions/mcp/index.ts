@@ -286,12 +286,14 @@ const tipoPorNome = (nome: string) => {
 };
 
 async function subirTexto(q: Quem, sala: string, nome: string, conteudo: string): Promise<Anexo> {
-  const limpo = (nome || "arquivo.txt").replace(/[\/\\?%*:|"<>\x00-\x1f]/g, "-").slice(0, 120);
+  const limpo = (nome || "arquivo.txt").replace(/[\/\\\x00-\x1f]/g, "-").trim().slice(0, 200) || "arquivo.txt";
+  // a chave do armazenamento só aceita letras sem acento, números, ponto, hífen e sublinhado; o nome real fica na mensagem
+  const chave = (limpo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Za-z0-9._-]+/g, "-").replace(/\.{2,}/g, ".").replace(/^[-.]+|-+$/g, "") || "arquivo.txt").slice(-120);
   const bytes = new TextEncoder().encode(conteudo ?? "");
   if (!bytes.length) throw new Falha("O arquivo está vazio.");
   if (bytes.length > 1048576) throw new Falha("Arquivo de texto acima de 1 MB.");
   const tipo = tipoPorNome(limpo);
-  const path = `${sala}/${q.userId}/${crypto.randomUUID()}-${limpo}`;
+  const path = `${sala}/${q.userId}/${crypto.randomUUID()}-${chave}`;
   const { error } = await db.storage.from("arquivos").upload(path, bytes, { contentType: `${tipo}; charset=utf-8` });
   if (error) throw new Falha(`Não deu para guardar o arquivo: ${error.message}`, 500);
   return { path, nome: limpo, tipo, tamanho: bytes.length };
@@ -302,6 +304,7 @@ type Conteudo = { type: "text"; text: string } | { type: "image"; data: string; 
 // devolve o arquivo em forma que o agente lê: texto, imagem, ou um link temporário
 async function lerArquivo(q: Quem, caminho: string): Promise<Conteudo[]> {
   const path = (caminho ?? "").trim().replace(/^\/+/, "");
+  if (path.includes("..") || /%2e/i.test(path)) throw new Falha("Arquivo não encontrado nas suas salas.", 404);
   const salaId = path.split("/")[0];
   if (!(await salasDe(q)).some((s) => s.id === salaId)) throw new Falha("Arquivo não encontrado nas suas salas.", 404);
   const { data: info } = await db.from("mensagens").select("anexos").eq("sala_id", salaId).filter("anexos", "cs", JSON.stringify([{ path }])).limit(1).maybeSingle();
@@ -379,12 +382,17 @@ async function concluirTarefa(q: Quem, id: number, resultado: string, anexo?: An
   const tarefa = t as unknown as Tarefa | null;
   if (!tarefa || !(await salasDe(q)).some((s) => s.id === tarefa.sala_id)) throw new Falha("Tarefa não encontrada.", 404);
   if (tarefa.estado !== "aberta") throw new Falha("Esta tarefa já foi fechada.");
+  if (tarefa.responsavel && tarefa.responsavel !== q.userId) {
+    throw new Falha(`Esta tarefa é de ${quemFaz(tarefa)}. Só essa pessoa ou o agente dela conclui. Se você ajudou, diga na sala.`, 403);
+  }
   const r = (resultado ?? "").trim().slice(0, 4000);
-  const { error } = await db.from("tarefas").update({
-    estado: "feita", resultado: r || null, concluida_em: new Date().toISOString(), concluida_por: q.userId, concluida_por_agente: q.agente,
-  }).eq("id", id).eq("estado", "aberta");
-  if (error) throw new Falha(error.message);
+  // primeiro avisa na sala (pode ser barrado pela trava de agentes); só então fecha a tarefa
   await enviar(q, tarefa.sala_id, { texto: `✓ Concluí a tarefa: **${tarefa.titulo}**${r ? `\n\n${r}` : ""}`, responde_a: tarefa.origem, anexos: anexo ? [anexo] : [] });
+  const { data: feitas, error } = await db.from("tarefas").update({
+    estado: "feita", resultado: r || null, concluida_em: new Date().toISOString(), concluida_por: q.userId, concluida_por_agente: q.agente,
+  }).eq("id", id).eq("estado", "aberta").select("id");
+  if (error) throw new Falha(error.message);
+  if (!feitas?.length) throw new Falha("Alguém fechou esta tarefa ao mesmo tempo. Veja a lista de tarefas.");
   return tarefa;
 }
 
@@ -544,7 +552,7 @@ const TOOLS = [
         sala: SALA_ARG,
         titulo: { type: "string", description: "O que precisa ser feito, curto e com verbo. Ex.: Revisar o contrato do cliente X." },
         responsavel: { type: "string", description: "Quem faz. Vazio = você." },
-        prazo: { type: "string", description: "Opcional, data ISO 8601 (ex.: 2026-11-10T12:00:00Z)." },
+        prazo: { type: "string", description: "Opcional. Só a data (2026-11-10, vale até 18h de Brasília) ou data e hora ISO 8601." },
         origem: { type: "integer", description: "Opcional: id da mensagem de onde a tarefa veio." },
       },
       required: ["titulo"],
@@ -593,9 +601,17 @@ async function chamar(q: Quem, nome: string, a: any): Promise<string | Conteudo[
       const titulo = String(a.titulo ?? "").trim().slice(0, 200);
       if (!titulo) throw new Falha("Falta o título da tarefa.");
       const resp = await acharResponsavel(q, s.id, a.responsavel);
-      const prazo = a.prazo && !isNaN(Date.parse(a.prazo)) ? new Date(a.prazo).toISOString() : null;
+      // só a data ("2026-11-10"): vale até 18h de Brasília, como no app
+      const p = String(a.prazo ?? "").trim();
+      const prazo = /^\d{4}-\d{2}-\d{2}$/.test(p) ? new Date(`${p}T18:00:00-03:00`).toISOString()
+        : p && !isNaN(Date.parse(p)) ? new Date(p).toISOString() : null;
+      let origem = Number(a.origem) || null;
+      if (origem) {
+        const { data: o } = await db.from("mensagens").select("id").eq("id", origem).eq("sala_id", s.id).maybeSingle();
+        if (!o) origem = null;
+      }
       const { data, error } = await db.from("tarefas").insert({
-        sala_id: s.id, titulo, ...resp, prazo, origem: Number(a.origem) || null, criada_por: q.userId, criada_por_agente: q.agente,
+        sala_id: s.id, titulo, ...resp, prazo, origem, criada_por: q.userId, criada_por_agente: q.agente,
       }).select("id").single();
       if (error) throw new Falha(error.message);
       return `Tarefa ${data.id} criada na sala "${s.nome}".`;
@@ -638,7 +654,7 @@ async function mcp(q: Quem, msg: any) {
       return ok({
         protocolVersion: params?.protocolVersion ?? "2025-06-18",
         capabilities: { tools: {} },
-        serverInfo: { name: "sala", title: "The Sala", version: "4.0.0" },
+        serverInfo: { name: "sala", title: "The Sala", version: "4.1.0" },
         instructions: regras(q),
       });
     case "ping":

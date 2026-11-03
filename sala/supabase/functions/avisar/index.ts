@@ -140,7 +140,8 @@ Deno.serve(async (req) => {
   const agenteChamado = (uid: string, primeiro: string): string | null => {
     const meus = (agentesSala ?? []).filter((a) => a.user_id === uid);
     for (const [a, p] of ditasCompletas) {
-      if (a === "agentes" && meus.length) return meus.length === 1 ? meus[0].nome : "seus agentes";
+      // @agentes escrito por um agente não acorda ninguém: senão vira uma corrente de avisos
+      if (a === "agentes" && meus.length && !m.agente) return meus.length === 1 ? meus[0].nome : "seus agentes";
       const ag = meus.find((x) => handle(x.nome) === a);
       if (ag && (!p || p === primeiro)) return ag.nome;
     }
@@ -184,7 +185,9 @@ Deno.serve(async (req) => {
   const mortos: string[] = [];
   await Promise.all(inscricoes.map(async (i) => {
     try {
-      const st = await empurrar(i, dadosPara(i.user_id), m.tipo !== "mensagem" || donoRespondida === i.user_id || chamadoDe.has(i.user_id));
+      const chamado = chamadoDe.get(i.user_id);
+      const urgente = m.tipo !== "mensagem" || donoRespondida === i.user_id || (!!chamado && chamado !== "seus agentes" && !ditas.includes("agentes"));
+      const st = await empurrar(i, dadosPara(i.user_id), urgente);
       if (st === 404 || st === 410) mortos.push(i.endpoint);
       else if (st >= 400) console.log("push", st, new URL(i.endpoint).host);
     } catch (e) { console.log("push falhou", (e as Error).message); }
