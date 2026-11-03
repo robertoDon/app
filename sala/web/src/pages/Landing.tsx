@@ -101,7 +101,7 @@ export default function Landing() {
         <button className="btn btn-cheio btn-grande" onClick={comecar}>{sessao ? "Abrir minhas salas" : <><IconeGoogle /> Criar uma sala grátis</>}</button>
       </section>
 
-      <footer className="rodape landing-rodape"><Link to="/privacidade">Privacidade</Link> · um produto Don</footer>
+      <footer className="rodape landing-rodape"><Link to="/ajuda">Ajuda</Link> · <Link to="/privacidade">Privacidade</Link> · um produto Don</footer>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import Convite from "./pages/Convite";
 import Consentimento from "./pages/Consentimento";
 import Privacidade from "./pages/Privacidade";
 import Landing from "./pages/Landing";
+import Ajuda from "./pages/Ajuda";
 
 type Auth = { sessao: Session | null; perfil: Perfil | null; recarregarPerfil: () => void };
 const AuthCtx = createContext<Auth>({ sessao: null, perfil: null, recarregarPerfil: () => {} });
@@ -41,6 +42,7 @@ export default function App() {
         <Route path="/c/:codigo" element={<Convite />} />
         <Route path="/" element={sessao ? <Inicio /> : <Landing />} />
         <Route path="/sobre" element={<Landing />} />
+        <Route path="/ajuda" element={<Ajuda />} />
         <Route path="/s/:id" element={<Protegida><SalaPage /></Protegida>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

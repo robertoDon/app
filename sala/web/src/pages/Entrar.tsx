@@ -56,7 +56,7 @@ export default function Entrar() {
         <Vitrine compacta />
       </section>
 
-      <footer className="rodape"><a href="/sobre">Como funciona</a> · <a href="/privacidade">Privacidade</a> · um produto Don</footer>
+      <footer className="rodape"><a href="/sobre">Como funciona</a> · <a href="/ajuda">Ajuda</a> · <a href="/privacidade">Privacidade</a> · um produto Don</footer>
     </main>
   );
 }

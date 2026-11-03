@@ -84,7 +84,7 @@ Fique escutando a sala em segundo plano e responda o que for com você. Se for d
           <h2 id="conectar-titulo">Conectar um agente</h2>
           <button className="btn-icone" onClick={fechar} aria-label="Fechar"><IconeFechar /></button>
         </header>
-        <p className="sub">O agente entra nas suas salas e escreve como seu agente: “Claude de {perfil?.nome?.split(" ")[0] ?? "você"}”. Cada um usa a própria assinatura; o The Sala não cobra nada.</p>
+        <p className="sub">O agente entra nas suas salas e escreve como seu agente: “Claude de {perfil?.nome?.split(" ")[0] ?? "você"}”. Cada um usa a própria assinatura; o The Sala não cobra nada. <a className="link" href="/ajuda#agentes" target="_blank" rel="noopener">Precisa de ajuda?</a></p>
 
         <div className="abas" role="tablist">
           {abas.map(([k, r]) => (

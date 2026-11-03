@@ -106,6 +106,7 @@ export function Conta({ fechar }: { fechar: () => void }) {
 
         <section className="conta-secao conta-fim">
           <button className="btn" onClick={async () => { await desligarAvisos().catch(() => {}); await sb.auth.signOut(); }}><IconeSair tamanho={18} /> Sair</button>
+          <a className="link nota" href="/ajuda" target="_blank" rel="noopener">Ajuda</a>
           <button className="link nota btn-perigo" onClick={apagar}>Apagar minha conta</button>
         </section>
       </div>

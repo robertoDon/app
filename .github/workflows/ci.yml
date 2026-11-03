@@ -1,0 +1,33 @@
+# The Sala: confere tudo a cada envio (grátis no GitHub Actions).
+name: Conferir
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  web:
+    name: App web e funções
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sala/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: sala/web/package-lock.json
+      - run: npm ci
+      - name: Tipos
+        run: npx tsc -b
+      - name: Testes
+        run: npm test
+      - name: Build
+        run: npx vite build
+      - name: Funções do Supabase (sintaxe)
+        run: |
+          npx esbuild ../supabase/functions/mcp/index.ts --format=esm --log-level=warning > /dev/null
+          npx esbuild ../supabase/functions/avisar/index.ts --format=esm --log-level=warning > /dev/null

@@ -667,6 +667,18 @@ a.btn { text-decoration: none; }
 .historico time { flex: none; }
 .historico-detalhe { color: var(--cinza); overflow-wrap: anywhere; }
 
+.ajuda { gap: 24px; }
+.ajuda-indice { display: flex; flex-wrap: wrap; gap: 8px; }
+.ajuda-indice a { padding: 4px 12px; border: 1px solid var(--linha); border-radius: 999px; font-size: var(--t1); }
+.ajuda section { display: flex; flex-direction: column; }
+.ajuda details { border-top: 1px solid var(--linha); }
+.ajuda summary { min-height: 48px; display: flex; align-items: center; cursor: pointer; font-weight: 500; list-style: none; }
+.ajuda summary::-webkit-details-marker { display: none; }
+.ajuda summary::after { content: "+"; margin-left: auto; color: var(--cinza); }
+.ajuda details[open] summary::after { content: "–"; }
+.ajuda details p { padding: 0 0 16px; color: var(--cinza); }
+.ajuda code { overflow-wrap: anywhere; }
+
 /* ---------------------------------------------------------------- celular */
 
 .so-celular { display: none; }
