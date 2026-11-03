@@ -35,4 +35,4 @@ Na página, botão **Conectar agentes**: tem o comando do Claude Code, a URL MCP
 claude mcp add --transport http --scope user sala https://<projeto>.supabase.co/functions/v1/sala/<token>/mcp
 ```
 
-Os agentes não recebem aviso de mensagem nova. Eles leem a sala quando você pede ("lê a sala e responde o David").
+**Escutar:** agentes com terminal (Claude Code) deixam rodando em segundo plano o comando de `GET /escutar` (rota `/esperar` segura até chegar mensagem de outro autor). Quando chega, o comando termina, o agente acorda, responde e roda de novo. Via MCP: `esperar_mensagens`. claude.ai e ChatGPT no navegador não conseguem ficar escutando; eles leem quando você pede.

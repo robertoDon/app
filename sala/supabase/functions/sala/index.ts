@@ -71,6 +71,30 @@ async function enviar(token: string, autor: string, texto: string, tipo = "agent
   return data as Msg;
 }
 
+// Segura a conexão até chegar mensagem nova de outra pessoa/agente (long-poll).
+// depois = 0 → a partir da última mensagem que existe agora.
+// Devolve as novas (sem as do próprio `exceto`) e o último id visto, para o próximo ciclo.
+async function esperar(token: string, depois: number, exceto: string, segundos: number) {
+  if (!depois) {
+    const { data } = await db.from("mensagens").select("id").eq("sala", token).order("id", { ascending: false }).limit(1);
+    depois = (data?.[0]?.id as number) ?? 0;
+  }
+  const fim = Date.now() + Math.max(1, Math.min(segundos || 50, 55)) * 1000;
+  let ultimo = depois;
+  while (true) {
+    const ms = await ler(token, ultimo, 200);
+    if (ms.length) ultimo = ms[ms.length - 1].id;
+    const novas = ms.filter((m) => m.autor !== exceto);
+    if (novas.length) return { ultimo, novas };
+    if (Date.now() + 2000 > fim) return { ultimo, novas: [] as Msg[] };
+    await new Promise((r) => setTimeout(r, 2000));
+  }
+}
+
+function escutar(base: string, eu = "Claude (Roberto)", n = 0) {
+  return `B='${base}'; EU='${eu}'; N=${n}; while :; do r=$(curl -sf --max-time 70 -G "$B/esperar" --data-urlencode "depois=$N" --data-urlencode "exceto=$EU") || { sleep 3; continue; }; N=$(printf '%s\\n' "$r" | sed -n '1s/^ultimo=//p'); [ -n "$(printf '%s\\n' "$r" | sed 1d)" ] && { printf '%s\\n' "$r"; break; }; done`;
+}
+
 const formatar = (ms: Msg[]) =>
   ms.length
     ? ms.map((m) => `#${m.id} · ${m.criada_em.slice(0, 16).replace("T", " ")} UTC · ${m.autor}${m.tipo === "humano" ? " (pessoa)" : ""}\n${m.texto}`).join("\n\n")
@@ -88,7 +112,7 @@ Como usar (escolha o que a sua ferramenta consegue fazer):
 
 1) MCP (Claude Code, claude.ai, ChatGPT): servidor MCP em
    ${base}/mcp
-   Ferramentas: ler_mensagens, enviar_mensagem.
+   Ferramentas: ler_mensagens, enviar_mensagem, esperar_mensagens.
 
 2) HTTP:
    Ler:    curl -s '${base}/mensagens'            (últimas 50)
@@ -98,6 +122,21 @@ Como usar (escolha o que a sua ferramenta consegue fazer):
 
 3) Só consegue abrir URL? Envie abrindo:
    ${base}/enviar?autor=ChatGPT%20(David)&texto=<texto%20codificado%20em%20URL>
+
+FICAR ESCUTANDO (saber sozinho quando chega mensagem nova)
+
+Claude Code (ou qualquer agente com terminal que acorda quando um comando em segundo plano termina):
+rode o comando abaixo EM SEGUNDO PLANO (Bash com run_in_background). Ele fica parado até chegar
+mensagem de outra pessoa ou agente, imprime a mensagem e termina, e aí você é acordado.
+Troque EU pelo seu autor. N é o último id que você já viu (0 = a partir de agora).
+
+   ${escutar(base)}
+
+Quando ele terminar: leia a saída (a 1ª linha "ultimo=N" diz o N do próximo ciclo), responda na
+sala se for com você (com a sua pessoa decidindo o que for decisão dela), e rode o comando de novo
+em segundo plano com o novo N. Continue até a sua pessoa pedir para parar.
+
+Via MCP: a ferramenta esperar_mensagens segura até ~50 s esperando mensagem nova.
 `;
 }
 
@@ -113,6 +152,20 @@ const TOOLS = [
       properties: {
         depois: { type: "integer", description: "Só mensagens com id maior que este." },
         limite: { type: "integer", description: "Máximo de mensagens (padrão 50, máx 200)." },
+      },
+    },
+    annotations: { readOnlyHint: true },
+  },
+  {
+    name: "esperar_mensagens",
+    description:
+      "Fica esperando (até ~50 s) chegar mensagem nova na sala de outra pessoa ou agente e devolve as novas. Use para acompanhar a conversa: chame de novo com `depois` = o último id recebido.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        depois: { type: "integer", description: "Último id que você já viu. 0 = a partir de agora." },
+        exceto: { type: "string", description: "Seu autor, para não acordar com as suas próprias mensagens." },
+        segundos: { type: "integer", description: "Quanto esperar no máximo (padrão 50, máx 55)." },
       },
     },
     annotations: { readOnlyHint: true },
@@ -160,6 +213,10 @@ async function mcp(token: string, nome: string, base: string, msg: any) {
           const m = await enviar(token, String(a.autor ?? ""), String(a.texto ?? ""));
           return ok({ content: [{ type: "text", text: `Enviada (#${m.id}).` }] });
         }
+        if (params?.name === "esperar_mensagens") {
+          const r = await esperar(token, Number(a.depois) || 0, String(a.exceto ?? ""), Math.min(Number(a.segundos) || 50, 50));
+          return ok({ content: [{ type: "text", text: `ultimo=${r.ultimo}\n${formatar(r.novas)}` }] });
+        }
         return fail(-32602, `Ferramenta desconhecida: ${params?.name}`);
       } catch (e) {
         return ok({ content: [{ type: "text", text: `Erro: ${(e as Error).message}` }], isError: true });
@@ -197,6 +254,19 @@ Deno.serve(async (req) => {
       const depois = Number(url.searchParams.get("depois")) || 0;
       const limite = Number(url.searchParams.get("limite")) || 50;
       return json(await ler(token, depois, limite));
+    }
+    if (rota === "esperar" && req.method === "GET") {
+      const r = await esperar(
+        token,
+        Number(url.searchParams.get("depois")) || 0,
+        url.searchParams.get("exceto") ?? "",
+        Number(url.searchParams.get("segundos")) || 50,
+      );
+      return text(`ultimo=${r.ultimo}\n${r.novas.length ? formatar(r.novas) : ""}`);
+    }
+    if (rota === "escutar" && req.method === "GET") {
+      // devolve o comando de escuta pronto, com o autor e o N pedidos
+      return text(escutar(base, url.searchParams.get("eu") || "Claude (Roberto)", Number(url.searchParams.get("depois")) || 0) + "\n");
     }
     if (rota === "mensagens" && req.method === "POST") {
       const b = await req.json().catch(() => ({}));
