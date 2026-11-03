@@ -2,7 +2,7 @@ import { forwardRef, useImperativeHandle, useLayoutEffect, useMemo, useRef, useS
 import { handle } from "./Texto";
 import { IconeAgente, IconeArquivo, IconeClipe, IconeEnviar, IconeFechar, IconeProposta, IconeResponder } from "./Icones";
 import type { Citacao } from "./Bolha";
-import { tamanhoLegivel, type Anexo } from "../supabase";
+import { sb, tamanhoLegivel, type Anexo } from "../supabase";
 
 type Subindo = { id: string; nome: string; tamanho: number; previa?: string; anexo?: Anexo; erro?: string };
 
@@ -123,7 +123,11 @@ export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBa
                 <span className="anexo-info"><strong>{a.nome}</strong>
                   <span className="nota">{a.erro ? "Não enviou" : a.anexo ? tamanhoLegivel(a.tamanho) : "Enviando…"}</span></span>
                 <button type="button" className="btn-acao" aria-label={`Tirar ${a.nome}`}
-                  onClick={(e) => { e.stopPropagation(); setArquivos((x) => x.filter((y) => y.id !== a.id)); }}><IconeFechar tamanho={14} /></button>
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (a.anexo) sb.storage.from("arquivos").remove([a.anexo.path]); // não fica guardado sem uso
+                    setArquivos((x) => x.filter((y) => y.id !== a.id));
+                  }}><IconeFechar tamanho={14} /></button>
               </li>
             ))}
           </ul>
