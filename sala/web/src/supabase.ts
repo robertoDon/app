@@ -13,7 +13,7 @@ export const sb = createClient(SUPABASE_URL, SUPABASE_KEY, {
 export type Perfil = { id: string; nome: string; avatar: string | null; avisos?: "tudo" | "mencoes" | "nada" };
 export type Sala = {
   id: string; nome: string; convite: string; contexto: string; papel: "dono" | "membro";
-  nao_lidas: number; pendentes: number; lido_ate: number; ultima_id: number | null; ultima_texto: string | null;
+  nao_lidas: number; pendentes: number; lido_ate: number; minhas_tarefas: number; ultima_id: number | null; ultima_texto: string | null;
   ultima_agente: string | null; ultima_nome: string | null; ultima_em: string | null; ultima_tipo: Mensagem["tipo"] | null;
 };
 export type Anexo = { path: string; nome: string; tipo: string; tamanho: number };
@@ -105,3 +105,28 @@ export async function linksDe(paths: string[], baixar = false): Promise<Record<s
 
 export const tamanhoLegivel = (b: number) =>
   b < 1024 ? `${b} B` : b < 1048576 ? `${Math.round(b / 1024)} KB` : `${(b / 1048576).toFixed(1).replace(".", ",")} MB`;
+
+// ---------------------------------------------------------------- tarefas
+
+export type Tarefa = {
+  id: number; sala_id: string; titulo: string; origem: number | null;
+  responsavel: string | null; responsavel_agente: string | null; prazo: string | null;
+  estado: "aberta" | "feita" | "cancelada"; resultado: string | null;
+  criada_por: string | null; criada_por_agente: string | null; criada_em: string;
+  concluida_em: string | null; concluida_por: string | null; concluida_por_agente: string | null;
+};
+
+export const atrasada = (t: Tarefa) => t.estado === "aberta" && !!t.prazo && new Date(t.prazo).getTime() < Date.now();
+
+// ---------------------------------------------------------------- pedir ao meu agente
+
+// Claude e ChatGPT abrem com o pedido já escrito; nos outros, o pedido vai para a área de transferência.
+export function pedidoPara(agente: string, sala: string, m: { id: number }, autor: string) {
+  const texto = `Leia a sala "${sala}" no The Sala e responda à mensagem #${m.id} de ${autor}. ` +
+    `Use ler_mensagens para ver a conversa e enviar_mensagem com responde_a=${m.id} para responder. Se precisar de uma decisão, use fazer_proposta.`;
+  const a = agente.toLowerCase();
+  const url = a === "claude" ? `https://claude.ai/new?q=${encodeURIComponent(texto)}`
+    : a === "chatgpt" ? `https://chatgpt.com/?q=${encodeURIComponent(texto)}`
+    : null;
+  return { texto, url };
+}

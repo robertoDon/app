@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../App";
 import { sb, type Sala } from "../supabase";
-import { IconeAgente, IconeMais, IconePlugue, IconeProposta, Marca } from "./Icones";
+import { IconeAgente, IconeCaixa, IconeMais, IconePlugue, IconeProposta, Marca } from "./Icones";
 import { Conectar } from "./Conectar";
 import { Conta } from "./Conta";
 import { NovaSala } from "./NovaSala";
@@ -107,9 +107,14 @@ export function Layout({ children, salas, recarregar, foco }: {
                       <span className="sala-previa">
                         {s.ultima_texto ? (
                           <>{s.ultima_agente && <IconeAgente tamanho={12} />}{s.ultima_agente ?? s.ultima_nome?.split(" ")[0]}
-                            {s.ultima_tipo === "proposta" ? " propôs" : s.ultima_tipo === "decisao" ? " decidiu" : ""}: {s.ultima_texto}</>
+                            {s.ultima_tipo === "proposta" ? " propôs" : s.ultima_tipo === "decisao" ? " decidiu" : ""}: {s.ultima_texto.replace(/\*\*|__|`|^#+\s/gm, "")}</>
                         ) : "Sem mensagens ainda"}
                       </span>
+                      {Number(s.minhas_tarefas) > 0 && (
+                        <span className="sala-pendentes" title={`${s.minhas_tarefas} ${Number(s.minhas_tarefas) === 1 ? "tarefa sua aberta" : "tarefas suas abertas"}`} aria-label={`${s.minhas_tarefas} tarefas suas`}>
+                          <IconeCaixa tamanho={12} />{s.minhas_tarefas}
+                        </span>
+                      )}
                       {Number(s.pendentes) > 0 && (
                         <span className="sala-pendentes" title={`${s.pendentes} ${Number(s.pendentes) === 1 ? "proposta aguardando" : "propostas aguardando"} decisão`} aria-label={`${s.pendentes} para decidir`}>
                           <IconeProposta tamanho={12} />{s.pendentes}

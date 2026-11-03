@@ -61,3 +61,7 @@ export const IconeMais3 = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M
 export const IconeClipe = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="m21 11-8.5 8.5a5 5 0 0 1-7-7L14 4a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4L15.5 7" /></svg>;
 export const IconeArquivo = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z" /><path d="M14 3v5h5" /></svg>;
 export const IconeBaixar = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M12 4v11M7 10l5 5 5-5M5 20h14" /></svg>;
+export const IconeTarefa = ({ tamanho }: P) => <svg {...base(tamanho)}><rect x="4" y="4" width="16" height="16" rx="3" /><path d="m8 12 3 3 5-6" /></svg>;
+export const IconeCaixa = ({ tamanho }: P) => <svg {...base(tamanho)}><rect x="4" y="4" width="16" height="16" rx="3" /></svg>;
+export const IconeAbrir = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M14 4h6v6M20 4l-9 9M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4" /></svg>;
+export const IconeDocumento = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" /><path d="M9 13h6M9 17h6M14 3v5h5" /></svg>;

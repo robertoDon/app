@@ -6,8 +6,10 @@
 //
 // Quem recebe, conforme a preferência da pessoa (perfis.avisos):
 //   tudo     → toda mensagem das salas dela
-//   mencoes  → quando chamam ela (@Nome, @todos), proposta nova, resposta a algo dela, decisão sobre proposta dela
+//   mencoes  → quando chamam ela (@Nome, @todos) ou um agente dela (@Claude-Ana, @agentes), proposta nova,
+//              resposta a algo dela, decisão sobre proposta dela
 //   nada     → nunca
+// Também avisa quem ficou responsável por uma tarefa nova ({tarefa: id}).
 //
 // Deploy com verify_jwt = false (confere o segredo x-aviso).
 
@@ -113,7 +115,9 @@ Deno.serve(async (req) => {
   if (!segredoAviso) segredoAviso = (await db.rpc("segredo_aviso")).data as string;
   if (!segredoAviso || req.headers.get("x-aviso") !== segredoAviso) return new Response("não", { status: 401 });
 
-  const { id } = await req.json().catch(() => ({}));
+  const corpo = await req.json().catch(() => ({}));
+  if (corpo.tarefa) return await avisarTarefa(Number(corpo.tarefa));
+  const { id } = corpo;
   const { data: m } = await db.from("mensagens")
     .select("id, sala_id, user_id, agente, texto, tipo, estado, responde_a, apagada, autor:perfis!mensagens_user_id_fkey(nome), salas(nome)")
     .eq("id", id).maybeSingle();
@@ -130,16 +134,33 @@ Deno.serve(async (req) => {
   }
 
   const ditas = mencoes(m.texto);
+  const ditasCompletas = [...m.texto.matchAll(/@([\p{L}\p{N}_]+)(?:-([\p{L}\p{N}_]+))?/gu)].map((x) => [handle(x[1]), x[2] ? handle(x[2]) : ""]);
+  // agentes de quem está na sala: "@Claude-Ana" ou "@agentes" chamam o agente, e a pessoa dona dele é avisada
+  const { data: agentesSala } = await db.from("agentes").select("user_id, nome").in("user_id", membros.map((x: any) => x.user_id));
+  const agenteChamado = (uid: string, primeiro: string): string | null => {
+    const meus = (agentesSala ?? []).filter((a) => a.user_id === uid);
+    for (const [a, p] of ditasCompletas) {
+      if (a === "agentes" && meus.length) return meus.length === 1 ? meus[0].nome : "seus agentes";
+      const ag = meus.find((x) => handle(x.nome) === a);
+      if (ag && (!p || p === primeiro)) return ag.nome;
+    }
+    return null;
+  };
   const autorNome = (m.autor as any)?.nome ?? "Alguém";
   const quem = m.agente ? `${m.agente} de ${autorNome.split(" ")[0]}` : autorNome;
   const sala = (m.salas as any)?.nome ?? "Sala";
 
+  const chamadoDe = new Map<string, string>(); // pessoa → qual agente dela foi chamado
   const alvos = membros.filter((x: any) => {
     const pref = x.perfis?.avisos ?? "mencoes";
     if (pref === "nada") return false;
-    if (pref === "tudo") return true;
     const meu = handle((x.perfis?.nome ?? "").split(" ")[0]);
-    return ditas.includes("todos") || (meu && ditas.includes(meu)) || m.tipo === "proposta" || donoRespondida === x.user_id;
+    if (!m.agente || m.user_id !== x.user_id) {
+      const ag = agenteChamado(x.user_id, meu);
+      if (ag) chamadoDe.set(x.user_id, ag);
+    }
+    if (pref === "tudo") return true;
+    return ditas.includes("todos") || (meu && ditas.includes(meu)) || chamadoDe.has(x.user_id) || m.tipo === "proposta" || donoRespondida === x.user_id;
   }).map((x: any) => x.user_id);
   if (!alvos.length) return new Response("nada");
 
@@ -150,12 +171,20 @@ Deno.serve(async (req) => {
     m.tipo === "proposta" ? `Proposta de ${quem} · ${sala}` :
     m.tipo === "decisao" ? `${autorNome.split(" ")[0]} ${m.estado === "aprovada" ? "aprovou" : "recusou"} uma proposta · ${sala}` :
     `${quem} · ${sala}`;
-  const dados = { titulo, corpo: limpo(m.texto), url: `/s/${m.sala_id}`, sala: m.sala_id, tag: `sala-${m.sala_id}` };
+  const dadosPara = (uid: string) => {
+    const ag = chamadoDe.get(uid);
+    if (ag) {
+      const seu = ag === "seus agentes" ? ag : `seu ${ag}`;
+      return { titulo: `${quem} chamou ${seu} · ${sala}`, corpo: `Toque para pedir a resposta. ${limpo(m.texto, 110)}`,
+        url: `/s/${m.sala_id}?pedir=${m.id}`, sala: m.sala_id, tag: `sala-${m.sala_id}` };
+    }
+    return { titulo, corpo: limpo(m.texto), url: `/s/${m.sala_id}`, sala: m.sala_id, tag: `sala-${m.sala_id}` };
+  };
 
   const mortos: string[] = [];
   await Promise.all(inscricoes.map(async (i) => {
     try {
-      const st = await empurrar(i, dados, m.tipo !== "mensagem" || donoRespondida === i.user_id);
+      const st = await empurrar(i, dadosPara(i.user_id), m.tipo !== "mensagem" || donoRespondida === i.user_id || chamadoDe.has(i.user_id));
       if (st === 404 || st === 410) mortos.push(i.endpoint);
       else if (st >= 400) console.log("push", st, new URL(i.endpoint).host);
     } catch (e) { console.log("push falhou", (e as Error).message); }
@@ -163,3 +192,31 @@ Deno.serve(async (req) => {
   if (mortos.length) await db.from("inscricoes").delete().in("endpoint", mortos);
   return new Response(`avisados ${inscricoes.length - mortos.length}`);
 });
+
+async function mandarPara(uid: string, dados: unknown, urgente: boolean) {
+  const { data: inscricoes } = await db.from("inscricoes").select("endpoint, user_id, p256dh, auth").eq("user_id", uid);
+  const mortos: string[] = [];
+  await Promise.all((inscricoes ?? []).map(async (i) => {
+    try {
+      const st = await empurrar(i, dados, urgente);
+      if (st === 404 || st === 410) mortos.push(i.endpoint);
+    } catch (e) { console.log("push falhou", (e as Error).message); }
+  }));
+  if (mortos.length) await db.from("inscricoes").delete().in("endpoint", mortos);
+  return (inscricoes?.length ?? 0) - mortos.length;
+}
+
+async function avisarTarefa(id: number) {
+  const { data: t } = await db.from("tarefas")
+    .select("id, sala_id, titulo, responsavel, responsavel_agente, prazo, criada_por, criada_por_agente, salas(nome), autor:perfis!tarefas_criada_por_fkey(nome), dono:perfis!tarefas_responsavel_fkey(avisos)")
+    .eq("id", id).maybeSingle();
+  if (!t || !t.responsavel || (t.dono as any)?.avisos === "nada") return new Response("nada");
+  const de = t.criada_por_agente ? `${t.criada_por_agente} de ${((t.autor as any)?.nome ?? "").split(" ")[0]}` : ((t.autor as any)?.nome ?? "Alguém");
+  const para = t.responsavel_agente ? `o seu ${t.responsavel_agente}` : "você";
+  const prazo = t.prazo ? ` · até ${new Date(t.prazo).toLocaleDateString("pt-BR", { day: "numeric", month: "short", timeZone: "America/Sao_Paulo" })}` : "";
+  const n = await mandarPara(t.responsavel, {
+    titulo: `Tarefa nova para ${para} · ${(t.salas as any)?.nome ?? "Sala"}`, corpo: `${t.titulo}${prazo} · de ${de}`,
+    url: `/s/${t.sala_id}?tarefas=1`, sala: t.sala_id, tag: `tarefa-${t.id}`,
+  }, true);
+  return new Response(`avisados ${n}`);
+}

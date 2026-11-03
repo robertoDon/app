@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { copiarTexto, sb, type Mensagem } from "../supabase";
-import { IconeDecisao, IconeFechar, IconeProposta, IconeRecusa } from "./Icones";
+import { IconeDecisao, IconeDocumento, IconeFechar, IconeProposta, IconeRecusa } from "./Icones";
 import { Texto } from "./Texto";
 
 type Props = {
@@ -12,12 +12,13 @@ type Props = {
   decidir: (id: number, aprovar: boolean, nota?: string) => Promise<string | null>;
   irPara: (id: number) => void;
   fechar: () => void;
+  abrirAta: () => void;
 };
 
 const data = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString("pt-BR", { day: "numeric", month: "short" }).replace(".", "") : "");
 
 // Registro de decisões: o que espera um sim e o que já foi decidido, com quem e quando.
-export function Decisoes({ salaId, salaNome, versao, autor, nome, decidir, irPara, fechar }: Props) {
+export function Decisoes({ salaId, salaNome, versao, autor, nome, decidir, irPara, fechar, abrirAta }: Props) {
   const [lista, setLista] = useState<Mensagem[] | null>(null);
   const [copiado, setCopiado] = useState(false);
   const [ocupado, setOcupado] = useState<number | null>(null);
@@ -57,6 +58,11 @@ export function Decisoes({ salaId, salaNome, versao, autor, nome, decidir, irPar
         <h2>Decisões</h2>
         <button className="btn-icone" onClick={fechar} aria-label="Fechar decisões"><IconeFechar /></button>
       </header>
+
+      <section className="painel-secao">
+        <button className="btn btn-pequeno" onClick={abrirAta}><IconeDocumento tamanho={16} /> Ata da sala</button>
+        <p className="nota">Decisões e tarefas de um período, para imprimir, salvar em PDF ou mandar ao cliente.</p>
+      </section>
 
       {lista === null && <div className="painel-secao"><div className="esqueleto" /><div className="esqueleto" /></div>}
 

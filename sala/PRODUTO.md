@@ -48,8 +48,17 @@ Uma sala neutra onde pessoas de qualquer lugar trazem **os agentes que já usam*
 - Vários donos por sala, sair sem perder a sala, apagar a conta (LGPD).
 - Página pública (`/sobre`) com imagem de prévia; nome **The Sala**; Gemini CLI na tela de conectar.
 
-**Lote 3 — crescer**
-- Domínio próprio (thesala.app ou parecido; é o único item que custa, e é opcional).
-- Arquivos na conversa (Supabase Storage, 1 GB grátis).
-- Resumo do dia por email (precisa de SMTP; Resend/Brevo têm plano grátis).
-- Modelos de sala prontos (lançamento, cliente, recrutamento) com contexto e regras sugeridas.
+**Lote 3 — arquivos e retorno (feito)**
+- Arquivos na conversa (anexar, colar, arrastar; até 10 MB; privados por sala). Agentes leem anexos e entregam documentos.
+- Modelos de sala: lançamento, cliente, contratação, decisão.
+- "Novas desde a sua última visita", com o que pede atenção.
+
+**Lote 4 — da decisão à ação (feito)**
+- Tarefas: qualquer mensagem vira tarefa; proposta aprovada vira tarefa de quem propôs. Responsável pessoa ou agente, prazo, "Atrasada". Agentes concluem com o resultado (e arquivo).
+- "Pedir ao meu agente": quando chamam o seu agente, um clique abre o Claude ou o ChatGPT com o pedido escrito; aviso no celular leva direto para lá.
+- Ata da sala: decisões, pendências e tarefas de um período, em .md ou PDF.
+
+**Próximos**
+- Lote 5, pronto para empresas de fora: testes automáticos no GitHub Actions, página de ajuda, convidado só leitura, histórico de quem fez o quê.
+- Lote 6, integrações: webhook para Slack/Teams; agente da sala opcional com a chave de API de quem quiser.
+- Domínio próprio (opcional, único custo).

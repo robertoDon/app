@@ -9,11 +9,16 @@ import { Decisoes } from "../components/Decisoes";
 import { Comparar, type Esperando } from "../components/Comparar";
 import { Busca } from "../components/Busca";
 import { Avisos } from "../components/Avisos";
+import { Tarefas, prazoCurto, valorResp, type RascunhoTarefa } from "../components/Tarefas";
+import { Ata } from "../components/Ata";
 import { handle } from "../components/Texto";
 import {
-  IconeAjustes, IconeAgente, IconeBusca, IconeCheck, IconeClipe, IconeColunas, IconeConvite, IconeDecisao, IconePlugue, IconeProposta, IconeVoltar,
+  IconeAbrir, IconeAjustes, IconeAgente, IconeBusca, IconeCaixa, IconeCheck, IconeClipe, IconeCopiar, IconeTarefa, IconeColunas, IconeConvite, IconeDecisao, IconePlugue, IconeProposta, IconeVoltar,
 } from "../components/Icones";
-import { abrirConectar, copiarTexto, presenca, sb, subirArquivo, ultimaSala, type Agente, type Anexo, type Membro, type Mensagem } from "../supabase";
+import {
+  abrirConectar, atrasada, copiarTexto, pedidoPara, presenca, sb, subirArquivo, ultimaSala,
+  type Agente, type Anexo, type Membro, type Mensagem, type Tarefa,
+} from "../supabase";
 
 const hora = (iso: string) => new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 const completo = (iso: string) => new Date(iso).toLocaleString("pt-BR", { dateStyle: "long", timeStyle: "short" });
@@ -30,7 +35,7 @@ const perguntaATodos = (m: Mensagem) => !m.agente && m.tipo === "mensagem" && !m
 const PAGINA = 200;
 
 export type AgenteSala = { nome: string; uid: string; presenca: { ativo: boolean; texto: string } | null };
-type Painel = null | "ajustes" | "contexto" | "decisoes" | "busca";
+type Painel = null | "ajustes" | "contexto" | "decisoes" | "busca" | "tarefas";
 
 export default function SalaPage() {
   const { id = "" } = useParams();
@@ -53,6 +58,11 @@ export default function SalaPage() {
   const [comparar, setComparar] = useState<number | null>(null);
   const [destaque, setDestaque] = useState<number | null>(null);
   const [versaoDecisoes, setVersaoDecisoes] = useState(0);
+  const [tarefas, setTarefas] = useState<Tarefa[] | null>(null);
+  const [rascunho, setRascunho] = useState<RascunhoTarefa>(null);
+  const [ata, setAta] = useState(false);
+  const [pedido, setPedido] = useState<number | null>(null); // veio do aviso "chamaram seu agente"
+  const [copiouPedido, setCopiouPedido] = useState<string | null>(null);
   const [, setRelogio] = useState(0); // refaz "visto há…" de tempos em tempos
   const feed = useRef<HTMLDivElement>(null);
   const compor = useRef<ComporApi>(null);
@@ -136,6 +146,10 @@ export default function SalaPage() {
         .then(({ data }) => { if (salaAtual.current === id) setMembros((data as unknown as Membro[]) ?? []); });
     sb.from("agentes").select("*").then(({ data }) => setPresencas((data as Agente[]) ?? []));
     carregarMembros();
+    setTarefas(null);
+    sb.from("tarefas").select("*").eq("sala_id", id).order("id", { ascending: false }).limit(300)
+      .then(({ data }) => { if (salaAtual.current === id) setTarefas((data as Tarefa[]) ?? []); });
+    const mudouTarefa = (t: Tarefa) => setTarefas((ts) => (ts ? [t, ...ts.filter((x) => x.id !== t.id)] : ts));
 
     const chegou = (m: Mensagem) => {
       if (m.tipo !== "mensagem") setVersaoDecisoes((v) => v + 1);
@@ -159,6 +173,8 @@ export default function SalaPage() {
       })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "membros", filter: `sala_id=eq.${id}` }, carregarMembros)
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "membros" }, carregarMembros)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "tarefas", filter: `sala_id=eq.${id}` }, (p) => { mudouTarefa(p.new as Tarefa); recarregar(); })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "tarefas", filter: `sala_id=eq.${id}` }, (p) => { mudouTarefa(p.new as Tarefa); recarregar(); })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "agentes" }, (p) => atualizarPresenca(p.new as Agente))
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "agentes" }, (p) => atualizarPresenca(p.new as Agente))
       // assina antes de ler: nada que chegue no meio se perde
@@ -205,7 +221,10 @@ export default function SalaPage() {
   // sala recém-criada de um modelo: abre o contexto para completar
   useEffect(() => {
     if (busca.get("contexto") && sala) { setPainel("contexto"); setBusca({}, { replace: true }); }
-  }, [busca, sala]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (busca.get("tarefas") && sala) { setPainel("tarefas"); setBusca({}, { replace: true }); }
+    const pedir = Number(busca.get("pedir"));
+    if (pedir && msgs) { setPedido(pedir); irPara(pedir); setBusca({}, { replace: true }); }
+  }, [busca, sala, msgs !== null]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // atalhos: / busca, D decisões
   useEffect(() => {
@@ -214,6 +233,7 @@ export default function SalaPage() {
       if (digitando || e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === "/") { e.preventDefault(); setPainel("busca"); }
       if (e.key === "d") { e.preventDefault(); setPainel((p) => (p === "decisoes" ? null : "decisoes")); }
+      if (e.key === "t") { e.preventDefault(); setPainel((p) => (p === "tarefas" ? null : "tarefas")); }
     };
     window.addEventListener("keydown", tecla);
     return () => window.removeEventListener("keydown", tecla);
@@ -346,6 +366,25 @@ export default function SalaPage() {
   };
   const comparando = comparar !== null ? porId.get(comparar) : undefined;
 
+  // tarefas que nasceram de cada mensagem
+  const tarefasDe = new Map<number, Tarefa[]>();
+  (tarefas ?? []).forEach((t) => { if (t.origem && t.estado !== "cancelada") tarefasDe.set(t.origem, [...(tarefasDe.get(t.origem) ?? []), t]); });
+  const abertasSala = (tarefas ?? []).filter((t) => t.estado === "aberta").length;
+  const quemFaz = (t: Tarefa) => (t.responsavel_agente ? `${t.responsavel_agente} de ${primeiro(t.responsavel ?? "")}` : t.responsavel === eu ? "você" : t.responsavel ? nome(t.responsavel) : "sem responsável");
+
+  // meus agentes que não ficam ouvindo: quando alguém chama, ofereço o pedido pronto
+  const meusAgentes = agentes.filter((a) => a.uid === eu && a.presenca?.texto !== "ouvindo agora");
+  const chamadosEm = (m: Mensagem) => {
+    if (m.apagada || m.tipo === "decisao" || m.user_id === eu || m.id < 0) return [];
+    const ditas = [...m.texto.matchAll(/@([\p{L}\p{N}_]+)(?:-([\p{L}\p{N}_]+))?/gu)].map((x) => [handle(x[1]), x[2] ? handle(x[2]) : ""]);
+    const ja = new Set((respostas.get(m.id) ?? []).filter((r) => r.user_id === eu).map((r) => r.agente));
+    return meusAgentes.filter((a) => !ja.has(a.nome) && ditas.some(([h, p]) =>
+      h === "agentes" || h === "todos" || (h === handle(a.nome) && (!p || p === meuPrimeiro))));
+  };
+  const copiarPedido = async (texto: string, chave: string) => {
+    if (await copiarTexto(texto)) { setCopiouPedido(chave); setTimeout(() => setCopiouPedido(null), 1500); }
+  };
+
   // "enquanto você esteve fora": onde começam as novas e o que pede a sua atenção
   const ateMarco = marco.current?.sala === id ? marco.current.ate : 0;
   const novas = ateMarco && msgs ? msgs.filter((m) => m.id > ateMarco && !(m.user_id === eu && !m.agente) && m.id > 0) : [];
@@ -382,6 +421,11 @@ export default function SalaPage() {
               aria-expanded={painel === "decisoes"} aria-label={pendentes ? `Decisões, ${pendentes} aguardando` : "Decisões"} title="Decisões (D)">
               <IconeDecisao />
               {pendentes > 0 && <span className="selo-num" aria-hidden>{pendentes}</span>}
+            </button>
+            <button className={`btn-icone ${painel === "tarefas" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "tarefas" ? null : "tarefas"))}
+              aria-expanded={painel === "tarefas"} aria-label={abertasSala ? `Tarefas, ${abertasSala} abertas` : "Tarefas"} title="Tarefas (T)">
+              <IconeTarefa />
+              {abertasSala > 0 && <span className="selo-num selo-neutro" aria-hidden>{abertasSala}</span>}
             </button>
             <button className={`btn-icone ${painel === "busca" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "busca" ? null : "busca"))}
               aria-expanded={painel === "busca"} aria-label="Buscar na sala" title="Buscar (/)">
@@ -471,7 +515,38 @@ export default function SalaPage() {
                     editar={minhaPessoa && m.tipo === "mensagem" && m.id > 0 ? (t) => editar(m.id, t) : undefined}
                     apagar={(m.user_id === eu || dono) && m.id > 0 ? () => apagar(m) : undefined}
                     decidir={m.tipo === "proposta" && m.id > 0 ? (a, n) => decidir(m.id, a, n) : undefined}
+                    virarTarefa={m.id > 0 && !m.apagada ? () => {
+                      const t = m.texto.replace(/[*_`#>]/g, "").replace(/@[\p{L}\p{N}_-]+/gu, "").split("\n").map((x) => x.trim()).find(Boolean) ?? "";
+                      setRascunho({ titulo: t.slice(0, 120), origem: m.id, responsavel: valorResp(m.user_id, m.agente) });
+                      setPainel("tarefas");
+                    } : undefined}
                     tentarDeNovo={() => tentarDeNovo(m)} irPara={irPara} />
+                  {(tarefasDe.get(m.id) ?? []).map((t) => (
+                    <button key={t.id} className={`tarefa-chip ${minhaPessoa ? "tarefa-chip-minha" : ""} ${t.estado === "feita" ? "feita" : atrasada(t) ? "atrasada" : ""}`}
+                      onClick={() => setPainel("tarefas")} title="Ver nas tarefas">
+                      {t.estado === "feita" ? <IconeTarefa tamanho={14} /> : <IconeCaixa tamanho={14} />}
+                      <span>{t.estado === "feita" ? "Feita" : atrasada(t) ? "Atrasada" : "Tarefa"}: <strong>{t.titulo}</strong> · {quemFaz(t)}{t.estado === "aberta" && t.prazo ? ` · ${atrasada(t) ? "era " : "até "}${prazoCurto(t.prazo)}` : ""}</span>
+                    </button>
+                  ))}
+                  {chamadosEm(m).length > 0 && sala && (
+                    <div className={`pedir ${pedido === m.id ? "pedir-destaque" : ""} ${minhaPessoa ? "respostas-minha" : ""}`}>
+                      <span className="nota">{chamadosEm(m).length === 1 ? `Chamaram o seu ${chamadosEm(m)[0].nome}.` : "Chamaram os seus agentes."}</span>
+                      {chamadosEm(m).map((a) => {
+                        const { texto, url } = pedidoPara(a.nome, sala.nome, m, autor(m));
+                        const chave = `${m.id}${a.nome}`;
+                        return url ? (
+                          <a key={a.nome} className="btn btn-pequeno btn-cheio" href={url} target="_blank" rel="noopener noreferrer"
+                            onClick={() => { copiarTexto(texto); setPedido(null); }} title="Abre numa aba nova com o pedido já escrito">
+                            <IconeAbrir tamanho={16} /> Pedir ao {a.nome}
+                          </a>
+                        ) : (
+                          <button key={a.nome} className="btn btn-pequeno" onClick={() => copiarPedido(texto, chave)}>
+                            <IconeCopiar tamanho={16} /> {copiouPedido === chave ? "Copiado. Cole no " + a.nome : `Copiar pedido para o ${a.nome}`}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                   {rs && (rs.length > 0 || esperando.length > 0) && (
                     <div className={`respostas ${minhaPessoa ? "respostas-minha" : ""}`} aria-label="Respostas dos agentes">
                       {rs.map((r) => (
@@ -509,11 +584,16 @@ export default function SalaPage() {
         )}
         {painel === "decisoes" && sala && (
           <Decisoes salaId={sala.id} salaNome={sala.nome} versao={versaoDecisoes} autor={autor} nome={nome}
-            decidir={decidir} irPara={irPara} fechar={() => setPainel(null)} />
+            decidir={decidir} irPara={irPara} fechar={() => setPainel(null)} abrirAta={() => setAta(true)} />
+        )}
+        {painel === "tarefas" && sala && (
+          <Tarefas salaId={sala.id} tarefas={tarefas} membros={membros} agentes={agentes} eu={eu} nome={nome}
+            rascunho={rascunho} limparRascunho={() => setRascunho(null)} irPara={irPara} fechar={() => { setPainel(null); setRascunho(null); }} />
         )}
         {painel === "busca" && sala && <Busca salaId={sala.id} autor={autor} irPara={irPara} fechar={() => setPainel(null)} />}
       </div>
 
+      {ata && sala && <Ata salaId={sala.id} salaNome={sala.nome} autor={autor} nome={nome} fechar={() => setAta(false)} />}
       {comparando && (
         <Comparar pergunta={comparando} autorPergunta={comparando.user_id === eu ? "Você" : nome(comparando.user_id)}
           respostas={respostas.get(comparando.id) ?? []} autor={autor} esperando={esperandoDe(comparando)} fechar={() => setComparar(null)} />

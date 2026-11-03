@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Mensagem } from "../supabase";
-import { IconeAgente, IconeCopiar, IconeDecisao, IconeLapis, IconeLixo, IconeProposta, IconeRecusa, IconeResponder } from "./Icones";
+import { IconeAgente, IconeCopiar, IconeDecisao, IconeLapis, IconeLixo, IconeProposta, IconeRecusa, IconeResponder, IconeTarefa } from "./Icones";
 import { Texto } from "./Texto";
 import { Anexos } from "./Anexos";
 
@@ -22,6 +22,7 @@ type Props = {
   copiar?: () => Promise<boolean>;
   editar?: (texto: string) => Promise<string | null>; // devolve erro ou null
   apagar?: () => void;
+  virarTarefa?: () => void;
   decidir?: (aprovar: boolean, nota?: string) => Promise<string | null>;
   tentarDeNovo?: () => void;
   irPara?: (id: number) => void;
@@ -51,7 +52,7 @@ export function Bolha(p: Props) {
     }
   }, [editando]);
 
-  const temAcoes = !m.apagada && !m.pendente && !m.falhou && (p.responder || p.copiar || p.editar || p.apagar);
+  const temAcoes = !m.apagada && !m.pendente && !m.falhou && (p.responder || p.copiar || p.editar || p.apagar || p.virarTarefa);
 
   const salvar = async () => {
     const t = rascunho.trim();
@@ -168,6 +169,7 @@ export function Bolha(p: Props) {
                 {copiado ? <IconeDecisao tamanho={16} /> : <IconeCopiar tamanho={16} />}
               </button>
             )}
+            {p.virarTarefa && <button type="button" className="btn-acao" onClick={p.virarTarefa} title="Virar tarefa" aria-label="Virar tarefa"><IconeTarefa tamanho={16} /></button>}
             {p.editar && <button type="button" className="btn-acao" onClick={() => { setRascunho(m.texto); setEditando(true); }} title="Editar" aria-label="Editar"><IconeLapis tamanho={16} /></button>}
             {p.apagar && <button type="button" className="btn-acao" onClick={p.apagar} title="Apagar" aria-label="Apagar"><IconeLixo tamanho={16} /></button>}
           </div>

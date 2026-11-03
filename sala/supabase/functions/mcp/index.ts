@@ -14,6 +14,8 @@
 //   GET  /api/salas/:sala/mensagens?depois=N
 //   POST /api/salas/:sala/mensagens          {texto, proposta?, responde_a?}
 //   GET  /api/salas/:sala/decisoes           propostas pendentes e decisões
+//   GET  /api/salas/:sala/tarefas            tarefas abertas e feitas
+//   POST /api/tarefas/:id/concluir           {resultado}
 //   POST /api/salas/:sala/arquivos           {nome, conteudo, texto?} arquivo de texto (até 1 MB)
 //   GET  /api/arquivo?caminho=...            baixa um anexo da conversa
 //   GET  /api/salas/:sala/esperar?depois=N   segura até chegar mensagem de outra pessoa/agente
@@ -264,9 +266,11 @@ function registro(ps: Msg[]) {
   return linhas.join("\n");
 }
 
-async function cabecalho(s: Sala) {
-  const r = registro(await propostas(s.id, 15));
-  return `Sala "${s.nome}"${s.contexto ? `\nContexto da sala: ${s.contexto}` : ""}${r ? `\n${r}` : ""}`;
+async function cabecalho(s: Sala, q?: Quem) {
+  const [ps, ts] = await Promise.all([propostas(s.id, 15), q ? tarefas(s.id) : Promise.resolve([] as Tarefa[])]);
+  const r = registro(ps);
+  const t = q ? listaTarefas(ts, q, 3) : "";
+  return `Sala "${s.nome}"${s.contexto ? `\nContexto da sala: ${s.contexto}` : ""}${r ? `\n${r}` : ""}${t ? `\n${t}` : ""}`;
 }
 
 // ---------------------------------------------------------------- arquivos
@@ -320,6 +324,70 @@ async function lerArquivo(q: Quem, caminho: string): Promise<Conteudo[]> {
   return [{ type: "text", text: `${a.nome} (${a.tipo}, ${tamanho(a.tamanho)}). Baixe por este link, válido por 1 hora:\n${data?.signedUrl ?? "(sem link)"}` }];
 }
 
+// ---------------------------------------------------------------- tarefas
+
+type Tarefa = {
+  id: number; sala_id: string; titulo: string; origem: number | null; responsavel: string | null; responsavel_agente: string | null;
+  prazo: string | null; estado: "aberta" | "feita" | "cancelada"; resultado: string | null; concluida_em: string | null;
+  dono?: { nome: string } | null;
+};
+const SEL_T = "id, sala_id, titulo, origem, responsavel, responsavel_agente, prazo, estado, resultado, concluida_em, dono:perfis!tarefas_responsavel_fkey(nome)";
+
+async function tarefas(sala: string): Promise<Tarefa[]> {
+  const { data, error } = await db.from("tarefas").select(SEL_T).eq("sala_id", sala).neq("estado", "cancelada")
+    .order("estado").order("prazo", { ascending: true, nullsFirst: false }).order("id", { ascending: false }).limit(60);
+  if (error) throw error;
+  return data as unknown as Tarefa[];
+}
+
+const ehMinha = (q: Quem, t: Tarefa) => t.responsavel === q.userId && (t.responsavel_agente === q.agente || t.responsavel_agente === null);
+const quemFaz = (t: Tarefa) => (t.responsavel_agente ? `${t.responsavel_agente} de ${t.dono?.nome ?? "?"}` : t.dono?.nome ?? "sem responsável");
+const dataCurta = (iso: string) => iso.slice(0, 16).replace("T", " ") + " UTC";
+
+function listaTarefas(ts: Tarefa[], q: Quem, feitas = 5) {
+  const abertas = ts.filter((t) => t.estado === "aberta");
+  const prontas = ts.filter((t) => t.estado === "feita").slice(0, feitas);
+  const linhas: string[] = [];
+  if (abertas.length) linhas.push("Tarefas abertas:", ...abertas.map((t) => {
+    const atrasada = t.prazo && new Date(t.prazo).getTime() < Date.now() ? " · ATRASADA" : "";
+    const sua = ehMinha(q, t) ? (t.responsavel_agente ? " ← SUA" : " ← da sua pessoa") : "";
+    return `- tarefa ${t.id}: ${t.titulo} · ${quemFaz(t)}${t.prazo ? ` · prazo ${dataCurta(t.prazo)}` : ""}${atrasada}${t.origem ? ` · veio da #${t.origem}` : ""}${sua}`;
+  }));
+  if (prontas.length) linhas.push("Feitas recentemente:", ...prontas.map((t) => `- tarefa ${t.id}: ${t.titulo} · ${quemFaz(t)}${t.resultado ? ` · ${umaLinha(t.resultado, 100)}` : ""}`));
+  return linhas.join("\n");
+}
+
+// "eu"/vazio → o próprio agente; "Ana" → pessoa; "Claude-Ana" → agente de alguém
+async function acharResponsavel(q: Quem, sala: string, ref?: string): Promise<{ responsavel: string; responsavel_agente: string | null }> {
+  const r = (ref ?? "").trim().replace(/^@/, "");
+  if (!r || ["eu", "voce", "você", "mim"].includes(r.toLowerCase())) return { responsavel: q.userId, responsavel_agente: q.agente };
+  const { data } = await db.from("membros").select("user_id, perfis(nome)").eq("sala_id", sala);
+  const membros = (data ?? []) as unknown as { user_id: string; perfis: { nome: string } | null }[];
+  const [a, b] = r.split("-");
+  const pessoa = (h: string) => membros.find((m) => handle((m.perfis?.nome ?? "").split(" ")[0]) === handle(h));
+  if (b) {
+    const m = pessoa(b);
+    if (m) return { responsavel: m.user_id, responsavel_agente: a.trim() };
+  }
+  const m = pessoa(r);
+  if (m) return { responsavel: m.user_id, responsavel_agente: null };
+  throw new Falha(`Não achei "${ref}" na sala. Use o primeiro nome da pessoa (Ana) ou Agente-Pessoa (Claude-Ana).`);
+}
+
+async function concluirTarefa(q: Quem, id: number, resultado: string, anexo?: Anexo) {
+  const { data: t } = await db.from("tarefas").select(SEL_T).eq("id", id).maybeSingle();
+  const tarefa = t as unknown as Tarefa | null;
+  if (!tarefa || !(await salasDe(q)).some((s) => s.id === tarefa.sala_id)) throw new Falha("Tarefa não encontrada.", 404);
+  if (tarefa.estado !== "aberta") throw new Falha("Esta tarefa já foi fechada.");
+  const r = (resultado ?? "").trim().slice(0, 4000);
+  const { error } = await db.from("tarefas").update({
+    estado: "feita", resultado: r || null, concluida_em: new Date().toISOString(), concluida_por: q.userId, concluida_por_agente: q.agente,
+  }).eq("id", id).eq("estado", "aberta");
+  if (error) throw new Falha(error.message);
+  await enviar(q, tarefa.sala_id, { texto: `✓ Concluí a tarefa: **${tarefa.titulo}**${r ? `\n\n${r}` : ""}`, responde_a: tarefa.origem, anexos: anexo ? [anexo] : [] });
+  return tarefa;
+}
+
 // ---------------------------------------------------------------- instruções
 
 function regras(q?: Quem) {
@@ -329,6 +397,7 @@ function regras(q?: Quem) {
 - Ao responder uma mensagem, passe responde_a com o id dela (#N). Assim a sala mostra as respostas dos agentes lado a lado.
 - Quando algo precisar do sim de uma pessoa (gastar, publicar, mudar plano, escolher entre opções), use fazer_proposta em vez de decidir sozinho. As pessoas aprovam ou recusam na sala.
 - Para chamar alguém, use @Nome (pessoa) ou @Agente-Pessoa (agente de alguém).
+- Tarefas marcadas "← SUA" são suas: faça e conclua com concluir_tarefa, dizendo o resultado (link, número, arquivo). Se não der, diga na sala o que falta. Para dividir trabalho, use criar_tarefa.
 - Arquivos da conversa aparecem com 📎; abra com ler_arquivo. Para entregar um documento (rascunho, tabela, código), use enviar_arquivo.
 - Seja objetivo e use markdown leve. Na dúvida, pergunte à sua pessoa antes de responder em nome dela.
 - Seu nome aparece sozinho nas suas mensagens; não precisa assinar.
@@ -349,6 +418,8 @@ Ler:     curl -s ${H} '${A}/salas/${exemplo}/mensagens'
 Enviar:  curl -s ${H} -X POST '${A}/salas/${exemplo}/mensagens' -H 'content-type: application/json' -d '{"texto":"...","responde_a":123}'
 Propor:  curl -s ${H} -X POST '${A}/salas/${exemplo}/mensagens' -H 'content-type: application/json' -d '{"texto":"...","proposta":true}'
 Decisões: curl -s ${H} '${A}/salas/${exemplo}/decisoes'
+Tarefas:  curl -s ${H} '${A}/salas/${exemplo}/tarefas'
+Concluir: curl -s ${H} -X POST '${A}/tarefas/<N>/concluir' -H 'content-type: application/json' -d '{"resultado":"..."}'
 Arquivo:  curl -s ${H} -X POST '${A}/salas/${exemplo}/arquivos' -H 'content-type: application/json' -d '{"nome":"rascunho.md","conteudo":"...","texto":"Segue o rascunho"}'
 Abrir:    curl -s ${H} '${A}/arquivo?caminho=<caminho do 📎>'
 
@@ -445,6 +516,41 @@ const TOOLS = [
     },
   },
   {
+    name: "ver_tarefas",
+    description: "Lista as tarefas da sala: abertas (com responsável e prazo, as suas marcadas) e as feitas recentemente.",
+    inputSchema: { type: "object", properties: { sala: SALA_ARG } },
+    annotations: { readOnlyHint: true },
+  },
+  {
+    name: "concluir_tarefa",
+    description: "Marca uma tarefa como feita e avisa na sala com o resultado. Pode anexar um arquivo de texto com a entrega.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        tarefa: { type: "integer", description: "O número da tarefa (tarefa N)." },
+        resultado: { type: "string", description: "O que foi feito: resumo, link, números. Markdown ok." },
+        arquivo_nome: { type: "string", description: "Opcional: nome do arquivo de entrega, ex.: anuncio-final.md" },
+        arquivo_conteudo: { type: "string", description: "Opcional: conteúdo do arquivo de entrega (texto, até 1 MB)." },
+      },
+      required: ["tarefa", "resultado"],
+    },
+  },
+  {
+    name: "criar_tarefa",
+    description: "Cria uma tarefa na sala. Responsável: vazio = você mesmo; o primeiro nome de uma pessoa (Ana); ou Agente-Pessoa (Claude-Ana).",
+    inputSchema: {
+      type: "object",
+      properties: {
+        sala: SALA_ARG,
+        titulo: { type: "string", description: "O que precisa ser feito, curto e com verbo. Ex.: Revisar o contrato do cliente X." },
+        responsavel: { type: "string", description: "Quem faz. Vazio = você." },
+        prazo: { type: "string", description: "Opcional, data ISO 8601 (ex.: 2026-11-10T12:00:00Z)." },
+        origem: { type: "integer", description: "Opcional: id da mensagem de onde a tarefa veio." },
+      },
+      required: ["titulo"],
+    },
+  },
+  {
     name: "esperar_mensagens",
     description: "Espera até ~50 s chegar mensagem nova de outra pessoa ou agente e devolve as novas. Chame de novo com `depois` = o último id recebido para acompanhar a conversa.",
     inputSchema: {
@@ -468,13 +574,39 @@ async function chamar(q: Quem, nome: string, a: any): Promise<string | Conteudo[
       const m = await enviar(q, s.id, { texto: String(a.texto ?? ""), responde_a: a.responde_a, anexos: [anexo] });
       return `Arquivo "${anexo.nome}" enviado na sala "${s.nome}" (#${m.id}).`;
     }
+    case "ver_tarefas": {
+      const s = await acharSala(q, a.sala);
+      return listaTarefas(await tarefas(s.id), q, 20) || `Nenhuma tarefa na sala "${s.nome}" ainda.`;
+    }
+    case "concluir_tarefa": {
+      const id = Number(a.tarefa);
+      let anexo: Anexo | undefined;
+      if (a.arquivo_nome && a.arquivo_conteudo) {
+        const { data } = await db.from("tarefas").select("sala_id").eq("id", id).maybeSingle();
+        if (data && (await salasDe(q)).some((x) => x.id === data.sala_id)) anexo = await subirTexto(q, data.sala_id, String(a.arquivo_nome), String(a.arquivo_conteudo));
+      }
+      const t = await concluirTarefa(q, id, String(a.resultado ?? ""), anexo);
+      return `Tarefa ${t.id} ("${t.titulo}") concluída e avisada na sala.`;
+    }
+    case "criar_tarefa": {
+      const s = await acharSala(q, a.sala);
+      const titulo = String(a.titulo ?? "").trim().slice(0, 200);
+      if (!titulo) throw new Falha("Falta o título da tarefa.");
+      const resp = await acharResponsavel(q, s.id, a.responsavel);
+      const prazo = a.prazo && !isNaN(Date.parse(a.prazo)) ? new Date(a.prazo).toISOString() : null;
+      const { data, error } = await db.from("tarefas").insert({
+        sala_id: s.id, titulo, ...resp, prazo, origem: Number(a.origem) || null, criada_por: q.userId, criada_por_agente: q.agente,
+      }).select("id").single();
+      if (error) throw new Falha(error.message);
+      return `Tarefa ${data.id} criada na sala "${s.nome}".`;
+    }
     case "listar_salas": {
       const ss = await salasDe(q);
       return ss.length ? ss.map((s) => `- ${s.nome} (id ${s.id})`).join("\n") : `Nenhuma sala ainda. Crie ou entre em uma em ${APP}`;
     }
     case "ler_mensagens": {
       const s = await acharSala(q, a.sala);
-      return `${await cabecalho(s)}\n\n${formatar(await ler(s.id, Number(a.depois) || 0, Number(a.limite) || 50), q)}`;
+      return `${await cabecalho(s, q)}\n\n${formatar(await ler(s.id, Number(a.depois) || 0, Number(a.limite) || 50), q)}`;
     }
     case "enviar_mensagem":
     case "fazer_proposta": {
@@ -506,7 +638,7 @@ async function mcp(q: Quem, msg: any) {
       return ok({
         protocolVersion: params?.protocolVersion ?? "2025-06-18",
         capabilities: { tools: {} },
-        serverInfo: { name: "sala", title: "The Sala", version: "3.0.0" },
+        serverInfo: { name: "sala", title: "The Sala", version: "4.0.0" },
         instructions: regras(q),
       });
     case "ping":
@@ -605,11 +737,16 @@ Deno.serve(async (req) => {
       return text(r.map((c) => (c.type === "text" ? c.text : "")).join("\n"));
     }
     if (rec === "salas" && !salaRef) return json(await salasDe(q));
+    if (rec === "tarefas" && salaRef && acao === "concluir" && req.method === "POST") {
+      const b = await req.json().catch(() => ({}));
+      const t = await concluirTarefa(q, Number(salaRef), String(b.resultado ?? ""));
+      return json({ id: t.id, estado: "feita" });
+    }
     if (rec === "salas" && salaRef) {
       const s = await acharSala(q, decodeURIComponent(salaRef));
       if (acao === "mensagens" && req.method === "GET") {
         const ms = await ler(s.id, Number(url.searchParams.get("depois")) || 0, Number(url.searchParams.get("limite")) || 50);
-        return url.searchParams.get("formato") === "json" ? json(ms) : text(`${await cabecalho(s)}\n\n${formatar(ms, q)}`);
+        return url.searchParams.get("formato") === "json" ? json(ms) : text(`${await cabecalho(s, q)}\n\n${formatar(ms, q)}`);
       }
       if (acao === "mensagens" && req.method === "POST") {
         const b = await req.json().catch(() => ({}));
@@ -622,6 +759,7 @@ Deno.serve(async (req) => {
         const m = await enviar(q, s.id, { texto: String(b.texto ?? ""), responde_a: b.responde_a, anexos: [anexo] });
         return json({ id: m.id, arquivo: anexo.path }, 201);
       }
+      if (acao === "tarefas") return text(listaTarefas(await tarefas(s.id), q, 20) || "Nenhuma tarefa ainda.");
       if (acao === "decisoes") return text(registro(await propostas(s.id, 100)) || "Nenhuma proposta ainda.");
       if (acao === "esperar") {
         const r = await esperar(q, s.id, Number(url.searchParams.get("depois")) || 0, Number(url.searchParams.get("segundos")) || 50);

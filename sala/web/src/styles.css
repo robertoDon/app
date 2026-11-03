@@ -77,6 +77,8 @@ code { font: var(--t1)/1.5 var(--mono); }
 }
 .btn-icone:hover { background: var(--suave); color: var(--tinta); }
 .link { background: none; border: 0; padding: 0; color: var(--tinta); text-decoration: underline; cursor: pointer; font-size: inherit; }
+.link.nota { font-size: var(--t1); color: var(--cinza); }
+.link.nota:hover { color: var(--tinta); }
 
 input, textarea {
   font: inherit; color: var(--tinta); background: var(--painel);
@@ -195,7 +197,7 @@ input:focus-visible, textarea:focus-visible { outline: 2px solid var(--acento); 
 .feed-esqueleto span:nth-child(2) { width: 50%; margin-left: auto; }
 .vazio-feed { margin: auto; text-align: center; max-width: 420px; }
 
-.msg { display: flex; flex-direction: column; gap: 4px; max-width: 760px; }
+.msg { display: flex; flex-direction: column; gap: 4px; max-width: min(760px, 100%); min-width: 0; }
 .msg + .msg { margin-top: 0; }
 .msg:not(:has(.msg-meta)) { margin-top: -0px; }
 .msg-meta { display: flex; align-items: baseline; gap: 8px; font-size: var(--t1); margin-top: 12px; }
@@ -345,7 +347,8 @@ kbd { font: inherit; padding: 0 4px; border: 1px solid var(--linha); border-radi
 .linha-entre { justify-content: space-between; width: 100%; }
 .ponto-mini { display: inline-block; width: 6px; height: 6px; vertical-align: 1px; }
 
-.msg-linha { display: flex; align-items: flex-start; gap: 4px; max-width: 100%; }
+.msg-linha { display: flex; align-items: flex-start; gap: 4px; max-width: 100%; min-width: 0; }
+.msg-linha > .msg-corpo { min-width: 0; flex-shrink: 1; }
 .msg-minha .msg-linha { flex-direction: row-reverse; }
 .msg-acoes {
   display: flex; gap: 0; opacity: 0; pointer-events: none; flex: none; align-self: center;
@@ -593,6 +596,65 @@ mark { background: rgba(47,91,234,.18); color: inherit; border-radius: 2px; padd
 .modelo:has(input:focus-visible) { outline: 2px solid var(--acento); outline-offset: 2px; }
 .modelos-inicio { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
 
+/* ---------------------------------------------------------------- lote 4: tarefas, pedir ao agente, ata */
+
+.selo-neutro { background: var(--tinta); color: var(--fundo); }
+select {
+  font: inherit; color: var(--tinta); background: var(--painel); border: 1px solid var(--linha); border-radius: var(--r1);
+  min-height: 44px; padding: 0 8px; width: 100%;
+}
+select:focus-visible { outline: 2px solid var(--acento); outline-offset: -1px; }
+.abas-mini { flex: none; }
+.abas-mini .aba { min-height: 32px; font-size: var(--t1); }
+
+.tarefa-form { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.tarefa-form > input { width: 100%; }
+.tarefa-campos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tarefa-campos label { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.tarefa-campos input { width: 100%; }
+.tarefas { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; }
+.tarefas li { display: flex; flex-direction: column; gap: 8px; padding: 12px 0; border-top: 1px solid var(--linha); }
+.tarefas li:first-child { border-top: 0; }
+.tarefa-linha { display: flex; align-items: flex-start; gap: 8px; }
+.tarefa-marca {
+  display: grid; place-items: center; flex: none; width: 32px; height: 32px; margin-top: -4px; border: 0; border-radius: var(--r1);
+  background: none; color: var(--cinza); cursor: pointer; transition: background var(--rapido), color var(--rapido);
+}
+button.tarefa-marca:hover { background: var(--suave); color: var(--tinta); }
+.tarefa-marca.feita { color: var(--ok); cursor: default; }
+.tarefa-texto { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.tarefa-texto strong { font-weight: 500; overflow-wrap: anywhere; }
+.tarefa-feita .tarefa-texto strong { color: var(--cinza); text-decoration: line-through; text-decoration-color: var(--linha); }
+.tarefa-texto .nota svg { vertical-align: -1px; }
+.tarefa-resultado { font-size: var(--t1); padding: 4px 8px; border-left: 2px solid var(--linha); overflow-wrap: anywhere; }
+.tarefa-acoes { display: flex; gap: 12px; padding-left: 40px; }
+.tarefa-texto .tarefa-acoes { padding-left: 0; }
+.atrasada { color: var(--erro); font-weight: 600; }
+.tarefa-atrasada .tarefa-marca { color: var(--erro); }
+
+.tarefa-chip {
+  display: inline-flex; align-items: center; gap: 8px; align-self: flex-start; max-width: 100%; min-height: 32px; margin-top: 8px;
+  padding: 4px 12px; border: 1px solid var(--linha); border-radius: var(--r1); background: var(--painel);
+  font-size: var(--t1); text-align: left; cursor: pointer; transition: border-color var(--rapido);
+}
+.tarefa-chip:hover { border-color: var(--cinza); }
+.tarefa-chip svg { flex: none; }
+.tarefa-chip span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tarefa-chip strong { font-weight: 600; }
+.tarefa-chip.feita { color: var(--cinza); }
+.tarefa-chip.feita svg { color: var(--ok); }
+.tarefa-chip.atrasada { border-color: var(--erro); font-weight: 400; }
+.tarefa-chip.atrasada svg { color: var(--erro); }
+.tarefa-chip-minha { align-self: flex-end; }
+
+.pedir {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; padding: 8px 8px 8px 12px; width: fit-content; max-width: 100%;
+  border: 1px dashed var(--linha); border-radius: var(--r2);
+}
+.pedir.respostas-minha { margin-left: auto; }
+.pedir-destaque { border: 1px solid var(--acento); box-shadow: 0 0 0 3px color-mix(in srgb, var(--acento) 18%, transparent); }
+a.btn { text-decoration: none; }
+
 /* ---------------------------------------------------------------- celular */
 
 .so-celular { display: none; }
@@ -615,13 +677,16 @@ mark { background: rgba(47,91,234,.18); color: inherit; border-radius: 2px; padd
   .sugestoes { width: calc(100% - 24px); }
   .passos-sala li { flex-wrap: wrap; padding: 8px 0; }
   .sala-topo { gap: 0; }
-  .sala-topo .btn-convidar { min-height: 44px; width: 44px; padding: 0; border: 0; background: none; box-shadow: none; color: var(--cinza); }
+  .sala-topo .btn-convidar { display: none; }
+  .sala-topo .btn-convidar-x { min-height: 44px; width: 44px; padding: 0; border: 0; background: none; box-shadow: none; color: var(--cinza); }
   .faixa-avisos { width: calc(100% - 24px); }
   .btn-propor { padding: 0 8px; }
   .editar { min-width: 0; width: 100%; }
   .msg-proposta .msg-corpo { max-width: 100%; }
   .colunas { grid-auto-columns: 85%; }
   .modelos, .modelos-inicio { grid-template-columns: 1fr; }
+  .tarefa-campos { grid-template-columns: 1fr; }
+  .tarefa-chip span { white-space: normal; }
   .anexos-imagens { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .modal-largo { max-height: 100%; border-radius: var(--r2); }
   .hero { grid-template-columns: 1fr; padding: 24px 16px 48px; gap: 32px; }

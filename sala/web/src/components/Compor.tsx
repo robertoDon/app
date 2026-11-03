@@ -27,6 +27,7 @@ export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBa
   const cursorPendente = useRef<number | null>(null);
   const seletor = useRef<HTMLInputElement>(null);
   const [arquivos, setArquivos] = useState<Subindo[]>([]);
+  const [estreito] = useState(() => window.matchMedia("(max-width: 480px)").matches);
   const enviando = arquivos.some((a) => !a.anexo && !a.erro);
   const prontos = arquivos.filter((a) => a.anexo).map((a) => a.anexo!);
 
@@ -146,7 +147,7 @@ export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBa
         <div className="compor-linha">
           <label className="sr" htmlFor="texto">Mensagem</label>
           <textarea id="texto" ref={caixa} rows={1} value={texto}
-            placeholder={proposta ? "O que você propõe? Diga o que muda." : "Escreva aqui · @ chama alguém"}
+            placeholder={proposta ? (estreito ? "O que você propõe?" : "O que você propõe? Diga o que muda.") : (estreito ? "Escreva aqui" : "Escreva aqui · @ chama alguém")}
             onChange={(e) => { setTexto(e.target.value); acharBusca(e.target.value, e.target.selectionStart); }}
             onBlur={() => setBusca(null)}
             onPaste={(e) => { const fs = [...e.clipboardData.files]; if (fs.length) { e.preventDefault(); anexar(fs); } }}
