@@ -1293,3 +1293,89 @@ span.tarefa-check { cursor: default; }
   .menu, .desfazer { animation: none; }
   .marcador path, .marcador circle { transition: none; }
 }
+
+/* ================================================================ ajustes e busca: mesmas peças dos painéis */
+
+/* campos com rótulo em cima e o "Salvo" do lado */
+.secao-rotulo-solto { padding: 0; margin: 0; }
+.campo { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.campo-topo { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.campo-topo label { font-size: 13px; font-weight: 500; }
+.campo input, .campo textarea { width: 100%; }
+.campo textarea { min-height: 120px; }
+.campo-acoes { justify-content: flex-end; gap: 6px; width: 100%; }
+.salvo { display: inline-flex; align-items: center; gap: 4px; font-size: var(--t1); font-weight: 500; color: var(--ok); animation: menu-abre 160ms ease; }
+.painel-secao .campo + .campo { margin-top: 10px; }
+.secao-nota { padding: 0 8px 8px; }
+
+/* linhas de lista (pessoas, agentes, integrações): avatar, nome, pílula e ⋯ */
+.linhas { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1px; }
+.linha-item { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 6px 8px; border-radius: 10px; transition: background var(--rapido); }
+.linha-item:hover, .linha-item:focus-within { background: var(--suave); }
+.linha-item .avatar { width: 30px; height: 30px; flex: none; }
+.linha-texto { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.linha-titulo { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.linha-titulo .nota { font-weight: 400; }
+.linha-item .presenca { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.linha-item .btn-mais { opacity: 0; }
+.linha-item:hover .btn-mais, .linha-item:focus-within .btn-mais, .linha-item .menu-ancora.aberto .btn-mais { opacity: 1; }
+.menu-vazio { width: 28px; flex: none; }
+
+/* convites: título, explicação curta e o link numa caixa com Copiar dentro */
+.convites { display: flex; flex-direction: column; gap: 14px; padding: 2px 8px 10px; }
+.convite-item { display: flex; flex-direction: column; gap: 6px; }
+.convite-cab { display: flex; flex-direction: column; }
+.convite-cab strong { font-weight: 500; }
+.copiar-campo { position: relative; display: flex; }
+.copiar-campo input {
+  width: 100%; height: 40px; min-height: 40px; padding: 0 92px 0 12px; font: 12.5px var(--mono); color: var(--cinza);
+  background: var(--suave); box-shadow: none; text-overflow: ellipsis;
+}
+.copiar-campo .btn { position: absolute; top: 5px; right: 5px; min-height: 30px; gap: 4px; }
+
+/* integração nova num cartão */
+.integracao-form { padding: 12px; margin: 0 0 8px; border: 1px solid var(--linha); border-radius: 12px; background: var(--elevado); box-shadow: var(--sombra); }
+.eventos { display: flex; flex-wrap: wrap; gap: 6px; border: 0; padding: 0; margin: 0; }
+.evento-opcao { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px 4px 8px; border-radius: 999px; font-size: var(--t1); background: var(--suave); box-shadow: inset 0 0 0 1px var(--linha); cursor: pointer; }
+.evento-opcao:has(input:checked) { background: color-mix(in srgb, var(--acento) 10%, var(--elevado)); color: var(--agente-tinta); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acento) 30%, transparent); }
+.evento-opcao input { min-height: 0; width: 14px; height: 14px; margin: 0; accent-color: var(--acento); box-shadow: none; }
+
+/* histórico dentro da seção dobrável */
+.painel-lista .historico { padding: 0 8px 8px; }
+
+/* sair e apagar: linhas com explicação, apagar em vermelho */
+.perigo-linhas { display: flex; flex-direction: column; gap: 1px; }
+.perigo-linha { display: flex; align-items: center; width: 100%; min-height: 52px; padding: 8px; border: 0; border-radius: 10px; background: none; text-align: left; cursor: pointer; color: inherit; transition: background var(--rapido); }
+.perigo-linha > span { display: flex; flex-direction: column; }
+.perigo-linha strong { font-weight: 500; }
+.perigo-linha:hover { background: var(--suave); }
+.perigo-linha.perigo strong { color: var(--erro); }
+.perigo-linha.perigo:hover { background: color-mix(in srgb, var(--erro) 7%, transparent); }
+
+/* busca: campo grande, filtros em pílulas, resultados como linhas com avatar */
+.busca-topo { display: flex; flex-direction: column; gap: 10px; padding: 14px 20px 12px; border-bottom: 1px solid var(--linha); }
+.campo-busca input { height: 42px; padding-right: 40px; font-size: 15px; }
+.campo-busca input::-webkit-search-cancel-button { display: none; }
+.campo-limpar { position: absolute; right: 6px; }
+.campo-limpar svg { position: static; }
+.girando { position: absolute; right: 14px; width: 14px; height: 14px; border-radius: 999px; border: 2px solid var(--linha-forte); border-top-color: var(--acento); animation: girar .7s linear infinite; }
+@keyframes girar { to { transform: rotate(360deg); } }
+.filtros { width: 100%; }
+.resultados { padding: 0; display: flex; flex-direction: column; gap: 1px; }
+.resultados button { flex-direction: row; align-items: flex-start; gap: 10px; padding: 10px 8px; border-radius: 10px; color: inherit; }
+.resultados button.ativo { background: var(--suave); }
+.resultados .avatar-mini { flex: none; margin-top: 1px; }
+.resultado-corpo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.resultado-meta { display: flex; align-items: center; gap: 6px; font-size: var(--t1); min-width: 0; }
+.resultado-meta strong { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.resultado-meta time { margin-left: auto; color: var(--cinza); flex: none; }
+.resultado-meta .pilula { height: 18px; padding: 0 6px; font-size: 10.5px; }
+.resultado-texto { font-size: 13.5px; line-height: 1.45; color: color-mix(in srgb, var(--tinta) 85%, var(--cinza)); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+mark { background: color-mix(in srgb, var(--acento) 20%, transparent); color: var(--tinta); font-weight: 500; border-radius: 3px; padding: 0 1px; }
+
+@media (max-width: 720px) {
+  .linha-item .btn-mais { opacity: 1; }
+  .copiar-campo input { height: 44px; }
+  .copiar-campo .btn { top: 4px; right: 4px; min-height: 36px; }
+}
+@media (prefers-reduced-motion: reduce) { .girando { animation-duration: 2s; } .salvo { animation: none; } }

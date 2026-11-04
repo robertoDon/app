@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { sb } from "../supabase";
+import { IconeCheck } from "./Icones";
+import { Menu } from "./Menu";
 import { erro as msgErro, idioma, t } from "../i18n";
 
 type Integracao = { id: number; url: string; eventos: string[]; criada_em: string };
@@ -57,26 +59,32 @@ export function Integracoes({ salaId }: { salaId: string }) {
   };
 
   return (
-    <section className="painel-secao">
-      <span className="rotulo">{t("Integrações", "Integrations")}</span>
-      <p className="nota">{t("Avise o Slack, o Teams, o Discord, o Google Chat ou um sistema seu quando algo acontecer aqui.", "Notify Slack, Teams, Discord, Google Chat or your own system when something happens here.")}</p>
+    <section className="painel-lista">
+      <div className="secao-rotulo secao-rotulo-acao">
+        <h3>{t("Integrações", "Integrations")} {!!lista?.length && <span>{lista.length}</span>}</h3>
+        {!abrindo && (lista?.length ?? 0) < 5 && <button className="link nota" onClick={() => setAbrindo(true)}>{t("Ligar nova", "Add")}</button>}
+      </div>
+      {!lista?.length && !abrindo && <p className="nota secao-nota">{t("Avise o Slack, o Teams, o Discord, o Google Chat ou um sistema seu quando algo acontecer aqui.", "Notify Slack, Teams, Discord, Google Chat or your own system when something happens here.")}</p>}
       {lista && lista.length > 0 && (
-        <ul className="integracoes">
+        <ul className="linhas">
           {lista.map((i) => (
-            <li key={i.id}>
-              <span className="pessoa-nome"><strong>{servico(i.url)}</strong>
+            <li key={i.id} className="linha-item">
+              <span className="avatar">{servico(i.url)[0]?.toUpperCase()}</span>
+              <span className="linha-texto">
+                <span className="linha-titulo">{servico(i.url)}</span>
                 <span className="presenca">{i.eventos.map((e) => EVENTOS.find((x) => x.id === e)?.rotulo).join(", ")}</span>
               </span>
-              <span className="linha">
-                <button className="btn btn-pequeno btn-texto" onClick={() => testar(i)}>{testado === i.id ? t("Enviado", "Sent") : t("Testar", "Test")}</button>
-                <button className="btn btn-pequeno" onClick={() => apagar(i)}>{t("Desligar", "Turn off")}</button>
-              </span>
+              {testado === i.id && <span className="salvo" role="status"><IconeCheck tamanho={12} /> {t("Enviado", "Sent")}</span>}
+              <Menu rotulo={t(`Ações da integração ${servico(i.url)}`, `Actions for ${servico(i.url)}`)} itens={[
+                { rotulo: t("Mandar um teste", "Send a test"), acao: () => testar(i) },
+                { rotulo: t("Desligar", "Turn off"), acao: () => apagar(i), perigo: true },
+              ]} />
             </li>
           ))}
         </ul>
       )}
       {abrindo ? (
-        <form className="tarefa-form" onSubmit={salvar}>
+        <form className="tarefa-form integracao-form" onSubmit={salvar}>
           <label className="sr" htmlFor="int-url">{t("Endereço do webhook", "Webhook URL")}</label>
           <input id="int-url" autoFocus type="url" placeholder="https://hooks.slack.com/services/…" value={url} onChange={(e) => setUrl(e.target.value)} />
           <fieldset className="eventos">
@@ -96,14 +104,12 @@ export function Integracoes({ salaId }: { salaId: string }) {
               : <p><b>Slack:</b> api.slack.com/apps → create an app → Incoming Webhooks → Add New Webhook. <b>Teams:</b> in the channel, Workflows → “Post to a channel when a webhook request is received”. <b>Discord:</b> channel settings → Integrations → Webhooks. <b>Google Chat:</b> in the space, Apps &amp; integrations → Webhooks. Any other system gets a JSON with the event.</p>}
           </details>
           {erro && <p className="nota erro" role="alert">{erro}</p>}
-          <div className="linha">
-            <button className="btn btn-pequeno btn-cheio" disabled={!url.trim() || !eventos.length}>{t("Ligar", "Turn on")}</button>
+          <div className="linha campo-acoes">
             <button type="button" className="btn btn-pequeno btn-texto" onClick={() => { setAbrindo(false); setErro(""); }}>{t("Cancelar", "Cancel")}</button>
+            <button className="btn btn-pequeno btn-cheio" disabled={!url.trim() || !eventos.length}>{t("Ligar", "Turn on")}</button>
           </div>
         </form>
-      ) : (
-        (lista?.length ?? 0) < 5 && <button className="btn btn-pequeno" onClick={() => setAbrindo(true)}>{t("Ligar integração", "Add integration")}</button>
-      )}
+      ) : null}
     </section>
   );
 }

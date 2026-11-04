@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { abrirConectar, copiarTexto, sb, type Membro, type Sala } from "../supabase";
 import type { AgenteSala } from "../pages/Sala";
-import { IconeAgente, IconeFechar } from "./Icones";
+import { IconeAgente, IconeCheck, IconeFechar, IconeVoltar } from "./Icones";
+import { Menu } from "./Menu";
 import { Integracoes } from "./Integracoes";
 import { erro, gravado, locale, t } from "../i18n";
 
@@ -16,10 +17,8 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco }
   const [nome, setNome] = useState(sala.nome);
   const [contexto, setContexto] = useState(sala.contexto);
   const [salvo, setSalvo] = useState("");
-  const [copiado, setCopiado] = useState(false);
   const link = sala.convite ? `${window.location.origin}/c/${sala.convite}` : "";
   const linkLeitura = sala.convite_leitura ? `${window.location.origin}/c/${sala.convite_leitura}` : "";
-  const [copiadoLeitura, setCopiadoLeitura] = useState(false);
   const [historico, setHistorico] = useState<Historico[] | null>(null);
   const verHistorico = async () => {
     const { data } = await sb.from("historico").select("*").eq("sala_id", sala.id).order("id", { ascending: false }).limit(60);
@@ -37,7 +36,7 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco }
   const salvar = async (campos: Partial<Pick<Sala, "nome" | "contexto">>, rotulo: string) => {
     const { error } = await sb.from("salas").update(campos).eq("id", sala.id);
     if (error) return alert(erro(error));
-    setSalvo(rotulo); setTimeout(() => setSalvo(""), 1500);
+    setSalvo(rotulo); setTimeout(() => setSalvo(""), 2000);
     recarregar();
   };
 
@@ -85,6 +84,10 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco }
     recarregar(); nav("/");
   };
 
+  const papelDe = (m: Membro) => m.papel === "dono" ? <span className="pilula pilula-acento">{t("Cuida da sala", "Owner")}</span>
+    : m.papel === "leitor" ? <span className="pilula">{t("Só lê", "View only")}</span> : null;
+  const contextoMudou = contexto.trim() !== sala.contexto.trim();
+
   return (
     <aside className="painel" aria-label={t("Ajustes da sala", "Room settings")}>
       <header className="painel-topo">
@@ -93,107 +96,101 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco }
       </header>
 
       <section className="painel-secao">
-        <label htmlFor="aj-nome" className="rotulo">{t("Nome", "Name")}</label>
-        <input id="aj-nome" value={nome} maxLength={80} disabled={!dono}
-          onChange={(e) => setNome(e.target.value)}
-          onBlur={() => nome.trim() && nome !== sala.nome && salvar({ nome: nome.trim() }, "nome")}
-          onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()} />
-        {salvo === "nome" && <p className="nota" role="status">{t("Nome salvo.", "Name saved.")}</p>}
-      </section>
-
-      <section className="painel-secao">
-        <label htmlFor="aj-contexto" className="rotulo">{t("Contexto para os agentes", "Context for agents")}</label>
-        <p className="nota">{t("Todo agente lê isto antes de responder: o objetivo da sala, prazos, o que importa, o tom.", "Every agent reads this before replying: the room's goal, deadlines, what matters, the tone.")}</p>
-        <textarea id="aj-contexto" rows={6} maxLength={4000} value={contexto} disabled={!dono} autoFocus={foco === "contexto"}
-          placeholder={t("Ex.: Lançamento do piloto pago de novembro. Decisões de preço são da Ana; respostas curtas, com números.", "E.g.: Launch of the paid pilot in November. Ana makes the pricing calls; keep replies short, with numbers.")}
-          onChange={(e) => setContexto(e.target.value)} />
-        {dono && (
-          <div className="linha">
-            <button className="btn btn-pequeno" disabled={contexto === sala.contexto} onClick={() => salvar({ contexto: contexto.trim() }, "contexto")}>{t("Salvar contexto", "Save context")}</button>
-            {salvo === "contexto" && <span className="nota" role="status">{t("Salvo. Os agentes já leem a versão nova.", "Saved. Agents now read the new version.")}</span>}
+        <h3 className="secao-rotulo secao-rotulo-solto">{t("Sala", "Room")}</h3>
+        <div className="campo">
+          <div className="campo-topo">
+            <label htmlFor="aj-nome">{t("Nome", "Name")}</label>
+            {salvo === "nome" && <span className="salvo" role="status"><IconeCheck tamanho={12} /> {t("Salvo", "Saved")}</span>}
           </div>
-        )}
+          <input id="aj-nome" value={nome} maxLength={80} disabled={!dono}
+            onChange={(e) => setNome(e.target.value)}
+            onBlur={() => nome.trim() && nome !== sala.nome && salvar({ nome: nome.trim() }, "nome")}
+            onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()} />
+        </div>
+        <div className="campo">
+          <div className="campo-topo">
+            <label htmlFor="aj-contexto">{t("Contexto para os agentes", "Context for agents")}</label>
+            {salvo === "contexto" ? <span className="salvo" role="status"><IconeCheck tamanho={12} /> {t("Salvo", "Saved")}</span>
+              : <span className="nota">{contexto.length}/4000</span>}
+          </div>
+          <textarea id="aj-contexto" rows={6} maxLength={4000} value={contexto} disabled={!dono} autoFocus={foco === "contexto"}
+            placeholder={t("Ex.: Lançamento do piloto pago de novembro. Decisões de preço são da Ana; respostas curtas, com números.", "E.g.: Launch of the paid pilot in November. Ana makes the pricing calls; keep replies short, with numbers.")}
+            onChange={(e) => setContexto(e.target.value)} />
+          <p className="nota">{t("Todo agente lê isto antes de responder: objetivo, prazos, o que importa, o tom.", "Every agent reads this before replying: goal, deadlines, what matters, tone.")}</p>
+          {dono && contextoMudou && (
+            <div className="linha campo-acoes">
+              <button className="btn btn-pequeno btn-texto" onClick={() => setContexto(sala.contexto)}>{t("Descartar", "Discard")}</button>
+              <button className="btn btn-pequeno btn-cheio" onClick={() => salvar({ contexto: contexto.trim() }, "contexto")}>{t("Salvar contexto", "Save context")}</button>
+            </div>
+          )}
+        </div>
       </section>
 
-      <section className="painel-secao">
-        <span className="rotulo">{t("Pessoas", "People")} · {membros.length}</span>
-        <ul className="pessoas">
+      <section className="painel-lista">
+        <h3 className="secao-rotulo">{t("Pessoas", "People")} <span>{membros.length}</span></h3>
+        <ul className="linhas">
           {membros.map((m) => (
-            <li key={m.user_id}>
+            <li key={m.user_id} className="linha-item">
               {m.perfis?.avatar ? <img className="avatar" src={m.perfis.avatar} alt="" referrerPolicy="no-referrer" /> : <span className="avatar">{m.perfis?.nome?.[0]}</span>}
-              <span className="pessoa-nome">{m.perfis?.nome}{m.user_id === eu && t(" (você)", " (you)")}
-                <span className="presenca">{m.papel === "dono" ? t("cuida da sala", "owner") : m.papel === "leitor" ? t("convidado, só lê", "viewer, view only") : t("participa", "member")}</span>
+              <span className="linha-texto">
+                <span className="linha-titulo">{m.perfis?.nome}</span>
+                {m.user_id === eu && <span className="presenca">{t("você", "you")}</span>}
               </span>
-              {m.papel !== "dono" && dono && (
-                <span className="linha">
-                  {m.papel === "leitor"
-                    ? <button className="btn btn-pequeno btn-texto" onClick={() => mudarPapel(m, "membro")}>{t("Liberar para escrever", "Allow writing")}</button>
-                    : <>
-                        <button className="btn btn-pequeno btn-texto" onClick={() => mudarPapel(m, "leitor")} title={t("A pessoa e os agentes dela só leem", "This person and their agents can only read")}>{t("Só ler", "View only")}</button>
-                        <button className="btn btn-pequeno btn-texto" onClick={() => tornarDono(m)}>{t("Tornar dono", "Make owner")}</button>
-                      </>}
-                  <button className="btn btn-pequeno" onClick={() => remover(m)}>{t("Tirar", "Remove")}</button>
-                </span>
-              )}
+              {papelDe(m)}
+              {dono && m.papel !== "dono" ? (
+                <Menu rotulo={t(`Ações para ${m.perfis?.nome}`, `Actions for ${m.perfis?.nome}`)} itens={[
+                  m.papel === "leitor" ? { rotulo: t("Liberar para escrever", "Allow writing"), acao: () => mudarPapel(m, "membro") }
+                    : { rotulo: t("Deixar só ler", "Make view only"), acao: () => mudarPapel(m, "leitor") },
+                  m.papel !== "leitor" && { rotulo: t("Tornar dono", "Make owner"), acao: () => tornarDono(m) },
+                  { rotulo: t("Tirar da sala", "Remove from room"), acao: () => remover(m), perigo: true },
+                ]} />
+              ) : <span className="menu-vazio" aria-hidden />}
             </li>
           ))}
         </ul>
       </section>
 
-      <section className="painel-secao">
-        <span className="rotulo">{t("Agentes", "Agents")} · {agentes.length}</span>
+      <section className="painel-lista">
+        <div className="secao-rotulo secao-rotulo-acao">
+          <h3>{t("Agentes", "Agents")} <span>{agentes.length}</span></h3>
+          <button className="link nota" onClick={abrirConectar}>{t("Conectar o meu", "Connect mine")}</button>
+        </div>
         {agentes.length ? (
-          <ul className="pessoas">
+          <ul className="linhas">
             {agentes.map((a) => (
-              <li key={`${a.nome}|${a.uid}`}>
+              <li key={`${a.nome}|${a.uid}`} className="linha-item">
                 <span className="avatar avatar-agente"><IconeAgente tamanho={16} /></span>
-                <span className="pessoa-nome">{(() => { const de = membros.find((m) => m.user_id === a.uid)?.perfis?.nome?.split(" ")[0] ?? "?"; return t(`${a.nome} de ${de}`, `${de}'s ${a.nome}`); })()}
+                <span className="linha-texto">
+                  <span className="linha-titulo">{(() => { const de = membros.find((m) => m.user_id === a.uid)?.perfis?.nome?.split(" ")[0] ?? "?"; return t(`${a.nome} de ${de}`, `${de}'s ${a.nome}`); })()}</span>
                   {a.presenca && <span className={`presenca ${a.presenca.ativo ? "presenca-ativa" : ""}`}>{a.presenca.ativo && <span className="ponto ponto-mini" aria-hidden />}{a.presenca.texto}</span>}
                 </span>
+                {a.sozinho && <span className="pilula" title={t("Responde sozinho quando chamado", "Replies on its own when called")}>{t("Automático", "Automatic")}</span>}
               </li>
             ))}
           </ul>
-        ) : <p className="nota">{t("Nenhum agente ainda. Cada pessoa conecta o seu, com a assinatura que já tem.", "No agents yet. Each person connects their own, with the subscription they already have.")}</p>}
-        <button className="btn btn-pequeno" onClick={abrirConectar}>{t("Conectar o meu agente", "Connect my agent")}</button>
+        ) : <p className="nota secao-nota">{t("Nenhum agente ainda. Cada pessoa conecta o seu, com a assinatura que já tem.", "No agents yet. Each person connects their own, with the subscription they already have.")}</p>}
       </section>
 
       {link && (
-        <section className="painel-secao">
-          <span className="rotulo">{t("Convite para participar", "Invite link")}</span>
-          <p className="nota">{t("Quem entrar por este link escreve, decide e conecta os próprios agentes.", "Anyone who joins with this link can write, decide and connect their own agents.")}</p>
-          <div className="linha">
-            <input readOnly value={link} aria-label={t("Link do convite para participar", "Invite link")} onFocus={(e) => e.target.select()} />
-            <button className="btn btn-pequeno" onClick={async () => {
-              if (await copiarTexto(link)) { setCopiado(true); setTimeout(() => setCopiado(false), 1500); }
-            }}>{copiado ? t("Copiado", "Copied") : t("Copiar", "Copy")}</button>
+        <section className="painel-lista">
+          <div className="secao-rotulo secao-rotulo-acao">
+            <h3>{t("Convites", "Invites")}</h3>
+            {dono && <button className="link nota" onClick={trocarConvite}>{t("Trocar links", "Replace links")}</button>}
           </div>
-          {linkLeitura && (
-            <>
-              <span className="rotulo">{t("Convite para acompanhar", "View-only invite link")}</span>
-              <p className="nota">{t("Para clientes ou quem só precisa ver. Lê tudo, mas não escreve, não decide e não traz agentes.", "For clients or anyone who just needs to see. They can read everything, but can't write, decide or bring agents.")}</p>
-              <div className="linha">
-                <input readOnly value={linkLeitura} aria-label={t("Link do convite para acompanhar", "View-only invite link")} onFocus={(e) => e.target.select()} />
-                <button className="btn btn-pequeno" onClick={async () => {
-                  if (await copiarTexto(linkLeitura)) { setCopiadoLeitura(true); setTimeout(() => setCopiadoLeitura(false), 1500); }
-                }}>{copiadoLeitura ? t("Copiado", "Copied") : t("Copiar", "Copy")}</button>
-              </div>
-            </>
-          )}
-          {dono ? <button className="link nota" onClick={trocarConvite}>{t("Trocar os links de convite", "Replace invite links")}</button>
-            : <p className="nota">{t("Quem cuida da sala pode trocar este link.", "The room owner can replace this link.")}</p>}
+          <div className="convites">
+            <Convite titulo={t("Participar", "Join")} texto={t("Escreve, decide e traz os próprios agentes.", "Can write, decide and bring their own agents.")} link={link} />
+            {linkLeitura && <Convite titulo={t("Só acompanhar", "View only")} texto={t("Para clientes: lê tudo, não escreve nem decide.", "For clients: reads everything, can't write or decide.")} link={linkLeitura} />}
+          </div>
         </section>
       )}
 
       {dono && <Integracoes salaId={sala.id} />}
 
-      <section className="painel-secao">
-        <span className="rotulo">{t("Histórico", "History")}</span>
-        {historico === null ? (
-          <>
-            <p className="nota">{t("Quem entrou, saiu, aprovou, apagou, criou e concluiu tarefas. Fica registrado para todos da sala.", "Who joined, left, approved, deleted, created and completed tasks. It's on record for everyone in the room.")}</p>
-            <button className="btn btn-pequeno" onClick={verHistorico}>{t("Ver histórico", "View history")}</button>
-          </>
-        ) : historico.length ? (
+      <section className="painel-lista">
+        <button className="secao-rotulo secao-dobra" aria-expanded={historico !== null} onClick={() => (historico === null ? verHistorico() : setHistorico(null))}>
+          <IconeVoltar tamanho={14} /> {t("Histórico", "History")}
+        </button>
+        {historico !== null && (historico.length ? (
           <ol className="historico">
             {historico.map((h) => (
               <li key={h.id}>
@@ -202,15 +199,38 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco }
               </li>
             ))}
           </ol>
-        ) : <p className="nota">{t("Nada registrado ainda.", "Nothing on record yet.")}</p>}
+        ) : <p className="nota secao-nota">{t("Nada registrado ainda.", "Nothing on record yet.")}</p>)}
       </section>
 
-      <section className="painel-secao painel-fim">
-        <div className="linha">
-          <button className="btn" onClick={sair}>{t("Sair da sala", "Leave room")}</button>
-          {dono && <button className="btn btn-perigo" onClick={apagar}>{t("Apagar a sala", "Delete room")}</button>}
+      <section className="painel-lista painel-fim">
+        <h3 className="secao-rotulo">{t("Sair", "Leave")}</h3>
+        <div className="perigo-linhas">
+          <button className="perigo-linha" onClick={sair}>
+            <span><strong>{t("Sair da sala", "Leave room")}</strong><span className="nota">{t("Para voltar, precisa de um convite.", "You'll need an invite to come back.")}</span></span>
+          </button>
+          {dono && (
+            <button className="perigo-linha perigo" onClick={apagar}>
+              <span><strong>{t("Apagar a sala", "Delete room")}</strong><span className="nota">{t("Some para todos, com todas as mensagens.", "Gone for everyone, with all messages.")}</span></span>
+            </button>
+          )}
         </div>
       </section>
     </aside>
+  );
+}
+
+// link de convite: o endereço numa caixa com o Copiar dentro
+function Convite({ titulo, texto, link }: { titulo: string; texto: string; link: string }) {
+  const [copiado, setCopiado] = useState(false);
+  return (
+    <div className="convite-item">
+      <div className="convite-cab"><strong>{titulo}</strong><span className="nota">{texto}</span></div>
+      <div className="copiar-campo">
+        <input readOnly value={link.replace(/^https?:\/\//, "")} aria-label={t(`Link: ${titulo}`, `Link: ${titulo}`)} onFocus={(e) => e.target.select()} />
+        <button className={`btn btn-pequeno ${copiado ? "" : "btn-cheio"}`} onClick={async () => {
+          if (await copiarTexto(link)) { setCopiado(true); setTimeout(() => setCopiado(false), 1500); }
+        }}>{copiado ? <><IconeCheck tamanho={14} /> {t("Copiado", "Copied")}</> : t("Copiar", "Copy")}</button>
+      </div>
+    </div>
   );
 }
