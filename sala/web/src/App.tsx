@@ -23,7 +23,7 @@ export default function App() {
 
   const carregarPerfil = async (uid?: string) => {
     if (!uid) return setPerfil(null);
-    const { data } = await sb.from("perfis").select("id, nome, avatar, avisos, idioma").eq("id", uid).maybeSingle();
+    const { data } = await sb.from("perfis").select("id, nome, avatar, avisos, idioma, guia_visto, guia_sala_visto").eq("id", uid).maybeSingle();
     setPerfil(data);
     // idioma: a escolha feita neste aparelho vale; sem escolha aqui, vale a do perfil. O perfil sempre fica sabendo.
     if (data) {

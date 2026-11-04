@@ -438,12 +438,12 @@ export default function SalaPage() {
                 {ouvindo.length > 0 && <> · <span className="ponto ponto-mini" aria-hidden /> {ouvindo.length === 1 ? deQuem(ouvindo[0].nome, primeiro(ouvindo[0].uid)) : ouvindo.length} {t("ouvindo", "listening")}</>}
               </p>
             </div>
-            <button className={`btn-icone ${painel === "decisoes" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "decisoes" ? null : "decisoes"))}
+            <button data-guia="decisoes" className={`btn-icone ${painel === "decisoes" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "decisoes" ? null : "decisoes"))}
               aria-expanded={painel === "decisoes"} aria-label={pendentes ? t(`Decisões, ${pendentes} aguardando`, `Decisions, ${pendentes} waiting`) : t("Decisões", "Decisions")} title={t("Decisões (D)", "Decisions (D)")}>
               <IconeDecisao />
               {pendentes > 0 && <span className="selo-num" aria-hidden>{pendentes}</span>}
             </button>
-            <button className={`btn-icone ${painel === "tarefas" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "tarefas" ? null : "tarefas"))}
+            <button data-guia="tarefas" className={`btn-icone ${painel === "tarefas" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "tarefas" ? null : "tarefas"))}
               aria-expanded={painel === "tarefas"} aria-label={abertasSala ? t(`Tarefas, ${abertasSala} abertas`, `Tasks, ${abertasSala} open`) : t("Tarefas", "Tasks")} title={t("Tarefas (T)", "Tasks (T)")}>
               <IconeTarefa />
               {abertasSala > 0 && <span className="selo-num selo-neutro" aria-hidden>{abertasSala}</span>}
@@ -452,7 +452,7 @@ export default function SalaPage() {
               aria-expanded={painel === "busca"} aria-label={t("Buscar na sala", "Search the room")} title={t("Buscar (/)", "Search (/)")}>
               <IconeBusca />
             </button>
-            {!leitor && <button className="btn btn-convidar" onClick={() => setConvite((v) => !v)} aria-expanded={convite} aria-label={t("Convidar pessoas", "Invite people")} title={t("Convidar pessoas", "Invite people")}>
+            {!leitor && <button className="btn btn-convidar" data-guia="convidar" onClick={() => setConvite((v) => !v)} aria-expanded={convite} aria-label={t("Convidar pessoas", "Invite people")} title={t("Convidar pessoas", "Invite people")}>
               <IconeConvite tamanho={18} /> <span className="some-celular">{t("Convidar", "Invite")}</span>
             </button>}
             <button className={`btn-icone ${painel === "ajustes" || painel === "contexto" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "ajustes" || p === "contexto" ? null : "ajustes"))}

@@ -7,6 +7,7 @@ import { IconeAgente, IconeCaixa, IconeMais, IconePlugue, IconeProposta, Marca }
 import { Conectar } from "./Conectar";
 import { Conta } from "./Conta";
 import { NovaSala } from "./NovaSala";
+import { Guia } from "./Guia";
 
 // Lista de salas com não lidas e prévia, ao vivo. Também mantém o contador na aba do navegador.
 export function useSalas() {
@@ -83,7 +84,7 @@ export function Layout({ children, salas, recarregar, foco }: {
       <nav className="lateral" aria-label={t("Salas", "Rooms")}>
         <div className="lateral-topo"><Link to="/" aria-label={t("Início", "Home")}><Marca /></Link></div>
 
-        <div className="lateral-titulo">
+        <div className="lateral-titulo" data-guia="salas">
           <span>{t("Salas", "Rooms")}</span>
           <button className="btn-icone" onClick={() => setCriando(true)} title={t("Nova sala (N)", "New room (N)")} aria-label={t("Nova sala", "New room")}>
             <IconeMais tamanho={18} />
@@ -131,10 +132,10 @@ export function Layout({ children, salas, recarregar, foco }: {
         </ul>
 
         <div className="lateral-base">
-          <button className="btn btn-largo" onClick={() => setConectar(true)} title={t("Conectar agente (A)", "Connect agent (A)")}>
+          <button className="btn btn-largo" data-guia="conectar" onClick={() => setConectar(true)} title={t("Conectar agente (A)", "Connect agent (A)")}>
             <IconePlugue tamanho={18} /> {t("Conectar agente", "Connect agent")}
           </button>
-          <button className="eu" onClick={() => setConta(true)} title={t("Sua conta, avisos e sair", "Your account, notifications and sign out")}>
+          <button className="eu" data-guia="conta" onClick={() => setConta(true)} title={t("Sua conta, avisos e sair", "Your account, notifications and sign out")}>
             {perfil?.avatar ? <img src={perfil.avatar} alt="" className="avatar" referrerPolicy="no-referrer" /> : <span className="avatar">{perfil?.nome?.[0]}</span>}
             <span className="eu-nome">{perfil?.nome}</span>
             <span className="nota">{t("Conta", "Account")}</span>
@@ -146,6 +147,7 @@ export function Layout({ children, salas, recarregar, foco }: {
 
       {conectar && <Conectar fechar={() => setConectar(false)} />}
       {conta && <Conta fechar={() => setConta(false)} />}
+      <Guia pronto={salas !== null} emSala={!!id} />
       {criando && <NovaSala fechar={() => setCriando(false)} aoCriar={recarregar} />}
     </div>
   );

@@ -100,7 +100,7 @@ export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBa
   };
 
   return (
-    <form className="compor" onSubmit={(e) => { e.preventDefault(); mandar(); }}>
+    <form className="compor" data-guia="compor" onSubmit={(e) => { e.preventDefault(); mandar(); }}>
       {sugestoes.length > 0 && (
         <ul className="sugestoes" role="listbox" aria-label={tr("Mencionar", "Mention")}>
           {sugestoes.map((s, i) => (

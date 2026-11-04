@@ -480,6 +480,18 @@ const SALA_ARG = { type: "string", description: "Nome ou id da sala. Pode omitir
 
 const TOOLS_PT = [
   {
+    name: "search",
+    description: "Busca nas salas da pessoa: salas pelo nome e mensagens pelo texto. Devolve ids para abrir com fetch.",
+    inputSchema: { type: "object", properties: { query: { type: "string", description: "O que buscar. Vazio = as salas da pessoa." } }, required: ["query"] },
+    annotations: { readOnlyHint: true },
+  },
+  {
+    name: "fetch",
+    description: "Abre um resultado do search: uma sala inteira (contexto, decisões, tarefas e conversa recente) ou uma mensagem com a conversa em volta.",
+    inputSchema: { type: "object", properties: { id: { type: "string", description: "O id devolvido pelo search (sala:... ou msg:...)." } }, required: ["id"] },
+    annotations: { readOnlyHint: true },
+  },
+  {
     name: "listar_salas",
     description: "Lista as salas em que a sua pessoa está.",
     inputSchema: { type: "object", properties: {} },
@@ -606,6 +618,10 @@ const TOOLS_PT = [
 
 // As mesmas ferramentas, descritas em inglês para quem usa a Sala em inglês (os nomes não mudam).
 const EN: Record<string, { d: string; p?: Record<string, string> }> = {
+  search: { d: "Searches your person's rooms: rooms by name and messages by text. Returns ids to open with fetch.",
+    p: { query: "What to search for. Empty = your person's rooms." } },
+  fetch: { d: "Opens a search result: a whole room (context, decisions, tasks and recent conversation) or a message with the conversation around it.",
+    p: { id: "The id returned by search (sala:... or msg:...)." } },
   listar_salas: { d: "Lists the rooms your person is in." },
   ler_mensagens: { d: "Reads a room's conversation. Without `depois`, returns the latest messages. Pass `depois` with the last id you saw to get only new ones.",
     p: { depois: "Only messages with an id greater than this.", limite: "Max messages (default 50, max 200)." } },
@@ -639,8 +655,52 @@ function ferramentas(q: Quem) {
   });
 }
 
+// busca e abertura no formato dos conectores do ChatGPT (search/fetch): resultado em JSON dentro do texto
+async function buscar(q: Quem, termo: string) {
+  const ss = await salasDe(q);
+  const url = (s: Sala) => `${APP}/s/${s.id}`;
+  const t = termo.trim().toLowerCase();
+  const salas = ss.filter((s) => !t || s.nome.toLowerCase().includes(t) || (s.contexto ?? "").toLowerCase().includes(t))
+    .map((s) => ({ id: `sala:${s.id}`, title: tr(q, `Sala ${s.nome}`, `Room ${s.nome}`), url: url(s) }));
+  let msgs: { id: string; title: string; url: string }[] = [];
+  if (t && ss.length) {
+    const like = `%${t.replace(/[\\%_]/g, (c) => "\\" + c)}%`;
+    const { data } = await db.from("mensagens").select(SEL).in("sala_id", ss.map((s) => s.id)).eq("apagada", false)
+      .ilike("texto", like).order("id", { ascending: false }).limit(20);
+    msgs = ((data ?? []) as unknown as Msg[]).map((m) => {
+      const s = ss.find((x) => x.id === m.sala_id)!;
+      return { id: `msg:${m.id}`, title: `${s.nome} · #${m.id} · ${quemEscreveu(m, q)}: ${umaLinha(m.texto, 80)}`, url: url(s) };
+    });
+  }
+  return { results: [...salas, ...msgs] };
+}
+
+async function abrir(q: Quem, id: string) {
+  const ss = await salasDe(q);
+  const [tipo, ref] = id.split(":");
+  if (tipo === "sala") {
+    const s = ss.find((x) => x.id === ref);
+    if (!s) throw new Falha(tr(q, "Sala não encontrada.", "Room not found."), 404);
+    return { id, title: s.nome, url: `${APP}/s/${s.id}`, text: `${await cabecalho(s, q)}\n\n${formatar(await ler(s.id, 0, 50), q)}`, metadata: { tipo: "sala" } };
+  }
+  if (tipo === "msg") {
+    const { data: m } = await db.from("mensagens").select("id, sala_id").eq("id", Number(ref)).maybeSingle();
+    const s = m && ss.find((x) => x.id === m.sala_id);
+    if (!m || !s) throw new Falha(tr(q, "Mensagem não encontrada.", "Message not found."), 404);
+    const antes = await db.from("mensagens").select(SEL).eq("sala_id", s.id).lte("id", m.id).order("id", { ascending: false }).limit(8);
+    const depois = await db.from("mensagens").select(SEL).eq("sala_id", s.id).gt("id", m.id).order("id").limit(8);
+    const conversa = [...((antes.data ?? []) as unknown as Msg[]).reverse(), ...((depois.data ?? []) as unknown as Msg[])];
+    return { id, title: `${s.nome} · #${m.id}`, url: `${APP}/s/${s.id}`, text: `${tr(q, "Sala", "Room")} "${s.nome}"\n\n${formatar(conversa, q)}`, metadata: { tipo: "mensagem", sala: s.nome } };
+  }
+  throw new Falha(tr(q, "Id inválido. Use o id devolvido pelo search.", "Invalid id. Use an id returned by search."));
+}
+
 async function chamar(q: Quem, nome: string, a: any): Promise<string | Conteudo[]> {
   switch (nome) {
+    case "search":
+      return JSON.stringify(await buscar(q, String(a.query ?? "")));
+    case "fetch":
+      return JSON.stringify(await abrir(q, String(a.id ?? "")));
     case "ler_arquivo":
       return await lerArquivo(q, String(a.arquivo ?? ""));
     case "enviar_arquivo": {
@@ -835,11 +895,11 @@ async function mcp(q: Quem, msg: any) {
       return ok({
         protocolVersion: params?.protocolVersion ?? "2025-06-18",
         capabilities: { tools: {}, events: {} },
-        serverInfo: { name: "sala", title: "The Sala", version: "4.3.0" },
+        serverInfo: { name: "sala", title: "The Sala", version: "4.4.0" },
         instructions: regras(q),
       });
     case "server/discover": // MCP 2.0
-      return ok({ capabilities: { tools: {}, events: {} }, serverInfo: { name: "sala", title: "The Sala", version: "4.3.0" }, instructions: regras(q) });
+      return ok({ capabilities: { tools: {}, events: {} }, serverInfo: { name: "sala", title: "The Sala", version: "4.4.0" }, instructions: regras(q) });
     case "ping":
       return ok({});
     case "tools/list":
@@ -918,8 +978,16 @@ Deno.serve(async (req) => {
         return new Response(null, { status: 405, headers: CORS });
       }
       if (req.method === "DELETE") return new Response(null, { status: 204, headers: CORS });
-      if (!q) return naoAutorizado();
+      if (!q) {
+        console.log(JSON.stringify({ mcp: "sem_token_valido", tem_token: /^Bearer\s+\S/i.test(req.headers.get("authorization") ?? "") }));
+        return naoAutorizado();
+      }
       const body = await req.json().catch(() => null);
+      for (const m of Array.isArray(body) ? body : [body]) {
+        console.log(JSON.stringify({ mcp: m?.method, agente: q.agente, versao: m?.params?.protocolVersion ?? req.headers.get("mcp-protocol-version"),
+          cliente: m?.params?.clientInfo, capacidades: m?.params?.capabilities ? Object.keys(m.params.capabilities) : undefined,
+          ferramenta: m?.params?.name, accept: req.headers.get("accept") }));
+      }
       if (body === null) return json({ jsonrpc: "2.0", id: null, error: { code: -32700, message: "JSON inválido" } }, 400);
       if (Array.isArray(body)) {
         const out = (await Promise.all(body.map((m) => mcp(q, m)))).filter(Boolean);

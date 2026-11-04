@@ -11,7 +11,7 @@ export const sb = createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: { flowType: "pkce", persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
 });
 
-export type Perfil = { id: string; nome: string; avatar: string | null; avisos?: "tudo" | "mencoes" | "nada"; idioma?: Idioma | null };
+export type Perfil = { id: string; nome: string; avatar: string | null; avisos?: "tudo" | "mencoes" | "nada"; idioma?: Idioma | null; guia_visto?: string | null; guia_sala_visto?: string | null };
 export type Sala = {
   id: string; nome: string; convite: string | null; convite_leitura: string | null; contexto: string; papel: "dono" | "membro" | "leitor";
   nao_lidas: number; pendentes: number; lido_ate: number; minhas_tarefas: number; ultima_id: number | null; ultima_texto: string | null;
