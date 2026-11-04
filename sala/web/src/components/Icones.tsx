@@ -29,8 +29,8 @@ export const Marca = () => (
   <div className="marca">
     <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden>
       <rect width="32" height="32" rx="8" fill="currentColor" />
-      <circle cx="12" cy="16" r="4.5" fill="var(--fundo)" />
-      <circle cx="21" cy="16" r="4.5" fill="none" stroke="var(--fundo)" strokeWidth="2.2" />
+      <circle cx="11" cy="16" r="4.5" fill="var(--fundo)" />
+      <circle cx="21" cy="16" r="3.6" fill="none" stroke="var(--fundo)" strokeWidth="1.8" />
     </svg>
     <span>The Sala</span>
   </div>
