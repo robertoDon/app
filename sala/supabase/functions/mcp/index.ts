@@ -887,19 +887,40 @@ async function desinscrever(q: Quem, p: any) {
   return {};
 }
 
+// Duas eras do MCP no mesmo endereço: a antiga abre com initialize (Claude hoje); a nova (2026-07-28, ChatGPT)
+// manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
+// leva resultType, e as listas levam dicas de cache.
+const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.5.0" };
+const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
+
 async function mcp(q: Quem, msg: any) {
   const { id, method, params } = msg ?? {};
-  const ok = (result: unknown) => ({ jsonrpc: "2.0", id, result });
+  const pedida = versaoModerna(msg);
+  const moderno = !!pedida || method === "server/discover";
+  if (pedida && !VERSOES.includes(pedida)) {
+    return { jsonrpc: "2.0", id, error: { code: -32022, message: "Unsupported protocol version", data: { supported: VERSOES, requested: pedida } } };
+  }
+  const lista = new Set(["tools/list", "events/list", "server/discover"]);
+  const ok = (result: Record<string, unknown>) => ({
+    jsonrpc: "2.0", id,
+    result: moderno ? { resultType: "complete", ...(lista.has(method) ? { ttlMs: 0, cacheScope: "private" } : {}), ...result } : result,
+  });
   switch (method) {
     case "initialize":
       return ok({
         protocolVersion: params?.protocolVersion ?? "2025-06-18",
         capabilities: { tools: {}, events: {} },
-        serverInfo: { name: "sala", title: "The Sala", version: "4.4.0" },
+        serverInfo: SERVIDOR,
         instructions: regras(q),
       });
-    case "server/discover": // MCP 2.0
-      return ok({ capabilities: { tools: {}, events: {} }, serverInfo: { name: "sala", title: "The Sala", version: "4.4.0" }, instructions: regras(q) });
+    case "server/discover":
+      return ok({
+        supportedVersions: VERSOES,
+        capabilities: { tools: {}, experimental: { events: {} } },
+        instructions: regras(q),
+        _meta: { "io.modelcontextprotocol/serverInfo": SERVIDOR },
+      });
     case "ping":
       return ok({});
     case "tools/list":
@@ -993,8 +1014,11 @@ Deno.serve(async (req) => {
         const out = (await Promise.all(body.map((m) => mcp(q, m)))).filter(Boolean);
         return out.length ? json(out) : new Response(null, { status: 202, headers: CORS });
       }
-      const out = await mcp(q, body);
-      return out ? json(out) : new Response(null, { status: 202, headers: CORS });
+      const out = await mcp(q, body) as any;
+      if (!out) return new Response(null, { status: 202, headers: CORS });
+      const codigo = out.error?.code;
+      const status = codigo === -32022 ? 400 : codigo === -32601 && versaoModerna(body) ? 404 : 200;
+      return json(out, status);
     }
 
     // ---- API
