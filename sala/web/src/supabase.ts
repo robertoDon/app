@@ -123,6 +123,7 @@ export const tamanhoLegivel = (b: number) =>
 
 // ---------------------------------------------------------------- tarefas
 
+export type Reacao = { id: number; mensagem_id: number; user_id: string; agente: string | null; emoji: string };
 export type Tarefa = {
   id: number; sala_id: string; titulo: string; origem: number | null;
   responsavel: string | null; responsavel_agente: string | null; prazo: string | null;

@@ -1,11 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Mensagem } from "../supabase";
-import { IconeAgente, IconeCopiar, IconeDecisao, IconeLapis, IconeLixo, IconeProposta, IconeRecusa, IconeResponder, IconeTarefa } from "./Icones";
+import { IconeAgente, IconeReagir, IconeCopiar, IconeDecisao, IconeLapis, IconeLixo, IconeProposta, IconeRecusa, IconeResponder, IconeTarefa } from "./Icones";
 import { Texto } from "./Texto";
 import { Anexos } from "./Anexos";
 import { gravado, locale, t as tr } from "../i18n";
 
 export type Citacao = { id: number; autor: string; texto: string } | null;
+export type GrupoReacao = { emoji: string; quem: string[]; minha: boolean };
+export const EMOJIS = ["👍", "❤️", "😂", "🎉", "👀", "✅", "🙏", "🔥"];
 
 type Props = {
   m: Pick<Mensagem, "id" | "agente" | "texto" | "tipo" | "estado" | "apagada" | "editada_em" | "decidida_em"> & Partial<Mensagem>;
@@ -27,7 +29,30 @@ type Props = {
   decidir?: (aprovar: boolean, nota?: string) => Promise<string | null>;
   tentarDeNovo?: () => void;
   irPara?: (id: number) => void;
+  reacoes?: GrupoReacao[];
+  reagir?: (emoji: string) => void;
 };
+
+// seletor rápido de emojis: abre ao lado do botão, fecha com Esc ou clique fora
+function Seletor({ escolher, fechar }: { escolher: (e: string) => void; fechar: () => void }) {
+  const caixa = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    caixa.current?.querySelector<HTMLButtonElement>("button")?.focus();
+    // o próprio botão de reagir fica de fora: ele mesmo abre e fecha
+    const fora = (e: PointerEvent) => { if (!caixa.current?.parentElement?.contains(e.target as Node)) fechar(); };
+    const tecla = (e: KeyboardEvent) => { if (e.key === "Escape") { e.stopPropagation(); fechar(); } };
+    document.addEventListener("pointerdown", fora, true);
+    document.addEventListener("keydown", tecla, true);
+    return () => { document.removeEventListener("pointerdown", fora, true); document.removeEventListener("keydown", tecla, true); };
+  }, [fechar]);
+  return (
+    <div className="seletor-emoji" ref={caixa} role="menu" aria-label={tr("Reagir", "React")}>
+      {EMOJIS.map((e) => (
+        <button key={e} type="button" role="menuitem" onClick={() => { escolher(e); fechar(); }} aria-label={tr(`Reagir com ${e}`, `React with ${e}`)}>{e}</button>
+      ))}
+    </div>
+  );
+}
 
 const hora = (iso?: string | null) => (iso ? new Date(iso).toLocaleTimeString(locale(), { hour: "2-digit", minute: "2-digit" }) : "");
 
@@ -43,6 +68,8 @@ export function Bolha(p: Props) {
   const [nota, setNota] = useState("");
   const [ocupado, setOcupado] = useState(false);
   const [copiado, setCopiado] = useState(false);
+  const [escolhendo, setEscolhendo] = useState(false);
+  const fecharSeletor = useCallback(() => setEscolhendo(false), []);
   const caixa = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -53,7 +80,7 @@ export function Bolha(p: Props) {
     }
   }, [editando]);
 
-  const temAcoes = !m.apagada && !m.pendente && !m.falhou && (p.responder || p.copiar || p.editar || p.apagar || p.virarTarefa);
+  const temAcoes = !m.apagada && !m.pendente && !m.falhou && (p.responder || p.copiar || p.editar || p.apagar || p.virarTarefa || p.reagir);
 
   const salvar = async () => {
     const t = rascunho.trim();
@@ -163,6 +190,13 @@ export function Bolha(p: Props) {
 
         {temAcoes && !editando && (
           <div className="msg-acoes" role="toolbar" aria-label={tr("Ações da mensagem", "Message actions")}>
+            {p.reagir && (
+              <span className="reagir-ancora">
+                <button type="button" className="btn-acao" onClick={() => setEscolhendo((v) => !v)} aria-expanded={escolhendo} aria-haspopup="menu"
+                  title={tr("Reagir", "React")} aria-label={tr("Reagir", "React")}><IconeReagir tamanho={16} /></button>
+                {escolhendo && <Seletor escolher={p.reagir} fechar={fecharSeletor} />}
+              </span>
+            )}
             {p.responder && <button type="button" className="btn-acao" onClick={p.responder} title={tr("Responder", "Reply")} aria-label={tr("Responder", "Reply")}><IconeResponder tamanho={16} /></button>}
             {p.copiar && (
               <button type="button" className="btn-acao" title={copiado ? tr("Copiado", "Copied") : tr("Copiar texto", "Copy text")} aria-label={tr("Copiar texto", "Copy text")}
@@ -177,6 +211,17 @@ export function Bolha(p: Props) {
         )}
       </div>
 
+      {!!p.reacoes?.length && !m.apagada && (
+        <div className="reacoes" aria-label={tr("Reações", "Reactions")}>
+          {p.reacoes.map((r) => (
+            <button key={r.emoji} type="button" className={`reacao ${r.minha ? "reacao-minha" : ""}`} disabled={!p.reagir}
+              onClick={() => p.reagir?.(r.emoji)} aria-pressed={r.minha} title={r.quem.join(", ")}
+              aria-label={`${r.emoji} ${r.quem.length}: ${r.quem.join(", ")}`}>
+              <span aria-hidden>{r.emoji}</span> {r.quem.length}
+            </button>
+          ))}
+        </div>
+      )}
       {erro && <p className="msg-erro" role="alert">{erro}</p>}
       {m.falhou && (
         <p className="msg-erro" role="alert">

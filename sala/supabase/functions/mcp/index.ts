@@ -133,6 +133,7 @@ type Msg = {
   tipo: "mensagem" | "proposta" | "decisao"; responde_a: number | null; estado: "pendente" | "aprovada" | "recusada" | null;
   decidida_em: string | null; editada_em: string | null; apagada: boolean; anexos: Anexo[];
   autor?: { nome: string }; decisor?: { nome: string } | null;
+  reacoes?: { emoji: string; agente: string | null; perfis: { nome: string } | null }[];
 };
 
 async function salasDe(q: Quem): Promise<Sala[]> {
@@ -164,11 +165,34 @@ async function ler(sala: string, depois = 0, limite = 50): Promise<Msg[]> {
   if (depois > 0) {
     const { data, error } = await db.from("mensagens").select(SEL).eq("sala_id", sala).gt("id", depois).order("id").limit(limite);
     if (error) throw error;
-    return data as unknown as Msg[];
+    return await comReacoes(data as unknown as Msg[]);
   }
   const { data, error } = await db.from("mensagens").select(SEL).eq("sala_id", sala).order("id", { ascending: false }).limit(limite);
   if (error) throw error;
-  return (data as unknown as Msg[]).reverse();
+  return await comReacoes((data as unknown as Msg[]).reverse());
+}
+
+// reações de cada mensagem, para o agente ver quem reagiu com o quê
+async function comReacoes(ms: Msg[]): Promise<Msg[]> {
+  if (!ms.length) return ms;
+  const { data } = await db.from("reacoes").select("mensagem_id, emoji, agente, perfis(nome)").in("mensagem_id", ms.map((m) => m.id)).order("id");
+  const por = new Map<number, Msg["reacoes"]>();
+  for (const r of (data ?? []) as any[]) por.set(r.mensagem_id, [...(por.get(r.mensagem_id) ?? []), r]);
+  return ms.map((m) => ({ ...m, reacoes: por.get(m.id) ?? [] }));
+}
+
+// pessoa ou agente reage; o mesmo emoji de novo tira a reação
+async function reagir(q: Quem, mensagem: number, emoji: string) {
+  const e = (emoji ?? "").trim();
+  if (!e || e.length > 16 || /[\p{L}\p{N}\s<>]/u.test(e)) throw new Falha(tr(q, "Use um emoji, ex.: 👍", "Use an emoji, e.g. 👍"));
+  const { data: m } = await db.from("mensagens").select("id, sala_id, apagada").eq("id", mensagem).maybeSingle();
+  if (!m || !(await salasDe(q)).some((s) => s.id === m.sala_id)) throw new Falha(tr(q, "Mensagem não encontrada.", "Message not found."), 404);
+  if (m.apagada) throw new Falha(tr(q, "Mensagem apagada.", "Message deleted."));
+  const { data: tirou } = await db.from("reacoes").delete().eq("mensagem_id", m.id).eq("user_id", q.userId).eq("agente", q.agente).eq("emoji", e).select("id");
+  if (tirou?.length) return false;
+  const { error } = await db.from("reacoes").insert({ sala_id: m.sala_id, mensagem_id: m.id, user_id: q.userId, agente: q.agente, emoji: e });
+  if (error) throw new Falha(error.message);
+  return true;
 }
 
 type Envio = { texto: string; proposta?: boolean; responde_a?: number | null; anexos?: Anexo[] };
@@ -254,7 +278,13 @@ const formatar = (ms: Msg[], q?: Quem) =>
       const resp = m.responde_a && m.tipo !== "decisao" ? tr(q, ` · responde a #${m.responde_a}`, ` · replies to #${m.responde_a}`) : "";
       const ed = m.editada_em && !m.apagada ? tr(q, " · (editada)", " · (edited)") : "";
       const anexos = (m.anexos ?? []).map((a) => `\n📎 ${a.nome} (${a.tipo}, ${tamanho(a.tamanho)}) · ler_arquivo: ${a.path}`).join("");
-      return `#${m.id} · ${quando(m.criada_em)} · ${quemEscreveu(m, q)}${rotulo(m, q)}${resp}${ed}${chamou}\n${m.apagada ? tr(q, "(mensagem apagada)", "(message deleted)") : gravado(m.texto, q)}${anexos}`;
+      const grupos = new Map<string, string[]>();
+      for (const r of m.reacoes ?? []) {
+        const quem = r.agente ? tr(q, `${r.agente} de ${r.perfis?.nome ?? "?"}`, `${r.perfis?.nome ?? "?"}'s ${r.agente}`) : r.perfis?.nome ?? "?";
+        grupos.set(r.emoji, [...(grupos.get(r.emoji) ?? []), quem]);
+      }
+      const reacoes = grupos.size && !m.apagada ? `\n${tr(q, "reações", "reactions")}: ${[...grupos].map(([e, qs]) => `${e} ${qs.join(", ")}`).join(" · ")}` : "";
+      return `#${m.id} · ${quando(m.criada_em)} · ${quemEscreveu(m, q)}${rotulo(m, q)}${resp}${ed}${chamou}\n${m.apagada ? tr(q, "(mensagem apagada)", "(message deleted)") : gravado(m.texto, q)}${anexos}${reacoes}`;
     }).join("\n\n")
     : tr(q, "(nenhuma mensagem nova)", "(no new messages)");
 
@@ -424,6 +454,7 @@ function regras(q?: Quem) {
 - To call someone, use @Name (a person) or @Agent-Person (someone's agent).
 - Tasks marked "← YOURS" are yours: do them and complete them with concluir_tarefa, stating the result (link, number, file). If you can't, say in the room what's missing. To split work, use criar_tarefa.
 - Files in the conversation show up with 📎; open them with ler_arquivo. To deliver a document (draft, table, code), use enviar_arquivo.
+- To just acknowledge ("got it", "ok", "looking into it"), react with an emoji (reagir) instead of sending a message.
 - Be concise and use light markdown. Write in the language the room is using. When in doubt, ask your person before answering on their behalf.
 - Your name shows on your messages automatically; no need to sign.
 - After 5 agent messages in a row, the room waits for a person to write.`;
@@ -435,6 +466,7 @@ function regras(q?: Quem) {
 - Para chamar alguém, use @Nome (pessoa) ou @Agente-Pessoa (agente de alguém).
 - Tarefas marcadas "← SUA" são suas: faça e conclua com concluir_tarefa, dizendo o resultado (link, número, arquivo). Se não der, diga na sala o que falta. Para dividir trabalho, use criar_tarefa.
 - Arquivos da conversa aparecem com 📎; abra com ler_arquivo. Para entregar um documento (rascunho, tabela, código), use enviar_arquivo.
+- Para só confirmar ("entendi", "ok", "vou olhar"), reaja com emoji (reagir) em vez de mandar mensagem.
 - Seja objetivo e use markdown leve. Na dúvida, pergunte à sua pessoa antes de responder em nome dela.
 - Seu nome aparece sozinho nas suas mensagens; não precisa assinar.
 - Depois de 5 mensagens seguidas de agentes, a sala espera uma pessoa escrever.`;
@@ -537,6 +569,18 @@ const TOOLS_PT = [
     },
   },
   {
+    name: "reagir",
+    description: "Reage a uma mensagem com um emoji (👍 entendi/concordo, 👀 vou olhar, ✅ feito). Mandar o mesmo emoji de novo tira a reação. Use no lugar de uma mensagem curta de confirmação.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        mensagem: { type: "integer", description: "Id (#N) da mensagem." },
+        emoji: { type: "string", description: "Um emoji, ex.: 👍" },
+      },
+      required: ["mensagem", "emoji"],
+    },
+  },
+  {
     name: "ver_decisoes",
     description: "Mostra as propostas que aguardam decisão e o registro de decisões da sala (aprovadas e recusadas, com quem decidiu).",
     inputSchema: { type: "object", properties: { sala: SALA_ARG } },
@@ -629,6 +673,8 @@ const EN: Record<string, { d: string; p?: Record<string, string> }> = {
     p: { texto: "The message (markdown ok).", responde_a: "Id (#N) of the message you're replying to." } },
   fazer_proposta: { d: "Asks the people in the room for a decision. Use it when something needs someone's yes before going ahead (spending, publishing, changing the plan, choosing between options). The room shows Approve and Decline; the decision comes back to you as a message and goes into the room's record.",
     p: { texto: "The proposal, clear and short: what will be done, why, and what changes. Markdown ok.", responde_a: "Id of the message that led to the proposal, if any." } },
+  reagir: { d: "Reacts to a message with an emoji (👍 got it/agree, 👀 looking into it, ✅ done). Sending the same emoji again removes it. Use it instead of a short confirmation message.",
+    p: { mensagem: "Id (#N) of the message.", emoji: "One emoji, e.g. 👍" } },
   ver_decisoes: { d: "Shows proposals waiting for a decision and the room's decision record (approved and declined, with who decided)." },
   ler_arquivo: { d: "Opens a file attached in the conversation (lines with 📎 show the path). Text comes back as text, images as images; other types come with a temporary link.",
     p: { arquivo: "The path shown after 'ler_arquivo:' in the message." } },
@@ -762,6 +808,11 @@ async function chamar(q: Quem, nome: string, a: any): Promise<string | Conteudo[
         : tr(q, `Enviada na sala "${s.nome}" como ${q.agente} de ${q.pessoa} (#${m.id}${m.responde_a ? `, respondendo #${m.responde_a}` : ""}).`,
           `Sent to the room "${s.nome}" as ${q.pessoa}'s ${q.agente} (#${m.id}${m.responde_a ? `, replying to #${m.responde_a}` : ""}).`);
     }
+    case "reagir": {
+      const pos = await reagir(q, Number(a.mensagem), String(a.emoji ?? ""));
+      return pos ? tr(q, `Reagiu com ${String(a.emoji).trim()} na #${Number(a.mensagem)}.`, `Reacted ${String(a.emoji).trim()} to #${Number(a.mensagem)}.`)
+        : tr(q, `Reação ${String(a.emoji).trim()} tirada da #${Number(a.mensagem)}.`, `Removed ${String(a.emoji).trim()} from #${Number(a.mensagem)}.`);
+    }
     case "ver_decisoes": {
       const s = await acharSala(q, a.sala);
       return registro(await propostas(s.id, 100), q) || tr(q, `Nenhuma proposta na sala "${s.nome}" ainda.`, `No proposals in the room "${s.nome}" yet.`);
@@ -891,7 +942,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.5.0" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.6.0" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {

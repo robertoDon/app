@@ -366,6 +366,36 @@ kbd { font: inherit; padding: 0 4px; border: 1px solid var(--linha); border-radi
   .msg-acoes .btn-acao { width: 32px; height: 32px; }
   .msg:not(:focus-within) .msg-acoes .btn-acao:not(:first-child) { display: none; }
 }
+/* reações: chips embaixo da mensagem; o seletor abre acima do botão de reagir */
+.reacoes { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.msg-minha .reacoes { justify-content: flex-end; }
+.reacao {
+  display: inline-flex; align-items: center; gap: 4px; min-height: 28px; padding: 0 8px; border-radius: 999px; cursor: pointer;
+  background: var(--painel); border: 1px solid var(--linha); color: var(--cinza); font-size: var(--t1); font-weight: 500;
+  transition: background var(--rapido), border-color var(--rapido);
+}
+.reacao span { font-size: 15px; line-height: 1; }
+.reacao:hover { background: var(--suave); }
+.reacao:disabled { cursor: default; }
+.reacao-minha { background: var(--agente); border-color: var(--acento); color: var(--agente-tinta); }
+.reagir-ancora { position: relative; display: inline-flex; }
+.seletor-emoji {
+  position: absolute; bottom: calc(100% + 6px); right: -8px; z-index: 5; display: flex; gap: 2px; padding: 4px;
+  background: var(--painel); border: 1px solid var(--linha); border-radius: 999px; box-shadow: 0 8px 24px rgba(0,0,0,.18);
+  animation: seletor-entra .15s ease-out;
+}
+.msg-minha .seletor-emoji { right: auto; left: -8px; }
+.seletor-emoji button {
+  display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 999px; background: none; cursor: pointer;
+  font-size: 20px; line-height: 1; transition: transform var(--rapido), background var(--rapido);
+}
+.seletor-emoji button:hover, .seletor-emoji button:focus-visible { background: var(--suave); transform: scale(1.15); }
+@keyframes seletor-entra { from { opacity: 0; transform: translateY(4px) scale(.96); } }
+@media (max-width: 720px) {
+  .seletor-emoji { bottom: auto; top: 50%; transform: translateY(-50%); right: calc(100% + 6px); animation: none; }
+  .msg-minha .seletor-emoji { right: auto; left: calc(100% + 6px); }
+  .reacao { min-height: 32px; }
+}
 .msg-destaque .msg-corpo { outline: 2px solid var(--acento); outline-offset: 2px; }
 .msg-apagada .msg-corpo { background: none !important; border: 1px dashed var(--linha) !important; color: var(--cinza) !important; box-shadow: none !important; }
 .apagada { font-style: italic; }

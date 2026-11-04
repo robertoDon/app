@@ -65,3 +65,4 @@ export const IconeTarefa = ({ tamanho }: P) => <svg {...base(tamanho)}><rect x="
 export const IconeCaixa = ({ tamanho }: P) => <svg {...base(tamanho)}><rect x="4" y="4" width="16" height="16" rx="3" /></svg>;
 export const IconeAbrir = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M14 4h6v6M20 4l-9 9M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4" /></svg>;
 export const IconeDocumento = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" /><path d="M9 13h6M9 17h6M14 3v5h5" /></svg>;
+export const IconeReagir = ({ tamanho }: P) => <svg {...base(tamanho)}><circle cx="12" cy="12" r="9" /><path d="M8.5 14.5a4.5 4.5 0 0 0 7 0M9 9.5h.01M15 9.5h.01" /></svg>;

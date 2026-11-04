@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "../App";
 import { Layout, useSalas } from "../components/Layout";
-import { Bolha, Evento, type Citacao } from "../components/Bolha";
+import { Bolha, Evento, type Citacao, type GrupoReacao } from "../components/Bolha";
 import { Ajustes } from "../components/Ajustes";
 import { Compor, type ComporApi, type Sugestao } from "../components/Compor";
 import { Decisoes } from "../components/Decisoes";
@@ -18,7 +18,7 @@ import {
 } from "../components/Icones";
 import {
   abrirConectar, atrasada, copiarTexto, pedidoPara, presenca, sb, subirArquivo, ultimaSala,
-  type Agente, type Anexo, type Membro, type Mensagem, type Tarefa,
+  type Agente, type Anexo, type Membro, type Mensagem, type Reacao, type Tarefa,
 } from "../supabase";
 
 const hora = (iso: string) => new Date(iso).toLocaleTimeString(locale(), { hour: "2-digit", minute: "2-digit" });
@@ -34,6 +34,15 @@ const dia = (iso: string) => {
 const umaLinha = (t: string, n = 90) => { const l = t.replace(/\s+/g, " ").trim(); return l.length > n ? `${l.slice(0, n - 1)}…` : l; };
 const perguntaATodos = (m: Mensagem) => !m.agente && m.tipo === "mensagem" && !m.apagada && MENCAO_COLETIVA.test(m.texto);
 const tr = t; // onde "t" já é uma tarefa
+// junta reações sem repetir (a mesma pode chegar pela leitura e pelo tempo real); as provisórias (id < 0) saem quando chega a de verdade
+const juntarReacoes = (atual: Reacao[], novas: Reacao[]) => {
+  const mapa = new Map(atual.map((r) => [r.id, r]));
+  for (const r of novas) {
+    for (const [k, x] of mapa) if (k < 0 && x.mensagem_id === r.mensagem_id && x.user_id === r.user_id && x.agente === r.agente && x.emoji === r.emoji) mapa.delete(k);
+    mapa.set(r.id, r);
+  }
+  return [...mapa.values()];
+};
 // "Claude de Ana" / "Ana's Claude"
 const deQuem = (agente: string, pessoa: string) => t(`${agente} de ${pessoa}`, `${pessoa}'s ${agente}`);
 // presença "ouvindo agora" em qualquer idioma
@@ -66,6 +75,7 @@ export default function SalaPage() {
   const [destaque, setDestaque] = useState<number | null>(null);
   const [versaoDecisoes, setVersaoDecisoes] = useState(0);
   const [tarefas, setTarefas] = useState<Tarefa[] | null>(null);
+  const [reacoes, setReacoes] = useState<Reacao[]>([]);
   const [rascunho, setRascunho] = useState<RascunhoTarefa>(null);
   const [ata, setAta] = useState(false);
   const [pedido, setPedido] = useState<number | null>(null); // veio do aviso "chamaram seu agente"
@@ -167,6 +177,10 @@ export default function SalaPage() {
       return [t, ...ts.filter((x) => x.id !== t.id)];
     });
 
+    setReacoes([]);
+    const carregarReacoes = () => sb.from("reacoes").select("id, mensagem_id, user_id, agente, emoji").eq("sala_id", id).order("id").limit(5000)
+      .then(({ data }) => { if (salaAtual.current === id) setReacoes((atual) => juntarReacoes(atual, (data as Reacao[]) ?? [])); });
+
     const chegou = (m: Mensagem) => {
       if (m.tipo !== "mensagem") setVersaoDecisoes((v) => v + 1);
       if (longe.current) { setTemPosteriores(true); return; }
@@ -178,7 +192,7 @@ export default function SalaPage() {
         return [...atual, m];
       });
     };
-    const primeira = () => { if (!carregado) { carregado = true; carregarRecentes(id, buffer); carregarTarefas(); } };
+    const primeira = () => { if (!carregado) { carregado = true; carregarRecentes(id, buffer); carregarTarefas(); carregarReacoes(); } };
 
     const canal = sb.channel(`sala:${id}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "mensagens", filter: `sala_id=eq.${id}` }, (p) => chegou(p.new as Mensagem))
@@ -191,6 +205,9 @@ export default function SalaPage() {
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "membros" }, carregarMembros)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "tarefas", filter: `sala_id=eq.${id}` }, (p) => { mudouTarefa(p.new as Tarefa); recarregar(); })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "tarefas", filter: `sala_id=eq.${id}` }, (p) => { mudouTarefa(p.new as Tarefa); recarregar(); })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "reacoes", filter: `sala_id=eq.${id}` }, (p) => setReacoes((atual) => juntarReacoes(atual, [p.new as Reacao])))
+      // apagar não aceita filtro no tempo real e chega só com o id: tira pelo id
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "reacoes" }, (p) => setReacoes((atual) => atual.filter((r) => r.id !== (p.old as Reacao).id)))
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "agentes" }, (p) => atualizarPresenca(p.new as Agente))
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "agentes" }, (p) => atualizarPresenca(p.new as Agente))
       // assina antes de ler: nada que chegue no meio se perde
@@ -383,6 +400,25 @@ export default function SalaPage() {
   };
   const comparando = comparar !== null ? porId.get(comparar) : undefined;
 
+  // reações agrupadas por mensagem e emoji, na ordem em que apareceram
+  const reacoesDe = new Map<number, GrupoReacao[]>();
+  for (const r of reacoes) {
+    const grupos = reacoesDe.get(r.mensagem_id) ?? [];
+    let g = grupos.find((x) => x.emoji === r.emoji);
+    if (!g) { g = { emoji: r.emoji, quem: [], minha: false }; grupos.push(g); reacoesDe.set(r.mensagem_id, grupos); }
+    const minhaR = r.user_id === eu && !r.agente;
+    g.quem.push(r.agente ? deQuem(r.agente, primeiro(r.user_id)) : minhaR ? tr("você", "you") : nome(r.user_id));
+    if (minhaR) g.minha = true;
+  }
+  const reagir = async (mensagem: number, emoji: string) => {
+    const ja = reacoes.find((r) => r.mensagem_id === mensagem && r.user_id === eu && !r.agente && r.emoji === emoji);
+    // na hora, sem esperar o servidor; se falhar, volta como estava
+    const antes = reacoes;
+    setReacoes(ja ? reacoes.filter((r) => r !== ja) : [...reacoes, { id: -Date.now(), mensagem_id: mensagem, user_id: eu!, agente: null, emoji }]);
+    const { error } = await sb.rpc("reagir", { mensagem, emoji });
+    if (error) setReacoes(antes);
+  };
+
   // tarefas que nasceram de cada mensagem
   const tarefasDe = new Map<number, Tarefa[]>();
   (tarefas ?? []).forEach((t) => { if (t.origem && t.estado !== "cancelada") tarefasDe.set(t.origem, [...(tarefasDe.get(t.origem) ?? []), t]); });
@@ -541,6 +577,7 @@ export default function SalaPage() {
                       setRascunho({ titulo: t.slice(0, 120), origem: m.id, responsavel: valorResp(m.user_id, m.agente) });
                       setPainel("tarefas");
                     } : undefined}
+                    reacoes={reacoesDe.get(m.id)} reagir={m.id > 0 && !m.apagada ? (e) => reagir(m.id, e) : undefined}
                     tentarDeNovo={() => tentarDeNovo(m)} irPara={irPara} />
                   {(tarefasDe.get(m.id) ?? []).map((t) => (
                     <button key={t.id} className={`tarefa-chip ${minhaPessoa ? "tarefa-chip-minha" : ""} ${t.estado === "feita" ? "feita" : atrasada(t) ? "atrasada" : ""}`}
