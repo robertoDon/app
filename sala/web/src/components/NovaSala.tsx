@@ -80,7 +80,7 @@ export function NovaSala({ fechar, aoCriar, modeloInicial = "branco" }: { fechar
           <button type="button" className="btn-icone" onClick={fechar} aria-label={t("Fechar", "Close")}><IconeFechar /></button>
         </div>
         <fieldset className="modelos">
-          <legend className="rotulo">{t("Comece de um modelo", "Start from a template")}</legend>
+          <legend className="secao-rotulo secao-rotulo-solto">{t("Comece de um modelo", "Start from a template")}</legend>
           {lista.map((m) => (
             <label key={m.id} className={`modelo ${modelo === m.id ? "marcado" : ""}`}>
               <input type="radio" name="modelo" value={m.id} checked={modelo === m.id} onChange={() => escolher(m.id)} />
@@ -89,13 +89,13 @@ export function NovaSala({ fechar, aoCriar, modeloInicial = "branco" }: { fechar
             </label>
           ))}
         </fieldset>
-        <label className="rotulo" htmlFor="nova-nome">{t("Nome da sala", "Room name")}</label>
+        <label className="secao-rotulo secao-rotulo-solto" htmlFor="nova-nome">{t("Nome da sala", "Room name")}</label>
         <input id="nova-nome" autoFocus value={nome} maxLength={80} placeholder={t("Ex.: Lançamento do piloto", "E.g., Pilot launch")} onChange={(e) => setNome(e.target.value)} />
         {modelo !== "branco" && <p className="nota">{t("O contexto do modelo abre em seguida para você completar o que está entre colchetes.", "The template's context opens next so you can fill in the parts in brackets.")}</p>}
         {erro && <p className="nota erro" role="alert">{erro}</p>}
-        <div className="linha">
-          <button className="btn btn-cheio" disabled={!nome.trim() || indo}>{t("Criar sala", "Create room")}</button>
+        <div className="modal-acoes">
           <button type="button" className="btn btn-texto" onClick={fechar}>{t("Cancelar", "Cancel")}</button>
+          <button className="btn btn-cheio" disabled={!nome.trim() || indo}>{indo ? t("Criando…", "Creating…") : t("Criar sala", "Create room")}</button>
         </div>
       </form>
     </div>

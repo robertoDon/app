@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../App";
 import { sb, type Sala } from "../supabase";
 import { gravado, locale, t } from "../i18n";
-import { IconeAgente, IconeCaixa, IconeMais, IconePlugue, IconeProposta, Marca } from "./Icones";
+import { IconeAgente, IconeMais, Marcador, IconePlugue, IconeProposta, Marca } from "./Icones";
 import { Conectar } from "./Conectar";
 import { Conta } from "./Conta";
 import { NovaSala } from "./NovaSala";
@@ -114,7 +114,7 @@ export function Layout({ children, salas, recarregar, foco }: {
                       </span>
                       {Number(s.minhas_tarefas) > 0 && (
                         <span className="sala-pendentes" title={`${s.minhas_tarefas} ${Number(s.minhas_tarefas) === 1 ? t("tarefa sua aberta", "open task assigned to you") : t("tarefas suas abertas", "open tasks assigned to you")}`} aria-label={`${s.minhas_tarefas} ${Number(s.minhas_tarefas) === 1 ? t("tarefa sua", "task for you") : t("tarefas suas", "tasks for you")}`}>
-                          <IconeCaixa tamanho={12} />{s.minhas_tarefas}
+                          <Marcador tamanho={11} />{s.minhas_tarefas}
                         </span>
                       )}
                       {Number(s.pendentes) > 0 && (

@@ -3,7 +3,7 @@ import { useAuth } from "../App";
 import { desligarAvisos, estadoAvisos, ligarAvisos, type EstadoAvisos } from "../avisos";
 import { abrirConectar, apagarConta, sb, trocarIdioma } from "../supabase";
 import { erro as msgErro, t, useIdioma, type Idioma } from "../i18n";
-import { IconeFechar, IconePlugue, IconeSair } from "./Icones";
+import { IconeAjuda, IconeCheck, IconeFechar, IconeLixo, IconeMapa, IconePlugue, IconeSair } from "./Icones";
 import { definirTema, useTema, type Tema } from "../tema";
 
 const opcoes = () => [
@@ -44,7 +44,7 @@ export function Conta({ fechar }: { fechar: () => void }) {
     const n = nome.trim();
     if (!n || !perfil || n === perfil.nome) return;
     await sb.from("perfis").update({ nome: n }).eq("id", perfil.id);
-    recarregarPerfil(); setSalvo(true); setTimeout(() => setSalvo(false), 1500);
+    recarregarPerfil(); setSalvo(true); setTimeout(() => setSalvo(false), 2000);
   };
 
   const preferir = async (avisos: string) => {
@@ -88,16 +88,19 @@ export function Conta({ fechar }: { fechar: () => void }) {
         </div>
 
         <section className="conta-secao">
-          <label className="rotulo" htmlFor="conta-nome">{t("Seu nome nas salas", "Your name in rooms")}</label>
+          <div className="campo-topo">
+            <label htmlFor="conta-nome" className="secao-rotulo secao-rotulo-solto">{t("Seu nome nas salas", "Your name in rooms")}</label>
+            {salvo && <span className="salvo" role="status"><IconeCheck tamanho={12} /> {t("Salvo", "Saved")}</span>}
+          </div>
           <div className="linha">
             <input id="conta-nome" value={nome} maxLength={60} onChange={(e) => setNome(e.target.value)}
               onBlur={salvarNome} onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()} />
           </div>
-          <p className="nota">{salvo ? t("Salvo.", "Saved.") : (() => { const apelido = nome.trim().split(" ")[0] || t("Nome", "Name"); const email = sessao?.user.email ?? ""; return t(`Os agentes chamam você por @${apelido}. Conta: ${email}`, `Agents call you @${apelido}. Account: ${email}`); })()}</p>
+          <p className="nota">{(() => { const apelido = nome.trim().split(" ")[0] || t("Nome", "Name"); const email = sessao?.user.email ?? ""; return t(`Os agentes chamam você por @${apelido}. Conta: ${email}`, `Agents call you @${apelido}. Account: ${email}`); })()}</p>
         </section>
 
         <section className="conta-secao">
-          <span className="rotulo">{t("Avisos", "Notifications")}</span>
+          <h3 className="secao-rotulo secao-rotulo-solto">{t("Avisos", "Notifications")}</h3>
           <div className="linha linha-entre">
             <p className="nota" role="status">{estado ? avisoTexto[estado] : " "}</p>
             {(estado === "ligado" || estado === "desligado") && (
@@ -119,7 +122,7 @@ export function Conta({ fechar }: { fechar: () => void }) {
         </section>
 
         <section className="conta-secao">
-          <span className="rotulo" id="conta-tema">{t("Aparência", "Appearance")}</span>
+          <h3 className="secao-rotulo secao-rotulo-solto" id="conta-tema">{t("Aparência", "Appearance")}</h3>
           <div className="abas" role="radiogroup" aria-labelledby="conta-tema">
             {TEMAS.map((o) => (
               <button key={o.valor} type="button" role="radio" aria-checked={tema === o.valor}
@@ -129,27 +132,33 @@ export function Conta({ fechar }: { fechar: () => void }) {
         </section>
 
         <section className="conta-secao">
-          <span className="rotulo" id="conta-idioma">{t("Idioma", "Language")}</span>
-          <fieldset className="opcoes" aria-labelledby="conta-idioma">
+          <h3 className="secao-rotulo secao-rotulo-solto" id="conta-idioma">{t("Idioma", "Language")}</h3>
+          <div className="abas" role="radiogroup" aria-labelledby="conta-idioma">
             {IDIOMAS.map((o) => (
-              <label key={o.valor} className={`opcao ${lingua === o.valor ? "marcada" : ""}`} lang={o.valor === "en" ? "en" : "pt-BR"}>
-                <input type="radio" name="idioma" value={o.valor} checked={lingua === o.valor} onChange={() => { trocarIdioma(o.valor); }} />
-                <span><strong>{o.titulo}</strong></span>
-              </label>
+              <button key={o.valor} type="button" role="radio" aria-checked={lingua === o.valor} lang={o.valor === "en" ? "en" : "pt-BR"}
+                className={`aba ${lingua === o.valor ? "ativa" : ""}`} onClick={() => trocarIdioma(o.valor)}>{o.titulo}</button>
             ))}
-          </fieldset>
-        </section>
-
-        <section className="conta-secao">
-          <span className="rotulo">{t("Agentes", "Agents")}</span>
-          <button className="btn" onClick={() => { fechar(); abrirConectar(); }}><IconePlugue tamanho={18} /> {t("Conectar ou desconectar agentes", "Connect or disconnect agents")}</button>
+          </div>
         </section>
 
         <section className="conta-secao conta-fim">
-          <button className="btn" onClick={async () => { await desligarAvisos().catch(() => {}); await sb.auth.signOut({ scope: "local" }); /* só este navegador: os agentes conectados continuam */ }}><IconeSair tamanho={18} /> {t("Sair", "Sign out")}</button>
-          <button className="link nota" onClick={() => { fechar(); window.dispatchEvent(new Event("sala:guia")); }}>{t("Ver o guia rápido", "Take the quick tour")}</button>
-          <a className="link nota" href="/ajuda" target="_blank" rel="noopener">{t("Ajuda", "Help")}</a>
-          <button className="link nota btn-perigo" onClick={apagar}>{t("Apagar minha conta", "Delete my account")}</button>
+          <div className="perigo-linhas">
+            <button className="perigo-linha" onClick={() => { fechar(); abrirConectar(); }}>
+              <IconePlugue tamanho={18} /><span><strong>{t("Seus agentes", "Your agents")}</strong><span className="nota">{t("Conectar ou desconectar", "Connect or disconnect")}</span></span>
+            </button>
+            <button className="perigo-linha" onClick={() => { fechar(); window.dispatchEvent(new Event("sala:guia")); }}>
+              <IconeMapa tamanho={18} /><span><strong>{t("Guia rápido", "Quick tour")}</strong><span className="nota">{t("Rever como a sala funciona", "See how rooms work again")}</span></span>
+            </button>
+            <a className="perigo-linha" href="/ajuda" target="_blank" rel="noopener">
+              <IconeAjuda tamanho={18} /><span><strong>{t("Ajuda", "Help")}</strong><span className="nota">{t("Perguntas comuns e como conectar cada agente", "Common questions and how to connect each agent")}</span></span>
+            </a>
+            <button className="perigo-linha" onClick={async () => { await desligarAvisos().catch(() => {}); await sb.auth.signOut({ scope: "local" }); /* só este navegador: os agentes conectados continuam */ }}>
+              <IconeSair tamanho={18} /><span><strong>{t("Sair", "Sign out")}</strong><span className="nota">{t("Só neste navegador. Os agentes continuam conectados.", "Only in this browser. Your agents stay connected.")}</span></span>
+            </button>
+            <button className="perigo-linha perigo" onClick={apagar}>
+              <IconeLixo tamanho={18} /><span><strong>{t("Apagar minha conta", "Delete my account")}</strong><span className="nota">{t("Some com as suas mensagens e as dos seus agentes.", "Removes your messages and your agents' messages.")}</span></span>
+            </button>
+          </div>
         </section>
       </div>
     </div>

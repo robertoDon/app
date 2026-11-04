@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { MCP_URL, sb } from "../supabase";
 import { useAuth } from "../App";
-import { IconeCopiar, IconeFechar } from "./Icones";
+import { IconeAgente, IconeCheck, IconeCopiar, IconeFechar } from "./Icones";
+import { Menu } from "./Menu";
 import { Sozinho, SozinhoEventos } from "./Sozinho";
 import { erro, idioma, locale, t } from "../i18n";
 
@@ -17,7 +18,7 @@ function Copiavel({ valor, rotulo }: { valor: string; rotulo: string }) {
       <button type="button" className="btn btn-pequeno" onClick={async () => {
         try { await navigator.clipboard.writeText(valor); setOk(true); setTimeout(() => setOk(false), 1500); } catch { /* */ }
       }}>
-        <IconeCopiar tamanho={16} /> {ok ? t("Copiado", "Copied") : t("Copiar", "Copy")}
+        {ok ? <><IconeCheck tamanho={14} /> {t("Copiado", "Copied")}</> : <><IconeCopiar tamanho={14} /> {t("Copiar", "Copy")}</>}
       </button>
     </div>
   );
@@ -98,6 +99,39 @@ Keep listening to the room in the background and reply to whatever is meant for 
           : <>O agente entra nas suas salas e escreve como seu agente: “Claude de {perfil?.nome?.split(" ")[0] ?? "você"}”. Cada um usa a própria assinatura; o The Sala não cobra nada. </>}
           <a className="link" href="/ajuda#agentes" target="_blank" rel="noopener">{t("Precisa de ajuda?", "Need help?")}</a></p>
 
+        {(grants.length > 0 || chaves.length > 0) && (
+          <section className="conectados">
+            <h3 className="secao-rotulo secao-rotulo-solto">{t("Seus agentes", "Your agents")} <span>{grants.length + chaves.length}</span></h3>
+            <ul className="linhas">
+              {grants.map((g) => (
+                <li key={g.client.id} className="linha-item">
+                  <span className="avatar avatar-agente"><IconeAgente tamanho={16} /></span>
+                  <span className="linha-texto">
+                    <span className="linha-titulo">{nomeDoAgente(g.client.name)}</span>
+                    <span className="presenca">{t("conector", "connector")} · {t("desde", "since")} {quando(g.granted_at)}</span>
+                  </span>
+                  <Menu rotulo={t(`Ações de ${nomeDoAgente(g.client.name)}`, `Actions for ${nomeDoAgente(g.client.name)}`)} itens={[
+                    { rotulo: t("Desconectar", "Disconnect"), perigo: true, acao: async () => { await sb.auth.oauth.revokeGrant({ clientId: g.client.id }); await tirarPresenca(nomeDoAgente(g.client.name)); carregar(); } },
+                  ]} />
+                </li>
+              ))}
+              {chaves.map((c) => (
+                <li key={c.id} className="linha-item">
+                  <span className="avatar avatar-agente"><IconeAgente tamanho={16} /></span>
+                  <span className="linha-texto">
+                    <span className="linha-titulo">{c.agente}</span>
+                    <span className="presenca">{t("chave", "key")} …{c.final} · {c.usada_em ? t(`usada ${quando(c.usada_em)}`, `last used ${quando(c.usada_em)}`) : t("nunca usada", "never used")}</span>
+                  </span>
+                  <Menu rotulo={t(`Ações de ${c.agente}`, `Actions for ${c.agente}`)} itens={[
+                    { rotulo: t("Apagar a chave", "Delete key"), perigo: true, acao: async () => { await sb.from("chaves").delete().eq("id", c.id); await tirarPresenca(c.agente); carregar(); } },
+                  ]} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <h3 className="secao-rotulo secao-rotulo-solto">{t("Conectar um novo", "Connect a new one")}</h3>
         <div className="abas" role="tablist" aria-label={t("Onde está o seu agente", "Where your agent runs")}>
           {abas.map(([k, r]) => (
             <button key={k} role="tab" aria-selected={aba === k} className={aba === k ? "aba ativa" : "aba"}
@@ -209,25 +243,6 @@ Keep listening to the room in the background and reply to whatever is meant for 
           )}
         </div>
 
-        {(grants.length > 0 || chaves.length > 0) && (
-          <section className="conectados">
-            <h3>{t("Seus agentes", "Your agents")}</h3>
-            <ul>
-              {grants.map((g) => (
-                <li key={g.client.id}>
-                  <span><b>{nomeDoAgente(g.client.name)}</b> · {t("conector", "connector")} · {t("desde", "since")} {quando(g.granted_at)}</span>
-                  <button className="btn btn-pequeno" onClick={async () => { await sb.auth.oauth.revokeGrant({ clientId: g.client.id }); await tirarPresenca(nomeDoAgente(g.client.name)); carregar(); }}>{t("Desconectar", "Disconnect")}</button>
-                </li>
-              ))}
-              {chaves.map((c) => (
-                <li key={c.id}>
-                  <span><b>{c.agente}</b> · {t("chave", "key")} …{c.final} · {c.usada_em ? t(`usada ${quando(c.usada_em)}`, `last used ${quando(c.usada_em)}`) : t("usada nunca", "never used")}</span>
-                  <button className="btn btn-pequeno" onClick={async () => { await sb.from("chaves").delete().eq("id", c.id); await tirarPresenca(c.agente); carregar(); }}>{t("Apagar", "Delete")}</button>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
       </div>
     </div>
   );

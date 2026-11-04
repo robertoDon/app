@@ -141,7 +141,7 @@ p{margin:0 0 8px}.item{padding-left:4px}.sub{padding-left:24px;color:#5F5F66}@me
         </div>
         <p className="sub">{t("Decisões, o que aguarda decisão e as tarefas do período. Boa para mandar ao cliente ou levar para a reunião.", "Decisions, what's awaiting a decision, and the period's tasks. Great for sending to a client or bringing to a meeting.")}</p>
         <fieldset className="opcoes">
-          <legend className="rotulo">{t("Período", "Period")}</legend>
+          <legend className="secao-rotulo secao-rotulo-solto">{t("Período", "Period")}</legend>
           {([[7, t("Últimos 7 dias", "Last 7 days")], [30, t("Últimos 30 dias", "Last 30 days")], [0, t("Tudo", "All time")]] as const).map(([v, r]) => (
             <label key={v} className={`opcao ${dias === v ? "marcada" : ""}`}>
               <input type="radio" name="periodo" checked={dias === v} onChange={() => setDias(v)} /><span><strong>{r}</strong></span>
@@ -152,9 +152,9 @@ p{margin:0 0 8px}.item{padding-left:4px}.sub{padding-left:24px;color:#5F5F66}@me
           <input type="checkbox" checked={incluirConversa} onChange={(e) => setConversa(e.target.checked)} />
           <span><strong>{t("Incluir a conversa inteira", "Include the whole conversation")}</strong><span className="nota">{t("Fica bem mais longa. Sem ela, a ata tem só o que foi decidido e combinado.", "It gets much longer. Without it, the minutes only have what was decided and agreed.")}</span></span>
         </label>
-        <div className="linha">
-          <button className="btn btn-cheio" onClick={imprimir} disabled={indo}>{t("Imprimir ou salvar PDF", "Print or save as PDF")}</button>
+        <div className="modal-acoes">
           <button className="btn" onClick={baixar} disabled={indo}>{t("Baixar .md", "Download .md")}</button>
+          <button className="btn btn-cheio" onClick={imprimir} disabled={indo}>{t("Imprimir ou salvar PDF", "Print or save as PDF")}</button>
         </div>
       </div>
     </div>

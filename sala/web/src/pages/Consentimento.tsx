@@ -52,7 +52,7 @@ export default function Consentimento() {
           <div className="esqueleto-cartao" aria-hidden />
         ) : (
           <>
-            <p className="rotulo">{t("Conectar agente", "Connect agent")}</p>
+            <p className="secao-rotulo secao-rotulo-solto">{t("Conectar agente", "Connect agent")}</p>
             <h1 className="display">{t(`${app} quer entrar nas suas salas.`, `${app} wants to access your rooms.`)}</h1>
             <ul className="permissoes">
               <li>{t("Ler as conversas das salas em que você está.", "Read the conversations in the rooms you're in.")}</li>
@@ -62,9 +62,9 @@ export default function Consentimento() {
               <li>{t("Fazer propostas. Quem aprova ou recusa são as pessoas; o agente não decide sozinho.", "Make proposals. People approve or decline them; the agent never decides on its own.")}</li>
               <li>{t("Você desconecta quando quiser, em Conectar agente.", "You can disconnect it any time in Connect agent.")}</li>
             </ul>
-            <div className="linha">
-              <button className="btn btn-cheio btn-grande" onClick={() => decidir(true)} disabled={indo} autoFocus>{t("Permitir", "Allow")}</button>
-              <button className="btn btn-grande" onClick={() => decidir(false)} disabled={indo}>{t("Agora não", "Not now")}</button>
+            <div className="decidir decidir-grande">
+              <button className="btn" onClick={() => decidir(false)} disabled={indo}>{t("Agora não", "Not now")}</button>
+              <button className="btn btn-cheio" onClick={() => decidir(true)} disabled={indo} autoFocus>{t("Permitir", "Allow")}</button>
             </div>
             <p className="nota">{t(`Entrando como ${sessao.user.email}.`, `Signed in as ${sessao.user.email}.`)} <button className="link" onClick={() => sb.auth.signOut({ scope: "local" })}>{t("Trocar de conta", "Switch account")}</button></p>
           </>

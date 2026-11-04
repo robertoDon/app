@@ -42,7 +42,7 @@ export default function Convite() {
       )}
       {info && (
         <div className="cartao">
-          <p className="rotulo">{t("Você foi chamado para", "You're invited to")}</p>
+          <p className="secao-rotulo secao-rotulo-solto">{t("Você foi chamado para", "You're invited to")}</p>
           <h1 className="display">{info.nome}</h1>
           <p className="sub">{info.pessoas === 1
             ? t("1 pessoa na sala.", "1 person in the room.")

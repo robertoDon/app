@@ -1231,14 +1231,14 @@ span.tarefa-check { cursor: default; }
 .tarefa .tarefa-form { margin-top: 4px; }
 .tarefas li.tarefa > .tarefa-form { padding: 4px 0; }
 
-.quem { display: inline-flex; align-items: center; gap: 6px; font-size: var(--t1); color: var(--cinza); min-width: 0; }
-.quem-avatar {
+.resp { display: inline-flex; align-items: center; gap: 6px; font-size: var(--t1); color: var(--cinza); min-width: 0; }
+.resp-avatar {
   display: grid; place-items: center; width: 18px; height: 18px; flex: none; border-radius: 999px;
   background: var(--suave); box-shadow: inset 0 0 0 1px var(--linha-forte); font-size: 10px; font-weight: 600; color: var(--tinta);
 }
-.quem-eu { color: var(--tinta); font-weight: 500; }
-.quem-eu .quem-avatar { background: var(--acento); color: var(--acento-tinta); box-shadow: none; }
-.quem-agente .quem-avatar { background: var(--agente); color: var(--agente-tinta); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--agente-tinta) 18%, transparent); }
+.resp-eu { color: var(--tinta); font-weight: 500; }
+.resp-eu .resp-avatar { background: var(--acento); color: var(--acento-tinta); box-shadow: none; }
+.resp-agente .resp-avatar { background: var(--agente); color: var(--agente-tinta); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--agente-tinta) 18%, transparent); }
 
 .desfazer {
   position: sticky; bottom: 12px; margin: auto 16px 12px; align-self: center; display: flex; align-items: center; gap: 10px;
@@ -1379,3 +1379,78 @@ mark { background: color-mix(in srgb, var(--acento) 20%, transparent); color: va
   .copiar-campo .btn { top: 4px; right: 4px; min-height: 36px; }
 }
 @media (prefers-reduced-motion: reduce) { .girando { animation-duration: 2s; } .salvo { animation: none; } }
+
+/* ================================================================ resto do app no mesmo padrão */
+
+/* cartão de proposta ocupa a largura toda da conversa (no celular os botões não vazam) */
+.msg-proposta .msg-linha { width: 100%; }
+.msg-proposta .msg-corpo { flex: 1; }
+
+/* contadores na lista de salas: pílulas com o mesmo ícone dos painéis */
+.sala-pendentes { display: inline-flex; align-items: center; gap: 3px; height: 18px; padding: 0 6px; border: 0; border-radius: 999px; background: var(--suave); box-shadow: inset 0 0 0 1px var(--linha); font-weight: 600; }
+.sala-pendentes .marcador circle { fill: none; stroke: currentColor; }
+.convite { gap: 10px; }
+.convite .copiar-campo { max-width: 560px; }
+.convite .copiar-campo input { background: var(--elevado); }
+
+/* modais: rodapé com a ação principal à direita, como nos painéis */
+.modal-acoes { display: flex; justify-content: flex-end; gap: 8px; padding-top: 4px; }
+.modal legend.secao-rotulo { margin-bottom: 8px; }
+.modal .secao-rotulo-solto { margin-bottom: 0; }
+.conta-secao .campo-topo { align-items: center; }
+.conta-fim { flex-direction: column; align-items: stretch; padding-top: 8px; }
+.conta-fim .perigo-linhas { margin: 0 -8px; }
+.perigo-linha { gap: 12px; text-decoration: none; }
+.perigo-linha > svg { flex: none; color: var(--cinza); }
+.perigo-linha.perigo > svg { color: var(--erro); }
+
+/* passos numerados: número num círculo, como os marcadores das tarefas */
+.passos { list-style: none; padding: 0; counter-reset: passo; gap: 14px; }
+.passos > li { position: relative; padding-left: 34px; counter-increment: passo; line-height: 1.55; }
+.passos > li::before {
+  content: counter(passo); position: absolute; left: 0; top: 0; width: 22px; height: 22px; display: grid; place-items: center;
+  border-radius: 999px; font: 600 11.5px/1 var(--corpo); color: var(--agente-tinta);
+  background: color-mix(in srgb, var(--acento) 10%, var(--elevado)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acento) 22%, transparent);
+}
+.passos-sozinho ul { list-style: disc; }
+
+/* campo de copiar: o valor em mono numa caixa e o botão dentro (igual aos convites) */
+.copiavel { display: flex; align-items: flex-start; gap: 8px; margin-top: 8px; padding: 6px 6px 6px 12px; background: var(--suave); border: 0; border-radius: 10px; box-shadow: inset 0 0 0 1px var(--linha); }
+.copiavel code { flex: 1; min-width: 0; padding-top: 6px; font-size: 12px; color: var(--tinta); background: none; }
+.copiavel .btn { flex: none; min-height: 30px; gap: 4px; background: var(--elevado); }
+
+/* lista de agentes conectados no topo do Conectar */
+.conectados { border: 0; padding: 0; gap: 6px; }
+.conectados .linhas { margin: 0 -8px; }
+.conectados + .secao-rotulo { padding-top: 14px; border-top: 1px solid var(--linha); }
+
+/* Responder sozinho: título com a pílula de opcional; estado ligado em pílula */
+.sozinho h3 { font-size: 14px; }
+.sozinho .ok { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 999px; font-size: 11.5px;
+  background: color-mix(in srgb, var(--ok) 10%, var(--elevado)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ok) 22%, transparent); }
+
+@media (max-width: 720px) {
+  .modal-acoes { flex-direction: column-reverse; }
+  .modal-acoes .btn { width: 100%; justify-content: center; }
+}
+.modal .secao-rotulo { font-size: 11.5px; font-weight: 600; letter-spacing: .02em; }
+.conectados li.linha-item { border-bottom: 0; font-size: inherit; justify-content: flex-start; min-height: 48px; }
+@media (max-width: 720px) {
+  /* proposta no celular: o cartão usa a largura toda e as ações flutuam no canto */
+  .msg-proposta .msg-linha { position: relative; }
+  .msg-proposta .msg-acoes { position: absolute; top: 6px; right: 6px; z-index: 1; }
+}
+.respostas .btn-comparar { border-radius: 999px; min-height: 32px; padding: 0 12px; }
+.decidir-grande .btn { min-height: 44px; font-size: 15px; }
+.cartao .secao-rotulo-solto { margin: 0; }
+.ajuda h2 { font: 600 11.5px/1 var(--corpo); letter-spacing: .02em; text-transform: uppercase; color: color-mix(in srgb, var(--cinza) 85%, transparent); padding-bottom: 10px; }
+.ajuda-indice a { background: var(--elevado); transition: background var(--rapido), border-color var(--rapido); }
+.ajuda-indice a:hover { background: var(--suave); border-color: var(--linha-forte); }
+.feed-vazio { margin: auto; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; max-width: 340px; padding: 40px 16px; color: var(--cinza); }
+.feed-vazio strong { color: var(--tinta); }
+.feed-vazio .vazio-icone { margin-bottom: 4px; color: var(--agente-tinta); background: var(--agente); }
+
+/* passos de uma sala nova: mesmo cartão, ícone no círculo como as tarefas */
+.passos-sala h2 { font: 600 15px/1.35 var(--display); letter-spacing: -0.01em; }
+.passos-sala .passo-icone { border-radius: 999px; }
+.passos-sala li.feito .passo-icone { background: var(--ok); color: #fff; }

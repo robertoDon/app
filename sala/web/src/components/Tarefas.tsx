@@ -91,10 +91,10 @@ function Formulario({ inicial, membros, agentes, nome, salvar, cancelar, botao }
 }
 
 // pessoa ou agente responsável, com a inicial (ou o ícone do agente) num círculo
-function Quem({ nome, agente, eu }: { nome: string; agente: boolean; eu: boolean }) {
+function Resp({ nome, agente, eu }: { nome: string; agente: boolean; eu: boolean }) {
   return (
-    <span className={`quem ${eu ? "quem-eu" : ""} ${agente ? "quem-agente" : ""}`}>
-      <span className="quem-avatar" aria-hidden>{agente ? <IconeAgente tamanho={11} /> : (nome.trim()[0] ?? "?").toUpperCase()}</span>
+    <span className={`resp ${eu ? "resp-eu" : ""} ${agente ? "resp-agente" : ""}`}>
+      <span className="resp-avatar" aria-hidden>{agente ? <IconeAgente tamanho={11} /> : (nome.trim()[0] ?? "?").toUpperCase()}</span>
       {nome}
     </span>
   );
@@ -253,7 +253,7 @@ export function Tarefas({ salaId, tarefas, membros, agentes, eu, nome, rascunho,
                       <div className="tarefa-corpo">
                         <p className="tarefa-titulo">{tf.titulo}</p>
                         <div className="tarefa-meta">
-                          <Quem nome={quemNome(tf)} agente={!!tf.responsavel_agente} eu={minha(tf) && !tf.responsavel_agente} />
+                          <Resp nome={quemNome(tf)} agente={!!tf.responsavel_agente} eu={minha(tf) && !tf.responsavel_agente} />
                           <Prazo tf={tf} />
                         </div>
                         {concluindo === tf.id && (

@@ -476,13 +476,13 @@ export default function SalaPage() {
             </div>
             <button data-guia="decisoes" className={`btn-icone ${painel === "decisoes" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "decisoes" ? null : "decisoes"))}
               aria-expanded={painel === "decisoes"} aria-label={pendentes ? t(`Decisões, ${pendentes} aguardando`, `Decisions, ${pendentes} waiting`) : t("Decisões", "Decisions")} title={t("Decisões (D)", "Decisions (D)")}>
-              <IconeDecisao />
+              <IconeProposta />
               {pendentes > 0 && <span className="selo-num" aria-hidden>{pendentes}</span>}
             </button>
             <button data-guia="tarefas" className={`btn-icone ${painel === "tarefas" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "tarefas" ? null : "tarefas"))}
               aria-expanded={painel === "tarefas"} aria-label={abertasSala ? t(`Tarefas, ${abertasSala} abertas`, `Tasks, ${abertasSala} open`) : t("Tarefas", "Tasks")} title={t("Tarefas (T)", "Tasks (T)")}>
-              <IconeTarefa />
-              {abertasSala > 0 && <span className="selo-num selo-neutro" aria-hidden>{abertasSala}</span>}
+              <IconeDecisao />
+              {abertasSala > 0 && <span className="selo-num" aria-hidden>{abertasSala}</span>}
             </button>
             <button className={`btn-icone ${painel === "busca" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "busca" ? null : "busca"))}
               aria-expanded={painel === "busca"} aria-label={t("Buscar na sala", "Search the room")} title={t("Buscar (/)", "Search (/)")}>
@@ -500,9 +500,9 @@ export default function SalaPage() {
           {convite && sala && (
             <div className="convite" role="region" aria-label={t("Convite", "Invite")}>
               <p>{t("Quem abrir este link entra na sala e pode conectar os próprios agentes. Serve para gente de qualquer empresa.", "Anyone who opens this link joins the room and can connect their own agents. Works for people from any company.")}</p>
-              <div className="linha">
-                <input readOnly value={link} onFocus={(e) => e.target.select()} aria-label={t("Link do convite", "Invite link")} />
-                <button className="btn btn-cheio" onClick={copiarConvite}>{copiado ? t("Copiado", "Copied") : t("Copiar link", "Copy link")}</button>
+              <div className="copiar-campo">
+                <input readOnly value={link.replace(/^https?:\/\//, "")} onFocus={(e) => e.target.select()} aria-label={t("Link do convite", "Invite link")} />
+                <button className={`btn btn-pequeno ${copiado ? "" : "btn-cheio"}`} onClick={copiarConvite}>{copiado ? <><IconeCheck tamanho={14} /> {t("Copiado", "Copied")}</> : t("Copiar", "Copy")}</button>
               </div>
             </div>
           )}
@@ -527,6 +527,15 @@ export default function SalaPage() {
                     </li>
                   ))}
                 </ol>
+              </section>
+            )}
+
+            {msgs !== null && msgs.length === 0 && (leitor || !passos.some((p) => !p.feito)) && (
+              <section className="feed-vazio">
+                <span className="vazio-icone"><IconeAgente tamanho={20} /></span>
+                <p><strong>{t("Ninguém falou ainda.", "No one has spoken yet.")}</strong></p>
+                <p className="nota">{leitor ? t("Quando a conversa começar, ela aparece aqui.", "When the conversation starts, it shows up here.")
+                  : t("Escreva a primeira mensagem, ou pergunte a todos os agentes com @agentes.", "Write the first message, or ask every agent with @agents.")}</p>
               </section>
             )}
 
@@ -626,7 +635,7 @@ export default function SalaPage() {
                         </span>
                       ))}
                       {rs.length > 0 && (
-                        <button className="btn btn-pequeno" onClick={() => setComparar(m.id)}>
+                        <button className="btn btn-pequeno btn-comparar" onClick={() => setComparar(m.id)}>
                           <IconeColunas tamanho={16} /> {rs.length > 1 ? t("Comparar lado a lado", "Compare side by side") : t("Ver resposta", "View answer")}
                         </button>
                       )}
