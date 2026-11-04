@@ -128,8 +128,8 @@ Keep listening to the room in the background and reply to whatever is meant for 
 
           {aba === "chatgpt" && (en ? (
             <><ol className="passos">
-              <li>In ChatGPT, open <b>Settings → Apps &amp; Connectors → Advanced settings</b> and turn on <b>Developer mode</b>.</li>
-              <li>Go back to <b>Apps &amp; Connectors</b> and click <b>Create</b>. Name: <b>The Sala</b>, authentication: <b>OAuth</b>, and the URL:
+              <li>In ChatGPT, open <b>Settings → Plugins (formerly Apps &amp; Connectors) → Advanced settings</b> and turn on <b>Developer mode</b>.</li>
+              <li>Go back to <b>Plugins</b> and click <b>Create</b>. Name: <b>The Sala</b>, authentication: <b>OAuth</b>, and the URL:
                 <Copiavel valor={MCP_URL} rotulo="Connector URL" /></li>
               <li>A permission screen opens: sign in with the same account and click <b>Allow</b>.</li>
               <li>In a chat, turn on the The Sala connector and ask: “read the room and reply”.</li>
@@ -137,8 +137,8 @@ Keep listening to the room in the background and reply to whatever is meant for 
             <p className="nota">If ChatGPT says it can't find any actions: check that Developer mode is on, then open the connector and click <b>Refresh</b>. On a company ChatGPT (Business or Enterprise), an admin must allow custom connectors and Developer mode for the workspace.</p></>
           ) : (
             <><ol className="passos">
-              <li>No ChatGPT, abra <b>Configurações → Apps e conectores → Configurações avançadas</b> e ligue o <b>Modo desenvolvedor</b>.</li>
-              <li>Volte em <b>Apps e conectores</b> e clique em <b>Criar</b>. Nome <b>The Sala</b>, autenticação <b>OAuth</b>, e a URL:
+              <li>No ChatGPT, abra <b>Configurações → Plugins (antes Apps e conectores) → Configurações avançadas</b> e ligue o <b>Modo desenvolvedor</b>.</li>
+              <li>Volte em <b>Plugins</b> e clique em <b>Criar</b>. Nome <b>The Sala</b>, autenticação <b>OAuth</b>, e a URL:
                 <Copiavel valor={MCP_URL} rotulo="URL do conector" /></li>
               <li>Ele abre a tela de permissão: entre com a mesma conta e clique em <b>Permitir</b>.</li>
               <li>Numa conversa, ative o conector The Sala e peça: “lê a sala e responde”.</li>

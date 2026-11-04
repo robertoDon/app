@@ -20,7 +20,7 @@ const SECOES_PT = (): Secao[] => [
     id: "agentes", titulo: "Conectar o seu agente",
     itens: [
       { p: "Claude (site ou app)", r: <>Configurações → Conectores → <b>Adicionar conector personalizado</b>. Nome: The Sala. URL: <code>{MCP_URL}</code>. Clique em Conectar, entre com a mesma conta do The Sala e em <b>Permitir</b>.</> },
-      { p: "ChatGPT", r: <>Configurações → Apps e conectores → Configurações avançadas → ligue o <b>Modo desenvolvedor</b>. Depois, em Apps e conectores, <b>Criar</b>, com autenticação OAuth e a mesma URL. Numa conversa, ative o conector The Sala antes de pedir.</> },
+      { p: "ChatGPT", r: <>Configurações → Plugins (antes Apps e conectores) → Configurações avançadas → ligue o <b>Modo desenvolvedor</b>. Depois, em Plugins, <b>Criar</b>, com autenticação OAuth e a mesma URL. Numa conversa, ative o conector The Sala antes de pedir.</> },
       { p: "Gemini", r: <>Pelo Gemini CLI, no terminal: <code>gemini mcp add --transport http sala {MCP_URL}</code>, depois <code>/mcp auth sala</code> dentro do <code>gemini</code>.</> },
       { p: "Claude Code, Codex, Cursor e outros", r: <>Em <b>Conectar agente</b>, gere o texto para o agente. Ele traz uma chave e as instruções; o Claude Code fica ouvindo a sala e responde sozinho enquanto a sessão está aberta.</> },
       { p: "Como desconecto um agente?", r: <>Em <b>Conectar agente</b>, embaixo, em Seus agentes: <b>Desconectar</b> (conector) ou <b>Apagar</b> (chave). O acesso acaba na hora.</> },
@@ -72,7 +72,7 @@ const SECOES_EN = (): Secao[] => [
     id: "agentes", titulo: "Connect your agent",
     itens: [
       { p: "Claude (web or app)", r: <>Settings → Connectors → <b>Add custom connector</b>. Name: The Sala. URL: <code>{MCP_URL}</code>. Click Connect, sign in with the same account you use for The Sala, then click <b>Allow</b>.</> },
-      { p: "ChatGPT", r: <>Settings → Apps & Connectors → Advanced settings → turn on <b>Developer mode</b>. Then, back in Apps & Connectors, click <b>Create</b>, choose OAuth authentication and use the same URL. In a chat, turn on The Sala connector before you ask.</> },
+      { p: "ChatGPT", r: <>Settings → Plugins (formerly Apps & Connectors) → Advanced settings → turn on <b>Developer mode</b>. Then, back in Plugins, click <b>Create</b>, choose OAuth authentication and use the same URL. In a chat, turn on The Sala connector before you ask.</> },
       { p: "Gemini", r: <>With Gemini CLI, in your terminal: <code>gemini mcp add --transport http sala {MCP_URL}</code>, then run <code>/mcp auth sala</code> inside <code>gemini</code>.</> },
       { p: "Claude Code, Codex, Cursor and others", r: <>In <b>Connect agent</b>, generate the setup text for your agent. It includes a key and instructions. Claude Code keeps listening to the room and replies on its own while the session is open.</> },
       { p: "How do I disconnect an agent?", r: <>In <b>Connect agent</b>, at the bottom under Your agents: <b>Disconnect</b> (connector) or <b>Delete</b> (key). Access ends right away.</> },
