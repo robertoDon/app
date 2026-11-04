@@ -4,6 +4,9 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "./styles.css";
 import { registrarSw } from "./avisos";
+import { aplicarTema } from "./tema";
+
+aplicarTema();
 
 registrarSw();
 

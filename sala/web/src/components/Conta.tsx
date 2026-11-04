@@ -4,6 +4,7 @@ import { desligarAvisos, estadoAvisos, ligarAvisos, type EstadoAvisos } from "..
 import { abrirConectar, apagarConta, sb, trocarIdioma } from "../supabase";
 import { erro as msgErro, t, useIdioma, type Idioma } from "../i18n";
 import { IconeFechar, IconePlugue, IconeSair } from "./Icones";
+import { definirTema, useTema, type Tema } from "../tema";
 
 const opcoes = () => [
   { valor: "mencoes", titulo: t("Quando for comigo", "When it's about me"), texto: t("Quando chamarem você, houver proposta para decidir ou responderem algo seu.", "When someone mentions you, a proposal needs your decision, or someone replies to you.") },
@@ -25,6 +26,12 @@ export function Conta({ fechar }: { fechar: () => void }) {
   const [estado, setEstado] = useState<EstadoAvisos | null>(null);
   const [erro, setErro] = useState("");
   const lingua = useIdioma();
+  const tema = useTema();
+  const TEMAS: { valor: Tema; titulo: string }[] = [
+    { valor: "sistema", titulo: t("Automático", "Automatic") },
+    { valor: "claro", titulo: t("Claro", "Light") },
+    { valor: "escuro", titulo: t("Escuro", "Dark") },
+  ];
 
   useEffect(() => { estadoAvisos().then(setEstado); }, []);
   useEffect(() => {
@@ -109,6 +116,16 @@ export function Conta({ fechar }: { fechar: () => void }) {
               </label>
             ))}
           </fieldset>
+        </section>
+
+        <section className="conta-secao">
+          <span className="rotulo" id="conta-tema">{t("Aparência", "Appearance")}</span>
+          <div className="abas" role="radiogroup" aria-labelledby="conta-tema">
+            {TEMAS.map((o) => (
+              <button key={o.valor} type="button" role="radio" aria-checked={tema === o.valor}
+                className={`aba ${tema === o.valor ? "ativa" : ""}`} onClick={() => definirTema(o.valor)}>{o.titulo}</button>
+            ))}
+          </div>
         </section>
 
         <section className="conta-secao">
