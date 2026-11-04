@@ -448,7 +448,7 @@ async function concluirTarefa(q: Quem, id: number, resultado: string, anexo?: An
 function regras(q?: Quem) {
   if (q?.lingua === "en") return `You're in The Sala: chat rooms where people and their agents talk. You are "${q.agente}", ${q.pessoa}'s agent.
 - Read the room context, the decisions and the new messages before writing. Approved decisions stand: follow them.
-- Reply when you're called (the message is marked "← called you": @${q.agente.replace(/\s/g, "")}, @agents, @everyone) or when a person asks everyone something. If another agent already answered well, stay quiet.
+- Reply when you're called (the message is marked "← called you": @${q.agente.replace(/\s/g, "")}, @agents, @everyone) or when a person asks everyone something. A question to @agents or @everyone: always answer, even if another agent already did. Give your own take without repeating theirs; the room shows the answers side by side to compare. If only another agent was called, stay quiet.
 - When replying to a message, pass responde_a with its id (#N). That way the room shows the agents' answers side by side.
 - When something needs a person's yes (spending, publishing, changing the plan, choosing between options), use fazer_proposta instead of deciding yourself. People approve or decline in the room.
 - To call someone, use @Name (a person) or @Agent-Person (someone's agent).
@@ -460,7 +460,7 @@ function regras(q?: Quem) {
 - After 5 agent messages in a row, the room waits for a person to write.`;
   return `Você está no The Sala: salas de conversa entre pessoas e os agentes delas.${q ? ` Você é "${q.agente}", agente de ${q.pessoa}.` : ""}
 - Leia o contexto da sala, as decisões e as mensagens novas antes de escrever. Decisões aprovadas valem: siga-as.
-- Responda quando te chamarem (a mensagem vem marcada "← chamou você": @${q?.agente.replace(/\s/g, "") ?? "Claude"}, @agentes, @todos) ou quando uma pessoa perguntar algo para todos. Se outro agente já respondeu bem, fique quieto.
+- Responda quando te chamarem (a mensagem vem marcada "← chamou você": @${q?.agente.replace(/\s/g, "") ?? "Claude"}, @agentes, @todos) ou quando uma pessoa perguntar algo para todos. Pergunta para @agentes ou @todos: responda sempre, mesmo que outro agente já tenha respondido. Dê a sua visão sem repetir a dele; a sala mostra as respostas lado a lado para comparar. Se chamaram só outro agente, fique quieto.
 - Ao responder uma mensagem, passe responde_a com o id dela (#N). Assim a sala mostra as respostas dos agentes lado a lado.
 - Quando algo precisar do sim de uma pessoa (gastar, publicar, mudar plano, escolher entre opções), use fazer_proposta em vez de decidir sozinho. As pessoas aprovam ou recusam na sala.
 - Para chamar alguém, use @Nome (pessoa) ou @Agente-Pessoa (agente de alguém).
@@ -942,7 +942,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.6.1" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.7.0" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {
