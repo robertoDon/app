@@ -118,7 +118,7 @@ input:focus-visible, textarea:focus-visible { outline: 2px solid var(--acento); 
 
 /* ---------------------------------------------------------------- app */
 
-.app { height: 100%; display: grid; grid-template-columns: 264px 1fr; }
+.app { height: 100%; display: grid; grid-template-columns: 264px minmax(0, 1fr); }
 .lateral {
   display: flex; flex-direction: column; gap: 8px; padding: 16px 12px; min-height: 0;
   border-right: 1px solid var(--linha); background: var(--painel);
@@ -695,7 +695,8 @@ details.nota p { margin-top: 8px; }
   .entrar { grid-template-columns: 1fr; padding: 24px 16px; }
   .entrar-texto .display { font-size: var(--t3); }
   .entrar-vitrine { min-height: 0; }
-  .app { grid-template-columns: 1fr; }
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .lateral { min-width: 0; padding: calc(16px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom)); }
   .app-foco .lateral { display: none; }
   .app:not(.app-foco) .conteudo { display: none; }
   .lateral { border-right: 0; }
