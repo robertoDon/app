@@ -8,6 +8,15 @@ import { aplicarTema } from "./tema";
 
 aplicarTema();
 
+// teclado aberto no celular: a área segura de baixo (a barrinha do iPhone) fica atrás do teclado,
+// então a caixa de escrever não precisa reservar esse espaço
+const vv = window.visualViewport;
+if (vv) {
+  const medir = () => document.documentElement.classList.toggle("teclado-aberto", window.innerHeight - vv.height > 120);
+  vv.addEventListener("resize", medir);
+  medir();
+}
+
 registrarSw();
 
 createRoot(document.getElementById("root")!).render(

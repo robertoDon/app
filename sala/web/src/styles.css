@@ -1050,3 +1050,17 @@ kbd { border-radius: 5px; background: var(--elevado); box-shadow: 0 1px 0 var(--
   .compor .btn-clipe, .compor .btn-propor { height: 40px; }
   .compor .btn-propor { padding: 0 10px; }
 }
+
+/* celular: caixa de escrever mais compacta e colada no teclado quando ele abre */
+@media (max-width: 720px) {
+  .compor { padding: 0 10px calc(6px + env(safe-area-inset-bottom)); }
+  .teclado-aberto .compor { padding-bottom: 6px; }
+  .compor-caixa { padding: 4px 4px 4px 12px; border-radius: 12px; }
+  .compor textarea { padding: 6px 0; min-height: 34px; }
+  .compor .btn-clipe, .compor .btn-propor { height: 36px; }
+  .compor .btn-clipe { width: 36px; }
+  .compor .btn-propor { padding: 0 8px; }
+  .compor-linha { gap: 2px; }
+  .btn-enviar { width: 36px; height: 36px; }
+  .feed { padding-bottom: 16px; }
+}
