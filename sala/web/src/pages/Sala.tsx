@@ -14,7 +14,7 @@ import { Ata } from "../components/Ata";
 import { MENCAO_COLETIVA, chamaAgentes, chamaTodos, handle } from "../components/Texto";
 import { erro, gravado, idioma, locale, t } from "../i18n";
 import {
-  IconeAbrir, IconeAjustes, IconeAgente, IconeBusca, IconeCaixa, IconeCheck, IconeClipe, IconeCopiar, IconeTarefa, IconeColunas, IconeConvite, IconeDecisao, IconePlugue, IconeProposta, IconeVoltar,
+  IconeAbrir, IconeAjustes, IconeAgente, IconeBusca, IconeCheck, IconeClipe, IconeCopiar, IconeTarefa, IconeColunas, IconeConvite, IconeDecisao, IconePlugue, IconeProposta, IconeVoltar, Marcador,
 } from "../components/Icones";
 import {
   abrirConectar, atrasada, copiarTexto, pedidoPara, presenca, sb, subirArquivo, ultimaSala,
@@ -582,7 +582,7 @@ export default function SalaPage() {
                   {(tarefasDe.get(m.id) ?? []).map((t) => (
                     <button key={t.id} className={`tarefa-chip ${minhaPessoa ? "tarefa-chip-minha" : ""} ${t.estado === "feita" ? "feita" : atrasada(t) ? "atrasada" : ""}`}
                       onClick={() => setPainel("tarefas")} title={tr("Ver nas tarefas", "View in tasks")}>
-                      {t.estado === "feita" ? <IconeTarefa tamanho={14} /> : <IconeCaixa tamanho={14} />}
+                      <Marcador feito={t.estado === "feita"} tamanho={15} />
                       <span>{t.estado === "feita" ? tr("Feita", "Done") : atrasada(t) ? tr("Atrasada", "Overdue") : tr("Tarefa", "Task")}: <strong>{t.titulo}</strong> · {quemFaz(t)}{t.estado === "aberta" && t.prazo ? ` · ${atrasada(t) ? tr("era ", "was due ") : tr("até ", "due ")}${prazoCurto(t.prazo)}` : ""}</span>
                     </button>
                   ))}

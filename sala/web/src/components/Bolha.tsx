@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Mensagem } from "../supabase";
-import { IconeAgente, IconeReagir, IconeCopiar, IconeDecisao, IconeLapis, IconeLixo, IconeProposta, IconeRecusa, IconeResponder, IconeTarefa } from "./Icones";
+import { IconeAgente, IconeReagir, IconeCopiar, IconeCheck, IconeDecisao, IconeFechar, IconeLapis, IconeLixo, IconeProposta, IconeRecusa, IconeResponder, IconeTarefa } from "./Icones";
 import { Texto } from "./Texto";
 import { Anexos } from "./Anexos";
 import { gravado, locale, t as tr } from "../i18n";
@@ -121,7 +121,13 @@ export function Bolha(p: Props) {
 
       <div className="msg-linha">
         <div className="msg-corpo">
-          {proposta && <p className="proposta-rotulo"><IconeProposta tamanho={14} /> {tr("Proposta", "Proposal")}</p>}
+          {proposta && (
+            <p className="proposta-rotulo">
+              {m.estado === "pendente" ? <span className="pilula pilula-acento"><IconeProposta tamanho={12} /> {tr("Proposta", "Proposal")}</span>
+                : <span className={`pilula ${m.estado === "aprovada" ? "pilula-ok" : "pilula-erro"}`}>{m.estado === "aprovada" ? <IconeCheck tamanho={12} /> : <IconeFechar tamanho={12} />}{m.estado === "aprovada" ? tr("Aprovada", "Approved") : tr("Recusada", "Declined")}</span>}
+              {m.estado === "pendente" && <span className="nota">{tr("aguardando decisão", "awaiting decision")}</span>}
+            </p>
+          )}
           {citacao && (
             <button type="button" className="citacao" onClick={() => p.irPara?.(citacao.id)} title={tr("Ir para a mensagem", "Go to message")}>
               <IconeResponder tamanho={14} /> <strong>{citacao.autor}</strong> <span>{citacao.texto}</span>
@@ -151,37 +157,31 @@ export function Bolha(p: Props) {
             </>
           )}
 
-          {proposta && (
+          {proposta && (m.estado !== "pendente" || p.decidir) && (
             <div className="proposta-pe">
               {m.estado === "pendente" ? (
                 p.decidir ? (
                   recusando ? (
                     <form className="recusar" onSubmit={(e) => { e.preventDefault(); decidir(false); }}>
                       <label className="sr" htmlFor={`nota${m.id}`}>{tr("Por que recusar", "Why decline")}</label>
-                      <input id={`nota${m.id}`} autoFocus placeholder={tr("Por quê? O agente lê isto. (opcional)", "Why? The agent will read this. (optional)")} value={nota} maxLength={2000}
+                      <input id={`nota${m.id}`} autoFocus placeholder={tr("Por quê? Quem propôs lê isto. (opcional)", "Why? The proposer reads this. (optional)")} value={nota} maxLength={2000}
                         onChange={(e) => setNota(e.target.value)} onKeyDown={(e) => e.key === "Escape" && setRecusando(false)} />
-                      <div className="linha">
-                        <button className="btn btn-pequeno" disabled={ocupado}>{tr("Recusar proposta", "Decline proposal")}</button>
-                        <button type="button" className="btn btn-pequeno btn-texto" onClick={() => setRecusando(false)}>{tr("Voltar", "Back")}</button>
+                      <div className="decidir">
+                        <button type="button" className="btn" onClick={() => setRecusando(false)}>{tr("Voltar", "Back")}</button>
+                        <button className="btn btn-recusar" disabled={ocupado}>{tr("Recusar", "Decline")}</button>
                       </div>
                     </form>
                   ) : (
-                    <div className="linha">
-                      <button type="button" className="btn btn-pequeno btn-cheio" disabled={ocupado} onClick={() => decidir(true)}>
-                        <IconeDecisao tamanho={16} /> {tr("Aprovar", "Approve")}
-                      </button>
-                      <button type="button" className="btn btn-pequeno" disabled={ocupado} onClick={() => setRecusando(true)}>
-                        <IconeRecusa tamanho={16} /> {tr("Recusar", "Decline")}
-                      </button>
-                      <span className="nota">{tr("Aguardando decisão", "Awaiting decision")}</span>
+                    <div className="decidir">
+                      <button type="button" className="btn" disabled={ocupado} onClick={() => setRecusando(true)}>{tr("Recusar", "Decline")}</button>
+                      <button type="button" className="btn btn-cheio" disabled={ocupado} onClick={() => decidir(true)}>{tr("Aprovar", "Approve")}</button>
                     </div>
                   )
-                ) : <span className="nota">{tr("Aguardando decisão", "Awaiting decision")}</span>
+                ) : null
               ) : (
-                <p className={`decidida decidida-${m.estado}`}>
-                  {m.estado === "aprovada" ? <IconeDecisao tamanho={16} /> : <IconeRecusa tamanho={16} />}
-                  {m.estado === "aprovada" ? tr("Aprovada", "Approved") : tr("Recusada", "Declined")}{p.decisor ? tr(` por ${p.decisor}`, ` by ${p.decisor}`) : ""}
-                  {m.decidida_em && <time>· {hora(m.decidida_em)}</time>}
+                <p className="nota">
+                  {p.decisor ? tr(`Decidida por ${p.decisor}`, `Decided by ${p.decisor}`) : tr("Decidida", "Decided")}
+                  {m.decidida_em && ` · ${hora(m.decidida_em)}`}
                 </p>
               )}
             </div>

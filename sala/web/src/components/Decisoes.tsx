@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { copiarTexto, sb, type Mensagem } from "../supabase";
-import { IconeDecisao, IconeDocumento, IconeFechar, IconeProposta, IconeRecusa } from "./Icones";
+import { IconeCheck, IconeDecisao, IconeDocumento, IconeFechar, IconeProposta, IconeSeta } from "./Icones";
 import { Texto } from "./Texto";
 import { erro as msgErro, locale, t } from "../i18n";
 
@@ -23,6 +23,8 @@ export function Decisoes({ salaId, salaNome, versao, autor, nome, decidir, irPar
   const [lista, setLista] = useState<Mensagem[] | null>(null);
   const [copiado, setCopiado] = useState(false);
   const [ocupado, setOcupado] = useState<number | null>(null);
+  const [recusando, setRecusando] = useState<number | null>(null);
+  const [nota, setNota] = useState("");
 
   useEffect(() => {
     sb.from("mensagens").select("*").eq("sala_id", salaId).eq("tipo", "proposta").eq("apagada", false)
@@ -31,10 +33,10 @@ export function Decisoes({ salaId, salaNome, versao, autor, nome, decidir, irPar
   }, [salaId, versao]);
 
   useEffect(() => {
-    const esc = (e: KeyboardEvent) => e.key === "Escape" && fechar();
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && recusando === null && fechar();
     window.addEventListener("keydown", esc);
     return () => window.removeEventListener("keydown", esc);
-  }, [fechar]);
+  }, [fechar, recusando]);
 
   const pendentes = lista?.filter((p) => p.estado === "pendente") ?? [];
   const decididas = lista?.filter((p) => p.estado !== "pendente") ?? [];
@@ -51,50 +53,71 @@ export function Decisoes({ salaId, salaNome, versao, autor, nome, decidir, irPar
     if (await copiarTexto(linhas.join("\n"))) { setCopiado(true); setTimeout(() => setCopiado(false), 1500); }
   };
 
-  const agir = async (id: number, aprovar: boolean) => {
+  const agir = async (id: number, aprovar: boolean, nota?: string) => {
     setOcupado(id);
-    const erro = await decidir(id, aprovar);
+    const erro = await decidir(id, aprovar, nota);
     setOcupado(null);
     if (erro) alert(msgErro(erro));
+    else setRecusando(null);
   };
 
   return (
     <aside className="painel" aria-label={t("Decisões da sala", "Room decisions")}>
       <header className="painel-topo">
         <h2>{t("Decisões", "Decisions")}</h2>
-        <button className="btn-icone" onClick={fechar} aria-label={t("Fechar decisões", "Close decisions")}><IconeFechar /></button>
+        <div className="painel-topo-acoes">
+          <button className="btn btn-pequeno" onClick={abrirAta} title={t("Decisões e tarefas de um período, para imprimir, salvar em PDF ou mandar ao cliente.", "Decisions and tasks for a period, to print, save as PDF or send to a client.")}>
+            <IconeDocumento tamanho={16} /> {t("Ata", "Minutes")}
+          </button>
+          <button className="btn-icone" onClick={fechar} aria-label={t("Fechar decisões", "Close decisions")}><IconeFechar /></button>
+        </div>
       </header>
-
-      <section className="painel-secao">
-        <button className="btn btn-pequeno" onClick={abrirAta}><IconeDocumento tamanho={16} /> {t("Ata da sala", "Room minutes")}</button>
-        <p className="nota">{t("Decisões e tarefas de um período, para imprimir, salvar em PDF ou mandar ao cliente.", "Decisions and tasks for a period, to print, save as PDF or send to a client.")}</p>
-      </section>
 
       {lista === null && <div className="painel-secao"><div className="esqueleto" /><div className="esqueleto" /></div>}
 
       {lista && !lista.length && (
         <section className="painel-secao painel-vazio">
-          <IconeProposta />
+          <span className="vazio-icone"><IconeProposta tamanho={20} /></span>
           <p><strong>{t("Nenhuma proposta ainda.", "No proposals yet.")}</strong></p>
-          <p className="nota">{t("Quando um agente ou pessoa precisar de um sim, ela aparece aqui com Aprovar e Recusar. O que for decidido fica registrado, e os agentes leem antes de responder.", "When an agent or person needs a yes, it shows up here with Approve and Decline. Every decision is kept on record, and agents read it before replying.")}</p>
-          <p className="nota">{t("Para propor, use o botão ", "To make a proposal, use the ")}<strong>{t("Propor", "Propose")}</strong>{t(" na barra de escrever.", " button in the message bar.")}</p>
+          <p className="nota">{t("Quando alguém precisar de um sim, a proposta aparece aqui para aprovar ou recusar. O que for decidido fica registrado, e os agentes leem antes de responder.", "When someone needs a yes, the proposal shows up here to approve or decline. Decisions stay on record, and agents read them before replying.")}</p>
+          <p className="nota">{t("Para propor, use ", "To propose, use ")}<strong>{t("Propor", "Propose")}</strong>{t(" na barra de escrever.", " in the message bar.")}</p>
         </section>
       )}
 
+      {lista && lista.length > 0 && !pendentes.length && (
+        <div className="painel-ok"><IconeDecisao tamanho={16} /> {t("Nada esperando decisão.", "Nothing awaiting a decision.")}</div>
+      )}
+
       {pendentes.length > 0 && (
-        <section className="painel-secao">
-          <span className="rotulo">{t("Aguardando decisão", "Awaiting decision")} · {pendentes.length}</span>
+        <section className="painel-lista">
+          <h3 className="secao-rotulo">{t("Para decidir", "To decide")} <span>{pendentes.length}</span></h3>
           <ul className="decisoes">
             {pendentes.map((p) => (
-              <li key={p.id}>
-                <button className="decisao-texto" onClick={() => irPara(p.id)} title={t("Ver na conversa", "View in chat")}>
+              <li key={p.id} className="decisao-cartao">
+                <div className="decisao-topo">
+                  <span className="pilula pilula-acento"><IconeProposta tamanho={12} /> {t("Proposta", "Proposal")}</span>
                   <span className="nota">{autor(p)} · {data(p.criada_em)}</span>
-                  <Texto texto={p.texto} chamaMim={() => false} />
-                </button>
-                <div className="linha">
-                  <button className="btn btn-pequeno btn-cheio" disabled={ocupado === p.id} onClick={() => agir(p.id, true)}><IconeDecisao tamanho={16} /> {t("Aprovar", "Approve")}</button>
-                  <button className="btn btn-pequeno" onClick={() => irPara(p.id)}><IconeRecusa tamanho={16} /> {t("Recusar…", "Decline…")}</button>
+                  <button className="btn-mais" onClick={() => irPara(p.id)} title={t("Ver na conversa", "View in chat")} aria-label={t("Ver na conversa", "View in chat")}><IconeSeta tamanho={16} /></button>
                 </div>
+                <Recolhe>
+                  <Texto texto={p.texto} chamaMim={() => false} />
+                </Recolhe>
+                {recusando === p.id ? (
+                  <form className="recusar" onSubmit={(e) => { e.preventDefault(); agir(p.id, false, nota.trim() || undefined); }}>
+                    <label className="sr" htmlFor={`dn${p.id}`}>{t("Por que recusar", "Why decline")}</label>
+                    <input id={`dn${p.id}`} autoFocus value={nota} maxLength={2000} placeholder={t("Por quê? Quem propôs lê isto. (opcional)", "Why? The proposer reads this. (optional)")}
+                      onChange={(e) => setNota(e.target.value)} onKeyDown={(e) => e.key === "Escape" && setRecusando(null)} />
+                    <div className="decidir">
+                      <button type="button" className="btn" onClick={() => setRecusando(null)}>{t("Voltar", "Back")}</button>
+                      <button className="btn btn-recusar" disabled={ocupado === p.id}>{t("Recusar", "Decline")}</button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="decidir">
+                    <button className="btn" disabled={ocupado === p.id} onClick={() => { setRecusando(p.id); setNota(""); }}>{t("Recusar", "Decline")}</button>
+                    <button className="btn btn-cheio" disabled={ocupado === p.id} onClick={() => agir(p.id, true)}>{t("Aprovar", "Approve")}</button>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
@@ -102,21 +125,21 @@ export function Decisoes({ salaId, salaNome, versao, autor, nome, decidir, irPar
       )}
 
       {decididas.length > 0 && (
-        <section className="painel-secao">
-          <div className="linha linha-entre">
-            <span className="rotulo">{t("Decididas", "Decided")} · {decididas.length}</span>
-            <button className="btn btn-pequeno" onClick={copiar}>{copiado ? t("Copiado", "Copied") : t("Copiar registro", "Copy record")}</button>
+        <section className="painel-lista">
+          <div className="secao-rotulo secao-rotulo-acao">
+            <h3>{t("Decididas", "Decided")} <span>{decididas.length}</span></h3>
+            <button className="link nota" onClick={copiar}>{copiado ? t("Copiado", "Copied") : t("Copiar registro", "Copy record")}</button>
           </div>
-          <ul className="decisoes">
+          <ul className="decididas">
             {decididas.map((p) => (
-              <li key={p.id} className={`decisao-${p.estado}`}>
-                <button className="decisao-texto" onClick={() => irPara(p.id)} title={t("Ver na conversa", "View in chat")}>
-                  <span className={`decidida decidida-${p.estado}`}>
-                    {p.estado === "aprovada" ? <IconeDecisao tamanho={16} /> : <IconeRecusa tamanho={16} />}
-                    {p.estado === "aprovada" ? t("Aprovada por", "Approved by") : t("Recusada por", "Declined by")} {nome(p.decidida_por)} · {data(p.decidida_em)}
+              <li key={p.id}>
+                <button className="decidida-linha" onClick={() => irPara(p.id)} title={t("Ver na conversa", "View in chat")}>
+                  <span className={`pilula ${p.estado === "aprovada" ? "pilula-ok" : "pilula-erro"}`}>
+                    {p.estado === "aprovada" ? <IconeCheck tamanho={12} /> : <IconeFechar tamanho={12} />}
+                    {p.estado === "aprovada" ? t("Aprovada", "Approved") : t("Recusada", "Declined")}
                   </span>
-                  <Texto texto={p.texto} chamaMim={() => false} />
-                  <span className="nota">{t("Proposta de", "Proposed by")} {autor(p)}</span>
+                  <span className="decidida-texto">{resumo(p.texto)}</span>
+                  <span className="nota">{nome(p.decidida_por).split(" ")[0]} · {data(p.decidida_em)} · {t("proposta de", "proposed by")} {autor(p)}</span>
                 </button>
               </li>
             ))}
@@ -124,5 +147,22 @@ export function Decisoes({ salaId, salaNome, versao, autor, nome, decidir, irPar
         </section>
       )}
     </aside>
+  );
+}
+
+// texto da proposta sem markdown, para a lista compacta
+const resumo = (s: string) => s.replace(/[*_`#>]/g, "").replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").replace(/\s+/g, " ").trim();
+
+// proposta longa: mostra o começo e um "Mostrar tudo"
+function Recolhe({ children }: { children: ReactNode }) {
+  const caixa = useRef<HTMLDivElement>(null);
+  const [longo, setLongo] = useState(false);
+  const [aberto, setAberto] = useState(false);
+  useEffect(() => { const c = caixa.current; if (c) setLongo(c.scrollHeight > c.clientHeight + 4); }, [children]);
+  return (
+    <div className="recolhe-caixa">
+      <div ref={caixa} className={`recolhe ${aberto ? "aberto" : ""} ${longo && !aberto ? "cortado" : ""}`}>{children}</div>
+      {longo && <button className="link nota" onClick={() => setAberto((v) => !v)}>{aberto ? t("Mostrar menos", "Show less") : t("Mostrar tudo", "Show all")}</button>}
+    </div>
   );
 }

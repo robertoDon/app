@@ -66,3 +66,13 @@ export const IconeCaixa = ({ tamanho }: P) => <svg {...base(tamanho)}><rect x="4
 export const IconeAbrir = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M14 4h6v6M20 4l-9 9M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4" /></svg>;
 export const IconeDocumento = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" /><path d="M9 13h6M9 17h6M14 3v5h5" /></svg>;
 export const IconeReagir = ({ tamanho }: P) => <svg {...base(tamanho)}><circle cx="12" cy="12" r="9" /><path d="M8.5 14.5a4.5 4.5 0 0 0 7 0M9 9.5h.01M15 9.5h.01" /></svg>;
+export const IconeSeta = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M7 17 17 7M8 7h9v9" /></svg>;
+export const IconeRelogio = ({ tamanho }: P) => <svg {...base(tamanho)}><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>;
+
+// Marcador redondo de tarefa: vazio, com o check aparecendo no hover; cheio quando feita.
+export const Marcador = ({ feito, tamanho = 18 }: { feito?: boolean; tamanho?: number }) => (
+  <svg width={tamanho} height={tamanho} viewBox="0 0 20 20" aria-hidden className={feito ? "marcador feito" : "marcador"}>
+    <circle cx="10" cy="10" r="8.6" />
+    <path d="m6.4 10.3 2.4 2.4 4.8-5" />
+  </svg>
+);

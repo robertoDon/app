@@ -1128,3 +1128,168 @@ kbd { border-radius: 5px; background: var(--elevado); box-shadow: 0 1px 0 var(--
   .auth { max-width: none; }
   .btn-destaque { height: 50px; }
 }
+
+/* ================================================================ tarefas e decisões: peças comuns
+   Botão principal liso no acento, pílulas de estado, círculo de tarefa e menu ⋯. As mesmas peças aparecem
+   na conversa (cartão de proposta, chip de tarefa) e nos painéis, para tudo falar a mesma língua. */
+
+/* botão principal: acento liso, sem borda escura nem degradê; ícones saem dos botões de decisão */
+.btn-cheio {
+  background: var(--acento); color: var(--acento-tinta); border-color: transparent;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 1px 2px color-mix(in srgb, var(--acento) 40%, transparent);
+}
+.btn-cheio:hover:not(:disabled) { background: var(--acento-forte); }
+.btn-cheio:disabled { opacity: .55; }
+.btn-recusar { color: var(--erro); }
+.btn-recusar:hover:not(:disabled) { background: color-mix(in srgb, var(--erro) 8%, var(--elevado)); border-color: color-mix(in srgb, var(--erro) 35%, var(--linha-forte)); }
+
+/* pílulas: estado sempre com ícone e texto */
+.pilula {
+  display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 999px; flex: none;
+  font-size: 11.5px; font-weight: 600; letter-spacing: -0.005em; white-space: nowrap; line-height: 1;
+  background: var(--suave); color: var(--cinza); box-shadow: inset 0 0 0 1px var(--linha);
+}
+.pilula svg { flex: none; }
+.pilula-acento { background: color-mix(in srgb, var(--acento) 10%, var(--elevado)); color: var(--agente-tinta); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acento) 22%, transparent); }
+.pilula-ok { background: color-mix(in srgb, var(--ok) 10%, var(--elevado)); color: var(--ok); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ok) 22%, transparent); }
+.pilula-erro { background: color-mix(in srgb, var(--erro) 9%, var(--elevado)); color: var(--erro); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--erro) 22%, transparent); }
+
+/* círculo de tarefa (Things, Linear): vazio; no hover o check aparece de leve; feito enche de verde */
+.marcador { flex: none; overflow: visible; }
+.marcador circle { fill: var(--elevado); stroke: var(--linha-forte); stroke-width: 1.5; transition: fill 180ms ease, stroke 180ms ease; }
+.marcador path { fill: none; stroke: var(--ok); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; opacity: 0;
+  stroke-dasharray: 12; stroke-dashoffset: 12; transition: opacity 120ms ease, stroke-dashoffset 260ms cubic-bezier(.2,.8,.2,1); }
+.marcador.feito circle { fill: var(--ok); stroke: var(--ok); }
+.marcador.feito path { stroke: #fff; opacity: 1; stroke-dashoffset: 0; }
+.tarefa-check:hover:not(:disabled) .marcador:not(.feito) circle, .tarefa-check:focus-visible .marcador:not(.feito) circle { stroke: var(--ok); }
+.tarefa-check:hover:not(:disabled) .marcador:not(.feito) path { opacity: .55; stroke-dashoffset: 0; }
+.tarefa-atrasada .marcador:not(.feito) circle { stroke: color-mix(in srgb, var(--erro) 70%, var(--linha-forte)); }
+
+/* menu ⋯ */
+.btn-mais {
+  display: grid; place-items: center; width: 28px; height: 28px; flex: none; border: 0; border-radius: 7px;
+  background: none; color: var(--cinza); cursor: pointer; transition: background var(--rapido), color var(--rapido), opacity var(--rapido);
+}
+.btn-mais:hover, .menu-ancora.aberto .btn-mais { background: var(--suave); color: var(--tinta); }
+.menu-ancora { position: relative; flex: none; }
+.menu {
+  position: absolute; right: 0; top: calc(100% + 4px); z-index: 30; min-width: 200px; padding: 4px; display: flex; flex-direction: column;
+  border-radius: 10px; background: var(--elevado); border: 1px solid var(--linha); box-shadow: var(--sombra-alta);
+  animation: menu-abre 140ms cubic-bezier(.2,.8,.2,1); transform-origin: top right;
+}
+.menu button {
+  display: flex; align-items: center; gap: 8px; min-height: 34px; padding: 0 10px; border: 0; border-radius: 7px;
+  background: none; text-align: left; cursor: pointer; font-size: 13.5px; white-space: nowrap;
+}
+.menu button:hover, .menu button:focus-visible { background: var(--suave); outline: none; }
+.menu button.perigo { color: var(--erro); }
+@keyframes menu-abre { from { opacity: 0; transform: scale(.96) translateY(-2px); } }
+
+/* topo dos painéis: título à esquerda, ações à direita; filtro numa faixa própria */
+.painel-topo-acoes { display: flex; align-items: center; gap: 4px; }
+.painel-filtro { padding: 12px 20px; border-bottom: 1px solid var(--linha); }
+.painel-filtro .abas { width: 100%; }
+.aba-num { display: inline-grid; place-items: center; min-width: 18px; height: 18px; margin-left: 6px; padding: 0 5px; border-radius: 999px; background: var(--acento); color: var(--acento-tinta); font-size: 11px; font-weight: 600; }
+.painel-lista { padding: 14px 12px 8px; border-bottom: 1px solid var(--linha); }
+.secao-rotulo {
+  display: flex; align-items: center; gap: 6px; margin: 0 0 6px; padding: 0 8px; min-height: 24px;
+  font: 600 11.5px/1 var(--corpo); letter-spacing: .02em; text-transform: uppercase; color: color-mix(in srgb, var(--cinza) 85%, transparent);
+}
+.secao-rotulo span { font-weight: 500; color: var(--cinza); }
+.secao-rotulo h3 { font: inherit; letter-spacing: inherit; display: flex; gap: 6px; margin: 0; }
+.secao-rotulo-acao { justify-content: space-between; text-transform: none; letter-spacing: 0; }
+.secao-rotulo-acao h3 { text-transform: uppercase; letter-spacing: .02em; }
+.secao-dobra { width: 100%; border: 0; background: none; cursor: pointer; border-radius: 7px; min-height: 30px; margin: 0; }
+.secao-dobra:hover { color: var(--tinta); }
+.secao-dobra svg { transform: rotate(180deg); transition: transform var(--rapido); }
+.secao-dobra[aria-expanded="true"] svg { transform: rotate(-90deg); }
+.painel-vazio { gap: 10px; padding-top: 32px; padding-bottom: 32px; }
+.painel-vazio p strong { color: var(--tinta); }
+.vazio-icone { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--suave); color: var(--cinza); box-shadow: inset 0 0 0 1px var(--linha); }
+.painel-ok { display: flex; align-items: center; gap: 8px; margin: 14px 20px 0; padding: 10px 12px; border-radius: 10px; font-size: var(--t1); color: var(--cinza); background: var(--suave); }
+.painel-ok svg { color: var(--ok); }
+
+/* lista de tarefas: linhas limpas, metadados em chips, ações no ⋯ (visível ao passar o mouse) */
+.tarefas { gap: 1px; }
+.tarefas li.tarefa {
+  flex-direction: row; align-items: flex-start; gap: 10px; padding: 10px 8px; border: 0; border-radius: 10px;
+  transition: background var(--rapido), opacity 300ms ease, transform 300ms ease;
+}
+.tarefas li.tarefa:hover, .tarefas li.tarefa:focus-within { background: var(--suave); }
+.tarefa-check { display: grid; place-items: center; width: 22px; height: 22px; margin-top: 0; flex: none; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 999px; }
+span.tarefa-check { cursor: default; }
+.tarefa-corpo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.tarefa-titulo { font-weight: 500; line-height: 1.4; letter-spacing: -0.005em; overflow-wrap: anywhere; padding-top: 1px; }
+.tarefa-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.tarefa .menu-ancora { margin: -3px -4px 0 0; }
+.tarefa .btn-mais { opacity: 0; }
+.tarefa:hover .btn-mais, .tarefa:focus-within .btn-mais, .tarefa .menu-ancora.aberto .btn-mais { opacity: 1; }
+.tarefa-saindo { opacity: .45; }
+.tarefa-saindo .tarefa-titulo { text-decoration: line-through; text-decoration-color: var(--cinza); }
+.tarefa-feita .tarefa-titulo { color: var(--cinza); text-decoration: line-through; text-decoration-color: var(--linha-forte); font-weight: 400; }
+.tarefa-resultado { border-left: 2px solid var(--linha-forte); padding: 2px 8px; font-size: var(--t1); color: var(--tinta); }
+.tarefa .tarefa-form { margin-top: 4px; }
+.tarefas li.tarefa > .tarefa-form { padding: 4px 0; }
+
+.quem { display: inline-flex; align-items: center; gap: 6px; font-size: var(--t1); color: var(--cinza); min-width: 0; }
+.quem-avatar {
+  display: grid; place-items: center; width: 18px; height: 18px; flex: none; border-radius: 999px;
+  background: var(--suave); box-shadow: inset 0 0 0 1px var(--linha-forte); font-size: 10px; font-weight: 600; color: var(--tinta);
+}
+.quem-eu { color: var(--tinta); font-weight: 500; }
+.quem-eu .quem-avatar { background: var(--acento); color: var(--acento-tinta); box-shadow: none; }
+.quem-agente .quem-avatar { background: var(--agente); color: var(--agente-tinta); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--agente-tinta) 18%, transparent); }
+
+.desfazer {
+  position: sticky; bottom: 12px; margin: auto 16px 12px; align-self: center; display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px 8px 12px; border-radius: 10px; background: var(--tinta); color: var(--fundo); font-size: 13.5px;
+  box-shadow: var(--sombra-alta); animation: menu-abre 180ms cubic-bezier(.2,.8,.2,1);
+}
+.desfazer .link { color: inherit; font-weight: 600; text-decoration-color: color-mix(in srgb, currentColor 50%, transparent); }
+
+/* decisões: cartão com cabeçalho em pílula, texto recolhível e a decisão em dois botões iguais */
+.decisoes { gap: 10px; padding: 0 8px 8px; }
+.decisoes li.decisao-cartao { padding: 14px; gap: 10px; border-radius: 12px; background: var(--elevado); border: 1px solid var(--linha); box-shadow: var(--sombra); }
+.decisao-topo { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.decisao-topo .nota { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.recolhe-caixa { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.recolhe { max-height: calc(1.55em * 6); overflow: hidden; overflow-wrap: anywhere; }
+.recolhe.aberto { max-height: none; }
+.recolhe.cortado { -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent); mask-image: linear-gradient(180deg, #000 60%, transparent); }
+.recolhe p, .recolhe ul { margin: 0 0 6px; }
+.recolhe code { overflow-wrap: anywhere; }
+.decidir { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+.decidir .btn { justify-content: center; min-height: 36px; }
+.recusar { width: 100%; }
+.decididas { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1px; }
+.decidida-linha {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px; width: 100%; padding: 10px 8px; border: 0; border-radius: 10px;
+  background: none; text-align: left; cursor: pointer; color: inherit; transition: background var(--rapido);
+}
+.decidida-linha:hover { background: var(--suave); }
+.decidida-texto { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.45; overflow-wrap: anywhere; }
+
+/* cartão de proposta na conversa: mesmo cabeçalho em pílula e os mesmos dois botões */
+.proposta-rotulo { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: inherit; }
+.proposta-rotulo .nota { font-weight: 400; }
+.msg-proposta .proposta-pe { margin-top: 12px; padding-top: 12px; }
+.msg-proposta .decidir { max-width: 320px; margin-left: auto; }
+.msg-proposta .recusar .decidir { margin-left: auto; }
+.msg-proposta.msg-recusada .msg-corpo, .msg-proposta .msg-corpo:has(.pilula-erro) { box-shadow: var(--sombra); }
+
+/* chip de tarefa na conversa: o mesmo círculo */
+.tarefa-chip { gap: 8px; border-radius: 999px; padding: 4px 12px 4px 6px; min-height: 30px; }
+.tarefa-chip.atrasada { border-color: color-mix(in srgb, var(--erro) 45%, var(--linha)); }
+
+@media (max-width: 720px) {
+  .tarefa .btn-mais { opacity: 1; }
+  .btn-mais { width: 36px; height: 36px; }
+  .tarefa-check { width: 32px; height: 32px; margin: -5px -5px 0; }
+  .decidir .btn { min-height: 44px; }
+  .msg-proposta .decidir { max-width: none; }
+  .menu button { min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .menu, .desfazer { animation: none; }
+  .marcador path, .marcador circle { transition: none; }
+}

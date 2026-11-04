@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { atrasada, sb, type Membro, type Tarefa } from "../supabase";
 import type { AgenteSala } from "../pages/Sala";
-import { IconeAgente, IconeCaixa, IconeFechar, IconeMais, IconeTarefa } from "./Icones";
+import { IconeAgente, IconeFechar, IconeMais, IconeRelogio, IconeVoltar, Marcador } from "./Icones";
+import { Menu } from "./Menu";
 import { erro as msgErro, locale, t } from "../i18n";
 
 export type RascunhoTarefa = { titulo: string; origem: number | null; responsavel: string; prazo?: string } | null;
@@ -89,13 +90,39 @@ function Formulario({ inicial, membros, agentes, nome, salvar, cancelar, botao }
   );
 }
 
+// pessoa ou agente responsável, com a inicial (ou o ícone do agente) num círculo
+function Quem({ nome, agente, eu }: { nome: string; agente: boolean; eu: boolean }) {
+  return (
+    <span className={`quem ${eu ? "quem-eu" : ""} ${agente ? "quem-agente" : ""}`}>
+      <span className="quem-avatar" aria-hidden>{agente ? <IconeAgente tamanho={11} /> : (nome.trim()[0] ?? "?").toUpperCase()}</span>
+      {nome}
+    </span>
+  );
+}
+
+// prazo como pílula: atrasada em vermelho, hoje/amanhã em destaque, o resto neutro
+export function Prazo({ tf }: { tf: Tarefa }) {
+  if (!tf.prazo || tf.estado !== "aberta") return null;
+  const atr = atrasada(tf);
+  const perto = !atr && new Date(tf.prazo).getTime() - Date.now() < 2 * 864e5;
+  return (
+    <span className={`pilula ${atr ? "pilula-erro" : perto ? "pilula-acento" : ""}`} title={t("vale até as 18h", "due by 6 pm")}>
+      <IconeRelogio tamanho={12} />{atr ? t(`Atrasada · ${prazoCurto(tf.prazo)}`, `Overdue · ${prazoCurto(tf.prazo)}`) : prazoCurto(tf.prazo)}
+    </span>
+  );
+}
+
 // Tarefas da sala: o que está aberto, com quem e até quando; o que já foi entregue.
+// Um toque no círculo conclui (com Desfazer); o resto das ações fica no menu ⋯.
 export function Tarefas({ salaId, tarefas, membros, agentes, eu, nome, rascunho, limparRascunho, irPara, fechar }: Props) {
   const [nova, setNova] = useState(false);
   const [editando, setEditando] = useState<number | null>(null);
   const [concluindo, setConcluindo] = useState<number | null>(null);
   const [resultado, setResultado] = useState("");
   const [so, setSo] = useState<"todas" | "minhas">("todas");
+  const [marcando, setMarcando] = useState<Set<number>>(new Set());
+  const [desfazer, setDesfazer] = useState<Tarefa | null>(null);
+  const [verFeitas, setVerFeitas] = useState(false);
 
   useEffect(() => { if (rascunho) { setNova(true); setEditando(null); } }, [rascunho]);
   useEffect(() => {
@@ -103,13 +130,22 @@ export function Tarefas({ salaId, tarefas, membros, agentes, eu, nome, rascunho,
     window.addEventListener("keydown", esc);
     return () => window.removeEventListener("keydown", esc);
   }, [fechar, nova, editando, concluindo]);
+  useEffect(() => {
+    if (!desfazer) return;
+    const id = setTimeout(() => setDesfazer(null), 6000);
+    return () => clearTimeout(id);
+  }, [desfazer]);
 
-  const quem = (tf: Tarefa) => (tf.responsavel_agente ? t(`${tf.responsavel_agente} de ${nome(tf.responsavel).split(" ")[0]}`, `${nome(tf.responsavel).split(" ")[0]}'s ${tf.responsavel_agente}`) : tf.responsavel ? (tf.responsavel === eu ? t("Você", "You") : nome(tf.responsavel)) : t("Sem responsável", "Unassigned"));
+  const primeiro = (uid: string | null) => nome(uid).split(" ")[0];
+  const quemNome = (tf: Tarefa) => (tf.responsavel_agente ? t(`${tf.responsavel_agente} de ${primeiro(tf.responsavel)}`, `${primeiro(tf.responsavel)}'s ${tf.responsavel_agente}`)
+    : tf.responsavel ? (tf.responsavel === eu ? t("Você", "You") : nome(tf.responsavel)) : t("Sem responsável", "Unassigned"));
   const minha = (tf: Tarefa) => tf.responsavel === eu;
-  const lista = (tarefas ?? []).filter((tf) => tf.estado !== "cancelada" && (so === "todas" || minha(tf)));
-  const abertas = lista.filter((tf) => tf.estado === "aberta")
-    .sort((a, b) => (a.prazo ? new Date(a.prazo).getTime() : Infinity) - (b.prazo ? new Date(b.prazo).getTime() : Infinity) || b.id - a.id);
-  const feitas = lista.filter((tf) => tf.estado === "feita").sort((a, b) => (b.concluida_em ?? "").localeCompare(a.concluida_em ?? "")).slice(0, 30);
+  const vivas = (tarefas ?? []).filter((tf) => tf.estado !== "cancelada");
+  const lista = vivas.filter((tf) => so === "todas" || minha(tf));
+  const minhasAbertas = vivas.filter((tf) => tf.estado === "aberta" && minha(tf)).length;
+  const abertas = lista.filter((tf) => tf.estado === "aberta" || marcando.has(tf.id))
+    .sort((a, b) => Number(atrasada(b)) - Number(atrasada(a)) || (a.prazo ? new Date(a.prazo).getTime() : Infinity) - (b.prazo ? new Date(b.prazo).getTime() : Infinity) || b.id - a.id);
+  const feitas = lista.filter((tf) => tf.estado === "feita" && !marcando.has(tf.id)).sort((a, b) => (b.concluida_em ?? "").localeCompare(a.concluida_em ?? "")).slice(0, 30);
 
   const criar = async (titulo: string, resp: string, prazo: string) => {
     const r = lerResp(resp);
@@ -129,10 +165,22 @@ export function Tarefas({ salaId, tarefas, membros, agentes, eu, nome, rascunho,
     return null;
   };
 
+  // um toque: o círculo enche, a linha some com calma e aparece Desfazer
+  const marcar = async (tf: Tarefa) => {
+    setMarcando((s) => new Set(s).add(tf.id));
+    const [{ error }] = await Promise.all([
+      sb.rpc("concluir_tarefa", { tarefa: tf.id, resultado: null }),
+      new Promise((r) => setTimeout(r, 520)),
+    ]);
+    setMarcando((s) => { const n = new Set(s); n.delete(tf.id); return n; });
+    if (error) return alert(msgErro(error));
+    setDesfazer(tf);
+  };
+
   const concluir = async (tf: Tarefa) => {
     const { error } = await sb.rpc("concluir_tarefa", { tarefa: tf.id, resultado: resultado.trim() || null });
     if (error) return alert(msgErro(error));
-    setConcluindo(null); setResultado("");
+    setConcluindo(null); setResultado(""); setDesfazer(tf);
   };
 
   const cancelarTarefa = async (tf: Tarefa) => {
@@ -142,6 +190,7 @@ export function Tarefas({ salaId, tarefas, membros, agentes, eu, nome, rascunho,
   };
 
   const reabrir = async (tf: Tarefa) => {
+    setDesfazer(null);
     const { error } = await sb.rpc("editar_tarefa", { tarefa: tf.id, titulo: tf.titulo, responsavel: tf.responsavel, responsavel_agente: tf.responsavel_agente, prazo: tf.prazo, estado: "aberta", reabrir: true });
     if (error) alert(msgErro(error));
   };
@@ -150,108 +199,127 @@ export function Tarefas({ salaId, tarefas, membros, agentes, eu, nome, rascunho,
     <aside className="painel" aria-label={t("Tarefas da sala", "Room tasks")}>
       <header className="painel-topo">
         <h2>{t("Tarefas", "Tasks")}</h2>
-        <button className="btn-icone" onClick={fechar} aria-label={t("Fechar tarefas", "Close tasks")}><IconeFechar /></button>
+        <div className="painel-topo-acoes">
+          {!nova && <button className="btn btn-pequeno" onClick={() => { setNova(true); setEditando(null); }}><IconeMais tamanho={16} /> {t("Nova", "New")}</button>}
+          <button className="btn-icone" onClick={fechar} aria-label={t("Fechar tarefas", "Close tasks")}><IconeFechar /></button>
+        </div>
       </header>
 
-      <section className="painel-secao">
-        <div className="linha linha-entre">
-          <div className="abas abas-mini" role="tablist" aria-label={t("Filtrar", "Filter")}>
-            <button role="tab" aria-selected={so === "todas"} className={so === "todas" ? "aba ativa" : "aba"} onClick={() => setSo("todas")}>{t("Todas", "All")}</button>
-            <button role="tab" aria-selected={so === "minhas"} className={so === "minhas" ? "aba ativa" : "aba"} onClick={() => setSo("minhas")}>{t("Minhas", "Mine")}</button>
-          </div>
-          {!nova && <button className="btn btn-pequeno" onClick={() => { setNova(true); setEditando(null); }}><IconeMais tamanho={16} /> {t("Nova tarefa", "New task")}</button>}
+      <div className="painel-filtro">
+        <div className="abas abas-mini" role="tablist" aria-label={t("Filtrar", "Filter")}>
+          <button role="tab" aria-selected={so === "todas"} className={so === "todas" ? "aba ativa" : "aba"} onClick={() => setSo("todas")}>{t("Todas", "All")}</button>
+          <button role="tab" aria-selected={so === "minhas"} className={so === "minhas" ? "aba ativa" : "aba"} onClick={() => setSo("minhas")}>
+            {t("Comigo", "Mine")}{minhasAbertas > 0 && <span className="aba-num">{minhasAbertas}</span>}
+          </button>
         </div>
-        {nova && (
+      </div>
+
+      {nova && (
+        <section className="painel-secao">
           <Formulario key={rascunho?.origem ?? "nova"} membros={membros} agentes={agentes} nome={nome} botao={t("Criar tarefa", "Create task")}
             inicial={{ titulo: rascunho?.titulo ?? "", responsavel: rascunho?.responsavel ?? valorResp(eu, null), prazo: rascunho?.prazo ?? "" }}
             salvar={criar} cancelar={() => { setNova(false); limparRascunho(); }} />
-        )}
-      </section>
+        </section>
+      )}
 
       {tarefas === null && <div className="painel-secao"><div className="esqueleto" /><div className="esqueleto" /></div>}
 
-      {tarefas && !abertas.length && !feitas.length && !nova && (
+      {tarefas && !abertas.length && !nova && (
         <section className="painel-secao painel-vazio">
-          <IconeTarefa />
-          <p><strong>{so === "minhas" ? t("Nada com você agora.", "Nothing assigned to you right now.") : t("Nenhuma tarefa ainda.", "No tasks yet.")}</strong></p>
-          <p className="nota">{t("Toda proposta aprovada vira tarefa de quem propôs. Para transformar qualquer mensagem em tarefa, use o botão de tarefa na própria mensagem.", "Every approved proposal becomes a task for whoever proposed it. To turn any message into a task, use the task button on the message.")}</p>
+          <span className="vazio-icone"><Marcador feito tamanho={22} /></span>
+          <p><strong>{so === "minhas" ? t("Nada com você agora.", "Nothing assigned to you.") : feitas.length ? t("Tudo feito por aqui.", "All done here.") : t("Nenhuma tarefa ainda.", "No tasks yet.")}</strong></p>
+          <p className="nota">{t("Proposta aprovada vira tarefa de quem propôs. Qualquer mensagem também vira tarefa, pelo botão na própria mensagem.", "An approved proposal becomes a task for whoever proposed it. Any message can become a task too, from the button on the message.")}</p>
         </section>
       )}
 
       {abertas.length > 0 && (
-        <section className="painel-secao">
-          <span className="rotulo">{t("Abertas", "Open")} · {abertas.length}</span>
+        <section className="painel-lista">
+          <h3 className="secao-rotulo">{t("A fazer", "To do")} <span>{abertas.length}</span></h3>
           <ul className="tarefas">
-            {abertas.map((tf) => (
-              <li key={tf.id} className={atrasada(tf) ? "tarefa-atrasada" : ""}>
-                {editando === tf.id ? (
-                  <Formulario membros={membros} agentes={agentes} nome={nome} botao={t("Salvar", "Save")}
-                    inicial={{ titulo: tf.titulo, responsavel: valorResp(tf.responsavel, tf.responsavel_agente), prazo: paraInput(tf.prazo) }}
-                    salvar={salvar(tf)} cancelar={() => setEditando(null)} />
-                ) : (
-                  <>
-                    <div className="tarefa-linha">
-                      <button className="tarefa-marca" onClick={() => { setConcluindo(tf.id); setResultado(""); }} aria-label={t(`Concluir: ${tf.titulo}`, `Complete: ${tf.titulo}`)} title={t("Concluir", "Complete")}>
-                        <IconeCaixa tamanho={20} />
+            {abertas.map((tf) => {
+              const saindo = marcando.has(tf.id);
+              return (
+                <li key={tf.id} className={`tarefa ${atrasada(tf) ? "tarefa-atrasada" : ""} ${saindo ? "tarefa-saindo" : ""}`}>
+                  {editando === tf.id ? (
+                    <Formulario membros={membros} agentes={agentes} nome={nome} botao={t("Salvar", "Save")}
+                      inicial={{ titulo: tf.titulo, responsavel: valorResp(tf.responsavel, tf.responsavel_agente), prazo: paraInput(tf.prazo) }}
+                      salvar={salvar(tf)} cancelar={() => setEditando(null)} />
+                  ) : (
+                    <>
+                      <button className="tarefa-check" onClick={() => !saindo && marcar(tf)} disabled={saindo}
+                        aria-label={t(`Marcar como feita: ${tf.titulo}`, `Mark as done: ${tf.titulo}`)} title={t("Marcar como feita", "Mark as done")}>
+                        <Marcador feito={saindo} />
                       </button>
-                      <div className="tarefa-texto">
-                        <strong>{tf.titulo}</strong>
-                        <span className="nota">
-                          {tf.responsavel_agente && <IconeAgente tamanho={12} />} {quem(tf)}
-                          {tf.prazo && <> · <span className={atrasada(tf) ? "atrasada" : ""}>{atrasada(tf) ? t("Atrasada · era ", "Overdue · was due ") : t("até ", "due ")}{prazoCurto(tf.prazo)}</span></>}
-                          {tf.origem && <> · <button className="link" onClick={() => irPara(tf.origem!)}>{t("ver na conversa", "view in chat")}</button></>}
-                        </span>
-                      </div>
-                    </div>
-                    {concluindo === tf.id ? (
-                      <form className="tarefa-form" onSubmit={(e) => { e.preventDefault(); concluir(tf); }}>
-                        <label className="sr" htmlFor={`res${tf.id}`}>{t("Resultado", "Result")}</label>
-                        <input id={`res${tf.id}`} autoFocus value={resultado} maxLength={4000} placeholder={t("O que foi feito? Link, número… (opcional)", "What was done? Link, number… (optional)")}
-                          onChange={(e) => setResultado(e.target.value)} onKeyDown={(e) => e.key === "Escape" && setConcluindo(null)} />
-                        <div className="linha">
-                          <button className="btn btn-pequeno btn-cheio">{t("Concluir", "Complete")}</button>
-                          <button type="button" className="btn btn-pequeno btn-texto" onClick={() => setConcluindo(null)}>{t("Voltar", "Back")}</button>
+                      <div className="tarefa-corpo">
+                        <p className="tarefa-titulo">{tf.titulo}</p>
+                        <div className="tarefa-meta">
+                          <Quem nome={quemNome(tf)} agente={!!tf.responsavel_agente} eu={minha(tf) && !tf.responsavel_agente} />
+                          <Prazo tf={tf} />
                         </div>
-                      </form>
-                    ) : (
-                      <div className="tarefa-acoes">
-                        <button className="link nota" onClick={() => { setEditando(tf.id); setNova(false); }}>{t("Editar", "Edit")}</button>
-                        <button className="link nota" onClick={() => cancelarTarefa(tf)}>{t("Cancelar tarefa", "Cancel task")}</button>
+                        {concluindo === tf.id && (
+                          <form className="tarefa-form" onSubmit={(e) => { e.preventDefault(); concluir(tf); }}>
+                            <label className="sr" htmlFor={`res${tf.id}`}>{t("Resultado", "Result")}</label>
+                            <input id={`res${tf.id}`} autoFocus value={resultado} maxLength={4000} placeholder={t("O que foi entregue? Link, número…", "What was delivered? Link, number…")}
+                              onChange={(e) => setResultado(e.target.value)} onKeyDown={(e) => e.key === "Escape" && setConcluindo(null)} />
+                            <div className="linha">
+                              <button className="btn btn-pequeno btn-cheio">{t("Concluir", "Complete")}</button>
+                              <button type="button" className="btn btn-pequeno btn-texto" onClick={() => setConcluindo(null)}>{t("Cancelar", "Cancel")}</button>
+                            </div>
+                          </form>
+                        )}
                       </div>
-                    )}
-                  </>
-                )}
-              </li>
-            ))}
+                      <Menu rotulo={t(`Ações da tarefa ${tf.titulo}`, `Actions for task ${tf.titulo}`)} itens={[
+                        tf.origem != null && { rotulo: t("Ver na conversa", "View in chat"), acao: () => irPara(tf.origem!) },
+                        { rotulo: t("Concluir com resultado…", "Complete with result…"), acao: () => { setConcluindo(tf.id); setResultado(""); setEditando(null); } },
+                        { rotulo: t("Editar", "Edit"), acao: () => { setEditando(tf.id); setNova(false); setConcluindo(null); } },
+                        { rotulo: t("Cancelar tarefa", "Cancel task"), acao: () => cancelarTarefa(tf), perigo: true },
+                      ]} />
+                    </>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}
 
       {feitas.length > 0 && (
-        <section className="painel-secao">
-          <span className="rotulo">{t("Feitas", "Done")} · {feitas.length}</span>
-          <ul className="tarefas">
-            {feitas.map((tf) => (
-              <li key={tf.id} className="tarefa-feita">
-                <div className="tarefa-linha">
-                  <span className="tarefa-marca feita" aria-hidden><IconeTarefa tamanho={20} /></span>
-                  <div className="tarefa-texto">
-                    <strong>{tf.titulo}</strong>
-                    <span className="nota">
-                      {t("Feita por", "Done by")} {tf.concluida_por_agente ? t(`${tf.concluida_por_agente} de ${nome(tf.concluida_por).split(" ")[0]}`, `${nome(tf.concluida_por).split(" ")[0]}'s ${tf.concluida_por_agente}`) : tf.concluida_por === eu ? t("você", "you") : nome(tf.concluida_por)}
-                      {tf.concluida_em && ` · ${prazoCurto(tf.concluida_em)}`}
-                    </span>
+        <section className="painel-lista">
+          <button className="secao-rotulo secao-dobra" aria-expanded={verFeitas} onClick={() => setVerFeitas((v) => !v)}>
+            <IconeVoltar tamanho={14} /> {t("Feitas", "Done")} <span>{feitas.length}</span>
+          </button>
+          {verFeitas && (
+            <ul className="tarefas">
+              {feitas.map((tf) => (
+                <li key={tf.id} className="tarefa tarefa-feita">
+                  <span className="tarefa-check" aria-hidden><Marcador feito /></span>
+                  <div className="tarefa-corpo">
+                    <p className="tarefa-titulo">{tf.titulo}</p>
+                    <div className="tarefa-meta">
+                      <span className="nota">
+                        {tf.concluida_por_agente ? t(`${tf.concluida_por_agente} de ${primeiro(tf.concluida_por)}`, `${primeiro(tf.concluida_por)}'s ${tf.concluida_por_agente}`) : tf.concluida_por === eu ? t("Você", "You") : nome(tf.concluida_por)}
+                        {tf.concluida_em && ` · ${prazoCurto(tf.concluida_em)}`}
+                      </span>
+                    </div>
                     {tf.resultado && <span className="tarefa-resultado">{tf.resultado}</span>}
-                    <span className="tarefa-acoes">
-                      {tf.origem && <button className="link nota" onClick={() => irPara(tf.origem!)}>{t("ver na conversa", "view in chat")}</button>}
-                      <button className="link nota" onClick={() => reabrir(tf)}>{t("Reabrir", "Reopen")}</button>
-                    </span>
                   </div>
-                </div>
-              </li>
-            ))}
-          </ul>
+                  <Menu rotulo={t(`Ações da tarefa ${tf.titulo}`, `Actions for task ${tf.titulo}`)} itens={[
+                    tf.origem != null && { rotulo: t("Ver na conversa", "View in chat"), acao: () => irPara(tf.origem!) },
+                    { rotulo: t("Reabrir", "Reopen"), acao: () => reabrir(tf) },
+                  ]} />
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
+      )}
+
+      {desfazer && (
+        <div className="desfazer" role="status">
+          <Marcador feito tamanho={16} />
+          <span>{t("Tarefa feita", "Task done")}</span>
+          <button className="link" onClick={() => reabrir(desfazer)}>{t("Desfazer", "Undo")}</button>
+        </div>
       )}
     </aside>
   );
