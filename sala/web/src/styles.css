@@ -1040,3 +1040,13 @@ kbd { border-radius: 5px; background: var(--elevado); box-shadow: 0 1px 0 var(--
 @media (prefers-reduced-motion: reduce) {
   .msg-bloco:last-child > .msg, .modal, .modal-fundo, .esqueleto, .feed-esqueleto span { animation: none !important; }
 }
+
+/* caixa de escrever: Propor e o clipe usam .btn-acao, mas não têm o tamanho fixo dos botões das mensagens */
+.compor .btn-clipe { width: 36px; height: 36px; border-radius: 8px; }
+.compor .btn-propor { width: auto; height: 36px; padding: 0 10px; gap: 6px; border-radius: 8px; white-space: nowrap; flex: none; }
+.compor .btn-propor:hover { background: var(--suave); color: var(--tinta); }
+.compor .btn-propor.ativo { background: var(--acento); color: var(--acento-tinta); }
+@media (max-width: 720px) {
+  .compor .btn-clipe, .compor .btn-propor { height: 40px; }
+  .compor .btn-propor { padding: 0 10px; }
+}
