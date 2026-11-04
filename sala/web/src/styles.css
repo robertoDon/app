@@ -1064,3 +1064,16 @@ kbd { border-radius: 5px; background: var(--elevado); box-shadow: 0 1px 0 var(--
   .btn-enviar { width: 36px; height: 36px; }
   .feed { padding-bottom: 16px; }
 }
+
+/* entrar com o Google: botão neutro no padrão da marca Google (fundo claro ou escuro, G colorido, borda fina) */
+.btn-google {
+  gap: 10px; background: #FFFFFF; color: #1F1F1F; border: 1px solid #747775; box-shadow: none; font-weight: 500;
+}
+.btn-google:hover { background: #F7F8F8; border-color: #747775; box-shadow: 0 1px 2px rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15); }
+.btn-google svg { flex: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) .btn-google { background: #131314; color: #E3E3E3; border-color: #8E918F; }
+  :root:not([data-tema="claro"]) .btn-google:hover { background: #1F1F21; }
+}
+:root[data-tema="escuro"] .btn-google { background: #131314; color: #E3E3E3; border-color: #8E918F; }
+:root[data-tema="escuro"] .btn-google:hover { background: #1F1F21; }

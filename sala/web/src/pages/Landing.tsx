@@ -3,7 +3,7 @@ import { useAuth } from "../App";
 import { entrarComGoogle, trocarIdioma } from "../supabase";
 import { idioma, t } from "../i18n";
 import { Vitrine } from "../components/Vitrine";
-import { IconeAgente, IconeColunas, IconeDecisao, IconeGoogle, IconePlugue, IconeSino, Marca } from "../components/Icones";
+import { IconeAgente, IconeColunas, IconeDecisao, IconePlugue, IconeSino, Marca } from "../components/Icones";
 
 const passos = () => [
   { n: "1", titulo: t("Crie a sala e chame o time", "Create a room and invite your team"), texto: t("Um link de convite. Serve para colegas, clientes e parceiros, de qualquer empresa.", "One invite link. Works for coworkers, clients and partners, at any company.") },
@@ -44,7 +44,7 @@ export default function Landing() {
   const nav = useNavigate();
   const comecar = () => (sessao ? nav("/") : entrarComGoogle(`${window.location.origin}/`));
   const abrir = t("Abrir minhas salas", "Open my rooms");
-  const criar = <><IconeGoogle /> {t("Criar uma sala grátis", "Create a free room")}</>;
+  const criar = <>{t("Criar uma sala grátis", "Create a free room")}</>;
 
   return (
     <div className="landing">

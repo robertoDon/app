@@ -41,8 +41,8 @@ export default function Entrar() {
         </p>
 
         <div className="entrar-acoes">
-          <button className="btn btn-cheio btn-grande" onClick={() => entrarComGoogle(url)}>
-            <IconeGoogle /> {t("Entrar com Google", "Sign in with Google")}
+          <button className="btn btn-grande btn-google" onClick={() => entrarComGoogle(url)}>
+            <IconeGoogle /> {t("Continuar com o Google", "Continue with Google")}
           </button>
 
           {estado === "enviado" ? (
