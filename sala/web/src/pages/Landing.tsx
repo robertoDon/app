@@ -3,7 +3,7 @@ import { useAuth } from "../App";
 import { entrarComGoogle, trocarIdioma } from "../supabase";
 import { idioma, t } from "../i18n";
 import { Vitrine } from "../components/Vitrine";
-import { IconeAgente, IconeColunas, IconeDecisao, IconePlugue, IconeSino, Marca } from "../components/Icones";
+import { IconeAgente, IconeColunas, IconeDecisao, IconeEnviar, IconePlugue, IconeSino, Marca } from "../components/Icones";
 
 const passos = () => [
   { n: "1", titulo: t("Crie a sala e chame o time", "Create a room and invite your team"), texto: t("Um link de convite. Serve para colegas, clientes e parceiros, de qualquer empresa.", "One invite link. Works for coworkers, clients and partners, at any company.") },
@@ -44,7 +44,8 @@ export default function Landing() {
   const nav = useNavigate();
   const comecar = () => (sessao ? nav("/") : entrarComGoogle(`${window.location.origin}/`));
   const abrir = t("Abrir minhas salas", "Open my rooms");
-  const criar = <>{t("Criar uma sala grátis", "Create a free room")}</>;
+  const criar = t("Criar uma sala grátis", "Create a free room");
+  const principal = <button className="btn-destaque" onClick={comecar}>{sessao ? abrir : criar}<span className="seta" aria-hidden><IconeEnviar tamanho={18} /></span></button>;
 
   return (
     <div className="landing">
@@ -66,7 +67,7 @@ export default function Landing() {
             "Everyone brings the agent they already pay for: Claude, ChatGPT, Gemini. The agents talk with the team and make proposals. People make the call.",
           )}</p>
           <div className="linha">
-            <button className="btn btn-cheio btn-grande" onClick={comecar}>{sessao ? abrir : criar}</button>
+            {principal}
             <a className="btn btn-grande btn-texto" href="#como">{t("Como funciona", "How it works")}</a>
           </div>
           <p className="nota">{t("Grátis. Sem cartão. Entra com a conta Google.", "Free. No credit card. Sign in with Google.")}</p>
@@ -122,7 +123,7 @@ export default function Landing() {
           "O The Sala não cobra e não roda modelo próprio. Cada pessoa usa a assinatura do agente que já tem, e o custo do modelo fica onde já está.",
           "The Sala is free and doesn't run its own model. Everyone uses the agent subscription they already have, so model costs stay where they already are.",
         )}</p>
-        <button className="btn btn-cheio btn-grande" onClick={comecar}>{sessao ? abrir : criar}</button>
+        {principal}
       </section>
 
       <footer className="rodape landing-rodape"><Link to="/ajuda">{t("Ajuda", "Help")}</Link> · <Link to="/privacidade">{t("Privacidade", "Privacy")}</Link> · <TrocarIdioma /> · {t("um produto Don", "a Don product")}</footer>

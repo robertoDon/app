@@ -4,7 +4,7 @@ import { useAuth } from "../App";
 import { entrarComEmail, entrarComGoogle } from "../supabase";
 import { erro, t } from "../i18n";
 import { Vitrine } from "../components/Vitrine";
-import { IconeGoogle, Marca } from "../components/Icones";
+import { IconeCheck, IconeEnviar, IconeGoogle, Marca } from "../components/Icones";
 import { TrocarIdioma } from "./Landing";
 
 export default function Entrar() {
@@ -40,22 +40,36 @@ export default function Entrar() {
           )}
         </p>
 
-        <div className="entrar-acoes">
-          <button className="btn btn-grande btn-google" onClick={() => entrarComGoogle(url)}>
-            <IconeGoogle /> {t("Continuar com o Google", "Continue with Google")}
+        <div className="auth">
+          <button className="btn-destaque auth-google" onClick={() => entrarComGoogle(url)}>
+            <span className="g-selo" aria-hidden><IconeGoogle /></span>
+            <span>{t("Continuar com o Google", "Continue with Google")}</span>
           </button>
 
+          <div className="auth-ou" aria-hidden><span>{t("ou", "or")}</span></div>
+
           {estado === "enviado" ? (
-            <p className="nota" role="status">{t(`Link enviado para ${email}. Abra o email neste aparelho.`, `We sent a link to ${email}. Open the email on this device.`)}</p>
+            <div className="auth-enviado" role="status">
+              <span className="auth-enviado-icone"><IconeCheck tamanho={18} /></span>
+              <div>
+                <strong>{t("Confira seu email", "Check your email")}</strong>
+                <span className="nota">{t(`Mandamos um link para ${email}. Abra neste aparelho.`, `We sent a link to ${email}. Open it on this device.`)}</span>
+              </div>
+            </div>
           ) : (
-            <form onSubmit={porEmail} className="linha">
+            <form onSubmit={porEmail} className="auth-email">
               <label className="sr" htmlFor="email">Email</label>
-              <input id="email" type="email" placeholder={t("ou receba um link no email", "or get a sign-in link by email")} value={email}
+              <input id="email" type="email" placeholder={t("seu@email.com", "you@email.com")} value={email}
                 onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
-              <button className="btn" disabled={estado === "enviando"}>{t("Mandar link", "Send link")}</button>
+              <button className={`auth-enviar ${email.includes("@") ? "pronto" : ""}`} disabled={estado === "enviando" || !email.trim()}
+                aria-label={t("Receber link de acesso", "Get a sign-in link")} title={t("Receber link de acesso", "Get a sign-in link")}>
+                <IconeEnviar tamanho={18} />
+              </button>
             </form>
           )}
-          {estado.startsWith("erro:") && <p className="nota erro" role="alert">{t("Não deu certo: ", "That didn't work: ")}{estado.slice(5)}</p>}
+          {estado.startsWith("erro:")
+            ? <p className="nota erro" role="alert">{t("Não deu certo: ", "That didn't work: ")}{estado.slice(5)}</p>
+            : estado !== "enviado" && <p className="nota auth-dica">{t("Sem senha: mandamos um link de acesso para o seu email.", "No password: we'll email you a sign-in link.")}</p>}
         </div>
       </section>
 
