@@ -942,7 +942,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.6.0" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.6.1" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {
@@ -968,7 +968,7 @@ async function mcp(q: Quem, msg: any) {
     case "server/discover":
       return ok({
         supportedVersions: VERSOES,
-        capabilities: { tools: {}, experimental: { events: {} } },
+        capabilities: { tools: {}, events: {} }, // eventos no topo: é onde o ChatGPT procura (MCP Events da OpenAI)
         instructions: regras(q),
         _meta: { "io.modelcontextprotocol/serverInfo": SERVIDOR },
       });
