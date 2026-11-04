@@ -198,9 +198,9 @@ input:focus-visible, textarea:focus-visible { outline: 2px solid var(--acento); 
 .vazio-feed { margin: auto; text-align: center; max-width: 420px; }
 
 .msg { display: flex; flex-direction: column; gap: 4px; max-width: min(760px, 100%); min-width: 0; }
-.msg + .msg { margin-top: 0; }
-.msg:not(:has(.msg-meta)) { margin-top: -0px; }
-.msg-meta { display: flex; align-items: baseline; gap: 8px; font-size: var(--t1); margin-top: 12px; }
+.msg-meta { display: flex; align-items: baseline; gap: 8px; font-size: var(--t1); margin-top: 20px; }
+/* mensagens seguidas da mesma pessoa ficam mais juntas */
+.msg-bloco:has(> .msg-continua) { margin-top: -2px; }
 .msg-meta time { color: var(--cinza); }
 .msg-de { color: var(--cinza); }
 .msg-selo { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; color: var(--agente-tinta); }
