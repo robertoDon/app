@@ -1583,3 +1583,6 @@ mark { background: color-mix(in srgb, var(--acento) 20%, transparent); color: va
 .dica-embaixo { transform: translate(-50%, 0); }
 .dica kbd { font: 500 11px/1 var(--corpo); color: #B4B8BF; padding: 2px 5px; border-radius: 4px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); }
 @keyframes dica-entra { from { opacity: 0; } }
+@media (hover: none) {
+  .lateral-busca kbd, .cmd-lista button kbd { display: none; }
+}

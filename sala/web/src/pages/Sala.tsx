@@ -14,10 +14,11 @@ import { Avisos } from "../components/Avisos";
 import { Tarefas, prazoCurto, valorResp, type RascunhoTarefa } from "../components/Tarefas";
 import { Ata } from "../components/Ata";
 import { PainelSala } from "../components/PainelSala";
+import { abrirComandos } from "../components/Comandos";
 import { MENCAO_COLETIVA, chamaAgentes, chamaTodos, handle } from "../components/Texto";
 import { erro, gravado, idioma, locale, t } from "../i18n";
 import {
-  IconeAbrir, IconeAjustes, IconeAgente, IconeBusca, IconeCheck, IconeClipe, IconeCopiar, IconeTarefa, IconeColunas, IconeConvite, IconeDecisao, IconePlugue, IconeProposta, IconeVoltar, Marcador, IconeBiblioteca, IconePainel,
+  IconeAbrir, IconeAjustes, IconeAgente, IconeBusca, IconeCheck, IconeClipe, IconeCopiar, IconeTarefa, IconeColunas, IconeConvite, IconeDecisao, IconePlugue, IconeProposta, IconeVoltar, Marcador, IconeBiblioteca, IconePainel, IconeMais3,
 } from "../components/Icones";
 import {
   abrirConectar, atrasada, copiarTexto, pedidoPara, presenca, sb, subirArquivo, ultimaSala,
@@ -571,22 +572,25 @@ export default function SalaPage() {
               <IconeDecisao />
               {abertasSala > 0 && <span className="selo-num" aria-hidden>{abertasSala}</span>}
             </button>
-            <button className={`btn-icone ${painel === "painel" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "painel" ? null : "painel"))}
+            <button className={`btn-icone some-celular ${painel === "painel" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "painel" ? null : "painel"))}
               aria-expanded={painel === "painel"} aria-label={t("Painel da sala", "Room dashboard")} title={t("Painel (P)", "Dashboard (P)")}>
               <IconePainel />
             </button>
-            <button data-guia="biblioteca" className={`btn-icone ${painel === "biblioteca" || painel === "memoria" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "biblioteca" || p === "memoria" ? null : "biblioteca"))}
+            <button data-guia="biblioteca" className={`btn-icone some-celular ${painel === "biblioteca" || painel === "memoria" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "biblioteca" || p === "memoria" ? null : "biblioteca"))}
               aria-expanded={painel === "biblioteca"} aria-label={t("Biblioteca da sala", "Room library")} title={t("Biblioteca (B)", "Library (B)")}>
               <IconeBiblioteca />
             </button>
-            <button className={`btn-icone ${painel === "busca" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "busca" ? null : "busca"))}
+            <button className={`btn-icone some-celular ${painel === "busca" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "busca" ? null : "busca"))}
               aria-expanded={painel === "busca"} aria-label={t("Buscar na sala", "Search the room")} title={t("Buscar (/)", "Search (/)")}>
               <IconeBusca />
             </button>
             {!leitor && <button className="btn btn-convidar" data-guia="convidar" onClick={() => setConvite((v) => !v)} aria-expanded={convite} aria-label={t("Convidar pessoas", "Invite people")} title={t("Convidar pessoas", "Invite people")}>
               <IconeConvite tamanho={18} /> <span className="some-celular">{t("Convidar", "Invite")}</span>
             </button>}
-            <button className={`btn-icone ${painel === "ajustes" || painel === "contexto" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "ajustes" || p === "contexto" ? null : "ajustes"))}
+            <button className="btn-icone so-celular" onClick={abrirComandos} aria-label={t("Mais: painel, biblioteca, busca, ajustes", "More: dashboard, library, search, settings")}>
+              <IconeMais3 />
+            </button>
+            <button className={`btn-icone some-celular ${painel === "ajustes" || painel === "contexto" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "ajustes" || p === "contexto" ? null : "ajustes"))}
               aria-expanded={painel === "ajustes"} aria-label={t("Ajustes da sala", "Room settings")} title={t("Ajustes da sala", "Room settings")}>
               <IconeAjustes />
             </button>
