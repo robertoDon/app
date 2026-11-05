@@ -194,6 +194,36 @@ async function comReacoes(ms: Msg[]): Promise<Msg[]> {
 }
 
 // pessoa ou agente reage; o mesmo emoji de novo tira a reação
+// o agente corrige ou apaga só o que ele mesmo mandou
+async function minhaMensagem(q: Quem, id: number) {
+  const { data: m } = await db.from("mensagens").select("id, sala_id, user_id, agente, tipo, estado, apagada, anexos").eq("id", id).maybeSingle();
+  if (!m || !(await salasDe(q)).some((x) => x.id === m.sala_id)) throw new Falha(tr(q, "Mensagem não encontrada.", "Message not found."), 404);
+  if (m.user_id !== q.userId || m.agente !== q.agente) throw new Falha(tr(q, "Você só edita ou apaga mensagens que você mesmo mandou.", "You can only edit or delete messages you sent yourself."), 403);
+  if (m.apagada) throw new Falha(tr(q, "Esta mensagem já foi apagada.", "This message was already deleted."));
+  return m as { id: number; sala_id: string; tipo: string; estado: string | null; anexos: Anexo[] };
+}
+
+async function editarMensagem(q: Quem, id: number, texto: string) {
+  const m = await minhaMensagem(q, id);
+  if (m.tipo !== "mensagem") throw new Falha(tr(q, "Propostas e decisões não mudam depois de enviadas. Apague a proposta (se ainda não foi decidida) e proponha de novo.", "Proposals and decisions don't change once sent. Delete the proposal (if it hasn't been decided) and propose again."));
+  const t = String(texto ?? "").trim();
+  if (!t || t.length > 20000) throw new Falha(tr(q, "O texto precisa ter entre 1 e 20.000 caracteres.", "The text must be between 1 and 20,000 characters."));
+  const { error } = await db.from("mensagens").update({ texto: t, editada_em: new Date().toISOString() }).eq("id", id);
+  if (error) throw error;
+  return tr(q, `Mensagem #${id} corrigida.`, `Message #${id} edited.`);
+}
+
+async function apagarMensagem(q: Quem, id: number) {
+  const m = await minhaMensagem(q, id);
+  if (m.tipo === "decisao" || (m.tipo === "proposta" && m.estado !== "pendente")) throw new Falha(tr(q, "Decisões e propostas já decididas ficam no registro da sala.", "Decisions and decided proposals stay in the room's record."));
+  const { error } = await db.from("mensagens").update({ apagada: true, texto: "Mensagem apagada.", anexos: [] }).eq("id", id);
+  if (error) throw error;
+  const meus = (m.anexos ?? []).map((a) => a.path).filter((p) => p.split("/")[1] === q.userId);
+  if (meus.length) await db.storage.from("arquivos").remove(meus);
+  registrar(q, m.sala_id, m.tipo === "proposta" ? "retirou a proposta" : "apagou uma mensagem", `#${id}`);
+  return tr(q, m.tipo === "proposta" ? `Proposta #${id} retirada.` : `Mensagem #${id} apagada.`, m.tipo === "proposta" ? `Proposal #${id} withdrawn.` : `Message #${id} deleted.`);
+}
+
 async function reagir(q: Quem, mensagem: number, emoji: string) {
   const e = (emoji ?? "").trim();
   if (!e || e.length > 16 || /[\p{L}\p{N}\s<>]/u.test(e)) throw new Falha(tr(q, "Use um emoji, ex.: 👍", "Use an emoji, e.g. 👍"));
@@ -669,6 +699,7 @@ function regras(q?: Quem) {
 - When something needs a person's yes (spending, publishing, changing the plan, choosing between options), use fazer_proposta instead of deciding yourself. People approve or decline in the room. Some rooms require more than one approval: the proposal only passes when they all arrive, and the app counts them; don't treat it as approved before that.
 - The room memory is yours to keep: the project's current state (what was decided, delivered, what's pending and where things are). When something is decided, delivered or changes state, update it with atualizar_memoria, without asking: small replacements, plus a one-line summary of what changed. It records what happened and what was decided; it doesn't create rules or decide anything. Keep it short and current: rewrite what's outdated instead of piling up history.
 - Keep a "Roles in practice" section in the memory: what each agent and person actually does in this room, observed from the work, not assigned (e.g. "David's ChatGPT: reviews deliveries and reports to the room"). Update it when you notice a pattern change. Use it to split work: do your part, and don't redo what is someone else's role.
+- When a person asks for a standing way of working ("always list tasks with the assignee in bold", "@ the agent you delegate to"), follow it from then on and record it in the memory under "Agreements" until the people move it into the instructions.
 - The room instructions belong to the people. To change them, use propor_contexto with the whole new text: it needs every person's yes, and the app swaps it by itself.
 - To call someone, use @Name (a person) or @Agent-Person (someone's agent).
 - Tasks marked "← YOURS" are yours: do them and complete them with concluir_tarefa, stating the result (link, number, file). If you can't, say in the room what's missing. To split work, use criar_tarefa.
@@ -687,6 +718,7 @@ function regras(q?: Quem) {
 - Quando algo precisar do sim de uma pessoa (gastar, publicar, mudar plano, escolher entre opções), use fazer_proposta em vez de decidir sozinho. As pessoas aprovam ou recusam na sala. Algumas salas pedem mais de uma aprovação: a proposta só passa quando todas chegam, e o app conta sozinho; não trate como aprovada antes disso.
 - A memória da sala é sua de manter: o estado atual do projeto (o que foi decidido, entregue, o que está pendente e onde está cada coisa). Quando algo for decidido, entregue ou mudar de estado, atualize com atualizar_memoria, sem pedir: trocas pequenas e um resumo de uma linha do que mudou. Ela registra o que aconteceu e foi decidido; não cria regra nem decide nada. Mantenha curta e atual: reescreva o que ficou velho em vez de acumular histórico.
 - Mantenha na memória uma seção "Papéis na prática": o que cada agente e cada pessoa faz de fato nesta sala, observado no trabalho, não atribuído (ex.: "ChatGPT de David: revisa as entregas e reporta à sala"). Atualize quando notar que o padrão mudou. Use para dividir o trabalho: faça a sua parte e não refaça o que é papel de outro.
+- Quando uma pessoa pedir um jeito fixo de trabalhar ("sempre liste as tarefas com o responsável em negrito", "marque com @ o agente a quem delegar"), siga daí em diante e registre na memória, na seção "Combinados", até as pessoas passarem para as instruções.
 - As instruções da sala são das pessoas. Para mudar, use propor_contexto com o texto novo inteiro: precisa do sim de todas as pessoas, e o app troca sozinho.
 - Para chamar alguém, use @Nome (pessoa) ou @Agente-Pessoa (agente de alguém).
 - Tarefas marcadas "← SUA" são suas: faça e conclua com concluir_tarefa, dizendo o resultado (link, número, arquivo). Se não der, diga na sala o que falta. Para dividir trabalho, use criar_tarefa.
@@ -842,6 +874,27 @@ const TOOLS_PT = [
     },
   },
   {
+    name: "editar_mensagem",
+    description: "Corrige o texto de uma mensagem sua (do próprio agente). Só mensagem comum; proposta e decisão não mudam. A sala mostra \"(editada)\".",
+    inputSchema: {
+      type: "object",
+      properties: {
+        mensagem: { type: "integer", description: "Id (#N) da sua mensagem." },
+        texto: { type: "string", description: "O texto novo inteiro." },
+      },
+      required: ["mensagem", "texto"],
+    },
+  },
+  {
+    name: "apagar_mensagem",
+    description: "Apaga uma mensagem sua (do próprio agente) enviada por engano: o texto e os anexos somem para todos. Também retira uma proposta sua que ainda não foi decidida.",
+    inputSchema: {
+      type: "object",
+      properties: { mensagem: { type: "integer", description: "Id (#N) da sua mensagem." } },
+      required: ["mensagem"],
+    },
+  },
+  {
     name: "ver_decisoes",
     description: "Mostra as propostas que aguardam decisão e o registro de decisões da sala (aprovadas e recusadas, com quem decidiu).",
     inputSchema: { type: "object", properties: { sala: SALA_ARG } },
@@ -991,6 +1044,10 @@ const EN: Record<string, { d: string; p?: Record<string, string> }> = {
     p: { resumo: "One line: what changed and why (e.g. \"Annual price settled in today's decision\").", trocas: "Replacements in the current text: each `de` must appear exactly once in the memory and becomes `para`. An empty `de` appends `para` at the end.", texto: "Or the whole new memory (up to 50,000 characters), instead of trocas." } },
   propor_contexto: { d: "Proposes replacing the room instructions (the people's text) with a new text. It only passes with the yes of every person who writes in the room; once the last one approves, the app swaps it by itself. To record the project's state, use atualizar_memoria.",
     p: { texto: "The proposal, short: what changes compared to the current context and why. Markdown ok.", contexto: "The whole new context, as it should read (up to 50,000 characters).", responde_a: "Id of the message that led to the proposal, if any." } },
+  editar_mensagem: { d: "Fixes the text of one of your own messages (sent by you, the agent). Regular messages only; proposals and decisions don't change. The room shows \"(edited)\".",
+    p: { mensagem: "Id (#N) of your message.", texto: "The whole new text." } },
+  apagar_mensagem: { d: "Deletes one of your own messages (sent by you, the agent) that went out by mistake: the text and attachments disappear for everyone. Also withdraws a proposal of yours that hasn't been decided yet.",
+    p: { mensagem: "Id (#N) of your message." } },
   reagir: { d: "Reacts to a message with an emoji (👍 got it/agree, 👀 looking into it, ✅ done). Sending the same emoji again removes it. Use it instead of a short confirmation message.",
     p: { mensagem: "Id (#N) of the message.", emoji: "One emoji, e.g. 👍" } },
   ver_decisoes: { d: "Shows proposals waiting for a decision and the room's decision record (approved and declined, with who decided)." },
@@ -1162,6 +1219,10 @@ async function chamar(q: Quem, nome: string, a: any): Promise<string | Conteudo[
       return tr(q, `Proposta #${m.id} de troca do contexto enviada na sala "${s.nome}". Precisa do sim de todas as ${count ?? "?"} pessoas; quando a última aprovar, o contexto muda sozinho.`,
         `Context proposal #${m.id} sent to the room "${s.nome}". It needs the yes of all ${count ?? "?"} people; when the last one approves, the context changes by itself.`);
     }
+    case "editar_mensagem":
+      return await editarMensagem(q, Number(a.mensagem), String(a.texto ?? ""));
+    case "apagar_mensagem":
+      return await apagarMensagem(q, Number(a.mensagem));
     case "reagir": {
       const pos = await reagir(q, Number(a.mensagem), String(a.emoji ?? ""));
       return pos ? tr(q, `Reagiu com ${String(a.emoji).trim()} na #${Number(a.mensagem)}.`, `Reacted ${String(a.emoji).trim()} to #${Number(a.mensagem)}.`)
@@ -1338,7 +1399,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.18.0" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.19.0" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {

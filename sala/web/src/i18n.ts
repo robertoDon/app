@@ -121,6 +121,7 @@ const GRAVADOS: Record<string, string> = {
   "saiu": "left",
   "tirou da sala": "removed from the room",
   "apagou uma mensagem": "deleted a message",
+  "retirou a proposta": "withdrew the proposal",
   "aprovou a proposta": "approved the proposal",
   "recusou a proposta": "declined the proposal",
   "fez uma proposta": "made a proposal",
