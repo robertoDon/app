@@ -54,7 +54,7 @@ export function Ata({ salaId, salaNome, autor, nome, fechar }: Props) {
   const quemFaz = (tf: Tarefa) => (tf.responsavel_agente ? agenteDe(tf.responsavel_agente, tf.responsavel) : tf.responsavel ? nome(tf.responsavel) : t("sem responsável", "unassigned"));
   const periodo = (d: Dados) => {
     const hoje = dia(new Date().toISOString());
-    return d.desde ? t(`${dia(d.desde)} a ${hoje}`, `${dia(d.desde)} to ${hoje}`) : t(`todo o histórico, até ${hoje}`, `all history, through ${hoje}`);
+    return d.desde ? t(`${dia(d.desde)} a ${hoje}`, `${dia(d.desde)} to ${hoje}`) : t(`todo o histórico, até ${hoje}`, `all time, through ${hoje}`);
   };
 
   const markdown = (d: Dados) => {
@@ -79,7 +79,7 @@ export function Ata({ salaId, salaNome, autor, nome, fechar }: Props) {
     abertas.forEach((tf) => l.push(`- [ ] ${tf.titulo} · ${quemFaz(tf)}${tf.prazo ? ` · ${t("até", "due")} ${dia(tf.prazo)}` : ""}`));
     l.push("", `## ${t("Tarefas feitas", "Completed tasks")} (${feitas.length})`, "");
     if (!feitas.length) l.push(t("Nenhuma tarefa concluída no período.", "No tasks completed in this period."));
-    feitas.forEach((tf) => l.push(`- [x] ${tf.titulo} · ${t("feita por", "done by")} ${tf.concluida_por_agente ? agenteDe(tf.concluida_por_agente, tf.concluida_por) : nome(tf.concluida_por)}${tf.concluida_em ? ` ${t("em", "on")} ${dia(tf.concluida_em)}` : ""}${tf.resultado ? ` · ${limpa(tf.resultado)}` : ""}`));
+    feitas.forEach((tf) => l.push(`- [x] ${tf.titulo} · ${t("feita por", "completed by")} ${tf.concluida_por_agente ? agenteDe(tf.concluida_por_agente, tf.concluida_por) : nome(tf.concluida_por)}${tf.concluida_em ? ` ${t("em", "on")} ${dia(tf.concluida_em)}` : ""}${tf.resultado ? ` · ${limpa(tf.resultado)}` : ""}`));
     if (d.conversa) {
       const n = d.conversa.length;
       l.push("", t(`## Conversa (${n} mensagens)`, `## Conversation (${n} ${n === 1 ? "message" : "messages"})`), "");
@@ -139,7 +139,7 @@ p{margin:0 0 8px}.item{padding-left:4px}.sub{padding-left:24px;color:#5F5F66}@me
           <h2 id="ata-titulo">{t("Ata da sala", "Room minutes")}</h2>
           <button className="btn-icone" onClick={fechar} aria-label={t("Fechar", "Close")}><IconeFechar /></button>
         </div>
-        <p className="sub">{t("Decisões, o que aguarda decisão e as tarefas do período. Boa para mandar ao cliente ou levar para a reunião.", "Decisions, what's awaiting a decision, and the period's tasks. Great for sending to a client or bringing to a meeting.")}</p>
+        <p className="sub">{t("Decisões, o que aguarda decisão e as tarefas do período. Boa para mandar ao cliente ou levar para a reunião.", "Decisions, open proposals and tasks for the period. Handy for sending to a client or bringing to a meeting.")}</p>
         <fieldset className="opcoes">
           <legend className="secao-rotulo secao-rotulo-solto">{t("Período", "Period")}</legend>
           {([[7, t("Últimos 7 dias", "Last 7 days")], [30, t("Últimos 30 dias", "Last 30 days")], [0, t("Tudo", "All time")]] as const).map(([v, r]) => (
@@ -150,7 +150,7 @@ p{margin:0 0 8px}.item{padding-left:4px}.sub{padding-left:24px;color:#5F5F66}@me
         </fieldset>
         <label className="opcao">
           <input type="checkbox" checked={incluirConversa} onChange={(e) => setConversa(e.target.checked)} />
-          <span><strong>{t("Incluir a conversa inteira", "Include the whole conversation")}</strong><span className="nota">{t("Fica bem mais longa. Sem ela, a ata tem só o que foi decidido e combinado.", "It gets much longer. Without it, the minutes only have what was decided and agreed.")}</span></span>
+          <span><strong>{t("Incluir a conversa inteira", "Include the whole conversation")}</strong><span className="nota">{t("Fica bem mais longa. Sem ela, a ata tem só o que foi decidido e combinado.", "Makes it much longer. Without it, the minutes cover only what was decided and agreed on.")}</span></span>
         </label>
         <div className="modal-acoes">
           <button className="btn" onClick={baixar} disabled={indo}>{t("Baixar .md", "Download .md")}</button>

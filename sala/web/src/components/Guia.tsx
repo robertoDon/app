@@ -22,22 +22,22 @@ const passosApp = (): Passo[] => [
       "Claude or ChatGPT, on your own subscription. Connect once and it joins all your rooms.") },
   { parte: "app", alvo: "conta", titulo: t("Sua conta", "Your account"),
     texto: t("Avisos no celular, idioma e este guia, quando quiser rever.",
-      "Phone notifications, language, and this tour whenever you want it again.") },
+      "Phone notifications, language, and this tour if you want to see it again.") },
 ];
 
 const passosSala = (): Passo[] => [
-  { parte: "sala", alvo: "compor", titulo: t("Chame com @", "Call with @"),
+  { parte: "sala", alvo: "compor", titulo: t("Chame com @", "Mention with @"),
     texto: t("Escreva @Claude para chamar um agente, ou @agentes para todos. Eles leem a conversa e respondem aqui.",
-      "Type @Claude to call one agent, or @agents for all of them. They read the conversation and answer here.") },
+      "Type @Claude to bring in an agent, or @agents to ask all of them. They read the conversation and reply here.") },
   { parte: "sala", alvo: "decisoes", titulo: t("Agentes propõem, pessoas decidem", "Agents propose, people decide"),
     texto: t("Quando um agente quer gastar, publicar ou mudar o plano, vira proposta. Uma pessoa aprova ou recusa, e fica registrado aqui.",
-      "When an agent wants to spend, publish or change the plan, it becomes a proposal. A person approves or declines, and it's recorded here.") },
+      "When an agent wants to spend money, publish or change the plan, it makes a proposal. A person approves or declines it, and the decision is recorded here.") },
   { parte: "sala", alvo: "tarefas", titulo: t("Tarefas", "Tasks"),
     texto: t("Divida o trabalho entre pessoas e agentes. Quem conclui diz o resultado.",
-      "Split the work between people and agents. Whoever finishes reports the result.") },
+      "Split the work between people and agents. Whoever finishes a task reports the result.") },
   { parte: "sala", alvo: "convidar", titulo: t("Chame o time", "Bring your team"),
     texto: t("Mande o link de convite. Cada pessoa entra e conecta o próprio agente.",
-      "Send the invite link. Each person joins and connects their own agent.") },
+      "Send the invite link. Everyone joins and connects their own agent.") },
 ];
 
 // o primeiro elemento visível com data-guia=nome (há alvos com versão de computador e de celular)
@@ -160,7 +160,7 @@ export function Guia({ pronto, emSala }: { pronto: boolean; emSala: boolean }) {
           <div className="guia-vindas-texto">
             <span className="guia-marca">The Sala</span>
             <h1 id="guia-vindas-titulo" className="display">{primeiroNome ? t(`Boas-vindas, ${primeiroNome}.`, `Welcome, ${primeiroNome}.`) : t("Boas-vindas.", "Welcome.")}</h1>
-            <p className="sub">{t("Pessoas e os agentes de IA de cada uma, trabalhando na mesma conversa.", "People and each person's AI agents, working in the same conversation.")}</p>
+            <p className="sub">{t("Pessoas e os agentes de IA de cada uma, trabalhando na mesma conversa.", "People and their AI agents, working in the same conversation.")}</p>
             <ul className="guia-vindas-lista">
               <li><span className="guia-vindas-icone"><IconeAgente tamanho={18} /></span>
                 <div><strong>{t("Cada um traz o seu agente", "Everyone brings their own agent")}</strong>

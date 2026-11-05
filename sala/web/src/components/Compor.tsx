@@ -146,14 +146,14 @@ export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBa
             )}
             {proposta && (
               <span className="compor-chip">
-                <IconeProposta tamanho={14} /> <strong>{tr("Proposta", "Proposal")}</strong> · {aprovam.length ? tr("só decide quem você marcou", "only the people you picked decide") : tr("as pessoas da sala aprovam ou recusam", "people in the room approve or decline")}
+                <IconeProposta tamanho={14} /> <strong>{tr("Proposta", "Proposal")}</strong> · {aprovam.length ? tr("só decide quem você marcou", "only the people you chose can decide") : tr("as pessoas da sala aprovam ou recusam", "people in the room will approve or decline")}
               </span>
             )}
             {proposta && pessoas.length > 1 && (
               <span className="compor-aprovam" role="group" aria-label={tr("Quem aprova", "Who approves")}>
                 <span className="nota">{tr("Quem aprova:", "Who approves:")}</span>
                 <button type="button" className={`chip-opcao ${aprovam.length ? "" : "ativo"}`} aria-pressed={!aprovam.length}
-                  onClick={(e) => { e.stopPropagation(); setAprovam([]); }}>{tr("Regra da sala", "Room rule")}</button>
+                  onClick={(e) => { e.stopPropagation(); setAprovam([]); }}>{tr("Regra da sala", "Room default")}</button>
                 {pessoas.map((x) => {
                   const on = aprovam.includes(x.id);
                   return <button key={x.id} type="button" className={`chip-opcao ${on ? "ativo" : ""}`} aria-pressed={on}
@@ -167,7 +167,7 @@ export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBa
           <label className="sr" htmlFor="texto">{tr("Mensagem", "Message")}</label>
           <textarea id="texto" ref={caixa} rows={1} value={texto}
             placeholder={proposta
-              ? (estreito ? tr("O que você propõe?", "What do you propose?") : tr("O que você propõe? Diga o que muda.", "What do you propose? Say what changes."))
+              ? (estreito ? tr("O que você propõe?", "What are you proposing?") : tr("O que você propõe? Diga o que muda.", "What are you proposing? Describe the change."))
               : (estreito ? tr("Escreva aqui", "Write a message") : tr("Escreva aqui · @ chama alguém", "Write a message · @ to mention someone"))}
             onChange={(e) => { setTexto(e.target.value); acharBusca(e.target.value, e.target.selectionStart); }}
             onBlur={() => setBusca(null)}
@@ -183,11 +183,11 @@ export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBa
               if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); mandar(); }
             }} />
           <input ref={seletor} type="file" multiple hidden onChange={(e) => { anexar([...(e.target.files ?? [])]); e.target.value = ""; }} />
-          <button type="button" className="btn-acao btn-clipe" title={tr("Anexar arquivo (até 10 MB) · também dá para colar ou arrastar", "Attach file (up to 10 MB) · you can also paste or drag it in")} aria-label={tr("Anexar arquivo", "Attach file")}
+          <button type="button" className="btn-acao btn-clipe" title={tr("Anexar arquivo (até 10 MB) · também dá para colar ou arrastar", "Attach a file (up to 10 MB) · or paste or drag it in")} aria-label={tr("Anexar arquivo", "Attach file")}
             onClick={(e) => { e.stopPropagation(); seletor.current?.click(); }}><IconeClipe tamanho={18} /></button>
           <button type="button" className={`btn-acao btn-propor ${proposta ? "ativo" : ""}`} aria-pressed={proposta}
             onClick={(e) => { e.stopPropagation(); setProposta((v) => !v); caixa.current?.focus(); }}
-            title={proposta ? tr("Voltar a mensagem comum", "Back to a regular message") : tr("Fazer uma proposta: pedir que as pessoas aprovem ou recusem", "Make a proposal: ask people to approve or decline")}>
+            title={proposta ? tr("Voltar a mensagem comum", "Switch back to a regular message") : tr("Fazer uma proposta: pedir que as pessoas aprovem ou recusem", "Make a proposal: ask people to approve or decline")}>
             <IconeProposta tamanho={18} /><span className="some-celular">{proposta ? tr("Proposta", "Proposal") : tr("Propor", "Propose")}</span>
           </button>
           <button className="btn-enviar" disabled={(!texto.trim() && !prontos.length) || enviando} title={proposta ? tr("Propor (Enter)", "Propose (Enter)") : tr("Enviar (Enter)", "Send (Enter)")} aria-label={proposta ? tr("Enviar proposta", "Send proposal") : tr("Enviar", "Send")}>
@@ -196,7 +196,7 @@ export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBa
         </div>
       </div>
       <p className="compor-dica" aria-hidden>
-        <kbd>@</kbd> {tr("chama alguém", "mentions someone")} · <kbd>@{tc("agentes", "agents")}</kbd> {tr("pergunta a todos", "asks all agents")} · <kbd>Enter</kbd> {tr("envia", "sends")} · <kbd>Shift</kbd> + <kbd>Enter</kbd> {tr("quebra linha", "new line")}
+        <kbd>@</kbd> {tr("chama alguém", "to mention someone")} · <kbd>@{tc("agentes", "agents")}</kbd> {tr("pergunta a todos", "to ask all agents")} · <kbd>Enter</kbd> {tr("envia", "to send")} · <kbd>Shift</kbd> + <kbd>Enter</kbd> {tr("quebra linha", "for a new line")}
       </p>
     </form>
   );

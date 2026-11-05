@@ -39,7 +39,7 @@ export default function Convite() {
         {info === undefined && <div className="lp-convite-cartao" aria-busy="true"><div className="esqueleto" /><div className="esqueleto" /></div>}
         {info === null && (
           <div className="lp-convite-cartao">
-            <h1 className="lp-h2">{t("Este convite não vale mais.", "This invite isn't valid.")}</h1>
+            <h1 className="lp-h2">{t("Este convite não vale mais.", "This invite is no longer valid.")}</h1>
             <p className="lp-sub">{t("Quem cuida da sala pode ter trocado o link. Peça um novo.", "The room owner may have replaced the link. Ask them for a new one.")}</p>
             <Link className="lp-btn lp-btn-fantasma lp-btn-grande" to="/">{t("Ver minhas salas", "See my rooms")}</Link>
           </div>
@@ -47,13 +47,13 @@ export default function Convite() {
         {info && (
           <div className="lp-convite-cartao">
             <span className="lp-convite-inicial" aria-hidden>{info.nome.slice(0, 1).toUpperCase()}</span>
-            <p className="lp-olho">{info.leitura ? t("Te chamaram para acompanhar", "You're invited to follow") : t("Te chamaram para", "You're invited to")}</p>
+            <p className="lp-olho">{info.leitura ? t("Te chamaram para acompanhar", "You're invited to view") : t("Te chamaram para", "You're invited to join")}</p>
             <h1 className="lp-h2">{info.nome}</h1>
             <p className="lp-sub">{info.pessoas === 1
               ? t("1 pessoa na sala.", "1 person in the room.")
               : t(`${info.pessoas} pessoas na sala.`, `${info.pessoas} people in the room.`)} {info.leitura
-              ? t("Você vê a conversa, as decisões e as tarefas, sem escrever.", "You'll see the conversation, decisions and tasks, without writing.")
-              : t("Depois de entrar, você conecta o seu agente em um minuto.", "Once you join, you can connect your agent in a minute.")}</p>
+              ? t("Você vê a conversa, as decisões e as tarefas, sem escrever.", "You'll be able to see the conversation, decisions and tasks, but not write.")
+              : t("Depois de entrar, você conecta o seu agente em um minuto.", "After you join, you can connect your agent in about a minute.")}</p>
             <button type="button" className="lp-btn lp-btn-claro lp-btn-grande" onClick={entrar} disabled={entrando} autoFocus>
               {entrando ? t("Entrando…", "Joining…") : t("Entrar na sala", "Join room")}
             </button>

@@ -55,7 +55,7 @@ export function Comandos({ salas, salaAberta, novaSala, conectar, conta }: {
     if (salaAberta) {
       const g = t("Nesta sala", "In this room");
       r.push(
-        { id: "decisoes", grupo: g, rotulo: t("Decisões", "Decisions"), dica: t("propostas e registro", "proposals and record"), tecla: "D", icone: <IconeProposta tamanho={16} />, fazer: painel("decisoes") },
+        { id: "decisoes", grupo: g, rotulo: t("Decisões", "Decisions"), dica: t("propostas e registro", "proposals and log"), tecla: "D", icone: <IconeProposta tamanho={16} />, fazer: painel("decisoes") },
         { id: "tarefas", grupo: g, rotulo: t("Tarefas", "Tasks"), tecla: "T", icone: <IconeDecisao tamanho={16} />, fazer: painel("tarefas") },
         { id: "painel", grupo: g, rotulo: t("Painel", "Dashboard"), dica: t("andamento por frente", "progress by workstream"), tecla: "P", icone: <IconePainel tamanho={16} />, fazer: painel("painel") },
         { id: "biblioteca", grupo: g, rotulo: t("Biblioteca", "Library"), dica: t("arquivos e links", "files and links"), tecla: "B", icone: <IconeBiblioteca tamanho={16} />, fazer: painel("biblioteca") },
@@ -131,7 +131,7 @@ export function Comandos({ salas, salaAberta, novaSala, conectar, conta }: {
               </li>
             );
           })}
-          {!achados.length && <li className="cmd-nada">{t(`Nada com “${q}”. Tente o nome de uma sala ou de um painel.`, `Nothing for “${q}”. Try a room or panel name.`)}</li>}
+          {!achados.length && <li className="cmd-nada">{t(`Nada com “${q}”. Tente o nome de uma sala ou de um painel.`, `Nothing matches “${q}”. Try the name of a room or panel.`)}</li>}
         </ul>
         <p className="cmd-pe"><span><kbd>↑</kbd><kbd>↓</kbd> {t("escolher", "move")}</span><span><kbd>↵</kbd> {t("abrir", "open")}</span><span><kbd>{atalhoComandos()}</kbd> {t("abre e fecha", "toggle")}</span></p>
       </div>

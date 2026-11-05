@@ -83,11 +83,11 @@ export function Sozinho() {
     setIndo(false);
     await carregar();
     if (r?.ok) setMsg({ ok: true, texto: t("Funcionou. O Claude abriu uma sessão de teste na sua conta.", "It works. Claude opened a test session in your account."), link: j.sessao });
-    else setMsg({ ok: false, texto: j.erro ? `${t("Não funcionou", "It didn't work")}: ${j.erro}` : t("Não deu para testar agora.", "Couldn't test right now.") });
+    else setMsg({ ok: false, texto: j.erro ? `${t("Não funcionou", "It didn't work")}: ${j.erro}` : t("Não deu para testar agora.", "Couldn't run the test right now.") });
   };
 
   const desligar = async () => {
-    if (!confirm(t("Desligar? O seu Claude volta a responder só quando você pedir.", "Turn it off? Your Claude will only reply when you ask again."))) return;
+    if (!confirm(t("Desligar? O seu Claude volta a responder só quando você pedir.", "Turn it off? Your Claude will only reply when you ask it to."))) return;
     await sb.rpc("desligar_despertador", { agente: "Claude" });
     setMsg(null);
     carregar();
@@ -95,17 +95,17 @@ export function Sozinho() {
 
   return (
     <section className="sozinho">
-      <h3>{t("Responder sozinho", "Reply on its own")} <span className="nota">{t("opcional · Claude Pro, Max, Team ou Enterprise", "optional · Claude Pro, Max, Team or Enterprise")}</span></h3>
+      <h3>{t("Responder sozinho", "Auto-reply")} <span className="nota">{t("opcional · Claude Pro, Max, Team ou Enterprise", "optional · Claude Pro, Max, Team or Enterprise")}</span></h3>
       <p className="sub">{t(
         "Quando chamarem o seu Claude numa sala, ele abre sozinho na nuvem, lê a conversa e responde em cerca de 1 minuto, mesmo com o computador desligado. Usa a sua assinatura do Claude.",
-        "When someone calls your Claude in a room, it opens on its own in the cloud, reads the conversation and replies in about a minute, even with your computer off. It uses your Claude subscription.")}</p>
+        "When someone mentions your Claude in a room, it starts up in the cloud, reads the conversation and replies in about a minute, even with your computer off. It uses your Claude subscription.")}</p>
 
       {lista === null ? null : ligado ? (
         <div className="sozinho-ligado">
           <p><strong className="ok">{t("Ligado", "On")}</strong>{" · "}
             {ligado.ultimo_disparo
-              ? <>{t("último chamado", "last call")} {quando(ligado.ultimo_disparo)}{ligado.ultimo_erro ? <> · <span className="atrasada">{ligado.ultimo_erro}</span></> : ` · ${t("ok", "ok")}`}</>
-              : t("ainda não foi chamado", "not called yet")}</p>
+              ? <>{t("último chamado", "last triggered")} {quando(ligado.ultimo_disparo)}{ligado.ultimo_erro ? <> · <span className="atrasada">{ligado.ultimo_erro}</span></> : ` · ${t("ok", "ok")}`}</>
+              : t("ainda não foi chamado", "not triggered yet")}</p>
           <div className="linha">
             <button className="btn btn-pequeno" onClick={testar} disabled={indo}>{t("Testar", "Test")}</button>
             <button className="btn btn-pequeno" onClick={desligar} disabled={indo}>{t("Desligar", "Turn off")}</button>
@@ -121,7 +121,7 @@ export function Sozinho() {
             <div className="linha"><Copiar valor={instrucaoTarefa()} rotulo={t("Copiar instruções atuais", "Copy current instructions")} /></div>
           </div>
           {ligado.ultimo_status === 401 || ligado.ultimo_status === 404 ? (
-            <p className="nota">{t("A chave não vale mais (a tarefa foi apagada ou gerou chave nova). Desligue e ligue de novo com a chave atual.", "The key is no longer valid (the task was deleted or a new key was generated). Turn it off and on again with the current key.")}</p>
+            <p className="nota">{t("A chave não vale mais (a tarefa foi apagada ou gerou chave nova). Desligue e ligue de novo com a chave atual.", "This key is no longer valid (the task was deleted or a new key was generated). Turn auto-reply off and on again with the current key.")}</p>
           ) : null}
         </div>
       ) : (
@@ -160,14 +160,14 @@ export function Sozinho() {
             <input id="sozinho-token" required type="password" value={token} onChange={(e) => setToken(e.target.value)} autoComplete="off" spellCheck={false}
               placeholder="sk-ant-oat01-…" />
             <p className="nota">{t("O token só serve para disparar essa tarefa: não lê nada da sua conta. Fica guardado criptografado e você desliga quando quiser.",
-              "The token can only trigger that task: it can't read anything in your account. It's stored encrypted and you can turn it off any time.")}</p>
+              "The token can only trigger that task: it can't read anything in your account. It's stored encrypted, and you can turn it off anytime.")}</p>
             <button className="btn btn-cheio" disabled={indo}>{indo ? t("Ligando…", "Turning on…") : t("Ligar e testar", "Turn on and test")}</button>
           </form>
         </>
       )}
       {msg && (
         <p className={msg.ok ? "nota ok" : "nota atrasada"} role="status">
-          {msg.texto}{msg.link ? <> <a className="link" href={msg.link} target="_blank" rel="noopener noreferrer">{t("Ver a sessão", "See the session")}</a></> : null}
+          {msg.texto}{msg.link ? <> <a className="link" href={msg.link} target="_blank" rel="noopener noreferrer">{t("Ver a sessão", "View session")}</a></> : null}
         </p>
       )}
     </section>
@@ -208,23 +208,23 @@ export function SozinhoEventos({ agente }: { agente: string }) {
   const ativo = lista?.[0];
 
   const desligar = async () => {
-    if (!confirm(t(`Desligar? O ${agente} para de ser acordado pela Sala. Apague também a tarefa no ${agente}.`, `Turn it off? ${agente} stops being woken by The Sala. Also delete the task in ${agente}.`))) return;
+    if (!confirm(t(`Desligar? O ${agente} para de ser acordado pela Sala. Apague também a tarefa no ${agente}.`, `Turn it off? The Sala will stop waking ${agente}. Also delete the task in ${agente}.`))) return;
     await sb.rpc("desligar_eventos", { agente });
     carregar();
   };
 
   return (
     <section className="sozinho">
-      <h3>{t("Responder sozinho", "Reply on its own")} <span className="nota">{t("opcional · ChatGPT Plus, Pro, Business, Enterprise ou Edu", "optional · ChatGPT Plus, Pro, Business, Enterprise or Edu")}</span></h3>
+      <h3>{t("Responder sozinho", "Auto-reply")} <span className="nota">{t("opcional · ChatGPT Plus, Pro, Business, Enterprise ou Edu", "optional · ChatGPT Plus, Pro, Business, Enterprise or Edu")}</span></h3>
       <p className="sub">{t(
         `Quando chamarem o seu ${agente} numa sala, ele recebe um aviso, lê a conversa e responde sozinho. Usa a sua assinatura.`,
-        `When someone calls your ${agente} in a room, it gets a notice, reads the conversation and replies on its own. It uses your subscription.`)}</p>
+        `When someone mentions your ${agente} in a room, it gets notified, reads the conversation and replies on its own. It uses your subscription.`)}</p>
       {lista === null ? null : ativo ? (
         <div className="sozinho-ligado">
           <p><strong className="ok">{t("Ligado", "On")}</strong>{" · "}
             {ativo.ultimo_envio
-              ? <>{t("último chamado", "last call")} {quando(ativo.ultimo_envio)}{ativo.ultimo_erro ? <> · <span className="atrasada">{ativo.ultimo_erro}</span></> : " · ok"}</>
-              : t("ainda não foi chamado", "not called yet")}</p>
+              ? <>{t("último chamado", "last triggered")} {quando(ativo.ultimo_envio)}{ativo.ultimo_erro ? <> · <span className="atrasada">{ativo.ultimo_erro}</span></> : " · ok"}</>
+              : t("ainda não foi chamado", "not triggered yet")}</p>
           <p className="nota">{en
             ? <>Write <code>@{agente}</code> in a room and it should reply in a minute or two. The {agente} task renews this on its own.</>
             : <>Escreva <code>@{agente}</code> numa sala e ele deve responder em 1 ou 2 minutos. A tarefa do {agente} renova isso sozinha.</>}</p>
@@ -245,7 +245,7 @@ export function SozinhoEventos({ agente }: { agente: string }) {
           </ol>
           <p className="nota">{t(
             "Este recurso do ChatGPT é novo. Se ele disser que o conector não oferece eventos, é porque ainda não aceita conectores personalizados: use o botão “Pedir ao ChatGPT” na sala.",
-            "This ChatGPT feature is new. If it says the connector doesn't offer events, it doesn't accept custom connectors yet: use the “Ask ChatGPT” button in the room.")}</p>
+            "This ChatGPT feature is new. If it says the connector doesn't offer events, it doesn't support custom connectors yet: use the “Ask ChatGPT” button in the room instead.")}</p>
         </>
       )}
     </section>

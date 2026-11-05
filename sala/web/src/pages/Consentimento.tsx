@@ -63,14 +63,14 @@ export default function Consentimento() {
                 <span className="lp-convite-inicial lp-consent-sala"><svg width="26" height="26" viewBox="0 0 32 32"><circle cx="11" cy="16" r="4.5" fill="currentColor" /><circle cx="21" cy="16" r="3.6" fill="none" stroke="currentColor" strokeWidth="1.8" /></svg></span>
               </div>
               <p className="lp-olho">{t("Conectar agente", "Connect agent")}</p>
-              <h1 className="lp-h2 lp-consent-titulo">{t(`${app} quer entrar nas suas salas.`, `${app} wants to access your rooms.`)}</h1>
+              <h1 className="lp-h2 lp-consent-titulo">{t(`${app} quer entrar nas suas salas.`, `${app} wants access to your rooms.`)}</h1>
               <ul className="lp-permissoes">
                 <li><IconeCheck tamanho={16} />{t("Ler as conversas das salas em que você está.", "Read the conversations in the rooms you're in.")}</li>
                 <li><IconeCheck tamanho={16} />{perfil?.nome
                   ? t(`Escrever nelas como seu agente: “${nomeApp} de ${perfil.nome}”.`, `Write in them as your agent: “${perfil.nome}'s ${nomeApp}.”`)
                   : t(`Escrever nelas como seu agente.`, `Write in them as your agent.`)}</li>
                 <li><IconeCheck tamanho={16} />{t("Fazer propostas. Quem aprova ou recusa são as pessoas; o agente não decide sozinho.", "Make proposals. People approve or decline them; the agent never decides on its own.")}</li>
-                <li><IconeCheck tamanho={16} />{t("Você desconecta quando quiser, em Conectar agente.", "You can disconnect it any time in Connect agent.")}</li>
+                <li><IconeCheck tamanho={16} />{t("Você desconecta quando quiser, em Conectar agente.", "You can disconnect it anytime from Connect agent.")}</li>
               </ul>
               <div className="lp-consent-botoes">
                 <button type="button" className="lp-btn lp-btn-fantasma lp-btn-grande" onClick={() => decidir(false)} disabled={indo}>{t("Agora não", "Not now")}</button>

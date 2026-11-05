@@ -56,14 +56,14 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco, 
   };
 
   const trocarConvite = async () => {
-    if (!confirm(t("Trocar o link? O link antigo para de funcionar. Quem já está na sala continua.", "Replace the links? The old links will stop working. People already in the room stay."))) return;
+    if (!confirm(t("Trocar o link? O link antigo para de funcionar. Quem já está na sala continua.", "Replace the invite links? The old ones will stop working. People already in the room will stay."))) return;
     const { error } = await sb.rpc("trocar_convite", { sala: sala.id });
     if (error) alert(erro(error));
     recarregar();
   };
 
   const remover = async (m: Membro) => {
-    if (!confirm(t(`Tirar ${m.perfis?.nome} da sala? Os agentes dessa pessoa também saem.`, `Remove ${m.perfis?.nome} from the room? Their agents will leave too.`))) return;
+    if (!confirm(t(`Tirar ${m.perfis?.nome} da sala? Os agentes dessa pessoa também saem.`, `Remove ${m.perfis?.nome} from the room? Their agents will be removed too.`))) return;
     await sb.from("membros").delete().eq("sala_id", sala.id).eq("user_id", m.user_id);
   };
 
@@ -73,7 +73,7 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco, 
   };
 
   const tornarDono = async (m: Membro) => {
-    if (!confirm(t(`${m.perfis?.nome} também passa a cuidar da sala: muda nome e instruções, convida, tira pessoas e pode apagar a sala.`, `${m.perfis?.nome} will also become an owner: they can change the name and instructions, invite and remove people, and delete the room.`))) return;
+    if (!confirm(t(`${m.perfis?.nome} também passa a cuidar da sala: muda nome e instruções, convida, tira pessoas e pode apagar a sala.`, `${m.perfis?.nome} will also become a room owner: they can rename the room, edit its instructions, invite and remove people, and delete the room.`))) return;
     const { error } = await sb.rpc("tornar_dono", { sala: sala.id, pessoa: m.user_id });
     if (error) alert(erro(error));
   };
@@ -82,7 +82,7 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco, 
   const sair = async () => {
     const aviso = dono && !outrosDonos && membros.length > 1
       ? t(`Sair de "${sala.nome}"? Como você é quem cuida da sala, ${membros.find((m) => m.user_id !== eu)?.perfis?.nome ?? "a próxima pessoa"} passa a cuidar dela.`,
-        `Leave "${sala.nome}"? You're the owner, so ${membros.find((m) => m.user_id !== eu)?.perfis?.nome ?? "the next person"} will become the owner.`)
+        `Leave "${sala.nome}"? Since you're the room owner, ${membros.find((m) => m.user_id !== eu)?.perfis?.nome ?? "the next person"} will take over.`)
       : membros.length === 1 ? t(`Você é a única pessoa aqui. Sair apaga a sala "${sala.nome}".`, `You're the only person here. Leaving deletes the room "${sala.nome}".`)
         : t(`Sair de "${sala.nome}"? Para voltar, você vai precisar de um convite.`, `Leave "${sala.nome}"? You'll need an invite to come back.`);
     if (!confirm(aviso)) return;
@@ -99,7 +99,7 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco, 
     recarregar(); nav("/");
   };
 
-  const papelDe = (m: Membro) => m.papel === "dono" ? <span className="pilula pilula-acento">{t("Cuida da sala", "Owner")}</span>
+  const papelDe = (m: Membro) => m.papel === "dono" ? <span className="pilula pilula-acento">{t("Cuida da sala", "Room owner")}</span>
     : m.papel === "leitor" ? <span className="pilula">{t("Só lê", "View only")}</span> : null;
   const contextoMudou = contexto.trim() !== sala.contexto.trim();
 
@@ -129,9 +129,9 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco, 
               : <span className="nota">{contexto.length.toLocaleString(locale())}/{(10000).toLocaleString(locale())}</span>}
           </div>
           <textarea id="aj-contexto" rows={6} maxLength={Math.max(10000, sala.contexto.length)} value={contexto} disabled={!dono} autoFocus={foco === "contexto"}
-            placeholder={t("Ex.: Piloto pago de novembro. Ana decide preço, Bruno decide produto. Respostas curtas, com números e fonte.", "E.g.: Paid pilot in November. Ana decides pricing, Bruno decides product. Short replies, with numbers and sources.")}
+            placeholder={t("Ex.: Piloto pago de novembro. Ana decide preço, Bruno decide produto. Respostas curtas, com números e fonte.", "E.g., Paid pilot in November. Ana decides pricing, Bruno decides product. Keep replies short, with numbers and sources.")}
             onChange={(e) => setContexto(e.target.value)} />
-          <p className="nota">{t("Curtas, escritas por vocês: o objetivo, quem decide o quê, o tom e as regras que não mudam. O estado do projeto os agentes guardam sozinhos na ", "Short, written by you: the goal, who decides what, the tone and the rules that don't change. Agents keep the project's state by themselves in the ")}{abrirMemoria ? <button type="button" className="link-texto" onClick={abrirMemoria}>{t("memória da sala", "room memory")}</button> : t("memória da sala", "room memory")}.</p>
+          <p className="nota">{t("Curtas, escritas por vocês: o objetivo, quem decide o quê, o tom e as regras que não mudam. O estado do projeto os agentes guardam sozinhos na ", "Keep them short and write them yourselves: the goal, who decides what, the tone, and the ground rules. Agents track the project's status on their own in the ")}{abrirMemoria ? <button type="button" className="link-texto" onClick={abrirMemoria}>{t("memória da sala", "room memory")}</button> : t("memória da sala", "room memory")}.</p>
           {dono && contextoMudou && (
             <div className="linha campo-acoes">
               <button className="btn btn-pequeno btn-texto" onClick={() => setContexto(sala.contexto)}>{t("Descartar", "Discard")}</button>
@@ -141,7 +141,7 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco, 
         </div>
         <div className="campo">
           <div className="campo-topo">
-            <span id="aj-aprov" className="campo-rotulo">{t("Aprovações para uma proposta passar", "Approvals for a proposal to pass")}</span>
+            <span id="aj-aprov" className="campo-rotulo">{t("Aprovações para uma proposta passar", "Approvals needed to pass a proposal")}</span>
             {salvo === "aprovacoes" && <span className="salvo" role="status"><IconeCheck tamanho={12} /> {t("Salvo", "Saved")}</span>}
           </div>
           <div className="abas" role="radiogroup" aria-labelledby="aj-aprov">
@@ -150,7 +150,7 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco, 
                 className={`aba ${aprovacoes === n ? "ativa" : ""}`} onClick={() => mudarAprovacoes(n as number)}>{rot}</button>
             ))}
           </div>
-          <p className="nota">{t("Um “Recusar” encerra a proposta na hora. “Todos” conta quem escreve na sala, não quem só acompanha.", "One “Decline” closes the proposal right away. “Everyone” counts people who write in the room, not viewers.")}</p>
+          <p className="nota">{t("Um “Recusar” encerra a proposta na hora. “Todos” conta quem escreve na sala, não quem só acompanha.", "A single “Decline” closes the proposal right away. “Everyone” means everyone who can write in the room, not viewers.")}</p>
         </div>
         <div className="campo">
           <div className="campo-topo">
@@ -163,7 +163,7 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco, 
                 className={`aba ${(sala.idioma ?? "pt") === v ? "ativa" : ""}`} lang={v === "en" ? "en" : "pt-BR"} onClick={() => mudarIdioma(v)}>{rot}</button>
             ))}
           </div>
-          <p className="nota">{t("A conversa segue a sala: os agentes escrevem nesse idioma e os textos do sistema aparecem nele para todos. Botões e menus seguem cada pessoa.", "The conversation follows the room: agents write in this language and system messages show in it for everyone. Buttons and menus follow each person's setting.")}</p>
+          <p className="nota">{t("A conversa segue a sala: os agentes escrevem nesse idioma e os textos do sistema aparecem nele para todos. Botões e menus seguem cada pessoa.", "Sets the language of the conversation: agents write in it, and system messages appear in it for everyone. Buttons and menus follow each person's own setting.")}</p>
         </div>
       </section>
 
@@ -181,8 +181,8 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco, 
               {dono && m.papel !== "dono" ? (
                 <Menu rotulo={t(`Ações para ${m.perfis?.nome}`, `Actions for ${m.perfis?.nome}`)} itens={[
                   m.papel === "leitor" ? { rotulo: t("Liberar para escrever", "Allow writing"), acao: () => mudarPapel(m, "membro") }
-                    : { rotulo: t("Deixar só ler", "Make view only"), acao: () => mudarPapel(m, "leitor") },
-                  m.papel !== "leitor" && { rotulo: t("Tornar dono", "Make owner"), acao: () => tornarDono(m) },
+                    : { rotulo: t("Deixar só ler", "Make viewer"), acao: () => mudarPapel(m, "leitor") },
+                  m.papel !== "leitor" && { rotulo: t("Tornar dono", "Make room owner"), acao: () => tornarDono(m) },
                   { rotulo: t("Tirar da sala", "Remove from room"), acao: () => remover(m), perigo: true },
                 ]} />
               ) : <span className="menu-vazio" aria-hidden />}
@@ -194,7 +194,7 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco, 
       <section className="painel-lista">
         <div className="secao-rotulo secao-rotulo-acao">
           <h3>{t("Agentes", "Agents")} <span>{agentes.length}</span></h3>
-          <button className="link nota" onClick={abrirConectar}>{t("Conectar o meu", "Connect mine")}</button>
+          <button className="link nota" onClick={abrirConectar}>{t("Conectar o meu", "Connect your agent")}</button>
         </div>
         {agentes.length ? (
           <ul className="linhas">
@@ -205,11 +205,11 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco, 
                   <span className="linha-titulo">{(() => { const de = membros.find((m) => m.user_id === a.uid)?.perfis?.nome?.split(" ")[0] ?? "?"; return t(`${a.nome} de ${de}`, `${de}'s ${a.nome}`); })()}</span>
                   {a.presenca && <span className={`presenca ${a.presenca.ativo ? "presenca-ativa" : ""}`}>{a.presenca.ativo && <span className="ponto ponto-mini" aria-hidden />}{a.presenca.texto}</span>}
                 </span>
-                {a.sozinho && <span className="pilula" title={t("Responde sozinho quando chamado", "Replies on its own when called")}>{t("Automático", "Automatic")}</span>}
+                {a.sozinho && <span className="pilula" title={t("Responde sozinho quando chamado", "Replies on its own when mentioned")}>{t("Automático", "Auto-reply")}</span>}
               </li>
             ))}
           </ul>
-        ) : <p className="nota secao-nota">{t("Nenhum agente ainda. Cada pessoa conecta o seu, com a assinatura que já tem.", "No agents yet. Each person connects their own, with the subscription they already have.")}</p>}
+        ) : <p className="nota secao-nota">{t("Nenhum agente ainda. Cada pessoa conecta o seu, com a assinatura que já tem.", "No agents yet. Everyone connects their own, using the subscription they already have.")}</p>}
       </section>
 
       {link && (
@@ -219,8 +219,8 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco, 
             {dono && <button className="link nota" onClick={trocarConvite}>{t("Trocar links", "Replace links")}</button>}
           </div>
           <div className="convites">
-            <Convite titulo={t("Participar", "Join")} texto={t("Escreve, decide e traz os próprios agentes.", "Can write, decide and bring their own agents.")} link={link} />
-            {linkLeitura && <Convite titulo={t("Só acompanhar", "View only")} texto={t("Para clientes: lê tudo, não escreve nem decide.", "For clients: reads everything, can't write or decide.")} link={linkLeitura} />}
+            <Convite titulo={t("Participar", "Member")} texto={t("Escreve, decide e traz os próprios agentes.", "Can write, decide and bring their own agents.")} link={link} />
+            {linkLeitura && <Convite titulo={t("Só acompanhar", "View only")} texto={t("Para clientes: lê tudo, não escreve nem decide.", "For clients: can read everything, but can't write or decide.")} link={linkLeitura} />}
           </div>
         </section>
       )}
@@ -240,7 +240,7 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco, 
               </li>
             ))}
           </ol>
-        ) : <p className="nota secao-nota">{t("Nada registrado ainda.", "Nothing on record yet.")}</p>)}
+        ) : <p className="nota secao-nota">{t("Nada registrado ainda.", "No activity yet.")}</p>)}
       </section>
 
       <section className="painel-lista painel-fim">
@@ -251,7 +251,7 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco, 
           </button>
           {dono && (
             <button className="perigo-linha perigo" onClick={apagar}>
-              <span><strong>{t("Apagar a sala", "Delete room")}</strong><span className="nota">{t("Some para todos, com todas as mensagens.", "Gone for everyone, with all messages.")}</span></span>
+              <span><strong>{t("Apagar a sala", "Delete room")}</strong><span className="nota">{t("Some para todos, com todas as mensagens.", "Deletes it for everyone, along with all messages.")}</span></span>
             </button>
           )}
         </div>

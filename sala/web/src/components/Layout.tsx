@@ -62,7 +62,7 @@ function Fila({ fila }: { fila: ItemFila[] }) {
               <Link to={f.tipo === "proposta" ? `/s/${f.sala_id}?ir=${f.ref}` : `/s/${f.sala_id}?tarefas=1`}>
                 {f.tipo === "proposta" ? <IconeProposta tamanho={12} /> : <Marcador tamanho={11} />}
                 <span className="fila-texto"><strong>{f.titulo || t("Proposta", "Proposal")}</strong>
-                  <span className="nota">{f.sala}{f.tipo === "tarefa" && f.prazo ? ` · ${vencida(f) ? t("atrasada", "overdue") : t("vence logo", "due soon")}` : ` · ${t("para decidir", "to decide")}`}</span></span>
+                  <span className="nota">{f.sala}{f.tipo === "tarefa" && f.prazo ? ` · ${vencida(f) ? t("atrasada", "overdue") : t("vence logo", "due soon")}` : ` · ${t("para decidir", "awaiting decision")}`}</span></span>
               </Link>
             </li>
           ))}
@@ -157,12 +157,12 @@ export function Layout({ children, salas, recarregar, foco, fila = [] }: {
                         ) : t("Sem mensagens ainda", "No messages yet")}
                       </span>
                       {Number(s.minhas_tarefas) > 0 && (
-                        <span className="sala-pendentes" title={`${s.minhas_tarefas} ${Number(s.minhas_tarefas) === 1 ? t("tarefa sua aberta", "open task assigned to you") : t("tarefas suas abertas", "open tasks assigned to you")}`} aria-label={`${s.minhas_tarefas} ${Number(s.minhas_tarefas) === 1 ? t("tarefa sua", "task for you") : t("tarefas suas", "tasks for you")}`}>
+                        <span className="sala-pendentes" title={`${s.minhas_tarefas} ${Number(s.minhas_tarefas) === 1 ? t("tarefa sua aberta", "open task assigned to you") : t("tarefas suas abertas", "open tasks assigned to you")}`} aria-label={`${s.minhas_tarefas} ${Number(s.minhas_tarefas) === 1 ? t("tarefa sua", "task assigned to you") : t("tarefas suas", "tasks assigned to you")}`}>
                           <Marcador tamanho={11} />{s.minhas_tarefas}
                         </span>
                       )}
                       {Number(s.pendentes) > 0 && (
-                        <span className="sala-pendentes" title={`${s.pendentes} ${Number(s.pendentes) === 1 ? t("proposta aguardando decisão", "proposal awaiting a decision") : t("propostas aguardando decisão", "proposals awaiting a decision")}`} aria-label={`${s.pendentes} ${t("para decidir", "to decide")}`}>
+                        <span className="sala-pendentes" title={`${s.pendentes} ${Number(s.pendentes) === 1 ? t("proposta aguardando decisão", "proposal awaiting a decision") : t("propostas aguardando decisão", "proposals awaiting a decision")}`} aria-label={`${s.pendentes} ${t("para decidir", "awaiting decision")}`}>
                           <IconeProposta tamanho={12} />{s.pendentes}
                         </span>
                       )}
@@ -179,7 +179,7 @@ export function Layout({ children, salas, recarregar, foco, fila = [] }: {
           <button className="btn btn-largo" data-guia="conectar" onClick={() => setConectar(true)} title={t("Conectar agente (A)", "Connect agent (A)")}>
             <IconePlugue tamanho={18} /> {t("Conectar agente", "Connect agent")}
           </button>
-          <button className="eu" data-guia="conta" onClick={() => setConta(true)} title={t("Sua conta, avisos e sair", "Your account, notifications and sign out")}>
+          <button className="eu" data-guia="conta" onClick={() => setConta(true)} title={t("Sua conta, avisos e sair", "Account, notifications and sign out")}>
             {perfil?.avatar ? <img src={perfil.avatar} alt="" className="avatar" referrerPolicy="no-referrer" /> : <span className="avatar">{perfil?.nome?.[0]}</span>}
             <span className="eu-nome">{perfil?.nome}</span>
             <span className="nota">{t("Conta", "Account")}</span>

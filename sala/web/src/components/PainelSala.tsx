@@ -62,18 +62,18 @@ export function PainelSala({ salaId, eu, versao, tarefas, irPara, abrirTarefas, 
 
       {vazio && (
         <section className="painel-secao painel-vazio">
-          <p><strong>{t("O painel se preenche sozinho.", "The dashboard fills itself in.")}</strong></p>
+          <p><strong>{t("O painel se preenche sozinho.", "The dashboard fills in on its own.")}</strong></p>
           <p className="nota">{t("Ele mostra as tarefas e as propostas da sala. Para começar, peça ao seu agente um plano: \"quebra o descritivo em tarefas por módulo, com responsável e prazo\".",
-            "It shows the room's tasks and proposals. To start, ask your agent for a plan: \"break the spec into tasks per module, with assignee and due date\".")}</p>
+            "It shows the room's tasks and proposals. To get started, ask your agent for a plan: \"break the spec into tasks by module, each with an owner and a due date\".")}</p>
         </section>
       )}
 
       {d && !vazio && (
         <>
           <section className="painel-lista" aria-labelledby="pn-espera">
-            <h3 className="secao-rotulo" id="pn-espera">{t("Precisa de alguém", "Needs someone")}</h3>
+            <h3 className="secao-rotulo" id="pn-espera">{t("Precisa de alguém", "Waiting on someone")}</h3>
             {!d.propostas.length && !d.totais.atrasadas && !d.totais.sem_responsavel ? (
-              <p className="pn-ok">{t("Nada parado. Ninguém está esperando ninguém.", "Nothing stuck. No one is waiting on anyone.")}</p>
+              <p className="pn-ok">{t("Nada parado. Ninguém está esperando ninguém.", "Nothing's stuck. No one is waiting on anyone.")}</p>
             ) : (
               <ul className="pn-linhas">
                 {d.esperando.map((e) => (
@@ -110,7 +110,7 @@ export function PainelSala({ salaId, eu, versao, tarefas, irPara, abrirTarefas, 
                     <li key={p.id}>
                       <button className="pn-item" onClick={() => irPara(p.id)}>
                         <span className="pn-item-titulo">{p.plano && <span className="pilula">{t("Plano", "Plan")}</span>} {p.titulo || t("Proposta", "Proposal")}</span>
-                        <span className="nota">{t(`falta ${falta}`, `waiting for ${falta}`)} · <span className={dias > 2 ? "pn-aviso" : ""}>{dias === 0 ? t("hoje", "today") : t(`há ${dias} ${dias === 1 ? "dia" : "dias"}`, `${dias} ${dias === 1 ? "day" : "days"}`)}</span></span>
+                        <span className="nota">{t(`falta ${falta}`, `waiting for ${falta}`)} · <span className={dias > 2 ? "pn-aviso" : ""}>{dias === 0 ? t("hoje", "today") : t(`há ${dias} ${dias === 1 ? "dia" : "dias"}`, `${dias} ${dias === 1 ? "day" : "days"} ago`)}</span></span>
                       </button>
                     </li>
                   );
@@ -123,7 +123,7 @@ export function PainelSala({ salaId, eu, versao, tarefas, irPara, abrirTarefas, 
                   <li key={a.id}>
                     <button className="pn-item" onClick={abrirTarefas}>
                       <span className="pn-item-titulo">{a.frente && <span className="pilula">{a.frente}</span>} {a.titulo}</span>
-                      <span className="nota">{quem(a.responsavel, a.responsavel_agente)} · <span className="pn-erro">{t(`${diasDesde(a.prazo)} ${diasDesde(a.prazo) === 1 ? "dia" : "dias"} de atraso`, `${diasDesde(a.prazo)} ${diasDesde(a.prazo) === 1 ? "day" : "days"} late`)}</span></span>
+                      <span className="nota">{quem(a.responsavel, a.responsavel_agente)} · <span className="pn-erro">{t(`${diasDesde(a.prazo)} ${diasDesde(a.prazo) === 1 ? "dia" : "dias"} de atraso`, `${diasDesde(a.prazo)} ${diasDesde(a.prazo) === 1 ? "day" : "days"} overdue`)}</span></span>
                     </button>
                   </li>
                 ))}
@@ -151,7 +151,7 @@ export function PainelSala({ salaId, eu, versao, tarefas, irPara, abrirTarefas, 
                         {f.previsto && <>{t(`previsto ${diaMes(f.previsto)}`, `planned ${diaMes(f.previsto)}`)}
                           {f.desvio_dias && f.desvio_dias > 0
                             ? <> · <span className="pn-aviso">{t(`projeção ${diaMes(f.projecao!)}, +${f.desvio_dias} ${f.desvio_dias === 1 ? "dia" : "dias"}`, `projected ${diaMes(f.projecao!)}, +${f.desvio_dias} ${f.desvio_dias === 1 ? "day" : "days"}`)}</span></>
-                            : <> · {t("no prazo", "on time")}</>}</>}
+                            : <> · {t("no prazo", "on track")}</>}</>}
                       </p>
                     )}
                   </li>
@@ -159,7 +159,7 @@ export function PainelSala({ salaId, eu, versao, tarefas, irPara, abrirTarefas, 
               </ul>
               {d.frentes.some((f) => f.previsto) && (
                 <p className="nota pn-explica">{t("Projeção: a data de entrega da última tarefa, ou o prazo dela. Tarefa atrasada conta como hoje.",
-                  "Projection: the last task's delivery date, or its due date. An overdue task counts as today.")}</p>
+                  "Projection: the last task's completion date, or its due date. Overdue tasks count as today.")}</p>
               )}
             </section>
           )}
@@ -172,7 +172,7 @@ export function PainelSala({ salaId, eu, versao, tarefas, irPara, abrirTarefas, 
                   title={t(`Semana de ${diaMes(r.semana + "T12:00:00")}: ${r.feitas}`, `Week of ${diaMes(r.semana + "T12:00:00")}: ${r.feitas}`)}>
                   <span className="pn-num">{r.feitas || ""}</span>
                   <span className="pn-barra" style={{ height: `${(r.feitas / maxRitmo) * 100}%` }} />
-                  <span className="pn-semana-rotulo">{i === d.ritmo.length - 1 ? t("esta", "this") : semana(r.semana)}</span>
+                  <span className="pn-semana-rotulo">{i === d.ritmo.length - 1 ? t("esta", "now") : semana(r.semana)}</span>
                 </div>
               ))}
             </div>

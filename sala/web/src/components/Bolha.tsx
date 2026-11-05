@@ -21,7 +21,7 @@ export function LinhaAprovacao({ a }: { a: Aprovacao }) {
       <span><strong>{a.indicados?.length
           ? a.precisa < a.indicados.length
             ? tr(`${a.precisa} de: ${ou(a.indicados)}`, `${a.precisa} of: ${ou(a.indicados, "or")}`)
-            : tr(`${a.indicados.length > 1 ? "Decidem" : "Decide"}: ${lista(a.indicados)}`, `${a.indicados.length > 1 ? "Deciding" : "Decides"}: ${lista(a.indicados)}`)
+            : tr(`${a.indicados.length > 1 ? "Decidem" : "Decide"}: ${lista(a.indicados)}`, `${a.indicados.length > 1 ? "Approvers" : "Approver"}: ${lista(a.indicados)}`)
           : tr(`${a.quem.length} de ${a.precisa} aprovações`, `${a.quem.length} of ${a.precisa} approvals`)}</strong>
         {a.quem.length > 0 && <> · {lista(a.quem)} {a.quem.length > 1 ? tr("aprovaram", "approved") : tr("aprovou", "approved")}</>}
         {a.faltam.length > 0 && a.quem.length < a.precisa && (a.faltam.length <= a.precisa - a.quem.length
@@ -121,7 +121,7 @@ export function Bolha(p: Props) {
   };
 
   const decidir = async (aprovar: boolean | "ajuste") => {
-    if (aprovar === "ajuste" && !nota.trim()) { setErro(tr("Diga o que precisa mudar.", "Say what needs to change.")); return; }
+    if (aprovar === "ajuste" && !nota.trim()) { setErro(tr("Diga o que precisa mudar.", "Describe what needs to change.")); return; }
     setOcupado(true);
     const e = await p.decidir!(aprovar, aprovar === true ? undefined : nota.trim() || undefined);
     setOcupado(false);
@@ -154,13 +154,13 @@ export function Bolha(p: Props) {
           {proposta && (
             <p className="proposta-rotulo">
               {m.estado === "pendente" ? <span className="pilula pilula-acento"><IconeProposta tamanho={12} /> {tr("Proposta", "Proposal")}</span>
-                : m.estado === "ajuste" ? <span className="pilula pilula-ajuste"><IconeLapis tamanho={12} /> {tr("Em ajuste", "Being adjusted")}</span>
+                : m.estado === "ajuste" ? <span className="pilula pilula-ajuste"><IconeLapis tamanho={12} /> {tr("Em ajuste", "Changes requested")}</span>
                 : m.estado === "substituida" ? <span className="pilula"><IconeProposta tamanho={12} /> {tr("Substituída", "Replaced")}</span>
                 : <span className={`pilula ${m.estado === "aprovada" ? "pilula-ok" : "pilula-erro"}`}>{m.estado === "aprovada" ? <IconeCheck tamanho={12} /> : <IconeFechar tamanho={12} />}{m.estado === "aprovada" ? tr("Aprovada", "Approved") : tr("Recusada", "Declined")}</span>}
-              {m.estado === "substituida" && m.substituida_por && <button type="button" className="link nota" onClick={() => p.irPara?.(m.substituida_por!)}>{tr("ver a versão nova", "see the new version")}</button>}
-              {m.estado === "ajuste" && <span className="nota">· {tr("quem propôs vai corrigir e reenviar", "the proposer will fix and resend")}</span>}
+              {m.estado === "substituida" && m.substituida_por && <button type="button" className="link nota" onClick={() => p.irPara?.(m.substituida_por!)}>{tr("ver a versão nova", "view the new version")}</button>}
+              {m.estado === "ajuste" && <span className="nota">· {tr("quem propôs vai corrigir e reenviar", "the proposer will revise and resend it")}</span>}
               {m.novo_contexto && <span className="nota">{tr("troca as instruções da sala", "replaces the room instructions")}</span>}
-              {m.estado === "pendente" && <span className="nota">· {m.novo_contexto ? tr("precisa do sim de todas as pessoas", "needs everyone's yes") : tr("aguardando decisão", "awaiting decision")}</span>}
+              {m.estado === "pendente" && <span className="nota">· {m.novo_contexto ? tr("precisa do sim de todas as pessoas", "needs approval from everyone") : tr("aguardando decisão", "awaiting decision")}</span>}
             </p>
           )}
           {citacao && (
@@ -212,7 +212,7 @@ export function Bolha(p: Props) {
               )}
               {proposta && m.novo_contexto && (
                 <details className="contexto-novo">
-                  <summary>{m.estado === "aprovada" ? tr("Ver as instruções aplicadas", "See the applied instructions") : tr("Ver as instruções propostas", "See the proposed instructions")}</summary>
+                  <summary>{m.estado === "aprovada" ? tr("Ver as instruções aplicadas", "View applied instructions") : tr("Ver as instruções propostas", "View proposed instructions")}</summary>
                   <pre>{m.novo_contexto}</pre>
                 </details>
               )}
@@ -226,7 +226,7 @@ export function Bolha(p: Props) {
                   recusando ? (
                     <form className="recusar" onSubmit={(e) => { e.preventDefault(); decidir("ajuste"); }}>
                       <label className="sr" htmlFor={`nota${m.id}`}>{tr("O que precisa mudar", "What needs to change")}</label>
-                      <input id={`nota${m.id}`} autoFocus placeholder={tr("O que precisa mudar? Quem propôs lê isto.", "What needs to change? The proposer reads this.")} value={nota} maxLength={2000}
+                      <input id={`nota${m.id}`} autoFocus placeholder={tr("O que precisa mudar? Quem propôs lê isto.", "What needs to change? The proposer will see this.")} value={nota} maxLength={2000}
                         onChange={(e) => { setNota(e.target.value); setErro(""); }} onKeyDown={(e) => e.key === "Escape" && setRecusando(false)} />
                       <div className="decidir">
                         <button type="button" className="btn" onClick={() => setRecusando(false)}>{tr("Voltar", "Back")}</button>
@@ -238,7 +238,7 @@ export function Bolha(p: Props) {
                     <>
                       {p.aprovacao && <LinhaAprovacao a={p.aprovacao} />}
                       <div className="decidir">
-                        <button type="button" className="btn" disabled={ocupado} onClick={() => { setRecusando(true); setErro(""); }}>{tr("Ajustar ou recusar", "Adjust or decline")}</button>
+                        <button type="button" className="btn" disabled={ocupado} onClick={() => { setRecusando(true); setErro(""); }}>{tr("Ajustar ou recusar", "Request changes or decline")}</button>
                         {p.aprovacao?.euAprovei
                           ? <button type="button" className="btn btn-aprovei" disabled><IconeCheck tamanho={14} /> {tr("Você aprovou", "You approved")}</button>
                           : <button type="button" className="btn btn-cheio" disabled={ocupado} onClick={() => decidir(true)}>{tr("Aprovar", "Approve")}</button>}
@@ -272,7 +272,7 @@ export function Bolha(p: Props) {
                 {copiado ? <IconeDecisao tamanho={16} /> : <IconeCopiar tamanho={16} />}
               </button>
             )}
-            {p.virarTarefa && <button type="button" className="btn-acao" onClick={p.virarTarefa} title={tr("Virar tarefa", "Make it a task")} aria-label={tr("Virar tarefa", "Make it a task")}><IconeTarefa tamanho={16} /></button>}
+            {p.virarTarefa && <button type="button" className="btn-acao" onClick={p.virarTarefa} title={tr("Virar tarefa", "Turn into a task")} aria-label={tr("Virar tarefa", "Turn into a task")}><IconeTarefa tamanho={16} /></button>}
             {p.editar && <button type="button" className="btn-acao" onClick={() => { setRascunho(m.texto); setEditando(true); }} title={tr("Editar", "Edit")} aria-label={tr("Editar", "Edit")}><IconeLapis tamanho={16} /></button>}
             {p.apagar && <button type="button" className="btn-acao" onClick={p.apagar} title={tr("Apagar", "Delete")} aria-label={tr("Apagar", "Delete")}><IconeLixo tamanho={16} /></button>}
           </div>
@@ -293,7 +293,7 @@ export function Bolha(p: Props) {
       {erro && <p className="msg-erro" role="alert">{erro}</p>}
       {m.falhou && (
         <p className="msg-erro" role="alert">
-          {tr("Não enviou.", "Not sent.")} <button type="button" className="link" onClick={p.tentarDeNovo}>{tr("Tentar de novo", "Try again")}</button>
+          {tr("Não enviou.", "Couldn't send.")} <button type="button" className="link" onClick={p.tentarDeNovo}>{tr("Tentar de novo", "Try again")}</button>
         </p>
       )}
     </article>
@@ -310,7 +310,7 @@ export function Evento({ m, quem, de, quando, irPara }: { m: Mensagem; quem: str
       <span className="evento-icone" aria-hidden>{aprovou ? <IconeDecisao tamanho={16} /> : ajuste ? <IconeLapis tamanho={16} /> : <IconeRecusa tamanho={16} />}</span>
       <span className="evento-texto">
         <strong>{quem}</strong> {aprovou ? tr("aprovou", "approved") : ajuste ? tr("pediu ajuste", "asked for changes to") : tr("recusou", "declined")}{" "}
-        <button type="button" className="link" onClick={() => m.responde_a && irPara?.(m.responde_a)}>{ajuste ? (de ? tr(`na proposta de ${de}`, `the proposal from ${de}`) : tr("na proposta", "the proposal")) : de ? tr(`a proposta de ${de}`, `the proposal from ${de}`) : tr("a proposta", "the proposal")}</button>
+        <button type="button" className="link" onClick={() => m.responde_a && irPara?.(m.responde_a)}>{ajuste ? (de ? tr(`na proposta de ${de}`, `${de}'s proposal`) : tr("na proposta", "the proposal")) : de ? tr(`a proposta de ${de}`, `${de}'s proposal`) : tr("a proposta", "the proposal")}</button>
         {nota && <span className="evento-nota">“{nota}”</span>}
       </span>
       <time>{quando}</time>

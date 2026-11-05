@@ -8,7 +8,7 @@ type Integracao = { id: number; url: string; eventos: string[]; criada_em: strin
 
 const eventosDisponiveis = () => [
   { id: "decisao", rotulo: t("Decisões", "Decisions") },
-  { id: "proposta", rotulo: t("Propostas novas", "Proposals") },
+  { id: "proposta", rotulo: t("Propostas novas", "New proposals") },
   { id: "tarefa_nova", rotulo: t("Tarefas novas", "New tasks") },
   { id: "tarefa_feita", rotulo: t("Tarefas concluídas", "Completed tasks") },
   { id: "mensagem", rotulo: t("Toda mensagem", "Every message") },
@@ -52,7 +52,7 @@ export function Integracoes({ salaId }: { salaId: string }) {
   };
 
   const apagar = async (i: Integracao) => {
-    if (!confirm(t(`Desligar a integração com ${servico(i.url)}?`, `Turn off the ${servico(i.url)} integration?`))) return;
+    if (!confirm(t(`Desligar a integração com ${servico(i.url)}?`, `Remove the ${servico(i.url)} integration?`))) return;
     const { error } = await sb.rpc("apagar_integracao", { integracao: i.id });
     if (error) alert(msgErro(error));
     carregar();
@@ -76,8 +76,8 @@ export function Integracoes({ salaId }: { salaId: string }) {
               </span>
               {testado === i.id && <span className="salvo" role="status"><IconeCheck tamanho={12} /> {t("Enviado", "Sent")}</span>}
               <Menu rotulo={t(`Ações da integração ${servico(i.url)}`, `Actions for ${servico(i.url)}`)} itens={[
-                { rotulo: t("Mandar um teste", "Send a test"), acao: () => testar(i) },
-                { rotulo: t("Desligar", "Turn off"), acao: () => apagar(i), perigo: true },
+                { rotulo: t("Mandar um teste", "Send test message"), acao: () => testar(i) },
+                { rotulo: t("Desligar", "Remove"), acao: () => apagar(i), perigo: true },
               ]} />
             </li>
           ))}
@@ -98,7 +98,7 @@ export function Integracoes({ salaId }: { salaId: string }) {
             ))}
           </fieldset>
           <details className="nota">
-            <summary>{t("Onde pego esse endereço?", "Where do I get this URL?")}</summary>
+            <summary>{t("Onde pego esse endereço?", "Where do I find this URL?")}</summary>
             {idioma() === "pt"
               ? <p><b>Slack:</b> api.slack.com/apps → crie um app → Incoming Webhooks → Add New Webhook. <b>Teams:</b> no canal, Fluxos de trabalho → “Postar em um canal quando uma solicitação de webhook for recebida”. <b>Discord:</b> configurações do canal → Integrações → Webhooks. <b>Google Chat:</b> no espaço, Apps e integrações → Webhooks. Qualquer outro sistema recebe um JSON com o evento.</p>
               : <p><b>Slack:</b> api.slack.com/apps → create an app → Incoming Webhooks → Add New Webhook. <b>Teams:</b> in the channel, Workflows → “Post to a channel when a webhook request is received”. <b>Discord:</b> channel settings → Integrations → Webhooks. <b>Google Chat:</b> in the space, Apps &amp; integrations → Webhooks. Any other system gets a JSON with the event.</p>}
@@ -106,7 +106,7 @@ export function Integracoes({ salaId }: { salaId: string }) {
           {erro && <p className="nota erro" role="alert">{erro}</p>}
           <div className="linha campo-acoes">
             <button type="button" className="btn btn-pequeno btn-texto" onClick={() => { setAbrindo(false); setErro(""); }}>{t("Cancelar", "Cancel")}</button>
-            <button className="btn btn-pequeno btn-cheio" disabled={!url.trim() || !eventos.length}>{t("Ligar", "Turn on")}</button>
+            <button className="btn btn-pequeno btn-cheio" disabled={!url.trim() || !eventos.length}>{t("Ligar", "Add integration")}</button>
           </div>
         </form>
       ) : null}

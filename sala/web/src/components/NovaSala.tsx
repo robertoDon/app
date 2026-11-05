@@ -9,10 +9,10 @@ import { IconeFechar } from "./Icones";
 export const modelos = () => [
   { id: "branco", titulo: t("Em branco", "Blank"), texto: t("Comece do zero e escreva as instruções depois.", "Start from scratch and write the instructions later."), nome: "", contexto: "" },
   {
-    id: "lancamento", titulo: t("Lançamento", "Launch"), texto: t("Produto, data, preço e o que falta.", "Product, date, price and what's left to do."), nome: t("Lançamento", "Launch"),
+    id: "lancamento", titulo: t("Lançamento", "Launch"), texto: t("Produto, data, preço e o que falta.", "Product, date, pricing and what's left to do."), nome: t("Lançamento", "Launch"),
     contexto: t(
       "Objetivo: lançar [o quê] até [data].\nO que já está decidido: [preço, público, canais].\nQuem decide: [nomes]. Preço, data e qualquer publicação passam por proposta.\nAgentes: respostas curtas, com números e o próximo passo de cada um.",
-      "Goal: launch [what] by [date].\nAlready decided: [price, audience, channels].\nDecision makers: [names]. Price, date and anything that gets published go through a proposal.\nAgents: keep answers short, with numbers and each person's next step.",
+      "Goal: launch [what] by [date].\nAlready decided: [price, audience, channels].\nWho decides: [names]. Price, date and anything that gets published go through a proposal.\nAgents: keep answers short, with numbers and each person's next step.",
     ),
   },
   {
@@ -26,7 +26,7 @@ export const modelos = () => [
     id: "contratacao", titulo: t("Contratação", "Hiring"), texto: t("Vaga, critérios e avaliação dos candidatos.", "Role, criteria and candidate reviews."), nome: t("Contratação", "Hiring"),
     contexto: t(
       "Vaga: [cargo], [modelo de trabalho], [faixa salarial].\nCritérios, em ordem de peso: [1], [2], [3].\nAgentes: resumam cada candidato numa tabela com os critérios e uma nota de 1 a 5. Nada de dado pessoal além do necessário.\nAvançar ou recusar alguém é decisão das pessoas, por proposta.",
-      "Role: [title], [remote/hybrid/on-site], [salary range].\nCriteria, most important first: [1], [2], [3].\nAgents: summarize each candidate in a table with the criteria and a score from 1 to 5. No personal data beyond what's needed.\nMoving a candidate forward or turning them down is a decision for people, made through a proposal.",
+      "Role: [title], [remote/hybrid/on-site], [salary range].\nCriteria, most important first: [1], [2], [3].\nAgents: summarize each candidate in a table with the criteria and a score from 1 to 5. No personal data beyond what's needed.\nMoving a candidate forward or turning them down is up to people, through a proposal.",
     ),
   },
   {
@@ -91,7 +91,7 @@ export function NovaSala({ fechar, aoCriar, modeloInicial = "branco" }: { fechar
         </fieldset>
         <label className="secao-rotulo secao-rotulo-solto" htmlFor="nova-nome">{t("Nome da sala", "Room name")}</label>
         <input id="nova-nome" autoFocus value={nome} maxLength={80} placeholder={t("Ex.: Lançamento do piloto", "E.g., Pilot launch")} onChange={(e) => setNome(e.target.value)} />
-        {modelo !== "branco" && <p className="nota">{t("O contexto do modelo abre em seguida para você completar o que está entre colchetes.", "The template's context opens next so you can fill in the parts in brackets.")}</p>}
+        {modelo !== "branco" && <p className="nota">{t("O contexto do modelo abre em seguida para você completar o que está entre colchetes.", "The template's instructions open next so you can fill in the parts in brackets.")}</p>}
         {erro && <p className="nota erro" role="alert">{erro}</p>}
         <div className="modal-acoes">
           <button type="button" className="btn btn-texto" onClick={fechar}>{t("Cancelar", "Cancel")}</button>

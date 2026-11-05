@@ -57,7 +57,7 @@ export function Decisoes({ salaId, salaNome, versao, autor, nome, decidir, aprov
   };
 
   const agir = async (id: number, aprovar: boolean | "ajuste", nota?: string) => {
-    if (aprovar === "ajuste" && !nota) return alert(t("Diga o que precisa mudar.", "Say what needs to change."));
+    if (aprovar === "ajuste" && !nota) return alert(t("Diga o que precisa mudar.", "Describe what needs to change."));
     setOcupado(id);
     const erro = await decidir(id, aprovar, nota);
     setOcupado(null);
@@ -70,7 +70,7 @@ export function Decisoes({ salaId, salaNome, versao, autor, nome, decidir, aprov
       <header className="painel-topo">
         <h2>{t("Decisões", "Decisions")}</h2>
         <div className="painel-topo-acoes">
-          <button className="btn btn-pequeno" onClick={abrirAta} title={t("Decisões e tarefas de um período, para imprimir, salvar em PDF ou mandar ao cliente.", "Decisions and tasks for a period, to print, save as PDF or send to a client.")}>
+          <button className="btn btn-pequeno" onClick={abrirAta} title={t("Decisões e tarefas de um período, para imprimir, salvar em PDF ou mandar ao cliente.", "Decisions and tasks for a period, ready to print, save as PDF or send to a client.")}>
             <IconeDocumento tamanho={16} /> {t("Ata", "Minutes")}
           </button>
           <button className="btn-icone" onClick={fechar} aria-label={t("Fechar decisões", "Close decisions")}><IconeFechar /></button>
@@ -83,7 +83,7 @@ export function Decisoes({ salaId, salaNome, versao, autor, nome, decidir, aprov
         <section className="painel-secao painel-vazio">
           <span className="vazio-icone"><IconeProposta tamanho={20} /></span>
           <p><strong>{t("Nenhuma proposta ainda.", "No proposals yet.")}</strong></p>
-          <p className="nota">{t("Quando alguém precisar de um sim, a proposta aparece aqui para aprovar ou recusar. O que for decidido fica registrado, e os agentes leem antes de responder.", "When someone needs a yes, the proposal shows up here to approve or decline. Decisions stay on record, and agents read them before replying.")}</p>
+          <p className="nota">{t("Quando alguém precisar de um sim, a proposta aparece aqui para aprovar ou recusar. O que for decidido fica registrado, e os agentes leem antes de responder.", "When someone needs a yes, their proposal shows up here to approve or decline. Decisions are kept on record, and agents read them before replying.")}</p>
           <p className="nota">{t("Para propor, use ", "To propose, use ")}<strong>{t("Propor", "Propose")}</strong>{t(" na barra de escrever.", " in the message bar.")}</p>
         </section>
       )}
@@ -109,7 +109,7 @@ export function Decisoes({ salaId, salaNome, versao, autor, nome, decidir, aprov
                 {recusando === p.id ? (
                   <form className="recusar" onSubmit={(e) => { e.preventDefault(); agir(p.id, "ajuste", nota.trim() || undefined); }}>
                     <label className="sr" htmlFor={`dn${p.id}`}>{t("O que precisa mudar", "What needs to change")}</label>
-                    <input id={`dn${p.id}`} autoFocus value={nota} maxLength={2000} placeholder={t("O que precisa mudar? Quem propôs lê isto.", "What needs to change? The proposer reads this.")}
+                    <input id={`dn${p.id}`} autoFocus value={nota} maxLength={2000} placeholder={t("O que precisa mudar? Quem propôs lê isto.", "What needs to change? The proposer will see this.")}
                       onChange={(e) => setNota(e.target.value)} onKeyDown={(e) => e.key === "Escape" && setRecusando(null)} />
                     <div className="decidir">
                       <button type="button" className="btn" onClick={() => setRecusando(null)}>{t("Voltar", "Back")}</button>
@@ -124,7 +124,7 @@ export function Decisoes({ salaId, salaNome, versao, autor, nome, decidir, aprov
                     <>
                       {a && <LinhaAprovacao a={a} />}
                       <div className="decidir">
-                        <button className="btn" disabled={ocupado === p.id} onClick={() => { setRecusando(p.id); setNota(""); }}>{t("Ajustar ou recusar", "Adjust or decline")}</button>
+                        <button className="btn" disabled={ocupado === p.id} onClick={() => { setRecusando(p.id); setNota(""); }}>{t("Ajustar ou recusar", "Request changes or decline")}</button>
                         {a?.euAprovei
                           ? <button className="btn btn-aprovei" disabled><IconeCheck tamanho={14} /> {t("Você aprovou", "You approved")}</button>
                           : <button className="btn btn-cheio" disabled={ocupado === p.id} onClick={() => agir(p.id, true)}>{t("Aprovar", "Approve")}</button>}
@@ -142,7 +142,7 @@ export function Decisoes({ salaId, salaNome, versao, autor, nome, decidir, aprov
         <section className="painel-lista">
           <div className="secao-rotulo secao-rotulo-acao">
             <h3>{t("Decididas", "Decided")} <span>{decididas.length}</span></h3>
-            <button className="link nota" onClick={copiar}>{copiado ? t("Copiado", "Copied") : t("Copiar registro", "Copy record")}</button>
+            <button className="link nota" onClick={copiar}>{copiado ? t("Copiado", "Copied") : t("Copiar registro", "Copy log")}</button>
           </div>
           <ul className="decididas">
             {decididas.map((p) => (

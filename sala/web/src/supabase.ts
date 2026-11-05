@@ -51,7 +51,7 @@ export type Mensagem = {
 export function presenca(a: Agente): { ativo: boolean; texto: string } {
   const agora = Date.now();
   if (a.ouvindo_ate && new Date(a.ouvindo_ate).getTime() > agora) return { ativo: true, texto: t("ouvindo agora", "listening now") };
-  if (a.desperta) return { ativo: true, texto: t("responde sozinho", "replies on its own") };
+  if (a.desperta) return { ativo: true, texto: t("responde sozinho", "auto-reply on") };
   const min = Math.round((agora - new Date(a.visto_em).getTime()) / 60000);
   if (min < 5) return { ativo: true, texto: t("ativo agora", "active now") };
   if (min < 60) return { ativo: false, texto: t(`visto há ${min} min`, `seen ${min} min ago`) };
@@ -64,7 +64,7 @@ export function presenca(a: Agente): { ativo: boolean; texto: string } {
 export async function apagarConta() {
   const { data } = await sb.auth.getSession();
   const r = await fetch(`${MCP_URL}/api/conta`, { method: "DELETE", headers: { Authorization: `Bearer ${data.session?.access_token}` } });
-  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).erro ?? t("Não deu para apagar a conta agora.", "Couldn't delete the account right now."));
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).erro ?? t("Não deu para apagar a conta agora.", "Couldn't delete your account right now."));
   await sb.auth.signOut();
 }
 

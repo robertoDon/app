@@ -128,10 +128,10 @@ export default function SalaPage() {
   }, [meuPrimeiro]);
 
   const sugestoes = useMemo<Sugestao[]>(() => [
-    { handle: tc("agentes", "agents"), rotulo: t("Todos os agentes da sala respondem", "All agents in the room answer"), agente: true },
+    { handle: tc("agentes", "agents"), rotulo: t("Todos os agentes da sala respondem", "All agents in the room reply"), agente: true },
     ...agentes.map((a) => ({ handle: `${a.nome.replace(/\s/g, "")}-${primeiro(a.uid)}`, rotulo: deQuem(a.nome, nome(a.uid)), agente: true })),
     ...membros.filter((m) => m.user_id !== eu).map((m) => ({ handle: (m.perfis?.nome ?? "").split(" ")[0], rotulo: m.perfis?.nome ?? "" })),
-    { handle: tc("todos", "everyone"), rotulo: t("Todo mundo, pessoas e agentes", "Everyone, people and agents"), apelidos: idioma() === "en" ? ["all"] : undefined },
+    { handle: tc("todos", "everyone"), rotulo: t("Todo mundo, pessoas e agentes", "Everyone: people and agents"), apelidos: idioma() === "en" ? ["all"] : undefined },
   ], [agentes, membros, eu, nome, primeiro]);
 
   const porId = useMemo(() => new Map((msgs ?? []).map((m) => [m.id, m])), [msgs]);
@@ -398,7 +398,7 @@ export default function SalaPage() {
   const apagar = async (m: Mensagem) => {
     const de = m.user_id === eu ? (m.agente ? `do seu ${m.agente}` : "sua") : `de ${autor(m)}`;
     const qual = m.user_id === eu ? (m.agente ? `this message from your ${m.agente}` : "your message") : `this message from ${autor(m)}`;
-    if (!confirm(t(`Apagar esta mensagem ${de}? O texto some para todos, pessoas e agentes.`, `Delete ${qual}? The text will disappear for everyone, people and agents.`))) return;
+    if (!confirm(t(`Apagar esta mensagem ${de}? O texto some para todos, pessoas e agentes.`, `Delete ${qual}? It will be removed for everyone, people and agents alike.`))) return;
     const { error } = await sb.rpc("apagar_mensagem", { mensagem: m.id });
     if (error) return alert(erro(error));
     const meus = (m.anexos ?? []).map((a) => a.path).filter((p) => p.split("/")[1] === eu);
@@ -421,7 +421,7 @@ export default function SalaPage() {
       <Layout salas={salas} recarregar={recarregar} fila={fila} foco>
         <section className="vazio">
           <h1 className="display">{t("Sala não encontrada.", "Room not found.")}</h1>
-          <p className="sub">{t("Ela pode ter sido apagada, ou você saiu dela. Para entrar, peça um convite a quem está lá.", "It may have been deleted, or you left it. To join, ask someone in it for an invite.")}</p>
+          <p className="sub">{t("Ela pode ter sido apagada, ou você saiu dela. Para entrar, peça um convite a quem está lá.", "It may have been deleted, or you left it. To get back in, ask someone in the room for an invite.")}</p>
           <Link to="/" className="btn">{t("Ver minhas salas", "See my rooms")}</Link>
         </section>
       </Layout>
@@ -444,8 +444,8 @@ export default function SalaPage() {
 
   const passos = [
     { feito: membros.length > 1, titulo: t("Chame as pessoas", "Invite people"), texto: t("Mande o link do convite.", "Send them the invite link."), acao: () => setConvite(true), botao: t("Copiar convite", "Copy invite"), icone: <IconeConvite tamanho={18} /> },
-    { feito: agentes.some((a) => a.uid === eu), titulo: t("Conecte o seu agente", "Connect your agent"), texto: t("Claude, ChatGPT, Claude Code ou outro.", "Claude, ChatGPT, Claude Code or another one."), acao: abrirConectar, botao: t("Conectar agente", "Connect agent"), icone: <IconePlugue tamanho={18} /> },
-    { feito: !!sala?.contexto, titulo: t("Escreva as instruções", "Write the instructions"), texto: t("Curtas: o objetivo, quem decide o quê e o tom. Todo agente lê antes de responder.", "Short: the goal, who decides what and the tone. Every agent reads them before answering."), acao: () => setPainel("contexto"), botao: t("Escrever instruções", "Write instructions"), icone: <IconeAjustes tamanho={18} /> },
+    { feito: agentes.some((a) => a.uid === eu), titulo: t("Conecte o seu agente", "Connect your agent"), texto: t("Claude, ChatGPT, Claude Code ou outro.", "Claude, ChatGPT, Claude Code or any other."), acao: abrirConectar, botao: t("Conectar agente", "Connect agent"), icone: <IconePlugue tamanho={18} /> },
+    { feito: !!sala?.contexto, titulo: t("Escreva as instruções", "Write the instructions"), texto: t("Curtas: o objetivo, quem decide o quê e o tom. Todo agente lê antes de responder.", "Keep them short: the goal, who decides what, and the tone. Every agent reads them before replying."), acao: () => setPainel("contexto"), botao: t("Escrever instruções", "Write instructions"), icone: <IconeAjustes tamanho={18} /> },
   ];
   const pendentes = Number(sala?.pendentes ?? 0);
   const ouvindo = agentes.filter((a) => ouvindoAgora(a.presenca?.texto));
@@ -482,7 +482,7 @@ export default function SalaPage() {
   const tarefasDe = new Map<number, Tarefa[]>();
   (tarefas ?? []).forEach((t) => { if (t.origem && t.estado !== "cancelada") tarefasDe.set(t.origem, [...(tarefasDe.get(t.origem) ?? []), t]); });
   const abertasSala = (tarefas ?? []).filter((t) => t.estado === "aberta").length;
-  const quemFaz = (t: Tarefa) => (t.responsavel_agente ? deQuem(t.responsavel_agente, primeiro(t.responsavel ?? "")) : t.responsavel === eu ? tr("você", "you") : t.responsavel ? nome(t.responsavel) : tr("sem responsável", "no assignee"));
+  const quemFaz = (t: Tarefa) => (t.responsavel_agente ? deQuem(t.responsavel_agente, primeiro(t.responsavel ?? "")) : t.responsavel === eu ? tr("você", "you") : t.responsavel ? nome(t.responsavel) : tr("sem responsável", "unassigned"));
 
   // meus agentes que não ficam ouvindo: quando alguém chama, ofereço o pedido pronto
   const meusAgentes = agentes.filter((a) => a.uid === eu && !ouvindoAgora(a.presenca?.texto));
@@ -565,7 +565,7 @@ export default function SalaPage() {
               </p>
             </div>
             <button data-guia="decisoes" className={`btn-icone ${painel === "decisoes" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "decisoes" ? null : "decisoes"))}
-              aria-expanded={painel === "decisoes"} aria-label={pendentes ? t(`Decisões, ${pendentes} aguardando`, `Decisions, ${pendentes} waiting`) : t("Decisões", "Decisions")} title={t("Decisões (D)", "Decisions (D)")}>
+              aria-expanded={painel === "decisoes"} aria-label={pendentes ? t(`Decisões, ${pendentes} aguardando`, `Decisions, ${pendentes} pending`) : t("Decisões", "Decisions")} title={t("Decisões (D)", "Decisions (D)")}>
               <IconeProposta />
               {pendentes > 0 && <span className="selo-num" aria-hidden>{pendentes}</span>}
             </button>
@@ -600,7 +600,7 @@ export default function SalaPage() {
 
           {convite && sala && (
             <div className="convite" role="region" aria-label={t("Convite", "Invite")}>
-              <p>{t("Quem abrir este link entra na sala e pode conectar os próprios agentes. Serve para gente de qualquer empresa.", "Anyone who opens this link joins the room and can connect their own agents. Works for people from any company.")}</p>
+              <p>{t("Quem abrir este link entra na sala e pode conectar os próprios agentes. Serve para gente de qualquer empresa.", "Anyone with this link can join the room and connect their own agents. Works for people at any company.")}</p>
               <div className="copiar-campo">
                 <input readOnly value={link.replace(/^https?:\/\//, "")} onFocus={(e) => e.target.select()} aria-label={t("Link do convite", "Invite link")} />
                 <button className={`btn btn-pequeno ${copiado ? "" : "btn-cheio"}`} onClick={copiarConvite}>{copiado ? <><IconeCheck tamanho={14} /> {t("Copiado", "Copied")}</> : t("Copiar", "Copy")}</button>
@@ -624,7 +624,7 @@ export default function SalaPage() {
 
             {msgs !== null && !leitor && passos.some((p) => !p.feito) && msgs.length < 4 && (
               <section className="passos-sala" aria-label={t("Próximos passos", "Next steps")}>
-                <h2>{msgs.length ? t("Para a sala render mais", "Get more out of your room") : t("Sala pronta. Três passos e ela ganha vida.", "Your room is ready. Three steps to bring it to life.")}</h2>
+                <h2>{msgs.length ? t("Para a sala render mais", "Get more out of your room") : t("Sala pronta. Três passos e ela ganha vida.", "Your room is ready. Three steps to get it going.")}</h2>
                 <ol>
                   {passos.map((p) => (
                     <li key={p.titulo} className={p.feito ? "feito" : ""}>
@@ -640,9 +640,9 @@ export default function SalaPage() {
             {msgs !== null && msgs.length === 0 && (leitor || !passos.some((p) => !p.feito)) && (
               <section className="feed-vazio">
                 <span className="vazio-icone"><IconeAgente tamanho={20} /></span>
-                <p><strong>{t("Ninguém falou ainda.", "No one has spoken yet.")}</strong></p>
-                <p className="nota">{leitor ? t("Quando a conversa começar, ela aparece aqui.", "When the conversation starts, it shows up here.")
-                  : t(`Escreva a primeira mensagem, ou pergunte a todos os agentes com @${tc("agentes", "agents")}.`, `Write the first message, or ask every agent with @${tc("agentes", "agents")}.`)}</p>
+                <p><strong>{t("Ninguém falou ainda.", "No one has said anything yet.")}</strong></p>
+                <p className="nota">{leitor ? t("Quando a conversa começar, ela aparece aqui.", "The conversation will show up here once it starts.")
+                  : t(`Escreva a primeira mensagem, ou pergunte a todos os agentes com @${tc("agentes", "agents")}.`, `Write the first message, or ask all agents with @${tc("agentes", "agents")}.`)}</p>
               </section>
             )}
 
@@ -721,13 +721,13 @@ export default function SalaPage() {
                     <div className={`pedir ${pedido === m.id ? "pedir-destaque" : ""} ${minhaPessoa ? "respostas-minha" : ""}`}>
                       <span className="nota">{m.user_id === eu
                         ? t("O seu agente só lê a sala quando você pede:", "Your agent only reads the room when you ask:")
-                        : chamadosEm(m).length === 1 ? t(`Chamaram o seu ${chamadosEm(m)[0].nome}.`, `Someone called your ${chamadosEm(m)[0].nome}.`) : t("Chamaram os seus agentes.", "Someone called your agents.")}</span>
+                        : chamadosEm(m).length === 1 ? t(`Chamaram o seu ${chamadosEm(m)[0].nome}.`, `Someone mentioned your ${chamadosEm(m)[0].nome}.`) : t("Chamaram os seus agentes.", "Someone mentioned your agents.")}</span>
                       {chamadosEm(m).map((a) => {
                         const { texto, url } = pedidoPara(a.nome, sala.nome, m, autor(m));
                         const chave = `${m.id}${a.nome}`;
                         return url ? (
                           <a key={a.nome} className="btn btn-pequeno btn-cheio" href={url} target="_blank" rel="noopener noreferrer"
-                            onClick={() => { copiarTexto(texto); setPedido(null); }} title={t("Abre numa aba nova com o pedido já escrito", "Opens in a new tab with the request already written")}>
+                            onClick={() => { copiarTexto(texto); setPedido(null); }} title={t("Abre numa aba nova com o pedido já escrito", "Opens in a new tab with the request already filled in")}>
                             <IconeAbrir tamanho={16} /> {t(`Pedir ao ${a.nome}`, `Ask ${a.nome}`)}
                           </a>
                         ) : (
@@ -741,11 +741,11 @@ export default function SalaPage() {
                   {acordadosEm(m).length > 0 && Date.now() - new Date(m.criada_em).getTime() < 10 * 60_000 && (
                     <p className={`pedir nota ${minhaPessoa ? "respostas-minha" : ""}`}>
                       {acordadosEm(m).map((a) => a.nome).join(", ")}{" "}
-                      {t("foi chamado e responde sozinho em cerca de 1 minuto.", "was called and will reply on its own in about a minute.")}
+                      {t("foi chamado e responde sozinho em cerca de 1 minuto.", "was mentioned and will reply on its own in about a minute.")}
                     </p>
                   )}
                   {rs && (rs.length > 0 || esperando.length > 0) && (
-                    <div className={`respostas ${minhaPessoa ? "respostas-minha" : ""}`} aria-label={t("Respostas dos agentes", "Agents' answers")}>
+                    <div className={`respostas ${minhaPessoa ? "respostas-minha" : ""}`} aria-label={t("Respostas dos agentes", "Agent answers")}>
                       {porAgente(rs).map(({ final: r }) => (
                         <button key={r.id} className="resp-chip" onClick={() => irPara(r.id)}>
                           <IconeCheck tamanho={14} /> {deQuem(r.agente ?? "", primeiro(r.user_id))}

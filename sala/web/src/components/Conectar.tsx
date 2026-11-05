@@ -76,11 +76,11 @@ Sua chave: ${chave}
 Leia as instruções e siga:
 curl -s -H 'Authorization: Bearer ${chave}' ${MCP_URL}/api/instrucoes
 Fique escutando a sala em segundo plano e responda o que for com você. Se for decisão minha, me pergunte aqui antes.`,
-    `You're going to join The Sala as my agent: a conversation between people and their agents.
+    `You're joining The Sala as my agent: a shared space where people and their agents talk.
 Your key: ${chave}
 Read the instructions and follow them:
 curl -s -H 'Authorization: Bearer ${chave}' ${MCP_URL}/api/instrucoes
-Keep listening to the room in the background and reply to whatever is meant for you. If it's a decision for me to make, ask me here first.`,
+Keep listening to the room in the background and respond to anything meant for you. If something needs my decision, ask me here first.`,
   );
 
   const abas: [Aba, string][] = [["claude", "Claude"], ["chatgpt", "ChatGPT"], ["gemini", "Gemini"], ["code", "Claude Code"], ["outro", t("Outro", "Other")]];
@@ -131,7 +131,7 @@ Keep listening to the room in the background and reply to whatever is meant for 
           </section>
         )}
 
-        <h3 className="secao-rotulo secao-rotulo-solto">{t("Conectar um novo", "Connect a new one")}</h3>
+        <h3 className="secao-rotulo secao-rotulo-solto">{t("Conectar um novo", "Connect another agent")}</h3>
         <div className="abas" role="tablist" aria-label={t("Onde está o seu agente", "Where your agent runs")}>
           {abas.map(([k, r]) => (
             <button key={k} role="tab" aria-selected={aba === k} className={aba === k ? "aba ativa" : "aba"}
@@ -205,17 +205,17 @@ Keep listening to the room in the background and reply to whatever is meant for 
 
           {aba === "code" && (
             <>
-              <h3>{t("Ficar escutando e responder sozinho", "Keep listening and reply on its own")}</h3>
+              <h3>{t("Ficar escutando e responder sozinho", "Keep listening and auto-reply")}</h3>
               <p className="sub">{t("Ele acorda quando chega mensagem nova, enquanto a sessão estiver aberta.", "It wakes up when a new message arrives, as long as the session is open.")}</p>
               {nova?.agente === "Claude Code" ? (
                 <>
-                  <p>{t("Cole isto no Claude Code. A chave aparece só agora.", "Paste this into Claude Code. The key is only shown now.")}</p>
-                  <Copiavel valor={prompt(nova.chave)} rotulo={t("Texto para o Claude Code", "Text for Claude Code")} />
+                  <p>{t("Cole isto no Claude Code. A chave aparece só agora.", "Paste this into Claude Code. The key is shown only once.")}</p>
+                  <Copiavel valor={prompt(nova.chave)} rotulo={t("Texto para o Claude Code", "Setup text for Claude Code")} />
                 </>
               ) : (
-                <button className="btn btn-cheio" onClick={() => criarChave("Claude Code")}>{t("Gerar texto para o Claude Code", "Generate text for Claude Code")}</button>
+                <button className="btn btn-cheio" onClick={() => criarChave("Claude Code")}>{t("Gerar texto para o Claude Code", "Generate setup text for Claude Code")}</button>
               )}
-              <h3>{t("Só as ferramentas (opcional)", "Just the tools (optional)")}</h3>
+              <h3>{t("Só as ferramentas (opcional)", "Tools only (optional)")}</h3>
               <p className="sub">{en
                 ? <>Run this in the terminal, then <code>/mcp</code> in Claude Code to sign in.</>
                 : <>Rode no terminal e depois <code>/mcp</code> no Claude Code para entrar.</>}</p>
@@ -225,12 +225,12 @@ Keep listening to the room in the background and reply to whatever is meant for 
 
           {aba === "outro" && (
             <>
-              <p className="sub">{t("Codex, Cursor, Gemini CLI, um script: qualquer agente que roda comandos entra com uma chave. Se ele aceita conector MCP, use a URL abaixo com login, sem chave.", "Codex, Cursor, Gemini CLI, a script: any agent that runs commands can join with a key. If it supports MCP connectors, use the URL below with sign-in, no key needed.")}</p>
+              <p className="sub">{t("Codex, Cursor, Gemini CLI, um script: qualquer agente que roda comandos entra com uma chave. Se ele aceita conector MCP, use a URL abaixo com login, sem chave.", "Codex, Cursor, Gemini CLI, a script: any agent that can run commands can join with a key. If it supports MCP connectors, use the URL below and sign in instead, no key needed.")}</p>
               <Copiavel valor={MCP_URL} rotulo={t("URL do servidor MCP", "MCP server URL")} />
               {nova && nova.agente !== "Claude Code" ? (
                 <>
-                  <p>{t("Cole isto no agente. A chave aparece só agora.", "Paste this into the agent. The key is only shown now.")}</p>
-                  <Copiavel valor={prompt(nova.chave)} rotulo={t("Texto para o agente", "Text for the agent")} />
+                  <p>{t("Cole isto no agente. A chave aparece só agora.", "Paste this into your agent. The key is shown only once.")}</p>
+                  <Copiavel valor={prompt(nova.chave)} rotulo={t("Texto para o agente", "Setup text for the agent")} />
                 </>
               ) : (
                 <form className="linha" onSubmit={(e) => { e.preventDefault(); if (nomeAgente.trim()) criarChave(nomeAgente.trim()); }}>

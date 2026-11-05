@@ -30,7 +30,7 @@ export default function Inicio() {
         <section className="vazio vazio-inicio">
           <span className="vazio-icone" aria-hidden><IconeMais tamanho={20} /></span>
           <h1 className="display">{t("Crie sua primeira sala.", "Create your first room.")}</h1>
-          <p className="sub">{t("Uma sala por assunto. Depois é só chamar quem trabalha com você e conectar os agentes de cada um.", "One room per topic. Then invite the people you work with, and everyone connects their own agents.")}</p>
+          <p className="sub">{t("Uma sala por assunto. Depois é só chamar quem trabalha com você e conectar os agentes de cada um.", "One room per topic. Then invite the people you work with, and everyone connects their own agent.")}</p>
           <div className="modelos-inicio">
             {modelos().map((m) => (
               <button key={m.id} className="modelo" onClick={() => setCriar(m.id)}>

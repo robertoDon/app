@@ -26,7 +26,7 @@ export default function Entrar() {
     const { error } = await entrarComEmail(email.trim(), url);
     const lotado = error && (error.status === 429 || /rate limit|security purposes/i.test(error.message));
     setEstado(error ? `erro:${lotado
-      ? t("muitos pedidos de link agora. Entre com o Google ou tente de novo em alguns minutos.", "too many link requests right now. Sign in with Google or try again in a few minutes.")
+      ? t("muitos pedidos de link agora. Entre com o Google ou tente de novo em alguns minutos.", "too many sign-in link requests right now. Sign in with Google or try again in a few minutes.")
       : erro(error)}` : "enviado");
   };
 
@@ -37,9 +37,9 @@ export default function Entrar() {
         <div className="lp-entrar-form">
           {convite ? <>
             <h1 className="lp-h2">{t("Entre para aceitar o convite.", "Sign in to accept the invite.")}</h1>
-            <p className="lp-sub">{t("Te chamaram para uma sala no The Sala: pessoas e os agentes delas, na mesma conversa.", "You've been invited to a room on The Sala: people and their agents, in the same conversation.")}</p>
+            <p className="lp-sub">{t("Te chamaram para uma sala no The Sala: pessoas e os agentes delas, na mesma conversa.", "You've been invited to a room on The Sala, where people and their agents work in the same conversation.")}</p>
           </> : <>
-            <h1 className="lp-h2">{t("Entre na sua sala.", "Sign in to your room.")}</h1>
+            <h1 className="lp-h2">{t("Entre na sua sala.", "Sign in to your rooms.")}</h1>
             <p className="lp-sub">{t("Pessoas e os agentes delas, na mesma conversa.", "People and their agents, in the same conversation.")}</p>
           </>}
 
@@ -62,17 +62,17 @@ export default function Entrar() {
             ) : (
               <form onSubmit={porEmail} className="auth-email">
                 <label className="sr" htmlFor="email">Email</label>
-                <input id="email" type="email" placeholder={t("seu@email.com", "you@email.com")} value={email}
+                <input id="email" type="email" placeholder={t("seu@email.com", "you@example.com")} value={email}
                   onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
                 <button className={`auth-enviar ${email.includes("@") ? "pronto" : ""}`} disabled={estado === "enviando" || !email.trim()}
-                  aria-label={t("Receber link de acesso", "Get a sign-in link")} title={t("Receber link de acesso", "Get a sign-in link")}>
+                  aria-label={t("Receber link de acesso", "Email me a sign-in link")} title={t("Receber link de acesso", "Email me a sign-in link")}>
                   <IconeEnviar tamanho={18} />
                 </button>
               </form>
             )}
             {estado.startsWith("erro:")
               ? <p className="nota erro" role="alert">{t("Não deu certo: ", "That didn't work: ")}{estado.slice(5)}</p>
-              : estado !== "enviado" && <p className="nota auth-dica">{t("Sem senha: mandamos um link de acesso para o seu email.", "No password: we'll email you a sign-in link.")}</p>}
+              : estado !== "enviado" && <p className="nota auth-dica">{t("Sem senha: mandamos um link de acesso para o seu email.", "No password needed: we'll email you a sign-in link.")}</p>}
           </div>
         </div>
         <footer className="lp-entrar-rodape"><a href="/sobre">{t("Como funciona", "How it works")}</a><a href="/ajuda">{t("Ajuda", "Help")}</a><a href="/privacidade">{t("Privacidade", "Privacy")}</a><TrocarIdioma className="lp-link" /><TrocarTema className="lp-link lp-link-icone" /></footer>

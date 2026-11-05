@@ -64,7 +64,7 @@ function Formulario({ inicial, membros, agentes, nome, salvar, cancelar, botao, 
       <label className="sr" htmlFor="tf-titulo">{t("O que precisa ser feito", "What needs to be done")}</label>
       <input id="tf-titulo" autoFocus value={titulo} maxLength={200} placeholder={t("O que precisa ser feito", "What needs to be done")} onChange={(e) => setTitulo(e.target.value)} />
       <div className="tarefa-campos">
-        <label><span className="rotulo">{t("Quem faz", "Assignee")}</span>
+        <label><span className="rotulo">{t("Quem faz", "Owner")}</span>
           <select value={resp} onChange={(e) => setResp(e.target.value)}>
             <option value="">{t("Ninguém ainda", "No one yet")}</option>
             <optgroup label={t("Pessoas", "People")}>
@@ -78,8 +78,8 @@ function Formulario({ inicial, membros, agentes, nome, salvar, cancelar, botao, 
           </select>
         </label>
         <label><span className="rotulo">{t("Prazo", "Due date")}</span>
-          <input type="date" value={prazo} onChange={(e) => setPrazo(e.target.value)} title={t("vale até as 18h", "due by 6 pm")} />
-          {prazo && <span className="nota">{t("vale até as 18h", "due by 6 pm")}</span>}
+          <input type="date" value={prazo} onChange={(e) => setPrazo(e.target.value)} title={t("vale até as 18h", "due by 6 PM")} />
+          {prazo && <span className="nota">{t("vale até as 18h", "due by 6 PM")}</span>}
         </label>
         <label><span className="rotulo">{t("Frente", "Workstream")}</span>
           <input value={frente} maxLength={40} list="tf-frentes" placeholder={t("Opcional", "Optional")} onChange={(e) => setFrente(e.target.value)} />
@@ -111,7 +111,7 @@ export function Prazo({ tf }: { tf: Tarefa }) {
   const atr = atrasada(tf);
   const perto = !atr && new Date(tf.prazo).getTime() - Date.now() < 2 * 864e5;
   return (
-    <span className={`pilula ${atr ? "pilula-erro" : perto ? "pilula-acento" : ""}`} title={t("vale até as 18h", "due by 6 pm")}>
+    <span className={`pilula ${atr ? "pilula-erro" : perto ? "pilula-acento" : ""}`} title={t("vale até as 18h", "due by 6 PM")}>
       <IconeRelogio tamanho={12} />{atr ? t(`Atrasada · ${prazoCurto(tf.prazo)}`, `Overdue · ${prazoCurto(tf.prazo)}`) : prazoCurto(tf.prazo)}
     </span>
   );
@@ -234,8 +234,8 @@ export function Tarefas({ salaId, tarefas, membros, agentes, eu, nome, rascunho,
       {tarefas && !abertas.length && !nova && (
         <section className="painel-secao painel-vazio">
           <span className="vazio-icone"><Marcador feito tamanho={22} /></span>
-          <p><strong>{so === "minhas" ? t("Nada com você agora.", "Nothing assigned to you.") : feitas.length ? t("Tudo feito por aqui.", "All done here.") : t("Nenhuma tarefa ainda.", "No tasks yet.")}</strong></p>
-          <p className="nota">{t("Proposta aprovada vira tarefa de quem propôs. Qualquer mensagem também vira tarefa, pelo botão na própria mensagem.", "An approved proposal becomes a task for whoever proposed it. Any message can become a task too, from the button on the message.")}</p>
+          <p><strong>{so === "minhas" ? t("Nada com você agora.", "Nothing assigned to you right now.") : feitas.length ? t("Tudo feito por aqui.", "All done here.") : t("Nenhuma tarefa ainda.", "No tasks yet.")}</strong></p>
+          <p className="nota">{t("Proposta aprovada vira tarefa de quem propôs. Qualquer mensagem também vira tarefa, pelo botão na própria mensagem.", "An approved proposal becomes a task for the person who proposed it. You can also turn any message into a task with the button on the message.")}</p>
         </section>
       )}
 
@@ -328,7 +328,7 @@ export function Tarefas({ salaId, tarefas, membros, agentes, eu, nome, rascunho,
       {desfazer && (
         <div className="desfazer" role="status">
           <Marcador feito tamanho={16} />
-          <span>{t("Tarefa feita", "Task done")}</span>
+          <span>{t("Tarefa feita", "Task completed")}</span>
           <button className="link" onClick={() => reabrir(desfazer)}>{t("Desfazer", "Undo")}</button>
         </div>
       )}

@@ -69,7 +69,7 @@ export function Memoria({ salaId, eu, podeEscrever, nome, fechar, voltar }: Prop
   const restaurar = async (v: Versao) => {
     const { data } = await sb.from("memoria_versoes").select("texto").eq("id", v.id).single();
     if (!data) return;
-    if (!confirm(t("Voltar a memória para esta versão? A atual continua no histórico.", "Restore the memory to this version? The current one stays in the history."))) return;
+    if (!confirm(t("Voltar a memória para esta versão? A atual continua no histórico.", "Restore this version of the memory? The current version stays in the history."))) return;
     if (await salvar((data as { texto: string }).texto, t(`Voltou para a versão de ${quando(v.criada_em)}`, `Restored the version from ${quando(v.criada_em)}`))) setVendo(null);
   };
 
@@ -91,7 +91,7 @@ export function Memoria({ salaId, eu, podeEscrever, nome, fechar, voltar }: Prop
 
       <section className="painel-secao">
         <p className="nota">{t("Os agentes mantêm aqui o estado do projeto e quem faz o quê, sem pedir aprovação. Você pode corrigir ou voltar uma versão. As instruções da sala, escritas por vocês, ficam nos ajustes.",
-          "Agents keep the project's state and who does what here, without asking for approval. You can correct it or restore a version. The room instructions, written by you, live in settings.")}</p>
+          "Agents keep the project's status and who's doing what here, without asking for approval. You can edit it or restore an earlier version. Room instructions, written by you, are in Room settings.")}</p>
         {ultima && !editando && (
           <p className="memoria-ultima"><span className="pilula">{t("Atualizada", "Updated")} {quando(ultima.criada_em)}</span> {autor(ultima)}{ultima.resumo ? ` · ${ultima.resumo}` : ""}</p>
         )}
@@ -119,8 +119,8 @@ export function Memoria({ salaId, eu, podeEscrever, nome, fechar, voltar }: Prop
           <div className="memoria-versao-topo">
             <span className="pilula pilula-acento">{t("Versão anterior", "Earlier version")}</span>
             <span className="painel-topo-acoes">
-              <button className="btn btn-pequeno btn-texto" onClick={() => setVendo(null)}>{t("Ver a atual", "See current")}</button>
-              {podeEscrever && <button className="btn btn-pequeno" onClick={() => restaurar(versoes.find((v) => v.id === vendo.id)!)}>{t("Voltar para esta", "Restore this")}</button>}
+              <button className="btn btn-pequeno btn-texto" onClick={() => setVendo(null)}>{t("Ver a atual", "View current")}</button>
+              {podeEscrever && <button className="btn btn-pequeno" onClick={() => restaurar(versoes.find((v) => v.id === vendo.id)!)}>{t("Voltar para esta", "Restore this version")}</button>}
             </span>
           </div>
           <Texto texto={vendo.texto} chamaMim={sempre} />
@@ -131,7 +131,7 @@ export function Memoria({ salaId, eu, podeEscrever, nome, fechar, voltar }: Prop
         <section className="painel-secao painel-vazio">
           <span className="vazio-icone"><IconeMemoria tamanho={20} /></span>
           <p><strong>{t("A memória está vazia.", "The memory is empty.")}</strong></p>
-          <p className="nota">{t("Os agentes começam a preencher conforme a conversa anda: o que foi decidido, o que está pendente e quem faz o quê.", "Agents start filling it in as the conversation moves: what was decided, what's pending and who does what.")}</p>
+          <p className="nota">{t("Os agentes começam a preencher conforme a conversa anda: o que foi decidido, o que está pendente e quem faz o quê.", "Agents fill it in as the conversation goes: what's been decided, what's pending and who's doing what.")}</p>
         </section>
       ))}
 
@@ -150,8 +150,8 @@ export function Memoria({ salaId, eu, podeEscrever, nome, fechar, voltar }: Prop
                   </span>
                   {i > 0 && (
                     <Menu rotulo={t("Ações da versão", "Version actions")} itens={[
-                      { rotulo: t("Ver esta versão", "See this version"), acao: () => ver(v) },
-                      podeEscrever && { rotulo: t("Voltar para esta", "Restore this"), acao: () => restaurar(v) },
+                      { rotulo: t("Ver esta versão", "View this version"), acao: () => ver(v) },
+                      podeEscrever && { rotulo: t("Voltar para esta", "Restore this version"), acao: () => restaurar(v) },
                     ]} />
                   )}
                 </li>

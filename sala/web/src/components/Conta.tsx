@@ -7,7 +7,7 @@ import { IconeAjuda, IconeCheck, IconeFechar, IconeLixo, IconeMapa, IconePlugue,
 import { definirTema, useTema, type Tema } from "../tema";
 
 const opcoes = () => [
-  { valor: "mencoes", titulo: t("Quando for comigo", "When it's about me"), texto: t("Quando chamarem você, houver proposta para decidir ou responderem algo seu.", "When someone mentions you, a proposal needs your decision, or someone replies to you.") },
+  { valor: "mencoes", titulo: t("Quando for comigo", "When it involves me"), texto: t("Quando chamarem você, houver proposta para decidir ou responderem algo seu.", "When someone mentions you, a proposal needs your decision, or someone replies to you.") },
   { valor: "tudo", titulo: t("Toda mensagem", "Every message"), texto: t("Qualquer mensagem nas suas salas.", "Any message in your rooms.") },
   { valor: "nada", titulo: t("Nunca", "Never"), texto: t("Você vê as novidades quando abrir o app.", "You'll see what's new when you open the app.") },
 ] as const;
@@ -65,7 +65,7 @@ export function Conta({ fechar }: { fechar: () => void }) {
     const palavra = t("APAGAR", "DELETE");
     const ok = prompt(t(
       "Apagar sua conta? Você sai de todas as salas, e as suas mensagens e as dos seus agentes somem. As salas que você criou passam para quem está nelas.\n\nPara confirmar, digite APAGAR:",
-      "Delete your account? You'll leave all your rooms, and your messages and your agents' messages will be removed. Rooms you created will pass to the people in them.\n\nTo confirm, type DELETE:",
+      "Delete your account? You'll leave all your rooms, and your messages and your agents' messages will be deleted. Rooms you created will be handed over to the people still in them.\n\nTo confirm, type DELETE:",
     ));
     if (ok?.trim().toUpperCase() !== palavra) return;
     try { await apagarConta(); } catch (e) { alert(msgErro(e)); }
@@ -74,8 +74,8 @@ export function Conta({ fechar }: { fechar: () => void }) {
   const avisoTexto: Record<EstadoAvisos, string> = {
     "ligado": t("Ligados neste aparelho.", "On for this device."),
     "desligado": t("Desligados neste aparelho.", "Off for this device."),
-    "negado": t("O navegador bloqueou os avisos desta página. Libere nas configurações do site e volte aqui.", "Your browser blocked notifications for this page. Allow them in the site settings and come back here."),
-    "sem-suporte": t("Este navegador não recebe avisos. Tente o Chrome, o Edge, o Firefox ou o Safari atualizado.", "This browser can't get notifications. Try an up-to-date Chrome, Edge, Firefox or Safari."),
+    "negado": t("O navegador bloqueou os avisos desta página. Libere nas configurações do site e volte aqui.", "Your browser is blocking notifications for this page. Allow them in your site settings, then come back here."),
+    "sem-suporte": t("Este navegador não recebe avisos. Tente o Chrome, o Edge, o Firefox ou o Safari atualizado.", "This browser doesn't support notifications. Try an up-to-date version of Chrome, Edge, Firefox or Safari."),
     "iphone-instalar": t("No iPhone, adicione o The Sala à Tela de Início (Compartilhar → Adicionar à Tela de Início) e abra por lá para ligar os avisos.", "On iPhone, add The Sala to your Home Screen (Share → Add to Home Screen) and open it from there to turn on notifications."),
   };
 
@@ -96,7 +96,7 @@ export function Conta({ fechar }: { fechar: () => void }) {
             <input id="conta-nome" value={nome} maxLength={60} onChange={(e) => setNome(e.target.value)}
               onBlur={salvarNome} onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()} />
           </div>
-          <p className="nota">{(() => { const apelido = nome.trim().split(" ")[0] || t("Nome", "Name"); const email = sessao?.user.email ?? ""; return t(`Os agentes chamam você por @${apelido}. Conta: ${email}`, `Agents call you @${apelido}. Account: ${email}`); })()}</p>
+          <p className="nota">{(() => { const apelido = nome.trim().split(" ")[0] || t("Nome", "Name"); const email = sessao?.user.email ?? ""; return t(`Os agentes chamam você por @${apelido}. Conta: ${email}`, `Agents mention you as @${apelido}. Account: ${email}`); })()}</p>
         </section>
 
         <section className="conta-secao">
@@ -105,7 +105,7 @@ export function Conta({ fechar }: { fechar: () => void }) {
             <p className="nota" role="status">{estado ? avisoTexto[estado] : " "}</p>
             {(estado === "ligado" || estado === "desligado") && (
               <button className={`btn btn-pequeno ${estado === "desligado" ? "btn-cheio" : ""}`} onClick={alternar}>
-                {estado === "ligado" ? t("Desligar aqui", "Turn off here") : t("Ligar neste aparelho", "Turn on for this device")}
+                {estado === "ligado" ? t("Desligar aqui", "Turn off on this device") : t("Ligar neste aparelho", "Turn on for this device")}
               </button>
             )}
           </div>
@@ -147,16 +147,16 @@ export function Conta({ fechar }: { fechar: () => void }) {
               <IconePlugue tamanho={18} /><span><strong>{t("Seus agentes", "Your agents")}</strong><span className="nota">{t("Conectar ou desconectar", "Connect or disconnect")}</span></span>
             </button>
             <button className="perigo-linha" onClick={() => { fechar(); window.dispatchEvent(new Event("sala:guia")); }}>
-              <IconeMapa tamanho={18} /><span><strong>{t("Guia rápido", "Quick tour")}</strong><span className="nota">{t("Rever como a sala funciona", "See how rooms work again")}</span></span>
+              <IconeMapa tamanho={18} /><span><strong>{t("Guia rápido", "Quick tour")}</strong><span className="nota">{t("Rever como a sala funciona", "Take the tour again")}</span></span>
             </button>
             <a className="perigo-linha" href="/ajuda" target="_blank" rel="noopener">
               <IconeAjuda tamanho={18} /><span><strong>{t("Ajuda", "Help")}</strong><span className="nota">{t("Perguntas comuns e como conectar cada agente", "Common questions and how to connect each agent")}</span></span>
             </a>
             <button className="perigo-linha" onClick={async () => { await desligarAvisos().catch(() => {}); await sb.auth.signOut({ scope: "local" }); /* só este navegador: os agentes conectados continuam */ }}>
-              <IconeSair tamanho={18} /><span><strong>{t("Sair", "Sign out")}</strong><span className="nota">{t("Só neste navegador. Os agentes continuam conectados.", "Only in this browser. Your agents stay connected.")}</span></span>
+              <IconeSair tamanho={18} /><span><strong>{t("Sair", "Sign out")}</strong><span className="nota">{t("Só neste navegador. Os agentes continuam conectados.", "Signs you out of this browser only. Your agents stay connected.")}</span></span>
             </button>
             <button className="perigo-linha perigo" onClick={apagar}>
-              <IconeLixo tamanho={18} /><span><strong>{t("Apagar minha conta", "Delete my account")}</strong><span className="nota">{t("Some com as suas mensagens e as dos seus agentes.", "Removes your messages and your agents' messages.")}</span></span>
+              <IconeLixo tamanho={18} /><span><strong>{t("Apagar minha conta", "Delete my account")}</strong><span className="nota">{t("Some com as suas mensagens e as dos seus agentes.", "Deletes your messages and your agents' messages.")}</span></span>
             </button>
           </div>
         </section>

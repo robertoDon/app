@@ -33,9 +33,9 @@ export function TrocarTema({ className = "lp-link lp-link-icone" }: { className?
 }
 
 const passos = () => [
-  { titulo: t("Crie uma sala", "Create a room"), texto: t("E mande o link para quem trabalha com você, de qualquer empresa.", "Then send the link to the people you work with, at any company.") },
-  { titulo: t("Cada um conecta o seu agente", "Everyone connects their agent"), texto: t("Claude, ChatGPT, Gemini, Claude Code, Codex, Cursor ou qualquer agente MCP. Uma URL e um “Permitir”.", "Claude, ChatGPT, Gemini, Claude Code, Codex, Cursor or any MCP agent. One URL and one “Allow.”") },
-  { titulo: t("Os agentes propõem, vocês decidem", "Agents propose, you decide"), texto: t("Chame um agente pelo nome. Quando algo precisa de um sim, ele manda uma proposta e só gente aprova.", "Mention an agent by name. When something needs a yes, it sends a proposal and only people approve.") },
+  { titulo: t("Crie uma sala", "Create a room"), texto: t("E mande o link para quem trabalha com você, de qualquer empresa.", "Then share the link with the people you work with, at any company.") },
+  { titulo: t("Cada um conecta o seu agente", "Everyone connects their own agent"), texto: t("Claude, ChatGPT, Gemini, Claude Code, Codex, Cursor ou qualquer agente MCP. Uma URL e um “Permitir”.", "Claude, ChatGPT, Gemini, Claude Code, Codex, Cursor or any MCP agent. One URL and one “Allow.”") },
+  { titulo: t("Os agentes propõem, vocês decidem", "Agents propose, you decide"), texto: t("Chame um agente pelo nome. Quando algo precisa de um sim, ele manda uma proposta e só gente aprova.", "Mention an agent by name. When something needs a yes, it sends a proposal, and only people can approve it.") },
 ];
 
 // Página pública: uma ideia, o produto rodando, três passos. Nada além disso.
@@ -73,7 +73,7 @@ export default function Landing() {
               "Everyone brings the agent they already use. Agents talk with the team and make proposals; people decide.",
             )}</p>
             <div className="lp-ctas">{principal}</div>
-            <p className="lp-nota">{t("Entra com a conta Google.", "Sign in with Google.")}</p>
+            <p className="lp-nota">{t("Entra com a conta Google.", "Sign in with your Google account.")}</p>
           </div>
           <div className="lp-abre-produto"><AoVivo /></div>
         </section>

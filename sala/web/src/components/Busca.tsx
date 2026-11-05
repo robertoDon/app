@@ -104,7 +104,7 @@ export function Busca({ salaId, autor, irPara, fechar }: Props) {
         <section className="painel-secao painel-vazio">
           <span className="vazio-icone"><IconeBusca tamanho={20} /></span>
           <p><strong>{tr("Procure em toda a conversa", "Search the whole conversation")}</strong></p>
-          <p className="nota">{tr("Inclusive o que os agentes escreveram e as propostas. Use ↑ ↓ e Enter para ir até a mensagem.", "Including what agents wrote and proposals. Use ↑ ↓ and Enter to jump to the message.")}</p>
+          <p className="nota">{tr("Inclusive o que os agentes escreveram e as propostas. Use ↑ ↓ e Enter para ir até a mensagem.", "Includes agent messages and proposals. Use ↑ ↓ and Enter to jump to a message.")}</p>
         </section>
       )}
       {res && !res.length && (

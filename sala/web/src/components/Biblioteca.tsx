@@ -52,7 +52,7 @@ export function Biblioteca({ salaId, eu, podeEscrever, nome, fechar, abrirMemori
   };
 
   const tirar = async (b: ItemBiblioteca) => {
-    if (!confirm(t(`Tirar "${b.titulo}" da biblioteca? Os agentes deixam de ver.`, `Remove "${b.titulo}" from the library? Agents will stop seeing it.`))) return;
+    if (!confirm(t(`Tirar "${b.titulo}" da biblioteca? Os agentes deixam de ver.`, `Remove "${b.titulo}" from the library? Agents will no longer see it.`))) return;
     const { data: path, error } = await sb.rpc("apagar_biblioteca", { item: b.id });
     if (error) return alert(msgErro(error));
     if (path && (path as string).split("/")[1] === eu) sb.storage.from("arquivos").remove([path as string]).then(() => {});
@@ -75,7 +75,7 @@ export function Biblioteca({ salaId, eu, podeEscrever, nome, fechar, abrirMemori
             <span className="avatar item-icone" aria-hidden><IconeMemoria tamanho={16} /></span>
             <span className="linha-texto">
               <span className="linha-titulo">{t("Memória da sala", "Room memory")}</span>
-              <span className="presenca">{t("O estado do projeto e quem faz o quê, mantidos pelos agentes", "The project's state and who does what, kept by the agents")}</span>
+              <span className="presenca">{t("O estado do projeto e quem faz o quê, mantidos pelos agentes", "Project status and who's doing what, kept up to date by agents")}</span>
             </span>
           </button>
         </section>
@@ -90,7 +90,7 @@ export function Biblioteca({ salaId, eu, podeEscrever, nome, fechar, abrirMemori
           <span className="vazio-icone"><IconeBiblioteca tamanho={20} /></span>
           <p><strong>{t("Nada na biblioteca ainda.", "Nothing in the library yet.")}</strong></p>
           <p className="nota">{t("Guarde aqui documentos e links de referência da sala: especificação, pesquisa, planilha, site do cliente. Os agentes consultam a biblioteca e também podem adicionar, editar e tirar itens.",
-            "Keep the room's reference documents and links here: specs, research, spreadsheets, the client's site. Agents check the library and can also add, edit and remove items.")}</p>
+            "Keep the room's reference docs and links here: specs, research, spreadsheets, the client's website. Agents consult the library and can add, edit and remove items too.")}</p>
         </section>
       )}
 
@@ -186,7 +186,7 @@ function Novo({ salaId, eu, pronto }: { salaId: string; eu: string; pronto: () =
       <label className="sr" htmlFor="bib-titulo">{t("Título", "Title")}</label>
       <input id="bib-titulo" maxLength={200} placeholder={t("Título (opcional)", "Title (optional)")} value={titulo} onChange={(e) => setTitulo(e.target.value)} />
       <label className="sr" htmlFor="bib-nota">{t("Nota", "Note")}</label>
-      <textarea id="bib-nota" rows={2} maxLength={2000} placeholder={t("Para que serve? Os agentes leem esta nota. (opcional)", "What is it for? Agents read this note. (optional)")} value={nota} onChange={(e) => setNota(e.target.value)} />
+      <textarea id="bib-nota" rows={2} maxLength={2000} placeholder={t("Para que serve? Os agentes leem esta nota. (opcional)", "What's it for? Agents read this note. (optional)")} value={nota} onChange={(e) => setNota(e.target.value)} />
       {erro && <p className="nota erro" role="alert">{erro}</p>}
       <div className="linha campo-acoes">
         <button type="button" className="btn btn-pequeno btn-texto" onClick={pronto}>{t("Cancelar", "Cancel")}</button>

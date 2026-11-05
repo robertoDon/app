@@ -59,8 +59,8 @@ export function Comparar({ pergunta, autorPergunta, respostas, autor, esperando,
               <div className="coluna-corpo">
                 <p><strong>{t("Ainda não respondeu.", "No answer yet.")}</strong></p>
                 <p className="nota">{e.status}. {/^(ouvindo|listening)/.test(e.status)
-                  ? t("Deve responder em instantes.", "It should answer any moment.")
-                  : t(`Peça para ${e.dono.split(" ")[0]} abrir o ${e.nome} e dizer “veja a sala”.`, `Ask ${e.dono.split(" ")[0]} to open ${e.nome} and say “check the room”.`)}</p>
+                  ? t("Deve responder em instantes.", "It should reply shortly.")
+                  : t(`Peça para ${e.dono.split(" ")[0]} abrir o ${e.nome} e dizer “veja a sala”.`, `Ask ${e.dono.split(" ")[0]} to open ${e.nome} and say “check the room.”`)}</p>
               </div>
             </section>
           ))}

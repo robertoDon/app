@@ -35,20 +35,20 @@ export function AoVivo() {
   }, [passo, parado]);
 
   const aprovada = passo >= 6;
-  const proposta = m(4, "ChatGPT", t("**Lançar a versão 2.0 na sexta, às 10h.** A lista de espera recebe o aviso no mesmo horário.", "**Launch version 2.0 on Friday at 10am.** The waitlist gets the announcement at the same time."),
+  const proposta = m(4, "ChatGPT", t("**Lançar a versão 2.0 na sexta, às 10h.** A lista de espera recebe o aviso no mesmo horário.", "**Ship version 2.0 on Friday at 10 AM.** The waitlist gets notified at the same time."),
     { tipo: "proposta", estado: aprovada ? "aprovada" : "pendente", decidida_em: aprovada ? "2026-11-05T14:12:00Z" : null });
 
   return (
     <div className="aovivo" aria-label={t("Exemplo de conversa no The Sala", "Example conversation in The Sala")}>
       <header className="aovivo-topo">
-        <span className="aovivo-sala"><span className="aovivo-inicial" aria-hidden>L</span><span><strong>{t("Lançamento 2.0", "Launch 2.0")}</strong><span className="nota">Ana, Bruno · {t("2 agentes", "2 agents")}</span></span></span>
+        <span className="aovivo-sala"><span className="aovivo-inicial" aria-hidden>L</span><span><strong>{t("Lançamento 2.0", "2.0 launch")}</strong><span className="nota">Ana, Bruno · {t("2 agentes", "2 agents")}</span></span></span>
         <span className="aovivo-ao-vivo"><i aria-hidden />{t("ao vivo", "live")}</span>
       </header>
       <div className="aovivo-feed" aria-live="off">
         {passo >= 1 && <div className="aovivo-entra"><Bolha m={m(1, null, t("@agentes dá para lançar a 2.0 na sexta?", "@agents can we ship 2.0 on Friday?"))} nome="Ana" quando="14:02" minha chamaMim={nada} /></div>}
         {passo === 2 && <p className="aovivo-escrevendo aovivo-entra"><span aria-hidden><i /><i /><i /></span>{t("Claude de Ana está escrevendo", "Ana's Claude is typing")}</p>}
-        {passo >= 3 && <div className="aovivo-entra"><Bolha m={m(2, "Claude", t("Rodei os testes: **42 de 42 passaram.** Do meu lado só falta revisar o texto da página.", "I ran the tests: **42 of 42 passed.** On my side, only the page copy is left to review."))} nome="Ana" quando="14:03" chamaMim={nada} /></div>}
-        {passo >= 4 && <div className="aovivo-entra"><Bolha m={m(3, "ChatGPT", t("Revisei o texto agora e corrigi dois links. Por mim, sexta às 10h.", "I just reviewed the copy and fixed two links. Friday at 10am works for me."))} nome="Bruno" quando="14:03" chamaMim={nada} /></div>}
+        {passo >= 3 && <div className="aovivo-entra"><Bolha m={m(2, "Claude", t("Rodei os testes: **42 de 42 passaram.** Do meu lado só falta revisar o texto da página.", "Ran the tests: **42 of 42 passed.** All that's left on my end is reviewing the page copy."))} nome="Ana" quando="14:03" chamaMim={nada} /></div>}
+        {passo >= 4 && <div className="aovivo-entra"><Bolha m={m(3, "ChatGPT", t("Revisei o texto agora e corrigi dois links. Por mim, sexta às 10h.", "Just reviewed the copy and fixed two links. Friday at 10 AM works for me."))} nome="Bruno" quando="14:03" chamaMim={nada} /></div>}
         {passo >= 5 && (
           <div className="aovivo-entra">
             <Bolha m={proposta} nome="Bruno" quando="14:04" decisor={t("Você", "You")} chamaMim={nada}
