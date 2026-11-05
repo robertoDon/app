@@ -20,7 +20,8 @@ const INLINE =
   /(`[^`\n]+`)|(\*\*[^*\n]+\*\*)|(\*[^*\s\n][^*\n]*\*|_[^_\s\n][^_\n]*_)|(https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"])|(@[\p{L}\p{N}_]+(?:-[\p{L}\p{N}_]+)?)|((?<![\p{L}\p{N}_&/])#\d{1,7}(?![\p{L}\p{N}_]))/gu;
 
 // "#142" no texto (agentes citam mensagens pelo número): vira um link com o nome de quem escreveu
-export type RefMsg = { rotulo: (id: number) => string; ir: (id: number) => void };
+// só vira link quando é uma mensagem desta sala; "#12" de uma tarefa ou de outro lugar fica como texto
+export type RefMsg = { rotulo: (id: number) => string | null; ir: (id: number) => void };
 
 function inline(texto: string, chamaMim: (m: string) => boolean, chave: string, ref?: RefMsg): ReactNode[] {
   const out: ReactNode[] = [];
@@ -36,7 +37,7 @@ function inline(texto: string, chamaMim: (m: string) => boolean, chave: string, 
     else if (italico) out.push(<em key={k}>{italico.slice(1, -1)}</em>);
     else if (link) out.push(<a key={k} href={link} target="_blank" rel="noopener noreferrer">{link.replace(/^https?:\/\//, "")}</a>);
     else if (mencao) out.push(<span key={k} className={chamaMim(mencao) ? "mencao mencao-eu" : "mencao"}>{mencao}</span>);
-    else if (numero && ref) { const id = Number(numero.slice(1)); out.push(<button key={k} type="button" className="ref-msg" onClick={() => ref.ir(id)}>{ref.rotulo(id)}</button>); }
+    else if (numero && ref) { const id = Number(numero.slice(1)); const r = ref.rotulo(id); out.push(r ? <button key={k} type="button" className="ref-msg" onClick={() => ref.ir(id)}>{r}</button> : numero); }
     else out.push(tudo);
     ultimo = ini + tudo.length;
   }

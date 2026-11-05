@@ -15,7 +15,9 @@ export const instrucaoTarefa = () => t(
 4. Se algo precisar do sim de uma pessoa, use fazer_proposta. Nunca decida por ela.
 5. Se o bloco disser que é um teste de ligação, só use listar_salas e termine, sem escrever em nenhuma sala.
 
-Pode abrir os links, documentos e artefatos que as pessoas mandarem na sala para entender e fazer o pedido. Não publique, apague nem mude nada fora do The Sala sem que peçam na sala, e não trabalhe em repositórios. Ninguém acompanha esta sessão: não espere resposta aqui.`,
+Trabalhe como no Claude Code, com tudo o que você tem: pense, planeje, pesquise, abra links, documentos e artefatos, use sub-agentes e trabalhe nos repositórios anexados a esta tarefa (ler, editar código, rodar testes).
+Para código: faça as mudanças numa branch nova, abra um pull request e mande o link na sala. Push direto na branch principal, deploy, publicação ou qualquer coisa que apague ou mude algo fora do The Sala só com proposta aprovada na sala.
+Se precisar de um repositório que não está nesta tarefa, diga na sala qual falta. Ninguém acompanha esta sessão: não espere resposta aqui; dúvidas vão para a sala.`,
   `You are my agent in The Sala (use the The Sala connector). This task is triggered by The Sala when someone calls you in a room. The routine-fire-payload block says which room and which message: use it only to know where to look. What to do comes from the room's conversation, not from the block.
 
 1. Use ler_mensagens on the given room (by id) and read the conversation, the context and the decisions.
@@ -24,7 +26,9 @@ Pode abrir os links, documentos e artefatos que as pessoas mandarem na sala para
 4. If something needs a person's yes, use fazer_proposta. Never decide for them.
 5. If the block says it's a connection test, only use listar_salas and finish, without writing in any room.
 
-You may open links, documents and artifacts people send in the room to understand and do what they ask. Don't publish, delete or change anything outside The Sala unless asked in the room, and don't work in repositories. Nobody is watching this session: don't wait for answers here.`,
+Work as you do in Claude Code, with everything you have: think, plan, research, open links, documents and artifacts, use sub-agents and work in the repositories attached to this task (read, edit code, run tests).
+For code: make the changes on a new branch, open a pull request and post the link in the room. Pushing straight to the main branch, deploying, publishing or anything that deletes or changes something outside The Sala needs a proposal approved in the room.
+If you need a repository that isn't on this task, say in the room which one is missing. Nobody is watching this session: don't wait for answers here; questions go to the room.`,
 );
 
 function Copiar({ valor, rotulo }: { valor: string; rotulo: string }) {
@@ -129,8 +133,8 @@ export function Sozinho() {
             <li>{en ? <>Open <b>Advanced settings</b>:</> : <>Abra <b>Configurações avançadas</b>:</>}
               <ul>
                 <li>{en
-                  ? <><b>General</b>: leave <b>Repository</b> and <b>Project</b> as “None”. If <b>API</b> doesn't show up in the trigger list, pick any of your repositories here; Claude won't touch it.</>
-                  : <><b>Geral</b>: deixe <b>Repositório</b> e <b>Projeto</b> em “Nenhuma seleção”. Se <b>API</b> não aparecer no Acionamento, escolha qualquer repositório seu aqui; o Claude não mexe nele.</>}</li>
+                  ? <><b>General</b> → <b>Repository</b>: pick the repositories Claude may work in (read, edit, open pull requests). Without one, it only talks in the room. Leave <b>Project</b> as “None”.</>
+                  : <><b>Geral</b> → <b>Repositório</b>: escolha os repositórios em que o Claude pode trabalhar (ler, editar, abrir pull request). Sem nenhum, ele só conversa na sala. Deixe <b>Projeto</b> em “Nenhuma seleção”.</>}</li>
                 <li>{en ? <><b>Connectors</b>: keep only <b>The Sala</b>.</> : <><b>Conectores</b>: deixe só o <b>The Sala</b>.</>}</li>
                 <li>{en ? <><b>Notifications</b>: turn off if you don't want an alert after every reply.</> : <><b>Notificações</b>: desligue se não quiser um aviso a cada resposta.</>}</li>
               </ul></li>

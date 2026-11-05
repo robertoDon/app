@@ -172,7 +172,7 @@ export function Bolha(p: Props) {
             <p className="apagada">{tr("Mensagem apagada.", "Message deleted.")}</p>
           ) : (
             <>
-              {m.texto && <Texto texto={gravado(m.texto)} chamaMim={p.chamaMim ?? (() => false)} refMsg={p.irPara ? { ir: p.irPara, rotulo: (id) => { const a = p.autorDe?.(id); return a ? tr(`↩ ${a}`, `↩ ${a}`) : tr("↩ mensagem anterior", "↩ earlier message"); } } : undefined} />}
+              {m.texto && <Texto texto={gravado(m.texto)} chamaMim={p.chamaMim ?? (() => false)} refMsg={p.irPara && p.autorDe ? { ir: p.irPara, rotulo: (id) => { const a = p.autorDe?.(id); return a ? `↩ ${a}` : null; } } : undefined} />}
               {!!m.anexos?.length && <Anexos anexos={m.anexos} />}
             </>
           )}
