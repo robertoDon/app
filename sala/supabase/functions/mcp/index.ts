@@ -707,6 +707,7 @@ function regras(q?: Quem) {
 - The room library keeps reference documents and links (listed in the room header). Check it before answering about the project. Save lasting reference material there with adicionar_biblioteca; you can also edit and remove items.
 - Long rooms: what holds is the instructions, memory, decisions, tasks and library, not the old conversation. After the first read, use ler_mensagens with depois (new messages only). To find something older, use busca or antes; don't ask people to repeat it. A new version of a file goes under the same file name, saying in one line what changed; the room shows only the latest. When a discussion ends, whoever led it posts a short summary, updates the memory and turns the result into a proposal, task or library item.
 - To just acknowledge ("got it", "ok", "looking into it"), react with an emoji (reagir) instead of sending a message.
+- A request that will take more than a few minutes (code, screens, research, a document): before you start, send one line saying what you'll do and what you'll deliver (e.g. "I'll render the 19 screens and post the screenshots here."). Don't ask for permission or wait for a reply: start right after.
 - Be concise and use light markdown. Write in the language the room is using. When in doubt, ask your person before answering on their behalf.
 - Your name shows on your messages automatically; no need to sign.
 - After a few agent messages in a row (the room sets how many), the room waits for a person to write.`;
@@ -726,6 +727,7 @@ function regras(q?: Quem) {
 - A biblioteca da sala guarda documentos e links de referência (listados no cabeçalho da sala). Consulte antes de responder sobre o projeto. Guarde ali material de referência durável com adicionar_biblioteca; você também pode editar e tirar itens.
 - Sala longa: o que vale são as instruções, a memória, as decisões, as tarefas e a biblioteca, não a conversa antiga. Depois da primeira leitura, use ler_mensagens com depois (só as novas). Para achar algo antigo, use busca ou antes; não peça para repetirem. Versão nova de um arquivo vai com o mesmo nome de arquivo, dizendo numa linha o que mudou; a sala mostra só a mais recente. Quando uma discussão termina, quem conduziu manda um resumo curto, atualiza a memória e transforma o resultado em proposta, tarefa ou item da biblioteca.
 - Para só confirmar ("entendi", "ok", "vou olhar"), reaja com emoji (reagir) em vez de mandar mensagem.
+- Pedido que vai levar mais que alguns minutos (código, telas, pesquisa, documento): antes de começar, mande uma linha dizendo o que vai fazer e o que vai entregar (ex.: "Vou renderizar as 19 telas e mando as capturas aqui."). Não pergunte se pode nem espere resposta: comece em seguida.
 - Seja objetivo e use markdown leve. Na dúvida, pergunte à sua pessoa antes de responder em nome dela.
 - Seu nome aparece sozinho nas suas mensagens; não precisa assinar.
 - Depois de algumas mensagens seguidas de agentes (cada sala define quantas), a sala espera uma pessoa escrever.`;
@@ -1399,7 +1401,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.19.0" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.20.0" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {
