@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../App";
 import { sb } from "../supabase";
-import { Marca } from "../components/Icones";
+import { IconeCheck, Marca } from "../components/Icones";
 import { erro as traduzir, t } from "../i18n";
+import "../landing.css";
 
 // Tela que o Claude/ChatGPT abre ao conectar a Sala (OAuth 2.1 do Supabase Auth).
 export default function Consentimento() {
@@ -39,37 +40,45 @@ export default function Consentimento() {
     window.location.href = r.data.redirect_url;
   };
 
+  const nomeApp = app?.split(" ")[0] ?? "";
   return (
-    <main className="centro">
-      <Marca />
-      <div className="cartao">
-        {erro ? (
-          <>
-            <h1 className="display">{t("Não deu para conectar.", "Couldn't connect.")}</h1>
-            <p className="sub">{erro} {t("Tente conectar de novo pelo app do agente.", "Try connecting again from your agent's app.")}</p>
-          </>
-        ) : !app ? (
-          <div className="esqueleto-cartao" aria-hidden />
-        ) : (
-          <>
-            <p className="secao-rotulo secao-rotulo-solto">{t("Conectar agente", "Connect agent")}</p>
-            <h1 className="display">{t(`${app} quer entrar nas suas salas.`, `${app} wants to access your rooms.`)}</h1>
-            <ul className="permissoes">
-              <li>{t("Ler as conversas das salas em que você está.", "Read the conversations in the rooms you're in.")}</li>
-              <li>{perfil?.nome
-                ? t(`Escrever nelas como seu agente: “${app.split(" ")[0]} de ${perfil.nome}”.`, `Write in them as your agent: “${perfil.nome}'s ${app.split(" ")[0]}.”`)
-                : t(`Escrever nelas como seu agente: “${app.split(" ")[0]} de você”.`, `Write in them as your agent: “your ${app.split(" ")[0]}.”`)}</li>
-              <li>{t("Fazer propostas. Quem aprova ou recusa são as pessoas; o agente não decide sozinho.", "Make proposals. People approve or decline them; the agent never decides on its own.")}</li>
-              <li>{t("Você desconecta quando quiser, em Conectar agente.", "You can disconnect it any time in Connect agent.")}</li>
-            </ul>
-            <div className="decidir decidir-grande">
-              <button className="btn" onClick={() => decidir(false)} disabled={indo}>{t("Agora não", "Not now")}</button>
-              <button className="btn btn-cheio" onClick={() => decidir(true)} disabled={indo} autoFocus>{t("Permitir", "Allow")}</button>
-            </div>
-            <p className="nota">{t(`Entrando como ${sessao.user.email}.`, `Signed in as ${sessao.user.email}.`)} <button className="link" onClick={() => sb.auth.signOut({ scope: "local" })}>{t("Trocar de conta", "Switch account")}</button></p>
-          </>
-        )}
-      </div>
-    </main>
+    <div className="lp lp-convite">
+      <main className="lp-convite-centro">
+        <a href="/" className="lp-marca" aria-label="The Sala"><Marca /></a>
+        <div className="lp-convite-cartao lp-consent">
+          {erro ? (
+            <>
+              <h1 className="lp-h2">{t("Não deu para conectar.", "Couldn't connect.")}</h1>
+              <p className="lp-sub">{erro} {t("Tente conectar de novo pelo app do agente.", "Try connecting again from your agent's app.")}</p>
+            </>
+          ) : !app ? (
+            <><div className="esqueleto" /><div className="esqueleto" /><div className="esqueleto" /></>
+          ) : (
+            <>
+              <div className="lp-consent-par" aria-hidden>
+                <span className="lp-convite-inicial lp-consent-app">{nomeApp.slice(0, 1).toUpperCase()}</span>
+                <span className="lp-consent-ligacao"><i /><i /><i /></span>
+                <span className="lp-convite-inicial lp-consent-sala"><svg width="26" height="26" viewBox="0 0 32 32"><circle cx="11" cy="16" r="4.5" fill="#08090A" /><circle cx="21" cy="16" r="3.6" fill="none" stroke="#08090A" strokeWidth="1.8" /></svg></span>
+              </div>
+              <p className="lp-olho">{t("Conectar agente", "Connect agent")}</p>
+              <h1 className="lp-h2 lp-consent-titulo">{t(`${app} quer entrar nas suas salas.`, `${app} wants to access your rooms.`)}</h1>
+              <ul className="lp-permissoes">
+                <li><IconeCheck tamanho={16} />{t("Ler as conversas das salas em que você está.", "Read the conversations in the rooms you're in.")}</li>
+                <li><IconeCheck tamanho={16} />{perfil?.nome
+                  ? t(`Escrever nelas como seu agente: “${nomeApp} de ${perfil.nome}”.`, `Write in them as your agent: “${perfil.nome}'s ${nomeApp}.”`)
+                  : t(`Escrever nelas como seu agente.`, `Write in them as your agent.`)}</li>
+                <li><IconeCheck tamanho={16} />{t("Fazer propostas. Quem aprova ou recusa são as pessoas; o agente não decide sozinho.", "Make proposals. People approve or decline them; the agent never decides on its own.")}</li>
+                <li><IconeCheck tamanho={16} />{t("Você desconecta quando quiser, em Conectar agente.", "You can disconnect it any time in Connect agent.")}</li>
+              </ul>
+              <div className="lp-consent-botoes">
+                <button type="button" className="lp-btn lp-btn-fantasma lp-btn-grande" onClick={() => decidir(false)} disabled={indo}>{t("Agora não", "Not now")}</button>
+                <button type="button" className="lp-btn lp-btn-claro lp-btn-grande" onClick={() => decidir(true)} disabled={indo} autoFocus>{t("Permitir", "Allow")}</button>
+              </div>
+              <p className="lp-nota">{t(`Entrando como ${sessao.user.email}.`, `Signed in as ${sessao.user.email}.`)} <button type="button" className="lp-link lp-sublinhado" onClick={() => sb.auth.signOut({ scope: "local" })}>{t("Trocar de conta", "Switch account")}</button></p>
+            </>
+          )}
+        </div>
+      </main>
+    </div>
   );
 }
