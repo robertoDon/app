@@ -116,7 +116,7 @@
    "y": 0,
    "w": 1440,
    "h": 900,
-   "title": "3. Empresas · primeiras empresas — web",
+   "title": "3. Empresas · primeira busca — web",
    "page": "telas",
    "expand": "fill"
   },
@@ -125,7 +125,7 @@
    "y": 1020,
    "w": 390,
    "h": 844,
-   "title": "1. Hoje — celular (com Perguntar)",
+   "title": "1. Hoje — celular",
    "page": "telas"
   },
   "ConversasMobile.dc.html": {
@@ -165,7 +165,7 @@
    "y": 1020,
    "w": 390,
    "h": 844,
-   "title": "3. Empresas · primeiras empresas — celular",
+   "title": "3. Empresas · primeira busca — celular",
    "page": "telas"
   },
   "FocoMobile.dc.html": {
@@ -233,63 +233,105 @@
    "title": "Contra quem a gente joga — 46 produtos e onde o Follou ganha",
    "page": "conc"
   },
-  "MetaChega.dc.html": {
+  "Grana.dc.html": {
    "x": 0,
    "y": 3060,
    "w": 1440,
    "h": 900,
-   "title": "Meta · chega — web (⌘K)",
+   "title": "4. Grana — web",
    "page": "telas",
    "expand": "fill"
   },
-  "MetaNaoChega.dc.html": {
+  "GranaCadastro.dc.html": {
    "x": 1520,
    "y": 3060,
    "w": 1440,
    "h": 900,
-   "title": "Meta · não chega — web (⌘K)",
+   "title": "4. Grana · cadastrar negociações — web",
    "page": "telas",
-   "expand": "fill"
+   "expand": "fill",
+   "is_interactive": true
   },
-  "MetaSemDados.dc.html": {
-   "x": 3040,
-   "y": 3060,
-   "w": 1440,
-   "h": 900,
-   "title": "Meta · sem dados suficientes — web (⌘K)",
-   "page": "telas",
-   "expand": "fill"
-  },
-  "MetaRegras.dc.html": {
+  "GranaRegras.dc.html": {
    "x": 4560,
    "y": 3060,
    "w": 1440,
-   "h": 1900,
-   "title": "A pergunta da meta — regras, conta e contrato",
+   "h": 2300,
+   "title": "O Grana — perguntas, conta, 1-3-5, prioridades e tom",
    "page": "telas"
   },
-  "MetaChegaMobile.dc.html": {
+  "GranaPlanoMobile.dc.html": {
    "x": 0,
    "y": 4080,
    "w": 390,
    "h": 844,
-   "title": "Meta · chega — celular",
-   "page": "telas"
+   "title": "4. Grana · primeiro plano, clicável",
+   "page": "telas",
+   "is_interactive": true
   },
-  "MetaNaoChegaMobile.dc.html": {
+  "GranaComecoMobile.dc.html": {
    "x": 470,
    "y": 4080,
    "w": 390,
    "h": 844,
-   "title": "Meta · não chega — celular",
+   "title": "Comece por aqui — a primeira ação",
    "page": "telas"
   },
-  "MetaSemDadosMobile.dc.html": {
+  "GranaMobile.dc.html": {
    "x": 940,
    "y": 4080,
    "w": 390,
    "h": 844,
-   "title": "Meta · sem dados suficientes — celular",
+   "title": "4. Grana — celular",
+   "page": "telas"
+  },
+  "GranaSemanaMobile.dc.html": {
+   "x": 1410,
+   "y": 4080,
+   "w": 390,
+   "h": 844,
+   "title": "Semana passada — segunda-feira",
+   "page": "telas"
+  },
+  "GranaCadastroMobile.dc.html": {
+   "x": 1880,
+   "y": 4080,
+   "w": 390,
+   "h": 844,
+   "title": "Cadastrar negociações",
+   "page": "telas",
+   "is_interactive": true
+  },
+  "GranaEditarMobile.dc.html": {
+   "x": 2350,
+   "y": 4080,
+   "w": 390,
+   "h": 844,
+   "title": "Editar o plano",
+   "page": "telas"
+  },
+  "GranaSemTicketMobile.dc.html": {
+   "x": 2820,
+   "y": 4080,
+   "w": 390,
+   "h": 844,
+   "title": "Plano sem valor de venda",
+   "page": "telas"
+  },
+  "GranaCobertaMobile.dc.html": {
+   "x": 3290,
+   "y": 4080,
+   "w": 390,
+   "h": 844,
+   "title": "Meta já coberta",
+   "page": "telas"
+  },
+  "GranaSemDadosMobile.dc.html": {
+   "x": 3760,
+   "y": 4080,
+   "w": 390,
+   "h": 844,
+   "title": "Sem dados suficientes",
    "page": "telas"
   }
  },
@@ -318,13 +360,18 @@
   "Waitlist.dc.html",
   "Resumo.dc.html",
   "Concorrencia.dc.html",
-  "MetaChega.dc.html",
-  "MetaNaoChega.dc.html",
-  "MetaSemDados.dc.html",
-  "MetaRegras.dc.html",
-  "MetaChegaMobile.dc.html",
-  "MetaNaoChegaMobile.dc.html",
-  "MetaSemDadosMobile.dc.html"
+  "Grana.dc.html",
+  "GranaCadastro.dc.html",
+  "GranaRegras.dc.html",
+  "GranaPlanoMobile.dc.html",
+  "GranaComecoMobile.dc.html",
+  "GranaMobile.dc.html",
+  "GranaSemanaMobile.dc.html",
+  "GranaCadastroMobile.dc.html",
+  "GranaEditarMobile.dc.html",
+  "GranaSemTicketMobile.dc.html",
+  "GranaCobertaMobile.dc.html",
+  "GranaSemDadosMobile.dc.html"
  ],
  "notes": {
   "t_marca": {
@@ -399,10 +446,18 @@
    "page": "conc",
    "maxW": 1440
   },
-  "s_meta": {
+  "s_grana": {
    "x": -560,
    "y": 3060,
-   "text": "A pergunta da meta (⌘K)",
+   "text": "Grana · web",
+   "kind": "title1",
+   "page": "telas",
+   "maxW": 440
+  },
+  "s_granam": {
+   "x": -560,
+   "y": 4080,
+   "text": "Grana · celular",
    "kind": "title1",
    "page": "telas",
    "maxW": 440

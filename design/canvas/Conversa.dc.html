@@ -28,6 +28,7 @@ a:focus-visible,button:focus-visible{outline:2px solid #0E7038;outline-offset:2p
       <a class="dv-nav" href="Hoje.dc.html" style="height: 44px; box-sizing: border-box; padding: 0 13px; border-radius: 999px; color: #1A1815; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 500; transition: background-color 150ms ease-out"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 18h18"></path><path d="M7 18a5 5 0 0 1 10 0"></path><path d="M12 6v3"></path><path d="M5.6 10.6l1.6 1.6"></path><path d="M18.4 10.6l-1.6 1.6"></path></svg><span style="flex-grow: 1">Hoje</span><span style="font-size: 13px; font-weight: 500; color: #57524B">G H</span></a>
       <a href="Conversas.dc.html" aria-current="page" style="height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 999px; background: #FAF9F7; border: 1px solid #E3DFD7; box-shadow: 0 1px 2px rgba(16,15,15,0.06); color: #1A1815; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"></path></svg><span style="flex-grow: 1">Conversas</span><span style="font-size: 13px; font-weight: 500; color: #57524B">G C</span></a>
       <a class="dv-nav" href="Empresas.dc.html" style="height: 44px; box-sizing: border-box; padding: 0 13px; border-radius: 999px; color: #1A1815; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 500; transition: background-color 150ms ease-out"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 20V5h9v15"></path><path d="M14 10h5v10"></path><path d="M3 20h18"></path><path d="M8 9h3"></path><path d="M8 13h3"></path></svg><span style="flex-grow: 1">Empresas</span><span style="font-size: 13px; font-weight: 500; color: #57524B">G E</span></a>
+      <a class="dv-nav" href="Grana.dc.html" style="height: 44px; box-sizing: border-box; padding: 0 13px; border-radius: 999px; color: #1A1815; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 500; transition: background-color 150ms ease-out"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M14.6 9.3c-.5-.8-1.5-1.3-2.6-1.3-1.5 0-2.6.8-2.6 1.9 0 2.7 5.2 1.4 5.2 4.2 0 1.1-1.1 1.9-2.6 1.9-1.2 0-2.2-.5-2.7-1.4"></path><path d="M12 6.4v1.6"></path><path d="M12 15.9v1.7"></path></svg><span style="flex-grow: 1">Grana</span><span style="font-size: 13px; font-weight: 500; color: #57524B">G R</span></a>
       </nav>
   </aside>
 
@@ -39,9 +40,23 @@ a:focus-visible,button:focus-visible{outline:2px solid #0E7038;outline-offset:2p
         <p style="margin: 4px 0 0; font-size: 16px; line-height: 22px; color: #57524B; font-variant-numeric: tabular-nums">Em conversa · R$ 5.500 · Ana Ribeiro · situação lida do WhatsApp</p>
       </div>
       <div style="display: flex; flex-wrap: wrap; gap: 12px">
-        <button type="button" class="pn-btn" style="height: 44px; box-sizing: border-box; padding: 0 18px; border: 1px solid #1A1815; border-radius: 999px; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; white-space: nowrap">Fechou</button>
+        <button type="button" class="pn-btn" onClick="{{ganhou}}" style="height: 44px; box-sizing: border-box; padding: 0 18px; border: 1px solid #1A1815; border-radius: 999px; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; white-space: nowrap">Ganhou</button>
+        <button type="button" class="pn-btn" onClick="{{perdeu}}" style="height: 44px; box-sizing: border-box; padding: 0 18px; border: 1px solid #1A1815; border-radius: 999px; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; white-space: nowrap">Perdeu</button>
       </div>
     </header>
+
+    <sc-if value="{{foiGanha}}" hint-placeholder-val="{{false}}">
+      <section aria-live="polite" style="border-radius: 24px; padding: 20px 24px; background: #FAF9F7; border: 1px solid #E3DFD7; box-shadow: 0 1px 2px rgba(16,15,15,0.06); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+        <div><p style="margin: 0; font-size: 16px; line-height: 22px; font-weight: 600; font-variant-numeric: tabular-nums">Venda registrada: R$ 5.500. Entra inteira nos 90 dias deste plano.</p><p style="margin: 2px 0 0; font-size: 13px; line-height: 18px; color: #57524B; font-variant-numeric: tabular-nums">No Grana, faltam R$ 24.500 · cerca de 2 vendas com projeto de R$ 15.000.</p></div>
+        <div style="display: flex; gap: 8px"><a href="Grana.dc.html" style="height: 44px; box-sizing: border-box; padding: 0 18px; border: 1px solid #1A1815; border-radius: 999px; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; white-space: nowrap">Ver o Grana</a><button type="button" onClick="{{desfazerDesfecho}}" style="height: 44px; box-sizing: border-box; padding: 0 18px; border: 1px solid #1A1815; border-radius: 999px; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; white-space: nowrap; border-color: transparent; text-decoration: underline; text-underline-offset: 3px; font-weight: 500">Desfazer</button></div>
+      </section>
+    </sc-if>
+    <sc-if value="{{foiPerdida}}" hint-placeholder-val="{{false}}">
+      <section aria-live="polite" style="border-radius: 24px; padding: 20px 24px; background: #FAF9F7; border: 1px solid #E3DFD7; box-shadow: 0 1px 2px rgba(16,15,15,0.06); display: flex; flex-direction: column; gap: 12px">
+        <div><p style="margin: 0; font-size: 16px; line-height: 22px; font-weight: 600">Anotado como perdida. O que pesou?</p><p style="margin: 2px 0 0; font-size: 13px; line-height: 18px; color: #57524B">O histórico fica guardado. A conta do plano não muda.</p></div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px"><button type="button" style="height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #E3DFD7; border-radius: 999px; background: #FAF9F7; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; cursor: pointer">Preço</button><button type="button" style="height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #E3DFD7; border-radius: 999px; background: #FAF9F7; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; cursor: pointer">Não era o momento</button><button type="button" style="height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #E3DFD7; border-radius: 999px; background: #FAF9F7; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; cursor: pointer">Escolheu outro</button><button type="button" style="height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #E3DFD7; border-radius: 999px; background: #FAF9F7; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; cursor: pointer">Parou de responder</button><button type="button" onClick="{{desfazerDesfecho}}" style="height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #E3DFD7; border-radius: 999px; background: #FAF9F7; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; cursor: pointer; border-color: transparent; text-decoration: underline; text-underline-offset: 3px">Desfazer</button></div>
+      </section>
+    </sc-if>
 
     <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
 
@@ -164,6 +179,7 @@ class Component extends DCLogic {
     const versao = s.versao ?? 0;
     const copiado = !!s.copiado;
     const enviados = s.enviados ?? [];
+    const desfecho = s.desfecho ?? null;
     const guia = Math.min(passo, 3);
     const lista = this.msgs()[guia];
     const titulos = { 1: "Follow-up com a Ana", 2: "Segundo follow-up com a Ana", 3: "Último follow-up com a Ana" };
@@ -192,6 +208,11 @@ class Component extends DCLogic {
       rascunho: fase === "rascunho",
       confirmar: fase === "confirmar",
       titulo: titulos[guia],
+      foiGanha: desfecho === "ganha",
+      foiPerdida: desfecho === "perdida",
+      ganhou: () => this.setState({ desfecho: "ganha" }),
+      perdeu: () => this.setState({ desfecho: "perdida" }),
+      desfazerDesfecho: () => this.setState({ desfecho: null }),
       atrasado: guia === 1,
       noPrazo: guia > 1,
       prazo: prazos[guia] || "",

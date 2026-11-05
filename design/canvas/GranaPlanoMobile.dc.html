@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Follou — Grana · primeiro plano (celular)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #0E7038;outline-offset:2px}
+.dv-nav:hover{background:#E9E5DE}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F4F1EC; color: #1A1815; font-family: 'IBM Plex Sans', -apple-system, system-ui, sans-serif">
+  <sc-if value="{{p.t01}}" hint-placeholder-val="{{true}}">
+    <div style="position: absolute; inset: 0; box-sizing: border-box; padding: 60px 16px 0; display: flex; flex-direction: column; gap: 24px">
+      <p style="margin: 0; height: 44px; display: flex; align-items: center; gap: 8px; font-size: 16px; line-height: 22px; font-weight: 600"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M14.6 9.3c-.5-.8-1.5-1.3-2.6-1.3-1.5 0-2.6.8-2.6 1.9 0 2.7 5.2 1.4 5.2 4.2 0 1.1-1.1 1.9-2.6 1.9-1.2 0-2.2-.5-2.7-1.4"></path><path d="M12 6.4v1.6"></path><path d="M12 15.9v1.7"></path></svg>Grana</p>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <h1 style="margin: 0; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.035em; text-wrap: balance">Antes de começar, algumas perguntas.</h1>
+        <p style="margin: 0; font-size: 16px; line-height: 22px">Elas montam o seu plano dos próximos 90 dias. Nenhuma exige abrir planilha.</p>
+        <p style="margin: 0; font-size: 16px; line-height: 22px; color: #57524B">Leva menos de três minutos.</p>
+      </div>
+      <div style="position: absolute; left: 16px; right: 16px; bottom: 32px; display: flex; flex-direction: column; gap: 8px; align-items: center">
+        <a href="HojeMobile.dc.html" style="height: 44px; padding: 0 4px; border: 0; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; display: inline-flex; align-items: center">Agora não</a>
+        <button type="button" onClick="{{seguir}}" style="box-sizing: border-box; height: 48px; padding: 0 20px; border: 0; border-radius: 999px; background: #0E7038; color: #FAF9F7; font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 150ms ease-out; width: 100%">Começar</button>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{p.q1}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; box-sizing: border-box; padding: 60px 16px 0; display: flex; flex-direction: column; gap: 24px">
+      <div style="height: 44px; display: flex; justify-content: space-between; align-items: center">
+        <button type="button" onClick="{{voltar}}" style="height: 44px; margin-left: -4px; padding: 0 8px 0 0; border: 0; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; display: inline-flex; align-items: center; gap: 2px; cursor: pointer"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>Voltar</button>
+        <span aria-label="Pergunta 1 de 6" style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; line-height: 16px; font-weight: 500; color: #57524B">1 / 6</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <h1 style="margin: 0; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.035em; text-wrap: balance">Como você cobra os seus clientes?</h1>
+        <p style="margin: 0; font-size: 16px; line-height: 22px; color: #57524B">Isso muda a forma do seu plano.</p>
+      </div>
+      <div role="group" style="display: flex; flex-direction: column; align-items: stretch; gap: 8px">
+        <sc-for list="{{modelos}}" as="c" hint-placeholder-count="4">
+          <sc-if value="{{c.on}}" hint-placeholder-val="{{false}}"><button type="button" aria-pressed="true" onClick="{{c.pick}}" style="height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #100F0F; border-radius: 999px; background: #100F0F; color: #F4F1EC; font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background-color 150ms ease-out; font-variant-numeric: tabular-nums; justify-content: flex-start; width: 100%">{{c.rotulo}}</button></sc-if>
+          <sc-if value="{{c.off}}" hint-placeholder-val="{{true}}"><button type="button" aria-pressed="false" onClick="{{c.pick}}" style="height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #E3DFD7; border-radius: 999px; background: #FAF9F7; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background-color 150ms ease-out; font-variant-numeric: tabular-nums; justify-content: flex-start; width: 100%">{{c.rotulo}}</button></sc-if>
+        </sc-for>
+      </div>
+
+      <div style="position: absolute; left: 16px; right: 16px; bottom: 32px; display: flex; flex-direction: column; gap: 8px; align-items: center">
+        <button type="button" onClick="{{seguir}}" style="box-sizing: border-box; height: 48px; padding: 0 20px; border: 0; border-radius: 999px; background: #0E7038; color: #FAF9F7; font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 150ms ease-out; width: 100%">Continuar</button>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{p.q2}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; box-sizing: border-box; padding: 60px 16px 0; display: flex; flex-direction: column; gap: 24px">
+      <div style="height: 44px; display: flex; justify-content: space-between; align-items: center">
+        <button type="button" onClick="{{voltar}}" style="height: 44px; margin-left: -4px; padding: 0 8px 0 0; border: 0; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; display: inline-flex; align-items: center; gap: 2px; cursor: pointer"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>Voltar</button>
+        <span aria-label="Pergunta 2 de 6" style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; line-height: 16px; font-weight: 500; color: #57524B">2 / 6</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <h1 style="margin: 0; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.035em; text-wrap: balance">Quanto você quer faturar nos próximos 90 dias?</h1>
+        <p style="margin: 0; font-size: 16px; line-height: 22px; color: #57524B">Valor que você vai faturar. Quando o dinheiro cai é outra conta, e o Follou não cuida dela.</p>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <label for="g-meta" style="font-size: 12px; line-height: 16px; font-weight: 600; color: #57524B">Meta dos 90 dias</label>
+        <div style="height: 64px; box-sizing: border-box; padding: 0 16px; border-radius: 16px; background: #FAF9F7; border: 1px solid #100F0F; display: flex; align-items: center; gap: 8px"><span style="font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; color: #57524B">R$</span><input id="g-meta" type="text" inputmode="numeric" value="60.000" style="flex: 1; min-width: 0; border: 0; background: transparent; padding: 0; color: #1A1815; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.035em; font-variant-numeric: tabular-nums"></div>
+      </div>
+
+      <div style="position: absolute; left: 16px; right: 16px; bottom: 32px; display: flex; flex-direction: column; gap: 8px; align-items: center">
+        <button type="button" style="height: 44px; padding: 0 4px; border: 0; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; display: inline-flex; align-items: center">Não sei</button>
+        <button type="button" onClick="{{seguir}}" style="box-sizing: border-box; height: 48px; padding: 0 20px; border: 0; border-radius: 999px; background: #0E7038; color: #FAF9F7; font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 150ms ease-out; width: 100%">Continuar</button>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{p.q3}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; box-sizing: border-box; padding: 60px 16px 0; display: flex; flex-direction: column; gap: 24px">
+      <div style="height: 44px; display: flex; justify-content: space-between; align-items: center">
+        <button type="button" onClick="{{voltar}}" style="height: 44px; margin-left: -4px; padding: 0 8px 0 0; border: 0; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; display: inline-flex; align-items: center; gap: 2px; cursor: pointer"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>Voltar</button>
+        <span aria-label="Pergunta 3 de 6" style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; line-height: 16px; font-weight: 500; color: #57524B">3 / 6</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <h1 style="margin: 0; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.035em; text-wrap: balance">De contrato já assinado, quanto você vai faturar nos próximos 90 dias?</h1>
+        <p style="margin: 0; font-size: 16px; line-height: 22px; color: #57524B">Só a parte que entra dentro desses 90 dias.</p>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <label for="g-garantido" style="font-size: 12px; line-height: 16px; font-weight: 600; color: #57524B">Já garantido</label>
+        <div style="height: 64px; box-sizing: border-box; padding: 0 16px; border-radius: 16px; background: #FAF9F7; border: 1px solid #100F0F; display: flex; align-items: center; gap: 8px"><span style="font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; color: #57524B">R$</span><input id="g-garantido" type="text" inputmode="numeric" value="15.000" style="flex: 1; min-width: 0; border: 0; background: transparent; padding: 0; color: #1A1815; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.035em; font-variant-numeric: tabular-nums"></div>
+      </div>
+
+      <div style="position: absolute; left: 16px; right: 16px; bottom: 32px; display: flex; flex-direction: column; gap: 8px; align-items: center">
+        <button type="button" style="height: 44px; padding: 0 4px; border: 0; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; display: inline-flex; align-items: center">Não tenho nada garantido</button>
+        <button type="button" onClick="{{seguir}}" style="box-sizing: border-box; height: 48px; padding: 0 20px; border: 0; border-radius: 999px; background: #0E7038; color: #FAF9F7; font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 150ms ease-out; width: 100%">Continuar</button>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{p.q4}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; box-sizing: border-box; padding: 60px 16px 0; display: flex; flex-direction: column; gap: 24px">
+      <div style="height: 44px; display: flex; justify-content: space-between; align-items: center">
+        <button type="button" onClick="{{voltar}}" style="height: 44px; margin-left: -4px; padding: 0 8px 0 0; border: 0; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; display: inline-flex; align-items: center; gap: 2px; cursor: pointer"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>Voltar</button>
+        <span aria-label="Pergunta 4 de 6" style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; line-height: 16px; font-weight: 500; color: #57524B">4 / 6</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <h1 style="margin: 0; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.035em; text-wrap: balance">Quanto costuma valer um projeto seu?</h1>
+        <p style="margin: 0; font-size: 16px; line-height: 22px; color: #57524B">Aproximado serve. Se não souber, eu pergunto o do último que você fechou.</p>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <label for="g-ticket" style="font-size: 12px; line-height: 16px; font-weight: 600; color: #57524B">Valor de um projeto</label>
+        <div style="height: 64px; box-sizing: border-box; padding: 0 16px; border-radius: 16px; background: #FAF9F7; border: 1px solid #100F0F; display: flex; align-items: center; gap: 8px"><span style="font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; color: #57524B">R$</span><input id="g-ticket" type="text" inputmode="numeric" value="15.000" style="flex: 1; min-width: 0; border: 0; background: transparent; padding: 0; color: #1A1815; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.035em; font-variant-numeric: tabular-nums"></div>
+      </div>
+
+      <div style="position: absolute; left: 16px; right: 16px; bottom: 32px; display: flex; flex-direction: column; gap: 8px; align-items: center">
+        <button type="button" style="height: 44px; padding: 0 4px; border: 0; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; display: inline-flex; align-items: center">Não sei</button>
+        <button type="button" onClick="{{seguir}}" style="box-sizing: border-box; height: 48px; padding: 0 20px; border: 0; border-radius: 999px; background: #0E7038; color: #FAF9F7; font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 150ms ease-out; width: 100%">Continuar</button>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{p.q5}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; box-sizing: border-box; padding: 60px 16px 0; display: flex; flex-direction: column; gap: 24px">
+      <div style="height: 44px; display: flex; justify-content: space-between; align-items: center">
+        <button type="button" onClick="{{voltar}}" style="height: 44px; margin-left: -4px; padding: 0 8px 0 0; border: 0; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; display: inline-flex; align-items: center; gap: 2px; cursor: pointer"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>Voltar</button>
+        <span aria-label="Pergunta 5 de 6" style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; line-height: 16px; font-weight: 500; color: #57524B">5 / 6</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <h1 style="margin: 0; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.035em; text-wrap: balance">Com quantas empresas você está negociando agora?</h1>
+        <p style="margin: 0; font-size: 16px; line-height: 22px; color: #57524B">Conte cada empresa uma vez, esteja ela em que ponto estiver.</p>
+      </div>
+      <div role="group" aria-label="Negociações em aberto" style="display: flex; align-items: center; justify-content: center; gap: 24px; padding: 16px 0">
+        <button type="button" aria-label="Uma a menos" onClick="{{menos}}" style="width: 56px; height: 56px; border-radius: 28px; border: 1px solid #E3DFD7; background: #FAF9F7; color: #1A1815; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"></path></svg></button>
+        <span aria-live="polite" style="min-width: 96px; text-align: center; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.035em; font-variant-numeric: tabular-nums">{{neg}}</span>
+        <button type="button" aria-label="Uma a mais" onClick="{{mais}}" style="width: 56px; height: 56px; border-radius: 28px; border: 1px solid #E3DFD7; background: #FAF9F7; color: #1A1815; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg></button>
+      </div>
+      <p style="margin: 0; font-size: 12px; line-height: 16px; color: #57524B; text-align: center">Zero também vale. Você cadastra cada uma depois, com calma.</p>
+
+      <div style="position: absolute; left: 16px; right: 16px; bottom: 32px; display: flex; flex-direction: column; gap: 8px; align-items: center">
+        <button type="button" onClick="{{seguir}}" style="box-sizing: border-box; height: 48px; padding: 0 20px; border: 0; border-radius: 999px; background: #0E7038; color: #FAF9F7; font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 150ms ease-out; width: 100%">Continuar</button>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{p.q6}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; box-sizing: border-box; padding: 60px 16px 0; display: flex; flex-direction: column; gap: 24px">
+      <div style="height: 44px; display: flex; justify-content: space-between; align-items: center">
+        <button type="button" onClick="{{voltar}}" style="height: 44px; margin-left: -4px; padding: 0 8px 0 0; border: 0; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; display: inline-flex; align-items: center; gap: 2px; cursor: pointer"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>Voltar</button>
+        <span aria-label="Pergunta 6 de 6" style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; line-height: 16px; font-weight: 500; color: #57524B">6 / 6</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <h1 style="margin: 0; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.035em; text-wrap: balance">Numa semana normal, quantas empresas novas você consegue abordar?</h1>
+        <p style="margin: 0; font-size: 16px; line-height: 22px; color: #57524B">Semana normal, não a sua melhor semana.</p>
+      </div>
+      <div role="group" style="display: flex; flex-wrap: wrap; gap: 8px">
+        <sc-for list="{{ritmos}}" as="c" hint-placeholder-count="4">
+          <sc-if value="{{c.on}}" hint-placeholder-val="{{false}}"><button type="button" aria-pressed="true" onClick="{{c.pick}}" style="height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #100F0F; border-radius: 999px; background: #100F0F; color: #F4F1EC; font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background-color 150ms ease-out; font-variant-numeric: tabular-nums">{{c.rotulo}}</button></sc-if>
+          <sc-if value="{{c.off}}" hint-placeholder-val="{{true}}"><button type="button" aria-pressed="false" onClick="{{c.pick}}" style="height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #E3DFD7; border-radius: 999px; background: #FAF9F7; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background-color 150ms ease-out; font-variant-numeric: tabular-nums">{{c.rotulo}}</button></sc-if>
+        </sc-for>
+      </div>
+
+      <div style="position: absolute; left: 16px; right: 16px; bottom: 32px; display: flex; flex-direction: column; gap: 8px; align-items: center">
+        <button type="button" style="height: 44px; padding: 0 4px; border: 0; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; display: inline-flex; align-items: center">Não sei estimar</button>
+        <button type="button" onClick="{{seguir}}" style="box-sizing: border-box; height: 48px; padding: 0 20px; border: 0; border-radius: 999px; background: #0E7038; color: #FAF9F7; font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 150ms ease-out; width: 100%">Continuar</button>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{p.t04}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; box-sizing: border-box; padding: 60px 16px 0; display: flex; flex-direction: column; gap: 20px">
+      <div style="height: 44px; display: flex; align-items: center"><button type="button" onClick="{{voltar}}" style="height: 44px; margin-left: -4px; padding: 0 8px 0 0; border: 0; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; display: inline-flex; align-items: center; gap: 2px; cursor: pointer"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>Voltar</button></div>
+      <div style="display: flex; flex-direction: column; gap: 8px"><h1 style="margin: 0; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.035em; text-wrap: balance">Confere antes de montar.</h1><p style="margin: 0; font-size: 16px; line-height: 22px; color: #57524B">Toque numa linha para mudar.</p></div>
+      <section style="display: flex; flex-direction: column; gap: 8px"><h2 style="margin: 0; font-size: 12px; line-height: 16px; font-weight: 600; color: #57524B">Sua meta</h2><ul style="list-style: none; margin: 0; padding: 0 16px; border-radius: 24px; background: #FAF9F7; border: 1px solid #E3DFD7; box-shadow: 0 1px 2px rgba(16,15,15,0.06)"><li style="border-top: 0"><button type="button" onClick="{{ir.q2}}" style="width: 100%; min-height: 56px; box-sizing: border-box; padding: 8px 0; border: 0; background: transparent; color: #1A1815; font: inherit; display: flex; align-items: center; gap: 12px; cursor: pointer; text-align: left"><span style="flex: 1; min-width: 0; font-size: 12px; line-height: 16px; color: #57524B">Faturar em 90 dias</span><span style="font-size: 16px; line-height: 22px; font-weight: 600; font-variant-numeric: tabular-nums">R$ 60.000</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#57524B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button></li><li style="border-top: 1px solid #E9E5DE"><button type="button" onClick="{{ir.q3}}" style="width: 100%; min-height: 56px; box-sizing: border-box; padding: 8px 0; border: 0; background: transparent; color: #1A1815; font: inherit; display: flex; align-items: center; gap: 12px; cursor: pointer; text-align: left"><span style="flex: 1; min-width: 0; font-size: 12px; line-height: 16px; color: #57524B">Já garantido</span><span style="font-size: 16px; line-height: 22px; font-weight: 600; font-variant-numeric: tabular-nums">R$ 15.000</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#57524B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button></li></ul></section>
+      <section style="display: flex; flex-direction: column; gap: 8px"><h2 style="margin: 0; font-size: 12px; line-height: 16px; font-weight: 600; color: #57524B">Seu negócio</h2><ul style="list-style: none; margin: 0; padding: 0 16px; border-radius: 24px; background: #FAF9F7; border: 1px solid #E3DFD7; box-shadow: 0 1px 2px rgba(16,15,15,0.06)"><li style="border-top: 0"><button type="button" onClick="{{ir.q1}}" style="width: 100%; min-height: 56px; box-sizing: border-box; padding: 8px 0; border: 0; background: transparent; color: #1A1815; font: inherit; display: flex; align-items: center; gap: 12px; cursor: pointer; text-align: left"><span style="flex: 1; min-width: 0; font-size: 12px; line-height: 16px; color: #57524B">Como você cobra</span><span style="font-size: 16px; line-height: 22px; font-weight: 600; font-variant-numeric: tabular-nums">{{modeloRotulo}}</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#57524B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button></li><li style="border-top: 1px solid #E9E5DE"><button type="button" onClick="{{ir.q4}}" style="width: 100%; min-height: 56px; box-sizing: border-box; padding: 8px 0; border: 0; background: transparent; color: #1A1815; font: inherit; display: flex; align-items: center; gap: 12px; cursor: pointer; text-align: left"><span style="flex: 1; min-width: 0; font-size: 12px; line-height: 16px; color: #57524B">Valor de um projeto</span><span style="font-size: 16px; line-height: 22px; font-weight: 600; font-variant-numeric: tabular-nums">R$ 15.000</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#57524B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button></li><li style="border-top: 1px solid #E9E5DE"><button type="button" onClick="{{ir.q5}}" style="width: 100%; min-height: 56px; box-sizing: border-box; padding: 8px 0; border: 0; background: transparent; color: #1A1815; font: inherit; display: flex; align-items: center; gap: 12px; cursor: pointer; text-align: left"><span style="flex: 1; min-width: 0; font-size: 12px; line-height: 16px; color: #57524B">Negociando agora</span><span style="font-size: 16px; line-height: 22px; font-weight: 600; font-variant-numeric: tabular-nums">{{neg}} empresas</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#57524B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button></li></ul></section>
+      <section style="display: flex; flex-direction: column; gap: 8px"><h2 style="margin: 0; font-size: 12px; line-height: 16px; font-weight: 600; color: #57524B">Seu ritmo</h2><ul style="list-style: none; margin: 0; padding: 0 16px; border-radius: 24px; background: #FAF9F7; border: 1px solid #E3DFD7; box-shadow: 0 1px 2px rgba(16,15,15,0.06)"><li style="border-top: 0"><button type="button" onClick="{{ir.q6}}" style="width: 100%; min-height: 56px; box-sizing: border-box; padding: 8px 0; border: 0; background: transparent; color: #1A1815; font: inherit; display: flex; align-items: center; gap: 12px; cursor: pointer; text-align: left"><span style="flex: 1; min-width: 0; font-size: 12px; line-height: 16px; color: #57524B">Empresas novas por semana</span><span style="font-size: 16px; line-height: 22px; font-weight: 600; font-variant-numeric: tabular-nums">{{ritmoRotulo}}</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#57524B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button></li></ul></section>
+      <div style="position: absolute; left: 16px; right: 16px; bottom: 32px"><button type="button" onClick="{{seguir}}" style="box-sizing: border-box; height: 48px; padding: 0 20px; border: 0; border-radius: 999px; background: #0E7038; color: #FAF9F7; font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 150ms ease-out; width: 100%">Ver meu plano</button></div>
+    </div>
+  </sc-if>
+  <sc-if value="{{p.t05}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; box-sizing: border-box; padding: 60px 16px 0; display: flex; flex-direction: column; gap: 20px">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <p style="margin: 0; font-size: 12px; line-height: 16px; font-weight: 600; color: #57524B">Seu plano · 90 dias</p>
+        <h1 style="margin: 0; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.035em; text-wrap: balance; font-variant-numeric: tabular-nums">R$ 45.000 a conquistar</h1>
+      </div>
+      <div><div role="img" aria-label="R$ 15.000 já garantidos de meta R$ 60.000" style="height: 6px; border-radius: 3px; background: #E3DFD7; overflow: hidden"><div style="width: 25%; height: 6px; border-radius: 3px; background: #100F0F"></div></div><div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; line-height: 16px; color: #57524B; font-variant-numeric: tabular-nums"><span>R$ 15.000 já garantidos</span><span>meta R$ 60.000</span></div></div>
+      <ul style="list-style: none; margin: 0; padding: 0 16px; border-radius: 24px; background: #FAF9F7; border: 1px solid #E3DFD7; box-shadow: 0 1px 2px rgba(16,15,15,0.06)">
+        <li style="border-top: 0; min-height: 56px; box-sizing: border-box; padding: 8px 0; display: flex; align-items: center; gap: 12px"><span style="flex-shrink: 0; min-width: 96px; font-size: 16px; line-height: 22px; font-weight: 600; font-variant-numeric: tabular-nums">cerca de 3</span><span style="flex: 1; min-width: 0; font-size: 12px; line-height: 16px; color: #57524B">vendas novas, com projeto de R$ 15.000</span></li>
+        <li style="border-top: 1px solid #E9E5DE; min-height: 56px; box-sizing: border-box; padding: 8px 0; display: flex; align-items: center; gap: 12px"><span style="flex-shrink: 0; min-width: 96px; font-size: 16px; line-height: 22px; font-weight: 600; font-variant-numeric: tabular-nums">10 por semana</span><span style="flex: 1; min-width: 0; font-size: 12px; line-height: 16px; color: #57524B">empresas novas, o ritmo que você declarou</span></li>
+        <li style="border-top: 1px solid #E9E5DE; min-height: 56px; box-sizing: border-box; padding: 8px 0; display: flex; align-items: center; gap: 12px"><span style="flex-shrink: 0; min-width: 96px; font-size: 16px; line-height: 22px; font-weight: 600; font-variant-numeric: tabular-nums">{{neg}}</span><span style="flex: 1; min-width: 0; font-size: 12px; line-height: 16px; color: #57524B">negociações em aberto, todas a registrar</span></li>
+      </ul>
+      <section aria-label="O que eu ainda não sei" style="border-radius: 24px; border: 1px dashed #57524B; padding: 16px; display: flex; flex-direction: column; gap: 4px"><p style="margin: 0; font-size: 12px; line-height: 16px; font-weight: 600; color: #57524B">O que eu ainda não sei</p><p style="margin: 0; font-size: 12px; line-height: 16px; color: #1A1815">Quantas conversas viram venda no seu negócio. Vou descobrir com os seus números. Até lá, o plano mede o seu esforço, não uma previsão minha.</p></section>
+      <div style="position: absolute; left: 16px; right: 16px; bottom: 32px; display: flex; flex-direction: column; gap: 8px; align-items: center">
+        <button type="button" onClick="{{ir.t04}}" style="height: 44px; padding: 0 4px; border: 0; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; display: inline-flex; align-items: center">Editar o plano</button>
+        <a href="GranaCadastroMobile.dc.html" style="box-sizing: border-box; height: 48px; padding: 0 20px; border: 0; border-radius: 999px; background: #0E7038; color: #FAF9F7; font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 150ms ease-out; width: 100%">Cadastrar minhas negociações</a>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  passos() { return ['t01', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 't04', 't05']; }
+  renderVals() {
+    const s = this.state || {};
+    const xs = this.passos();
+    const i = s.i ?? 0;
+    const modelo = s.modelo ?? 1;
+    const ritmo = s.ritmo ?? 2;
+    const neg = s.neg ?? 8;
+    const p = {};
+    xs.forEach((k, n) => { p[k] = n === i; });
+    const ir = {};
+    xs.forEach((k, n) => { ir[k] = () => this.setState({ i: n }); });
+    const lista = (rotulos, atual, campo) => rotulos.map((rotulo, n) => ({ rotulo, on: n === atual, off: n !== atual, pick: () => this.setState({ [campo]: n }) }));
+    const modelos = ['Mensalidade', 'Projeto fechado', 'Mensalidade + implantação', 'Ainda não vendi'];
+    const ritmos = ['2', '5', '10', '20', 'Mais de 20'];
+    return {
+      p, ir, neg,
+      modelos: lista(modelos, modelo, 'modelo'),
+      ritmos: lista(ritmos, ritmo, 'ritmo'),
+      modeloRotulo: modelos[modelo],
+      ritmoRotulo: ritmos[ritmo],
+      seguir: () => this.setState({ i: Math.min(i + 1, xs.length - 1) }),
+      voltar: () => this.setState({ i: Math.max(i - 1, 0) }),
+      menos: () => this.setState({ neg: Math.max(neg - 1, 0) }),
+      mais: () => this.setState({ neg: neg + 1 })
+    };
+  }
+}
+</script>
+</body>
+</html>

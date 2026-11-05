@@ -20,13 +20,13 @@ a{color:#1A1815}a:hover{color:#0E7038}
   <header style="display: flex; justify-content: space-between; align-items: flex-end; gap: 48px">
     <div style="display: flex; flex-direction: column; gap: 12px">
       <p style="margin: 0; font-size: 14px; font-weight: 600; color: #57524B">Produto</p>
-      <h1 style="margin: 0; font-size: 56px; font-weight: 700; letter-spacing: -0.04em; line-height: 1.05">Três módulos. Nada além.</h1>
+      <h1 style="margin: 0; font-size: 56px; font-weight: 700; letter-spacing: -0.04em; line-height: 1.05">Quatro módulos. Nada além.</h1>
     </div>
-    <p style="margin: 0; max-width: 440px; font-size: 16px; line-height: 1.55; color: #57524B">O essencial, muito bem feito. Cada módulo responde uma pergunta que o fundador faz todo dia. Projetos e Grana saíram de vez: são o caminho para virar CRM.</p>
+    <p style="margin: 0; max-width: 440px; font-size: 16px; line-height: 1.55; color: #57524B">O essencial, muito bem feito. Cada módulo responde uma pergunta que o fundador faz todo dia. O Grana entra primeiro: o plano de 90 dias é o norte, e os outros três trabalham para ele. Projetos fica de fora.</p>
   </header>
 
-  <section style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
-    <sc-for list="{{mvp}}" as="m" hint-placeholder-count="3">
+  <section style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+    <sc-for list="{{mvp}}" as="m" hint-placeholder-count="4">
       <article style="background: #FAF9F7; border-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 1px 2px rgba(16,15,15,0.06); min-height: 430px; box-sizing: border-box">
         <div style="width: 48px; height: 48px; border-radius: 16px; background: #100F0F; color: #F4F1EC; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700">{{m.n}}</div>
         <div style="display: flex; flex-direction: column; gap: 4px">
@@ -49,7 +49,7 @@ a{color:#1A1815}a:hover{color:#0E7038}
       <p style="margin: 0; font-size: 14px; font-weight: 600">Fica para depois</p>
       <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #1A1815">CAC e métricas avançadas, papéis e permissões, integrações (agenda, e-mail), app nativo.</p>
       <p style="margin: 8px 0 0; font-size: 14px; font-weight: 600">Fora de propósito</p>
-      <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #1A1815">Projetos, Grana, funil por etapas e relatório de previsão. O Follou lê a conversa e diz o que fazer; não pede para o fundador manter um quadro.</p>
+      <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #1A1815">Projetos, funil por etapas, previsão de faturamento e chance de bater a meta. O Follou lê a conversa e diz o que fazer; não pede para o fundador manter um quadro.</p>
     </div>
     <div style="background: #100F0F; color: #F4F1EC; border-radius: 24px; padding: 24px 24px; display: flex; flex-direction: column; gap: 12px">
       <p style="margin: 0; font-size: 14px; font-weight: 600">Base técnica</p>
@@ -63,9 +63,10 @@ class Component extends DCLogic {
   renderVals() {
     return {
       mvp: [
-        { n: '1', name: 'Hoje', q: 'O que precisa de mim agora?', what: 'Três prioridades comerciais com o porquê de cada uma, a semana em números e uma frase do Follou. Dá para reordenar ou adiar. No ⌘K, a pergunta da meta (“bato a de novembro?”) responde com a rota, não com um painel.', note: 'Primeiro o próximo passo de hoje, depois a proposta e a conversa paradas.' },
-        { n: '2', name: 'Conversas', q: 'Com quem eu preciso falar?', what: 'Cada conversa com a situação lida do WhatsApp e do e-mail, o próximo passo com data e a abordagem sugerida pronta para revisar. Sem etapas nem funil para atualizar.', note: 'Precisa de você vem primeiro. Parada fica ferrugem, e a palavra “atrasado” aparece escrita.' },
-        { n: '3', name: 'Empresas', q: 'Para quem eu vendo?', what: 'Descreve o cliente numa frase e recebe empresas reais da base de CNPJ, com fonte e data. Escolhe e manda para Conversas.', note: 'Buscar é grátis, quantas vezes quiser. Crédito só para enriquecer. A primeira busca vem pronta na entrada, de graça.' }
+        { n: '1', name: 'Hoje', q: 'O que precisa de mim agora?', what: 'Até três prioridades, tiradas do plano: primeiro o que você combinou e venceu, depois a negociação sem próximo passo, por fim uma prospecção. Nenhum número de meta na tela.', note: 'Mesma entrada, mesma saída. Valor da venda só desempata.' },
+        { n: '2', name: 'Conversas', q: 'Com quem eu preciso falar?', what: 'Cada conversa com a situação lida do WhatsApp e do e-mail, o próximo passo com data e a abordagem sugerida pronta para revisar. Sem etapas nem funil para atualizar.', note: 'Ganhou ou perdeu é o único toque à mão, e atualiza o plano na hora. Parada fica ferrugem, e a palavra “atrasado” aparece escrita.' },
+        { n: '3', name: 'Empresas', q: 'Para quem eu vendo?', what: 'Descreve o cliente numa frase e recebe empresas reais da base de CNPJ, com fonte e data. Escolhe e manda para Conversas.', note: 'Buscar é grátis, quantas vezes quiser. Crédito só para enriquecer, com confirmação. A primeira busca traz duas semanas do seu ritmo.' },
+        { n: '4', name: 'Grana', q: 'Quanto eu preciso vender?', what: 'Seis perguntas que o fundador responde de cabeça viram um plano de 90 dias: a meta, o que já está garantido, quanto falta e cerca de quantas vendas isso dá. Nada é previsão: o plano mede o esforço.', note: 'Desconhecido nunca vira zero. Mensalidade e projeto não se somam.' }
       ]
     };
   }

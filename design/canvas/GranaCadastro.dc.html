@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Follou — Grana · cadastrar negociações (web)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #0E7038;outline-offset:2px}
+.dv-nav:hover{background:#E9E5DE}
+</style>
+</helmet>
+<div style="min-height: 900px; background: #F4F1EC; color: #1A1815; font-family: 'IBM Plex Sans', -apple-system, system-ui, sans-serif; display: flex; flex-wrap: wrap">
+  <aside style="flex: 1 1 220px; max-width: 256px; box-sizing: border-box; padding: 28px 16px; display: flex; flex-direction: column; gap: 4px">
+    <div style="padding: 0 12px 20px"><span role="img" aria-label="Follou" style="display: inline-flex; align-items: center; gap: 8.1px; white-space: nowrap; flex-shrink: 0"><svg viewBox="0 0 782 641" width="27.45" height="22.5" aria-hidden="true" fill="#3FD07F" style="display: block; flex-shrink: 0"><path d="M0 0H130V277A95 95 0 0 0 225 372H344V502H225A225 225 0 0 1 0 277Z"></path><path transform="translate(437 140)" d="M0 0H130V277A95 95 0 0 0 225 372H344V502H225A225 225 0 0 1 0 277Z"></path></svg><span aria-hidden="true" style="font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-weight: 600; font-size: 23.04px; line-height: 1; letter-spacing: -0.02em; color: #1A1815">Follou</span></span></div>
+    <nav aria-label="Navegação" style="display: flex; flex-direction: column; gap: 4px">
+      <a class="dv-nav" href="Hoje.dc.html" style="height: 44px; box-sizing: border-box; padding: 0 13px; border-radius: 999px; color: #1A1815; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 500; transition: background-color 150ms ease-out"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18h18"></path><path d="M7 18a5 5 0 0 1 10 0"></path><path d="M12 6v3"></path><path d="M5.6 10.6l1.6 1.6"></path><path d="M18.4 10.6l-1.6 1.6"></path></svg><span style="flex-grow: 1">Hoje</span><span style="font-size: 13px; line-height: 18px; font-weight: 500; color: #57524B">G H</span></a>
+      <a class="dv-nav" href="Conversas.dc.html" style="height: 44px; box-sizing: border-box; padding: 0 13px; border-radius: 999px; color: #1A1815; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 500; transition: background-color 150ms ease-out"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"></path></svg><span style="flex-grow: 1">Conversas</span><span style="font-size: 13px; line-height: 18px; font-weight: 500; color: #57524B">G C</span></a>
+      <a class="dv-nav" href="Empresas.dc.html" style="height: 44px; box-sizing: border-box; padding: 0 13px; border-radius: 999px; color: #1A1815; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 500; transition: background-color 150ms ease-out"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V5h9v15"></path><path d="M14 10h5v10"></path><path d="M3 20h18"></path><path d="M8 9h3"></path><path d="M8 13h3"></path></svg><span style="flex-grow: 1">Empresas</span><span style="font-size: 13px; line-height: 18px; font-weight: 500; color: #57524B">G E</span></a>
+      <a href="Grana.dc.html" aria-current="page" style="height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 999px; background: #FAF9F7; border: 1px solid #E3DFD7; box-shadow: 0 1px 2px rgba(16,15,15,0.06); color: #1A1815; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M14.6 9.3c-.5-.8-1.5-1.3-2.6-1.3-1.5 0-2.6.8-2.6 1.9 0 2.7 5.2 1.4 5.2 4.2 0 1.1-1.1 1.9-2.6 1.9-1.2 0-2.2-.5-2.7-1.4"></path><path d="M12 6.4v1.6"></path><path d="M12 15.9v1.7"></path></svg><span style="flex-grow: 1">Grana</span><span style="font-size: 13px; line-height: 18px; font-weight: 500; color: #57524B">G R</span></a>
+    </nav>
+  </aside>
+
+  <main style="flex: 999 1 560px; min-width: 0; max-width: 1160px; box-sizing: border-box; padding: 28px 32px 48px; display: flex; flex-direction: column; gap: 24px">
+    <header style="display: flex; flex-direction: column; gap: 2px">
+      <a href="Grana.dc.html" style="height: 44px; margin-left: -4px; padding-right: 8px; display: inline-flex; align-items: center; gap: 2px; color: #1A1815; font-size: 16px; font-weight: 500; text-decoration: none"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>Grana</a>
+    </header>
+    <sc-if value="{{temFalta}}" hint-placeholder-val="{{true}}">
+      <section style="max-width: 560px; border-radius: 24px; background: #FAF9F7; border: 1px solid #E3DFD7; box-shadow: 0 1px 2px rgba(16,15,15,0.06); padding: 32px; display: flex; flex-direction: column; gap: 24px">
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <h1 style="margin: 0; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 40px; line-height: 44px; font-weight: 600; letter-spacing: -0.035em; font-variant-numeric: tabular-nums">{{titulo}}</h1>
+          <p style="margin: 0; font-size: 16px; line-height: 22px; color: #57524B">Uma de cada vez. Nome da empresa já basta para começar.</p>
+        </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <label for="g-empresa" style="font-size: 12px; line-height: 16px; font-weight: 600; color: #57524B">Empresa</label>
+        <input id="g-empresa" type="text" value="Pedrosa Logística" style="height: 48px; box-sizing: border-box; padding: 0 16px; border-radius: 16px; border: 1px solid #100F0F; background: #FAF9F7; color: #1A1815; font: inherit; font-size: 16px; line-height: 22px">
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <p id="g-antes" style="margin: 0; font-size: 12px; line-height: 16px; font-weight: 600; color: #57524B">Essa negociação já existia antes do seu plano?</p>
+      <div role="group" style="display: flex; flex-wrap: wrap; gap: 8px">
+        <sc-for list="{{antes}}" as="c" hint-placeholder-count="4">
+          <sc-if value="{{c.on}}" hint-placeholder-val="{{false}}"><button type="button" aria-pressed="true" onClick="{{c.pick}}" style="height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #100F0F; border-radius: 999px; background: #100F0F; color: #F4F1EC; font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background-color 150ms ease-out; font-variant-numeric: tabular-nums">{{c.rotulo}}</button></sc-if>
+          <sc-if value="{{c.off}}" hint-placeholder-val="{{true}}"><button type="button" aria-pressed="false" onClick="{{c.pick}}" style="height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #E3DFD7; border-radius: 999px; background: #FAF9F7; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background-color 150ms ease-out; font-variant-numeric: tabular-nums">{{c.rotulo}}</button></sc-if>
+        </sc-for>
+      </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <p style="margin: 0; font-size: 12px; line-height: 16px; font-weight: 600; color: #57524B">Em que ponto está</p>
+      <div role="group" style="display: flex; flex-wrap: wrap; gap: 8px">
+        <sc-for list="{{pontos}}" as="c" hint-placeholder-count="4">
+          <sc-if value="{{c.on}}" hint-placeholder-val="{{false}}"><button type="button" aria-pressed="true" onClick="{{c.pick}}" style="height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #100F0F; border-radius: 999px; background: #100F0F; color: #F4F1EC; font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background-color 150ms ease-out; font-variant-numeric: tabular-nums">{{c.rotulo}}</button></sc-if>
+          <sc-if value="{{c.off}}" hint-placeholder-val="{{true}}"><button type="button" aria-pressed="false" onClick="{{c.pick}}" style="height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #E3DFD7; border-radius: 999px; background: #FAF9F7; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background-color 150ms ease-out; font-variant-numeric: tabular-nums">{{c.rotulo}}</button></sc-if>
+        </sc-for>
+      </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <label for="g-valor" style="font-size: 12px; line-height: 16px; font-weight: 600; color: #57524B">Valor · se souber</label>
+        <input id="g-valor" type="text" inputmode="numeric" placeholder="R$" style="height: 48px; box-sizing: border-box; padding: 0 16px; border-radius: 16px; border: 1px solid #E3DFD7; background: #FAF9F7; color: #1A1815; font: inherit; font-size: 16px; line-height: 22px; font-variant-numeric: tabular-nums">
+      </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center">
+          <button type="button" onClick="{{salvar}}" style="box-sizing: border-box; height: 48px; padding: 0 20px; border: 0; border-radius: 999px; background: #0E7038; color: #FAF9F7; font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 150ms ease-out">Salvar e cadastrar outra</button>
+          <button type="button" onClick="{{terminei}}" style="height: 44px; padding: 0 4px; border: 0; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; display: inline-flex; align-items: center">Terminei</button>
+        </div>
+      </section>
+    </sc-if>
+    <sc-if value="{{tudo}}" hint-placeholder-val="{{false}}">
+      <section style="max-width: 560px; border-radius: 24px; background: #FAF9F7; border: 1px solid #E3DFD7; box-shadow: 0 1px 2px rgba(16,15,15,0.06); padding: 32px; display: flex; flex-direction: column; gap: 16px">
+        <h1 style="margin: 0; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 40px; line-height: 44px; font-weight: 600; letter-spacing: -0.035em">Tudo cadastrado.</h1>
+        <p style="margin: 0; font-size: 16px; line-height: 22px; color: #57524B">A partir de agora a conta do plano usa só o que está cadastrado.</p>
+        <a href="Grana.dc.html" style="box-sizing: border-box; height: 48px; padding: 0 20px; border: 0; border-radius: 999px; background: #0E7038; color: #FAF9F7; font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 150ms ease-out; align-self: flex-start">Voltar ao plano</a>
+      </section>
+    </sc-if>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const falta = s.falta ?? 5;
+    const antes = s.antes ?? 0;
+    const ponto = s.ponto ?? 1;
+    const lista = (rotulos, atual, campo) => rotulos.map((rotulo, n) => ({ rotulo, on: n === atual, off: n !== atual, pick: () => this.setState({ [campo]: n }) }));
+    return {
+      falta, temFalta: falta > 0, tudo: falta === 0,
+      titulo: falta === 1 ? 'Você tem 1 negociação para registrar.' : 'Você tem ' + falta + ' negociações para registrar.',
+      antes: lista(['Sim', 'Não'], antes, 'antes'),
+      pontos: lista(['Para abordar', 'Em conversa', 'Proposta'], ponto, 'ponto'),
+      salvar: () => this.setState({ falta: Math.max(falta - 1, 0) }),
+      terminei: () => this.setState({ falta: 0 })
+    };
+  }
+}
+</script>
+</body>
+</html>

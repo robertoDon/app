@@ -18,7 +18,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 
   <header style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
     <a href="ConversasMobile.dc.html" style="height: 44px; margin-left: -4px; padding-right: 8px; display: inline-flex; align-items: center; gap: 2px; color: #1A1815; font-size: 16px; font-weight: 500; text-decoration: none"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>Conversas</a>
-    <button type="button" style="height: 44px; padding: 0 4px; border: 0; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">Editar</button>
+    <button type="button" onClick="{{abrirFolha}}" style="height: 44px; padding: 0 4px; border: 0; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">Fechou</button>
   </header>
 
   <section style="display: flex; flex-direction: column; gap: 12px">
@@ -80,11 +80,39 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
     </ul>
   </section>
 
-  <nav aria-label="Navegação" style="position: absolute; left: 63px; width: 264px; bottom: 24px; height: 64px; box-sizing: border-box; padding: 6px; border-radius: 999px; background: rgba(255,255,255,0.72); backdrop-filter: blur(20px) saturate(1.6); -webkit-backdrop-filter: blur(20px) saturate(1.6); border: 1px solid rgba(16,15,15,0.08); box-shadow: 0 1px 2px rgba(16,15,15,0.06), 0 12px 32px rgba(16,15,15,0.14); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px">
+  <nav aria-label="Navegação" style="position: absolute; left: 31px; width: 328px; bottom: 24px; height: 64px; box-sizing: border-box; padding: 6px; border-radius: 999px; background: rgba(255,255,255,0.72); backdrop-filter: blur(20px) saturate(1.6); -webkit-backdrop-filter: blur(20px) saturate(1.6); border: 1px solid rgba(16,15,15,0.08); box-shadow: 0 1px 2px rgba(16,15,15,0.06), 0 12px 32px rgba(16,15,15,0.14); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px">
     <a href="HojeMobile.dc.html" style="border-radius: 999px; color: #57524B; font-weight: 500; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; line-height: 16px; transition: background-color 150ms ease-out"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18h18"></path><path d="M7 18a5 5 0 0 1 10 0"></path><path d="M12 6v3"></path><path d="M5.6 10.6l1.6 1.6"></path><path d="M18.4 10.6l-1.6 1.6"></path></svg>Hoje</a>
     <a href="ConversasMobile.dc.html" aria-current="page" style="border-radius: 999px; background: #100F0F; color: #F4F1EC; font-weight: 600; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; line-height: 16px; transition: background-color 150ms ease-out"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"></path></svg>Conversas</a>
     <a href="EmpresasMobile.dc.html" style="border-radius: 999px; color: #57524B; font-weight: 500; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; line-height: 16px; transition: background-color 150ms ease-out"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V5h9v15"></path><path d="M14 10h5v10"></path><path d="M3 20h18"></path><path d="M8 9h3"></path><path d="M8 13h3"></path></svg>Empresas</a>
+    <a href="GranaMobile.dc.html" style="border-radius: 999px; color: #57524B; font-weight: 500; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; line-height: 16px; transition: background-color 150ms ease-out"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M14.6 9.3c-.5-.8-1.5-1.3-2.6-1.3-1.5 0-2.6.8-2.6 1.9 0 2.7 5.2 1.4 5.2 4.2 0 1.1-1.1 1.9-2.6 1.9-1.2 0-2.2-.5-2.7-1.4"></path><path d="M12 6.4v1.6"></path><path d="M12 15.9v1.7"></path></svg>Grana</a>
   </nav>
+
+  <sc-if value="{{folha}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; background: rgba(16,15,15,0.32)"></div>
+    <section role="dialog" aria-label="Como terminou" style="position: absolute; left: 0; right: 0; bottom: 0; box-sizing: border-box; padding: 24px 16px 32px; border-radius: 24px 24px 0 0; background: #FAF9F7; display: flex; flex-direction: column; gap: 16px">
+      <sc-if value="{{escolher}}" hint-placeholder-val="{{true}}">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <h2 style="margin: 0; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.035em">Como terminou com a Nuvem Labs?</h2>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px"><button type="button" onClick="{{ganhou}}" style="box-sizing: border-box; height: 48px; padding: 0 20px; border: 0; border-radius: 999px; background: #0E7038; color: #FAF9F7; font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px">Ganhou</button><button type="button" onClick="{{perdeu}}" style="box-sizing: border-box; height: 48px; padding: 0 20px; border: 1px solid #E3DFD7; border-radius: 999px; background: #FAF9F7; color: #1A1815; font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px">Perdeu</button></div>
+          <button type="button" onClick="{{fechar}}" style="height: 44px; border: 0; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">Ainda está aberta</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{foiGanha}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <div style="display: flex; flex-direction: column; gap: 4px"><h2 style="margin: 0; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.035em; font-variant-numeric: tabular-nums">Venda registrada: R$ 5.500.</h2><p style="margin: 0; font-size: 16px; line-height: 22px">Entra inteira nos 90 dias deste plano.</p><p style="margin: 0; font-size: 12px; line-height: 16px; color: #57524B; font-variant-numeric: tabular-nums">No Grana, faltam R$ 24.500 · cerca de 2 vendas.</p></div>
+          <a href="GranaMobile.dc.html" style="box-sizing: border-box; height: 48px; padding: 0 20px; border: 0; border-radius: 999px; background: #0E7038; color: #FAF9F7; font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px">Ver o Grana</a>
+          <button type="button" onClick="{{desfazer}}" style="height: 44px; border: 0; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">Desfazer</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{foiPerdida}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <div style="display: flex; flex-direction: column; gap: 4px"><h2 style="margin: 0; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.035em">O que pesou?</h2><p style="margin: 0; font-size: 12px; line-height: 16px; color: #57524B">O histórico fica guardado. A conta do plano não muda.</p></div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px"><button type="button" onClick="{{fechar}}" style="height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #E3DFD7; border-radius: 999px; background: #FAF9F7; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; cursor: pointer">Preço</button><button type="button" onClick="{{fechar}}" style="height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #E3DFD7; border-radius: 999px; background: #FAF9F7; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; cursor: pointer">Não era o momento</button><button type="button" onClick="{{fechar}}" style="height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #E3DFD7; border-radius: 999px; background: #FAF9F7; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; cursor: pointer">Escolheu outro</button><button type="button" onClick="{{fechar}}" style="height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #E3DFD7; border-radius: 999px; background: #FAF9F7; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; cursor: pointer">Parou de responder</button></div>
+          <button type="button" onClick="{{desfazer}}" style="height: 44px; border: 0; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; cursor: pointer">Desfazer</button>
+        </div>
+      </sc-if>
+    </section>
+  </sc-if>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
@@ -93,6 +121,7 @@ class Component extends DCLogic {
     const s = this.state || {};
     const editando = !!s.editando;
     const valor = s.valor || null;
+    const d = s.d ?? null;
     const historico = [
       { titulo: 'Reunião de descoberta', detalhe: '17/10 · “Querem trocar a planilha até dezembro.”' },
       { titulo: 'Primeiro contato enviado', detalhe: '12/10 · abordagem sugerida, você revisou' },
@@ -106,7 +135,16 @@ class Component extends DCLogic {
       valor,
       abrir: () => this.setState({ editando: true }),
       sugestoes: ['R$ 4.800', 'R$ 5.500', 'R$ 6.500'].map((rotulo) => ({ rotulo, pick: () => this.setState({ valor: rotulo, editando: false }) })),
-      historico
+      historico,
+      folha: !!s.folha,
+      escolher: !d,
+      foiGanha: d === "ganha",
+      foiPerdida: d === "perdida",
+      abrirFolha: () => this.setState({ folha: true, d: null }),
+      ganhou: () => this.setState({ d: "ganha" }),
+      perdeu: () => this.setState({ d: "perdida" }),
+      desfazer: () => this.setState({ d: null }),
+      fechar: () => this.setState({ folha: false, d: null })
     };
   }
 }

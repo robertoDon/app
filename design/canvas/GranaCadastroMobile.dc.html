@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Follou — Grana · cadastrar negociações (celular)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #0E7038;outline-offset:2px}
+.dv-nav:hover{background:#E9E5DE}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; padding: 60px 16px 0; background: #F4F1EC; color: #1A1815; font-family: 'IBM Plex Sans', -apple-system, system-ui, sans-serif; display: flex; flex-direction: column; gap: 20px">
+  <header><a href="GranaMobile.dc.html" style="height: 44px; margin-left: -4px; padding-right: 8px; display: inline-flex; align-items: center; gap: 2px; color: #1A1815; font-size: 16px; font-weight: 500; text-decoration: none"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>Grana</a></header>
+  <sc-if value="{{temFalta}}" hint-placeholder-val="{{true}}">
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <h1 style="margin: 0; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.035em; text-wrap: balance; font-variant-numeric: tabular-nums">{{titulo}}</h1>
+        <p style="margin: 0; font-size: 16px; line-height: 22px; color: #57524B">Uma de cada vez. Nome da empresa já basta para começar.</p>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <label for="g-empresa" style="font-size: 12px; line-height: 16px; font-weight: 600; color: #57524B">Empresa</label>
+        <input id="g-empresa" type="text" value="Pedrosa Logística" style="height: 48px; box-sizing: border-box; padding: 0 16px; border-radius: 16px; border: 1px solid #100F0F; background: #FAF9F7; color: #1A1815; font: inherit; font-size: 16px; line-height: 22px">
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <p id="g-antes" style="margin: 0; font-size: 12px; line-height: 16px; font-weight: 600; color: #57524B">Essa negociação já existia antes do seu plano?</p>
+      <div role="group" style="display: flex; flex-wrap: wrap; gap: 8px">
+        <sc-for list="{{antes}}" as="c" hint-placeholder-count="4">
+          <sc-if value="{{c.on}}" hint-placeholder-val="{{false}}"><button type="button" aria-pressed="true" onClick="{{c.pick}}" style="height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #100F0F; border-radius: 999px; background: #100F0F; color: #F4F1EC; font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background-color 150ms ease-out; font-variant-numeric: tabular-nums">{{c.rotulo}}</button></sc-if>
+          <sc-if value="{{c.off}}" hint-placeholder-val="{{true}}"><button type="button" aria-pressed="false" onClick="{{c.pick}}" style="height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #E3DFD7; border-radius: 999px; background: #FAF9F7; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background-color 150ms ease-out; font-variant-numeric: tabular-nums">{{c.rotulo}}</button></sc-if>
+        </sc-for>
+      </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <p style="margin: 0; font-size: 12px; line-height: 16px; font-weight: 600; color: #57524B">Em que ponto está</p>
+      <div role="group" style="display: flex; flex-wrap: wrap; gap: 8px">
+        <sc-for list="{{pontos}}" as="c" hint-placeholder-count="4">
+          <sc-if value="{{c.on}}" hint-placeholder-val="{{false}}"><button type="button" aria-pressed="true" onClick="{{c.pick}}" style="height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #100F0F; border-radius: 999px; background: #100F0F; color: #F4F1EC; font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background-color 150ms ease-out; font-variant-numeric: tabular-nums">{{c.rotulo}}</button></sc-if>
+          <sc-if value="{{c.off}}" hint-placeholder-val="{{true}}"><button type="button" aria-pressed="false" onClick="{{c.pick}}" style="height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #E3DFD7; border-radius: 999px; background: #FAF9F7; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background-color 150ms ease-out; font-variant-numeric: tabular-nums">{{c.rotulo}}</button></sc-if>
+        </sc-for>
+      </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <label for="g-valor" style="font-size: 12px; line-height: 16px; font-weight: 600; color: #57524B">Valor · se souber</label>
+        <input id="g-valor" type="text" inputmode="numeric" placeholder="R$" style="height: 48px; box-sizing: border-box; padding: 0 16px; border-radius: 16px; border: 1px solid #E3DFD7; background: #FAF9F7; color: #1A1815; font: inherit; font-size: 16px; line-height: 22px; font-variant-numeric: tabular-nums">
+      </div>
+    </div>
+    <div style="position: absolute; left: 16px; right: 16px; bottom: 32px; display: flex; flex-direction: column; gap: 8px; align-items: center">
+      <button type="button" onClick="{{terminei}}" style="height: 44px; padding: 0 4px; border: 0; background: transparent; color: #1A1815; font: inherit; font-size: 16px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; display: inline-flex; align-items: center">Terminei</button>
+      <button type="button" onClick="{{salvar}}" style="box-sizing: border-box; height: 48px; padding: 0 20px; border: 0; border-radius: 999px; background: #0E7038; color: #FAF9F7; font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 150ms ease-out; width: 100%">Salvar e cadastrar outra</button>
+    </div>
+  </sc-if>
+  <sc-if value="{{tudo}}" hint-placeholder-val="{{false}}">
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <h1 style="margin: 0; font-family: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif; font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.035em; text-wrap: balance">Tudo cadastrado.</h1>
+      <p style="margin: 0; font-size: 16px; line-height: 22px; color: #57524B">A partir de agora a conta do plano usa só o que está cadastrado.</p>
+    </div>
+    <div style="position: absolute; left: 16px; right: 16px; bottom: 32px"><a href="GranaMobile.dc.html" style="box-sizing: border-box; height: 48px; padding: 0 20px; border: 0; border-radius: 999px; background: #0E7038; color: #FAF9F7; font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 150ms ease-out; width: 100%">Voltar ao plano</a></div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const falta = s.falta ?? 5;
+    const antes = s.antes ?? 0;
+    const ponto = s.ponto ?? 1;
+    const lista = (rotulos, atual, campo) => rotulos.map((rotulo, n) => ({ rotulo, on: n === atual, off: n !== atual, pick: () => this.setState({ [campo]: n }) }));
+    return {
+      falta, temFalta: falta > 0, tudo: falta === 0,
+      titulo: falta === 1 ? 'Você tem 1 negociação para registrar.' : 'Você tem ' + falta + ' negociações para registrar.',
+      antes: lista(['Sim', 'Não'], antes, 'antes'),
+      pontos: lista(['Para abordar', 'Em conversa', 'Proposta'], ponto, 'ponto'),
+      salvar: () => this.setState({ falta: Math.max(falta - 1, 0) }),
+      terminei: () => this.setState({ falta: 0 })
+    };
+  }
+}
+</script>
+</body>
+</html>
