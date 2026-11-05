@@ -320,3 +320,16 @@
   .lp-entrar-vitrine { display: none; }
   .lp-entrar-lado { padding: 24px 16px; min-height: 100vh; min-height: 100dvh; }
 }
+
+/* convite: um cartão só, no centro do palco */
+.lp-convite { display: grid; min-height: 100%; }
+.lp-convite::before { content: ""; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(50% 45% at 50% 30%, rgba(114,115,234,.22), transparent 70%); }
+.lp-convite-centro { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 40px; padding: 48px 16px; }
+.lp-convite-cartao { width: 100%; max-width: 440px; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; padding: 40px 32px 32px;
+  border-radius: 20px; border: 1px solid var(--lp-borda-forte); background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015)); box-shadow: 0 40px 100px -30px rgba(0,0,0,.8); }
+.lp-convite-cartao .lp-sub { font-size: 16px; margin-bottom: 10px; }
+.lp-convite-cartao .lp-btn { width: 100%; }
+.lp-convite-cartao .lp-btn:disabled { opacity: .7; cursor: default; }
+.lp-convite-cartao .esqueleto { width: 100%; height: 20px; }
+.lp-convite-inicial { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 16px; margin-bottom: 6px; font: 600 24px var(--display); color: #fff;
+  background: linear-gradient(180deg, #7273EA, #4C4CC4); box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 12px 32px -8px rgba(114,115,234,.6); }

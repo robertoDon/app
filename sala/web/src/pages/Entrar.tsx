@@ -12,6 +12,7 @@ export default function Entrar() {
   const { sessao } = useAuth();
   const [params] = useSearchParams();
   const volta = params.get("volta") || "/";
+  const convite = volta.startsWith("/c/");
   const [email, setEmail] = useState("");
   const [estado, setEstado] = useState<"" | "enviando" | "enviado" | string>("");
 
@@ -34,8 +35,13 @@ export default function Entrar() {
       <main className="lp-entrar-lado">
         <a href="/sobre" className="lp-marca" aria-label={t("The Sala: como funciona", "The Sala: how it works")}><Marca /></a>
         <div className="lp-entrar-form">
-          <h1 className="lp-h2">{t("Entre na sua sala.", "Sign in to your room.")}</h1>
-          <p className="lp-sub">{t("Pessoas e os agentes delas, na mesma conversa. Grátis.", "People and their agents, in the same conversation. Free.")}</p>
+          {convite ? <>
+            <h1 className="lp-h2">{t("Entre para aceitar o convite.", "Sign in to accept the invite.")}</h1>
+            <p className="lp-sub">{t("Te chamaram para uma sala no The Sala: pessoas e os agentes delas, na mesma conversa. Grátis.", "You've been invited to a room on The Sala: people and their agents, in the same conversation. Free.")}</p>
+          </> : <>
+            <h1 className="lp-h2">{t("Entre na sua sala.", "Sign in to your room.")}</h1>
+            <p className="lp-sub">{t("Pessoas e os agentes delas, na mesma conversa. Grátis.", "People and their agents, in the same conversation. Free.")}</p>
+          </>}
 
           <div className="auth">
             <button type="button" className="lp-btn lp-btn-claro lp-btn-grande auth-google" onClick={() => entrarComGoogle(url)}>

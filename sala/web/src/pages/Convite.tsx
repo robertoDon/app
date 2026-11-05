@@ -4,6 +4,7 @@ import { useAuth } from "../App";
 import { sb } from "../supabase";
 import { Marca } from "../components/Icones";
 import { erro, t } from "../i18n";
+import "../landing.css";
 
 type Info = { sala_id: string; nome: string; pessoas: number; ja_membro: boolean; leitura: boolean };
 
@@ -30,28 +31,33 @@ export default function Convite() {
   };
 
   return (
-    <main className="centro">
-      <Marca />
-      {info === undefined && <div className="cartao esqueleto-cartao" aria-hidden />}
-      {info === null && (
-        <div className="cartao">
-          <h1 className="display">{t("Convite inválido.", "This invite isn't valid.")}</h1>
-          <p className="sub">{t("O link pode ter sido trocado por quem criou a sala. Peça um novo.", "The room owner may have replaced the link. Ask them for a new one.")}</p>
-          <Link className="btn" to="/">{t("Ver minhas salas", "See my rooms")}</Link>
-        </div>
-      )}
-      {info && (
-        <div className="cartao">
-          <p className="secao-rotulo secao-rotulo-solto">{t("Você foi chamado para", "You're invited to")}</p>
-          <h1 className="display">{info.nome}</h1>
-          <p className="sub">{info.pessoas === 1
-            ? t("1 pessoa na sala.", "1 person in the room.")
-            : t(`${info.pessoas} pessoas na sala.`, `${info.pessoas} people in the room.`)} {info.leitura
-            ? t("Você entra como convidado para acompanhar: vê a conversa, as decisões e as tarefas, sem escrever.", "You'll join as a viewer: you can see the conversation, decisions and tasks, but you can't write.")
-            : t("Depois de entrar, você pode conectar os seus agentes.", "Once you join, you can connect your agents.")}</p>
-          <button className="btn btn-cheio btn-grande" onClick={entrar} disabled={entrando} autoFocus>{t("Entrar na sala", "Join room")}</button>
-        </div>
-      )}
-    </main>
+    <div className="lp lp-convite">
+      <main className="lp-convite-centro">
+        <a href="/" className="lp-marca" aria-label="The Sala"><Marca /></a>
+        {info === undefined && <div className="lp-convite-cartao" aria-busy="true"><div className="esqueleto" /><div className="esqueleto" /></div>}
+        {info === null && (
+          <div className="lp-convite-cartao">
+            <h1 className="lp-h2">{t("Este convite não vale mais.", "This invite isn't valid.")}</h1>
+            <p className="lp-sub">{t("Quem cuida da sala pode ter trocado o link. Peça um novo.", "The room owner may have replaced the link. Ask them for a new one.")}</p>
+            <Link className="lp-btn lp-btn-fantasma lp-btn-grande" to="/">{t("Ver minhas salas", "See my rooms")}</Link>
+          </div>
+        )}
+        {info && (
+          <div className="lp-convite-cartao">
+            <span className="lp-convite-inicial" aria-hidden>{info.nome.slice(0, 1).toUpperCase()}</span>
+            <p className="lp-olho">{info.leitura ? t("Te chamaram para acompanhar", "You're invited to follow") : t("Te chamaram para", "You're invited to")}</p>
+            <h1 className="lp-h2">{info.nome}</h1>
+            <p className="lp-sub">{info.pessoas === 1
+              ? t("1 pessoa na sala.", "1 person in the room.")
+              : t(`${info.pessoas} pessoas na sala.`, `${info.pessoas} people in the room.`)} {info.leitura
+              ? t("Você vê a conversa, as decisões e as tarefas, sem escrever.", "You'll see the conversation, decisions and tasks, without writing.")
+              : t("Depois de entrar, você conecta o seu agente em um minuto.", "Once you join, you can connect your agent in a minute.")}</p>
+            <button type="button" className="lp-btn lp-btn-claro lp-btn-grande" onClick={entrar} disabled={entrando} autoFocus>
+              {entrando ? t("Entrando…", "Joining…") : t("Entrar na sala", "Join room")}
+            </button>
+          </div>
+        )}
+      </main>
+    </div>
   );
 }
