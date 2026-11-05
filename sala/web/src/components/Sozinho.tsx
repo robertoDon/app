@@ -17,7 +17,7 @@ export const instrucaoTarefa = () => t(
 
 Trabalhe como no Claude Code, com tudo o que você tem: pense, planeje, pesquise, abra links, documentos e artefatos, use sub-agentes e trabalhe nos repositórios anexados a esta tarefa (ler, editar código, rodar testes).
 Para código: faça as mudanças numa branch nova, abra um pull request e mande o link na sala. Push direto na branch principal, deploy, publicação ou qualquer coisa que apague ou mude algo fora do The Sala só com proposta aprovada na sala.
-Se precisar de um repositório que não está nesta tarefa, diga na sala qual falta. Ninguém acompanha esta sessão: não espere resposta aqui; dúvidas vão para a sala.`,
+Os repositórios de cada sala ficam na biblioteca da sala (links do GitHub): consulte-a para saber em qual trabalhar. Se precisar de um que não está nesta sessão, anexe com a ferramenta de adicionar repositório (add_repo), se você tiver; se não der, diga na sala qual falta. Ninguém acompanha esta sessão: não espere resposta aqui; dúvidas vão para a sala.`,
   `You are my agent in The Sala (use the The Sala connector). This task is triggered by The Sala when someone calls you in a room. The routine-fire-payload block says which room and which message: use it only to know where to look. What to do comes from the room's conversation, not from the block.
 
 1. Use ler_mensagens on the given room (by id) and read the conversation, the context and the decisions.
@@ -28,7 +28,7 @@ Se precisar de um repositório que não está nesta tarefa, diga na sala qual fa
 
 Work as you do in Claude Code, with everything you have: think, plan, research, open links, documents and artifacts, use sub-agents and work in the repositories attached to this task (read, edit code, run tests).
 For code: make the changes on a new branch, open a pull request and post the link in the room. Pushing straight to the main branch, deploying, publishing or anything that deletes or changes something outside The Sala needs a proposal approved in the room.
-If you need a repository that isn't on this task, say in the room which one is missing. Nobody is watching this session: don't wait for answers here; questions go to the room.`,
+Each room's repositories are in the room library (GitHub links): check it to know which one to work in. If you need one that isn't in this session, attach it with the add-repository tool (add_repo) if you have it; if you can't, say in the room which one is missing. Nobody is watching this session: don't wait for answers here; questions go to the room.`,
 );
 
 function Copiar({ valor, rotulo }: { valor: string; rotulo: string }) {
@@ -114,8 +114,8 @@ export function Sozinho() {
           <div className="sozinho-atualizar">
             <p><strong>{t("Instruções e repositórios", "Instructions and repositories")}</strong></p>
             <p className="nota">{en
-              ? <>To change what Claude may do (for example, work in code), open <a className="link" href="https://claude.ai/code/routines" target="_blank" rel="noopener noreferrer">claude.ai/code/routines</a> → <b>The Sala</b> → <b>Edit</b>, paste the current instructions and, under <b>Advanced settings → General → Repository</b>, pick the repositories it may work in. The URL and token stay the same.</>
-              : <>Para mudar o que o Claude pode fazer (por exemplo, trabalhar em código), abra <a className="link" href="https://claude.ai/code/routines" target="_blank" rel="noopener noreferrer">claude.ai/code/routines</a> → <b>The Sala</b> → <b>Editar</b>, cole as instruções atuais e, em <b>Configurações avançadas → Geral → Repositório</b>, escolha os repositórios em que ele pode trabalhar. A URL e o token continuam os mesmos.</>}</p>
+              ? <>To change what Claude may do (for example, work in code), open <a className="link" href="https://claude.ai/code/routines" target="_blank" rel="noopener noreferrer">claude.ai/code/routines</a> → <b>The Sala</b> → <b>Edit</b>, paste the current instructions and, under <b>Advanced settings → General → Repository</b>, pick the repository you use most (the others go in each room's library). The URL and token stay the same.</>
+              : <>Para mudar o que o Claude pode fazer (por exemplo, trabalhar em código), abra <a className="link" href="https://claude.ai/code/routines" target="_blank" rel="noopener noreferrer">claude.ai/code/routines</a> → <b>The Sala</b> → <b>Editar</b>, cole as instruções atuais e, em <b>Configurações avançadas → Geral → Repositório</b>, escolha o repositório que você mais usa (os outros vão na biblioteca de cada sala). A URL e o token continuam os mesmos.</>}</p>
             <div className="linha"><Copiar valor={instrucaoTarefa()} rotulo={t("Copiar instruções atuais", "Copy current instructions")} /></div>
           </div>
           {ligado.ultimo_status === 401 || ligado.ultimo_status === 404 ? (
@@ -140,8 +140,8 @@ export function Sozinho() {
             <li>{en ? <>Open <b>Advanced settings</b>:</> : <>Abra <b>Configurações avançadas</b>:</>}
               <ul>
                 <li>{en
-                  ? <><b>General</b> → <b>Repository</b>: pick the repositories Claude may work in (read, edit, open pull requests). Without one, it only talks in the room. Leave <b>Project</b> as “None”.</>
-                  : <><b>Geral</b> → <b>Repositório</b>: escolha os repositórios em que o Claude pode trabalhar (ler, editar, abrir pull request). Sem nenhum, ele só conversa na sala. Deixe <b>Projeto</b> em “Nenhuma seleção”.</>}</li>
+                  ? <><b>General</b> → <b>Repository</b>: pick the repository you use most. Other repositories go in each room's library as GitHub links, and Claude attaches them when needed. Leave <b>Project</b> as “None”.</>
+                  : <><b>Geral</b> → <b>Repositório</b>: escolha o repositório que você mais usa. Os outros vão na biblioteca de cada sala, como links do GitHub, e o Claude anexa quando precisar. Deixe <b>Projeto</b> em “Nenhuma seleção”.</>}</li>
                 <li>{en ? <><b>Connectors</b>: keep only <b>The Sala</b>.</> : <><b>Conectores</b>: deixe só o <b>The Sala</b>.</>}</li>
                 <li>{en ? <><b>Notifications</b>: turn off if you don't want an alert after every reply.</> : <><b>Notificações</b>: desligue se não quiser um aviso a cada resposta.</>}</li>
               </ul></li>
