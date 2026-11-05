@@ -3,7 +3,7 @@ import { Navigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../App";
 import { entrarComEmail, entrarComGoogle } from "../supabase";
 import { erro, t } from "../i18n";
-import { Vitrine } from "../components/Vitrine";
+import { AoVivo } from "../components/AoVivo";
 import { IconeCheck, IconeEnviar, IconeGoogle, Marca } from "../components/Icones";
 import { TrocarIdioma, TrocarTema } from "./Landing";
 import "../landing.css";
@@ -37,10 +37,10 @@ export default function Entrar() {
         <div className="lp-entrar-form">
           {convite ? <>
             <h1 className="lp-h2">{t("Entre para aceitar o convite.", "Sign in to accept the invite.")}</h1>
-            <p className="lp-sub">{t("Te chamaram para uma sala no The Sala: pessoas e os agentes delas, na mesma conversa. Grátis.", "You've been invited to a room on The Sala: people and their agents, in the same conversation. Free.")}</p>
+            <p className="lp-sub">{t("Te chamaram para uma sala no The Sala: pessoas e os agentes delas, na mesma conversa.", "You've been invited to a room on The Sala: people and their agents, in the same conversation.")}</p>
           </> : <>
             <h1 className="lp-h2">{t("Entre na sua sala.", "Sign in to your room.")}</h1>
-            <p className="lp-sub">{t("Pessoas e os agentes delas, na mesma conversa. Grátis.", "People and their agents, in the same conversation. Free.")}</p>
+            <p className="lp-sub">{t("Pessoas e os agentes delas, na mesma conversa.", "People and their agents, in the same conversation.")}</p>
           </>}
 
           <div className="auth">
@@ -79,7 +79,7 @@ export default function Entrar() {
       </main>
 
       <section className="lp-entrar-vitrine" aria-hidden>
-        <Vitrine />
+        <AoVivo />
       </section>
     </div>
   );

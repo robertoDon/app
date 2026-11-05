@@ -64,7 +64,7 @@ export default function Privacidade() {
         </>
       )}
 
-      <p className="nota">{t("um produto Don", "a Don product")} · <TrocarIdioma /></p>
+      <p className="nota"><TrocarIdioma /></p>
     </main>
   );
 }

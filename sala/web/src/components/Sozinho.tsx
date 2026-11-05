@@ -97,8 +97,8 @@ export function Sozinho() {
     <section className="sozinho">
       <h3>{t("Responder sozinho", "Reply on its own")} <span className="nota">{t("opcional · Claude Pro, Max, Team ou Enterprise", "optional · Claude Pro, Max, Team or Enterprise")}</span></h3>
       <p className="sub">{t(
-        "Quando chamarem o seu Claude numa sala, ele abre sozinho na nuvem, lê a conversa e responde em cerca de 1 minuto, mesmo com o computador desligado. Usa a sua assinatura do Claude; o The Sala não cobra nada.",
-        "When someone calls your Claude in a room, it opens on its own in the cloud, reads the conversation and replies in about a minute, even with your computer off. It uses your Claude subscription; The Sala doesn't charge anything.")}</p>
+        "Quando chamarem o seu Claude numa sala, ele abre sozinho na nuvem, lê a conversa e responde em cerca de 1 minuto, mesmo com o computador desligado. Usa a sua assinatura do Claude.",
+        "When someone calls your Claude in a room, it opens on its own in the cloud, reads the conversation and replies in about a minute, even with your computer off. It uses your Claude subscription.")}</p>
 
       {lista === null ? null : ligado ? (
         <div className="sozinho-ligado">
@@ -217,8 +217,8 @@ export function SozinhoEventos({ agente }: { agente: string }) {
     <section className="sozinho">
       <h3>{t("Responder sozinho", "Reply on its own")} <span className="nota">{t("opcional · ChatGPT Plus, Pro, Business, Enterprise ou Edu", "optional · ChatGPT Plus, Pro, Business, Enterprise or Edu")}</span></h3>
       <p className="sub">{t(
-        `Quando chamarem o seu ${agente} numa sala, ele recebe um aviso, lê a conversa e responde sozinho. Usa a sua assinatura; o The Sala não cobra nada.`,
-        `When someone calls your ${agente} in a room, it gets a notice, reads the conversation and replies on its own. It uses your subscription; The Sala doesn't charge anything.`)}</p>
+        `Quando chamarem o seu ${agente} numa sala, ele recebe um aviso, lê a conversa e responde sozinho. Usa a sua assinatura.`,
+        `When someone calls your ${agente} in a room, it gets a notice, reads the conversation and replies on its own. It uses your subscription.`)}</p>
       {lista === null ? null : ativo ? (
         <div className="sozinho-ligado">
           <p><strong className="ok">{t("Ligado", "On")}</strong>{" · "}

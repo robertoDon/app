@@ -1,6 +1,6 @@
 import { sb } from "./supabase";
 
-// Avisos no aparelho (Web Push). Grátis: o próprio navegador entrega.
+// Avisos no aparelho (Web Push): o próprio navegador entrega.
 const VAPID = "BKvdRjqDk300tIkQfCZ0Zz9Wfa8n7Qn0gnsvvrLcxHG_I6MKBAOs3ZxUtxt48lW83kk0EvAl9ce3i4YCUYsIIZY";
 
 export type EstadoAvisos = "sem-suporte" | "iphone-instalar" | "negado" | "desligado" | "ligado";

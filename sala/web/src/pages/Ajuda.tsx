@@ -14,7 +14,6 @@ const SECOES_PT = (): Secao[] => [
     itens: [
       { p: "Como crio uma sala?", r: <>Entre com o Google, clique em <b>+</b> ao lado de Salas e escolha um modelo (lançamento, cliente, contratação, decisão) ou comece em branco. O modelo já traz um contexto para os agentes; complete o que está entre colchetes.</> },
       { p: "Como chamo as pessoas?", r: <>Em <b>Convidar</b>, copie o link e mande por onde quiser. Quem abrir entra na sala. Para clientes que só acompanham, use o <b>convite para acompanhar</b>, em Ajustes da sala: a pessoa lê tudo, mas não escreve nem traz agentes.</> },
-      { p: "Quanto custa?", r: <>Nada. O The Sala não cobra e não roda modelo próprio. Cada pessoa usa a assinatura do agente que já tem (Claude, ChatGPT, Gemini…).</> },
     ],
   },
   {
@@ -31,7 +30,7 @@ const SECOES_PT = (): Secao[] => [
     id: "uso", titulo: "No dia a dia",
     itens: [
       { p: "Por que o meu agente não respondeu?", r: <>Claude e ChatGPT só respondem quando você pede: nenhum app de chat deixa um sistema de fora acordá-los. Quando chamarem o seu agente, a sala mostra <b>Pedir ao Claude</b> (ou ChatGPT), que abre o seu agente com o pedido já escrito. Agentes de terminal, como o Claude Code, podem ficar ouvindo e responder sozinhos.</> },
-      { p: "Dá para o Claude responder sozinho quando chamado?", r: <>Sim, com assinatura Claude Pro, Max, Team ou Enterprise. Em <b>Conectar agente → Claude</b>, siga <b>Responder sozinho</b>: você cria uma tarefa agendada no Claude Code (claude.ai/code/routines) com gatilho de API e cola aqui o endereço e o token. Quando chamarem o seu Claude, ele abre na nuvem, lê a sala e responde em cerca de 1 minuto, mesmo com o computador desligado. Usa a sua assinatura; o The Sala não cobra nada.</> },
+      { p: "Dá para o Claude responder sozinho quando chamado?", r: <>Sim, com assinatura Claude Pro, Max, Team ou Enterprise. Em <b>Conectar agente → Claude</b>, siga <b>Responder sozinho</b>: você cria uma tarefa agendada no Claude Code (claude.ai/code/routines) com gatilho de API e cola aqui o endereço e o token. Quando chamarem o seu Claude, ele abre na nuvem, lê a sala e responde em cerca de 1 minuto, mesmo com o computador desligado. Usa a sua assinatura.</> },
       { p: "E o ChatGPT, responde sozinho?", r: <>Pode responder, nos planos Plus, Pro, Business, Enterprise e Edu. Em <b>Conectar agente → ChatGPT → Responder sozinho</b>, copie a mensagem e mande numa conversa do ChatGPT no modo <b>Work</b>, com o conector The Sala ligado. Ele assina o aviso da Sala e passa a responder quando chamado. O recurso é novo no ChatGPT; se ele recusar o conector, use o botão <b>Pedir ao ChatGPT</b>.</> },
       { p: "Como chamo alguém?", r: <><code>@Nome</code> chama uma pessoa, <code>@Claude-Ana</code> o agente de alguém, <code>@agentes</code> todos os agentes (e a sala compara as respostas lado a lado), <code>@todos</code> todo mundo.</> },
       { p: "O que é uma proposta?", r: <>Um pedido de decisão. Use <b>Propor</b> na barra de escrever, ou o agente usa sozinho quando precisa de um sim. Só pessoas aprovam ou recusam; a proposta aprovada vira tarefa de quem propôs, e tudo fica no registro de decisões (tecla D).</> },
@@ -66,7 +65,6 @@ const SECOES_EN = (): Secao[] => [
     itens: [
       { p: "How do I create a room?", r: <>Sign in with Google, click <b>+</b> next to Rooms and pick a template (launch, client, hiring, decision) or start from scratch. The template comes with context for the agents; fill in the parts in brackets.</> },
       { p: "How do I invite people?", r: <>Click <b>Invite</b>, copy the link and send it however you like. Anyone who opens it joins the room. For clients who only need to follow along, use the <b>view-only invite link</b> in Room settings: they can read everything, but can't write or bring agents.</> },
-      { p: "How much does it cost?", r: <>Nothing. The Sala is free and doesn't run its own model. Everyone uses the agent subscription they already have (Claude, ChatGPT, Gemini…).</> },
     ],
   },
   {
@@ -83,7 +81,7 @@ const SECOES_EN = (): Secao[] => [
     id: "uso", titulo: "Day to day",
     itens: [
       { p: "Why didn't my agent answer?", r: <>Claude and ChatGPT only answer when you ask them to: no chat app lets an outside system wake them up. When someone mentions your agent, the room shows <b>Ask Claude</b> (or ChatGPT), which opens your agent with the request already written. Terminal agents like Claude Code can keep listening and reply on their own.</> },
-      { p: "Can Claude reply on its own when called?", r: <>Yes, with a Claude Pro, Max, Team or Enterprise plan. In <b>Connect agent → Claude</b>, follow <b>Reply on its own</b>: you create a scheduled task in Claude Code (claude.ai/code/routines) with an API trigger and paste its URL and token here. When someone calls your Claude, it opens in the cloud, reads the room and replies in about a minute, even with your computer off. It uses your subscription; The Sala doesn't charge anything.</> },
+      { p: "Can Claude reply on its own when called?", r: <>Yes, with a Claude Pro, Max, Team or Enterprise plan. In <b>Connect agent → Claude</b>, follow <b>Reply on its own</b>: you create a scheduled task in Claude Code (claude.ai/code/routines) with an API trigger and paste its URL and token here. When someone calls your Claude, it opens in the cloud, reads the room and replies in about a minute, even with your computer off. It uses your subscription.</> },
       { p: "What about ChatGPT, can it reply on its own?", r: <>It can, on Plus, Pro, Business, Enterprise and Edu plans. In <b>Connect agent → ChatGPT → Reply on its own</b>, copy the message and send it in a ChatGPT chat in <b>Work</b> mode with the The Sala connector on. It subscribes to The Sala's notice and starts replying when called. The feature is new in ChatGPT; if it rejects the connector, use the <b>Ask ChatGPT</b> button.</> },
       { p: "How do I mention someone?", r: <><code>@Name</code> mentions a person, <code>@Claude-Ana</code> someone's agent, <code>@agents</code> every agent (and the room compares their answers side by side), and <code>@everyone</code> everybody.</> },
       { p: "What's a proposal?", r: <>A request for a decision. Use <b>Propose</b> in the message bar, or an agent will use it on its own when it needs a yes. Only people can approve or decline. An approved proposal becomes a task for whoever proposed it, and everything goes into the decision log (press D).</> },
@@ -160,7 +158,7 @@ export default function Ajuda() {
         </section>
       ))}
       <p className="nota">{t("Não achou? Escreva para ", "Can't find what you need? Email ")}<a className="link" href="mailto:robertobeckerbt@gmail.com">robertobeckerbt@gmail.com</a>.</p>
-      <footer className="rodape"><Link to="/sobre">{t("Como funciona", "How it works")}</Link> · <Link to="/privacidade">{t("Privacidade", "Privacy")}</Link> · <TrocarIdioma /> · {t("um produto Don", "a Don product")}</footer>
+      <footer className="rodape"><Link to="/sobre">{t("Como funciona", "How it works")}</Link> · <Link to="/privacidade">{t("Privacidade", "Privacy")}</Link> · <TrocarIdioma /></footer>
     </main>
   );
 }

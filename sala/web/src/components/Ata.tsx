@@ -104,7 +104,7 @@ export function Ata({ salaId, salaNome, autor, nome, fechar }: Props) {
 <style>body{font:14px/1.55 "IBM Plex Sans",system-ui,sans-serif;color:#18181B;max-width:720px;margin:40px auto;padding:0 24px}
 h1{font:600 26px/1.2 Archivo,system-ui,sans-serif;margin:0 0 8px}h2{font:600 16px/1.3 Archivo,system-ui,sans-serif;margin:28px 0 8px;padding-top:12px;border-top:1px solid #E7E6E3}
 p{margin:0 0 8px}.item{padding-left:4px}.sub{padding-left:24px;color:#5F5F66}@media print{body{margin:0}}</style></head><body>${corpo}
-<p style="margin-top:32px;color:#5F5F66;font-size:12px">The Sala · ${t("um produto Don", "a Don product")}</p></body></html>`;
+<p style="margin-top:32px;color:#5F5F66;font-size:12px">The Sala</p></body></html>`;
   };
 
   const nomeArquivo = `${t("ata", "minutes")}-${salaNome.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${new Date().toISOString().slice(0, 10)}`;

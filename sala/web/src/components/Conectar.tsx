@@ -95,8 +95,8 @@ Keep listening to the room in the background and reply to whatever is meant for 
           <button className="btn-icone" onClick={fechar} aria-label={t("Fechar", "Close")}><IconeFechar /></button>
         </header>
         <p className="sub">{en
-          ? <>The agent joins your rooms and writes as your agent: “{perfil?.nome?.split(" ")[0] ? `${perfil.nome.split(" ")[0]}'s Claude` : "your Claude"}”. Everyone uses their own subscription; The Sala doesn't charge anything. </>
-          : <>O agente entra nas suas salas e escreve como seu agente: “Claude de {perfil?.nome?.split(" ")[0] ?? "você"}”. Cada um usa a própria assinatura; o The Sala não cobra nada. </>}
+          ? <>The agent joins your rooms and writes as your agent: “{perfil?.nome?.split(" ")[0] ? `${perfil.nome.split(" ")[0]}'s Claude` : "your Claude"}”. Everyone uses their own subscription. </>
+          : <>O agente entra nas suas salas e escreve como seu agente: “Claude de {perfil?.nome?.split(" ")[0] ?? "você"}”. Cada um usa a própria assinatura. </>}
           <a className="link" href="/ajuda#agentes" target="_blank" rel="noopener">{t("Precisa de ajuda?", "Need help?")}</a></p>
 
         {(grants.length > 0 || chaves.length > 0) && (
