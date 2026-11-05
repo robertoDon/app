@@ -1,38 +1,27 @@
 /* Vitrine (landing, entrar, convite, consentimento): minimalista, o produto real rodando, no tema da pessoa.
-   Tudo aqui fica dentro de .lp. No claro usa os tokens do app; no escuro, um preto mais fundo. Os componentes
-   reais (Bolha, Texto) se ajustam sozinhos. */
+   Mesma paleta, mesma cor de ação, mesmos raios do app: o The Sala tem uma cara só. Aqui só há o que é da vitrine. */
 
 .lp {
   --lp-v: 17 17 26; --lp-borda: rgba(17,17,26,.08); --lp-borda-forte: rgba(17,17,26,.14); --lp-texto2: #4F5059;
-  --lp-forte: #0B0B0D; --lp-h1b: #55565F; --lp-apagado: #9A9BA4; --lp-btn: #111113; --lp-btn-tinta: #fff; --lp-btn-hover: #2A2A30;
+  --lp-forte: var(--tinta); --lp-h1b: #55565F; --lp-apagado: #9A9BA4; --lp-btn: #111113; --lp-btn-tinta: #fff; --lp-btn-hover: #2A2A30;
   --lp-btn-sombra: 0 1px 0 rgba(255,255,255,.14) inset, 0 8px 24px -10px rgba(17,17,26,.45);
-  --lp-sombra-funda: rgba(17,17,26,.18); --lp-brilho: .12; --lp-marca: #111113;
+  --lp-sombra-funda: rgba(17,17,26,.18); --lp-brilho: .12; --lp-marca: var(--tinta);
   min-height: 100%; background: var(--fundo); color: var(--tinta); overflow-x: clip;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-tema="claro"]) .lp {
-    --fundo: #08090A; --painel: #101113; --lateral: #0C0D0F; --elevado: #16171A; --tinta: #F7F8F8; --cinza: #8A8F98;
-    --linha: #1E2024; --linha-forte: #2A2C31; --suave: #17181B; --agente: #17162B; --agente-tinta: #B9B8FF;
-    --acento: #7273EA; --acento-forte: #8586F2; --acento-tinta: #fff; --erro: #FF8A80; --ok: #4CC38A; --aviso: #F0A54A;
-    --sombra: 0 1px 2px rgba(0,0,0,.4); --sombra-media: 0 6px 16px -4px rgba(0,0,0,.5), 0 1px 3px rgba(0,0,0,.4);
-    --sombra-alta: 0 24px 56px -12px rgba(0,0,0,.7); --brilho: inset 0 1px 0 rgba(255,255,255,.05);
     --lp-v: 255 255 255; --lp-borda: rgba(255,255,255,.08); --lp-borda-forte: rgba(255,255,255,.14); --lp-texto2: #B4B8BF;
-    --lp-forte: #fff; --lp-h1b: #A9ADB5; --lp-apagado: #6B6F78; --lp-btn: #F7F8F8; --lp-btn-tinta: #08090A; --lp-btn-hover: #fff;
+    --lp-forte: var(--tinta); --lp-h1b: #A9ADB5; --lp-apagado: #6B6F78; --lp-btn: #F7F8F8; --lp-btn-tinta: #08090A; --lp-btn-hover: #fff;
     --lp-btn-sombra: 0 1px 0 rgba(255,255,255,.4) inset, 0 8px 24px -8px rgba(255,255,255,.25);
-    --lp-sombra-funda: rgba(0,0,0,.8); --lp-brilho: .20; --lp-marca: #fff;
+    --lp-sombra-funda: rgba(0,0,0,.8); --lp-brilho: .20; --lp-marca: var(--tinta);
     color-scheme: dark;
   }
 }
 :root[data-tema="escuro"] .lp {
-  --fundo: #08090A; --painel: #101113; --lateral: #0C0D0F; --elevado: #16171A; --tinta: #F7F8F8; --cinza: #8A8F98;
-  --linha: #1E2024; --linha-forte: #2A2C31; --suave: #17181B; --agente: #17162B; --agente-tinta: #B9B8FF;
-  --acento: #7273EA; --acento-forte: #8586F2; --acento-tinta: #fff; --erro: #FF8A80; --ok: #4CC38A; --aviso: #F0A54A;
-  --sombra: 0 1px 2px rgba(0,0,0,.4); --sombra-media: 0 6px 16px -4px rgba(0,0,0,.5), 0 1px 3px rgba(0,0,0,.4);
-  --sombra-alta: 0 24px 56px -12px rgba(0,0,0,.7); --brilho: inset 0 1px 0 rgba(255,255,255,.05);
   --lp-v: 255 255 255; --lp-borda: rgba(255,255,255,.08); --lp-borda-forte: rgba(255,255,255,.14); --lp-texto2: #B4B8BF;
-  --lp-forte: #fff; --lp-h1b: #A9ADB5; --lp-apagado: #6B6F78; --lp-btn: #F7F8F8; --lp-btn-tinta: #08090A; --lp-btn-hover: #fff;
+  --lp-forte: var(--tinta); --lp-h1b: #A9ADB5; --lp-apagado: #6B6F78; --lp-btn: #F7F8F8; --lp-btn-tinta: #08090A; --lp-btn-hover: #fff;
   --lp-btn-sombra: 0 1px 0 rgba(255,255,255,.4) inset, 0 8px 24px -8px rgba(255,255,255,.25);
-  --lp-sombra-funda: rgba(0,0,0,.8); --lp-brilho: .20; --lp-marca: #fff;
+  --lp-sombra-funda: rgba(0,0,0,.8); --lp-brilho: .20; --lp-marca: var(--tinta);
   color-scheme: dark;
 }
 .lp ::selection { background: color-mix(in srgb, var(--acento) 45%, transparent); }
@@ -43,14 +32,14 @@
 /* botões da vitrine: claro (principal) e fantasma; 8px de raio, como o resto do app */
 .lp-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px;
-  border-radius: 10px; border: 1px solid transparent; font: 500 14px/1 var(--corpo); letter-spacing: -0.005em;
+  border-radius: 8px; border: 1px solid transparent; font: 500 14px/1 var(--corpo); letter-spacing: -0.005em;
   cursor: pointer; white-space: nowrap; transition: background 140ms ease-out, border-color 140ms ease-out, transform 140ms ease-out, color 140ms ease-out;
 }
 .lp-btn:active { transform: scale(.98); }
-.lp-btn-peq { height: 34px; padding: 0 12px; font-size: 13px; border-radius: 8px; }
-.lp-btn-grande { height: 48px; padding: 0 22px; font-size: 15px; border-radius: 12px; }
-.lp-btn-claro { background: var(--lp-btn); color: var(--lp-btn-tinta); box-shadow: var(--lp-btn-sombra); }
-.lp-btn-claro:hover { background: var(--lp-btn-hover); }
+.lp-btn-peq { height: 34px; padding: 0 12px; font-size: 13px; border-radius: 7px; }
+.lp-btn-grande { height: 48px; padding: 0 22px; font-size: 15px; border-radius: 10px; }
+.lp-btn-claro { background: var(--acento); color: var(--acento-tinta); box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 1px 2px rgba(17,17,26,.18); }
+.lp-btn-claro:hover { background: var(--acento-forte); }
 .lp-btn-fantasma { background: rgb(var(--lp-v) / .02); color: var(--tinta); border-color: var(--lp-borda-forte); }
 .lp-btn-fantasma:hover { background: rgb(var(--lp-v) / .06); border-color: rgb(var(--lp-v) / .22); }
 .lp-seta { display: inline-grid; place-items: center; transition: transform 150ms ease-out; }

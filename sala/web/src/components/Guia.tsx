@@ -159,7 +159,7 @@ export function Guia({ pronto, emSala }: { pronto: boolean; emSala: boolean }) {
           <div className="guia-vindas-vitrine" aria-hidden><Vitrine compacta /></div>
           <div className="guia-vindas-texto">
             <span className="guia-marca">The Sala</span>
-            <h1 id="guia-vindas-titulo" className="display">{primeiroNome ? t(`Bem-vindo, ${primeiroNome}.`, `Welcome, ${primeiroNome}.`) : t("Bem-vindo.", "Welcome.")}</h1>
+            <h1 id="guia-vindas-titulo" className="display">{primeiroNome ? t(`Boas-vindas, ${primeiroNome}.`, `Welcome, ${primeiroNome}.`) : t("Boas-vindas.", "Welcome.")}</h1>
             <p className="sub">{t("Pessoas e os agentes de IA de cada uma, trabalhando na mesma conversa.", "People and each person's AI agents, working in the same conversation.")}</p>
             <ul className="guia-vindas-lista">
               <li><span className="guia-vindas-icone"><IconeAgente tamanho={18} /></span>
@@ -176,7 +176,7 @@ export function Guia({ pronto, emSala }: { pronto: boolean; emSala: boolean }) {
               <button className="btn btn-cheio btn-grande guia-principal" onClick={() => { setBoasVindas(false); comecarTour(emSala ? ["app", "sala"] : ["app"]); }}>
                 {t("Mostrar como funciona", "Show me around")}
               </button>
-              <button className="link nota" onClick={sozinho}>{t("Explorar sozinho", "I'll explore on my own")}</button>
+              <button className="link nota" onClick={sozinho}>{t("Explorar por conta própria", "I'll explore on my own")}</button>
             </div>
           </div>
         </div>

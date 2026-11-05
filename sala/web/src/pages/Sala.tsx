@@ -782,7 +782,7 @@ export default function SalaPage() {
 
           {!leitor && <Avisos />}
           {leitor ? (
-            <p className="so-leitura" role="status">{t("Você está acompanhando esta sala como convidado: vê a conversa, as decisões e as tarefas, mas não escreve. Para participar, peça a quem cuida da sala.", "You're a viewer in this room: you can see the conversation, decisions and tasks, but you can't write. To join in, ask the room owner.")}</p>
+            <p className="so-leitura" role="status">{t("Você acompanha esta sala no modo só leitura: vê a conversa, as decisões e as tarefas, mas não escreve. Para participar, peça a quem cuida da sala.", "You're a viewer in this room: you can see the conversation, decisions and tasks, but you can't write. To join in, ask the room owner.")}</p>
           ) : <Compor key={id} ref={compor} subir={(f) => subirArquivo(id, eu, f)} sugestoesBase={sugestoes} respondendo={respondendo} cancelarResposta={() => setRespondendo(null)} enviar={enviar}
             pessoas={membros.filter((x) => x.papel !== "leitor").map((x) => ({ id: x.user_id, nome: x.user_id === eu ? t("Você", "You") : (x.perfis?.nome ?? "").split(" ")[0] }))} />}
         </div>

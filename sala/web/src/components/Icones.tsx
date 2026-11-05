@@ -21,8 +21,9 @@ export const IconeCopiar = ({ tamanho }: P) => (
 export const IconeSair = ({ tamanho }: P) => (
   <svg {...base(tamanho)}><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 8l-4 4 4 4M6 12h10" /></svg>
 );
+// Marca de agente: o anel do logo (o ponto cheio é a pessoa, o anel é o agente dela).
 export const IconeAgente = ({ tamanho }: P) => (
-  <svg {...base(tamanho)}><rect x="5" y="8" width="14" height="11" rx="3" /><path d="M12 8V5M9 13h.01M15 13h.01" /></svg>
+  <svg {...base(tamanho)} strokeWidth={2.4}><circle cx="12" cy="12" r="6.5" /></svg>
 );
 
 export const Marca = () => (

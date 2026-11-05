@@ -20,7 +20,6 @@
   --erro: #C2312A;
   --ok: #18794E;
   --aviso: #A35200;
-  --palco: #0F1012;           /* fundo escuro das vitrines, nos dois temas */
   --sombra: 0 1px 2px rgba(17, 17, 26, .04), 0 1px 1px rgba(17, 17, 26, .03);
   --sombra-media: 0 4px 12px -2px rgba(17, 17, 26, .08), 0 1px 3px rgba(17, 17, 26, .05);
   --sombra-alta: 0 24px 48px -12px rgba(17, 17, 26, .22), 0 4px 12px rgba(17, 17, 26, .06);
@@ -795,8 +794,8 @@ details.nota p { margin-top: 8px; }
   background: var(--painel); border: 1px solid var(--linha); border-radius: var(--r3); box-shadow: 0 24px 64px rgba(0,0,0,.35);
   animation: guia-entra .3s cubic-bezier(.2,.8,.2,1);
 }
-.guia-vindas-vitrine { display: grid; place-items: center; padding: 32px; background: var(--palco) radial-gradient(120% 80% at 50% 0%, color-mix(in srgb, var(--acento) 24%, transparent), transparent 60%); }
-.guia-vindas-vitrine .vitrine-card { transform: rotate(-1.5deg); }
+.guia-vindas-vitrine { display: grid; place-items: center; padding: 32px; background: var(--lateral); border-right: 1px solid var(--linha); }
+.guia-vindas-vitrine .vitrine-card { transform: none; }
 .guia-vindas-texto { display: flex; flex-direction: column; gap: 16px; padding: 40px; }
 .guia-marca { font-size: var(--t1); font-weight: 600; color: var(--acento); letter-spacing: .02em; }
 .guia-vindas-lista { list-style: none; margin: 8px 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
@@ -965,7 +964,7 @@ kbd { border-radius: 5px; background: var(--elevado); box-shadow: 0 1px 0 var(--
 }
 @keyframes brilhar { from { background-position: 100% 0; } to { background-position: -100% 0; } }
 
-.vitrine-card { border-radius: 14px; background: var(--fundo); box-shadow: 0 30px 60px -20px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06); }
+.vitrine-card { border-radius: 14px; background: var(--fundo); box-shadow: 0 1px 2px rgba(17,17,26,.04), 0 24px 48px -28px rgba(17,17,26,.35), 0 0 0 1px var(--linha); transform: none; }
 
 /* mensagens novas entram suaves */
 .msg-bloco:last-child > .msg { animation: msg-entra .22s cubic-bezier(.2,.8,.2,1); }
@@ -1609,3 +1608,17 @@ time, kbd, .aba-num, .ir-fim-num, .novas, .sala-novas, .sala-pendentes, .sala-qu
 .vazio-inicio { align-items: flex-start; }
 .vazio-inicio .display { font-size: 30px; letter-spacing: -0.03em; }
 .vazio-inicio .modelos-inicio { width: 100%; margin-top: 8px; }
+
+/* nome do agente na mesma linha de base do resto do cabeçalho da mensagem */
+.msg-meta { align-items: center; }
+/* dicas de teclado só enquanto a pessoa escreve: a tela parada fica limpa */
+.compor-dica { opacity: 0; transform: translateY(-2px); transition: opacity 150ms ease-out, transform 150ms ease-out; }
+.compor:focus-within .compor-dica { opacity: 1; transform: none; }
+
+/* título dos painéis sempre à esquerda, mesmo com o botão de voltar */
+.painel-topo > h2 { flex: 1; min-width: 0; }
+.painel-topo > .btn-icone:first-child { margin-left: -8px; }
+/* painel: avanço em verde (feito), ritmo em tons neutros com a semana atual em destaque; roxo é só de ação */
+.pn-trilho i { background: var(--ok); }
+.pn-semana .pn-barra { background: color-mix(in srgb, var(--tinta) 18%, transparent); }
+.pn-atual .pn-barra { background: var(--tinta); }
