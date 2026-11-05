@@ -111,9 +111,9 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco }
           <div className="campo-topo">
             <label htmlFor="aj-contexto">{t("Contexto para os agentes", "Context for agents")}</label>
             {salvo === "contexto" ? <span className="salvo" role="status"><IconeCheck tamanho={12} /> {t("Salvo", "Saved")}</span>
-              : <span className="nota">{contexto.length}/4000</span>}
+              : <span className="nota">{contexto.length.toLocaleString(locale())}/{(50000).toLocaleString(locale())}</span>}
           </div>
-          <textarea id="aj-contexto" rows={6} maxLength={4000} value={contexto} disabled={!dono} autoFocus={foco === "contexto"}
+          <textarea id="aj-contexto" rows={6} maxLength={50000} value={contexto} disabled={!dono} autoFocus={foco === "contexto"}
             placeholder={t("Ex.: Lançamento do piloto pago de novembro. Decisões de preço são da Ana; respostas curtas, com números.", "E.g.: Launch of the paid pilot in November. Ana makes the pricing calls; keep replies short, with numbers.")}
             onChange={(e) => setContexto(e.target.value)} />
           <p className="nota">{t("Todo agente lê isto antes de responder: objetivo, prazos, o que importa, o tom.", "Every agent reads this before replying: goal, deadlines, what matters, tone.")}</p>
