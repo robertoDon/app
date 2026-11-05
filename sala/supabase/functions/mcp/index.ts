@@ -451,6 +451,13 @@ const idiomaDaSala = (s: Sala, q?: Quem) => (s.idioma === "en"
   ? tr(q, "Idioma da sala: inglês. Escreva suas mensagens, propostas, tarefas e a memória em inglês.", "Room language: English. Write your messages, proposals, tasks and the memory in English.")
   : tr(q, "Idioma da sala: português. Escreva suas mensagens, propostas, tarefas e a memória em português.", "Room language: Portuguese. Write your messages, proposals, tasks and the memory in Portuguese."));
 
+// conector com a lista de ferramentas velha (ChatGPT guarda a lista até alguém atualizar): o agente percebe e avisa a pessoa
+const ferramentasDaVersao = (q?: Quem) => {
+  const nomes = TOOLS_PT.map((x) => x.name).filter((n) => n !== "search" && n !== "fetch").join(", ");
+  return tr(q, `Ferramentas desta versão (${SERVIDOR.version}): ${nomes}. Se alguma não aparece para você, não improvise: peça à sua pessoa para atualizar o conector The Sala nas configurações do app dela.`,
+    `Tools in this version (${SERVIDOR.version}): ${nomes}. If any of them is missing on your side, don't improvise: ask your person to refresh The Sala connector in their app settings.`);
+};
+
 async function cabecalhoCurto(s: Sala, q: Quem) {
   const [ps, ts] = await Promise.all([propostas(s.id, 15), tarefas(s.id)]);
   const pend = ps.filter((p) => p.estado === "pendente");
@@ -470,7 +477,7 @@ async function cabecalho(s: Sala, q?: Quem) {
   const a = listaAnexos(ax, bs, q);
   const ins = s.contexto?.trim() ? `\n${tr(q, "Instruções da sala (das pessoas)", "Room instructions (from the people)")}: ${s.contexto.trim()}` : "";
   const mem = `\n${tr(q, "Memória da sala (mantida pelos agentes; atualize com atualizar_memoria)", "Room memory (kept by the agents; update it with atualizar_memoria)")}:${s.memoria?.trim() ? `\n${s.memoria.trim()}` : tr(q, " (vazia: comece a preencher)", " (empty: start filling it in)")}`;
-  return `${tr(q, "Sala", "Room")} "${s.nome}"\n${idiomaDaSala(s, q)}${ins}${mem}${r ? `\n${r}` : ""}${t ? `\n${t}` : ""}${b ? `\n${b}` : ""}${a ? `\n${a}` : ""}`;
+  return `${tr(q, "Sala", "Room")} "${s.nome}"\n${idiomaDaSala(s, q)}\n${ferramentasDaVersao(q)}${ins}${mem}${r ? `\n${r}` : ""}${t ? `\n${t}` : ""}${b ? `\n${b}` : ""}${a ? `\n${a}` : ""}`;
 }
 
 // ---------------------------------------------------------------- memória
@@ -886,6 +893,7 @@ function regras(q?: Quem) {
 - When replying to a message, pass responde_a with its id (#N). That way the room shows the agents' answers side by side. In a discussion that started with a question to @agents, every message of yours (and your final proposal) replies to that original question, so the room can compare everyone's final answer.
 - Never write message or task numbers in your text (#N, "task 12"): people don't see them. Refer to things by name: who said it ("David's question", "the price proposal") or what the task is ("the rule 3.2 approval task"). Numbers go only in tool parameters (responde_a, tarefa, item).
 - When something needs a person's yes (spending, publishing, changing the plan, choosing between options), use fazer_proposta instead of deciding yourself. People approve or decline in the room. Some rooms require more than one approval: the proposal only passes when they all arrive, and the app counts them; don't treat it as approved before that.
+- Only say you delivered something when it is in the room: a message, proposal, file, library item or task. A summary of something that isn't in the room is not a delivery.
 - Send a proposal only when the discussion is closed: no open points between the agents, and the people aren't still deciding. If a person says to wait or that they're still deciding, don't propose until the discussion ends. Never repeat a proposal's content as a message: point to it.
 - If a person asks for changes on your proposal ("ADJUSTMENT REQUEST") or declines it with a reason, it's not over: fix it, check with the other agents if it touches their part, and resend once, with substitui = the old proposal's id. Don't resend in the same minute without changes.
 - The room memory is yours to keep: the project's current state (what was decided, delivered, what's pending and where things are). When something is decided, delivered or changes state, update it with atualizar_memoria, without asking: small replacements, plus a one-line summary of what changed. It records what happened and what was decided; it doesn't create rules or decide anything. Keep it short and current: rewrite what's outdated instead of piling up history.
@@ -912,6 +920,7 @@ function regras(q?: Quem) {
 - Ao responder uma mensagem, passe responde_a com o id dela (#N). Assim a sala mostra as respostas dos agentes lado a lado. Numa discussão que começou com uma pergunta para @agentes, toda mensagem sua (e a sua proposta final) responde à pergunta original, para a sala comparar a resposta final de cada um.
 - Nunca escreva números de mensagem ou de tarefa no texto (#N, "tarefa 12"): as pessoas não veem esses números. Cite pelo nome: quem disse ("a pergunta do David", "a proposta de preço") ou o que é a tarefa ("a tarefa de aprovar a regra 3.2"). Número só vai nos parâmetros das ferramentas (responde_a, tarefa, item).
 - Quando algo precisar do sim de uma pessoa (gastar, publicar, mudar plano, escolher entre opções), use fazer_proposta em vez de decidir sozinho. As pessoas aprovam ou recusam na sala. Algumas salas pedem mais de uma aprovação: a proposta só passa quando todas chegam, e o app conta sozinho; não trate como aprovada antes disso.
+- Só diga que entregou quando o resultado estiver na sala: mensagem, proposta, arquivo, item da biblioteca ou tarefa. Resumo de algo que não está na sala não é entrega.
 - Só mande proposta quando a discussão fechou: nenhum ponto em aberto entre os agentes e as pessoas não estão mais decidindo. Se uma pessoa disser para esperar ou que ainda está decidindo, não proponha até a discussão terminar. Nunca repita o conteúdo de uma proposta como mensagem: aponte para ela.
 - Se uma pessoa pedir ajuste na sua proposta ("PEDIDO DE AJUSTE") ou recusar com um motivo, não acabou: corrija, confirme com os outros agentes se mexer na parte deles e reenvie uma vez, com substitui = o id da proposta antiga. Não reenvie no mesmo minuto sem mudar nada.
 - A memória da sala é sua de manter: o estado atual do projeto (o que foi decidido, entregue, o que está pendente e onde está cada coisa). Quando algo for decidido, entregue ou mudar de estado, atualize com atualizar_memoria, sem pedir: trocas pequenas e um resumo de uma linha do que mudou. Ela registra o que aconteceu e foi decidido; não cria regra nem decide nada. Mantenha curta e atual: reescreva o que ficou velho em vez de acumular histórico.
@@ -1677,7 +1686,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.25.0" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.26.0" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {
