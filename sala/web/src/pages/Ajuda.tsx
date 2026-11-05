@@ -1,7 +1,8 @@
+import { isValidElement, useState } from "react";
 import { Link } from "react-router-dom";
 import { MCP_URL } from "../supabase";
 import { t, useIdioma } from "../i18n";
-import { Marca } from "../components/Icones";
+import { IconeBusca, Marca } from "../components/Icones";
 import { TrocarIdioma } from "./Landing";
 
 type Item = { p: string; r: React.ReactNode };
@@ -111,20 +112,47 @@ const SECOES_EN = (): Secao[] => [
   },
 ];
 
+// texto puro de uma resposta (para a busca achar também dentro dela)
+const texto = (n: React.ReactNode): string => {
+  if (n == null || typeof n === "boolean") return "";
+  if (typeof n === "string" || typeof n === "number") return String(n);
+  if (Array.isArray(n)) return n.map(texto).join(" ");
+  if (isValidElement(n)) return texto((n.props as { children?: React.ReactNode }).children);
+  return "";
+};
+const sem = (s: string) => s.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+
 export default function Ajuda() {
   const secoes = useIdioma() === "en" ? SECOES_EN() : SECOES_PT();
+  const [q, setQ] = useState("");
+  const termo = sem(q.trim());
+  const filtradas = termo
+    ? secoes.map((s) => ({ ...s, itens: s.itens.filter((i) => sem(`${i.p} ${texto(i.r)}`).includes(termo)) })).filter((s) => s.itens.length)
+    : secoes;
+  const achou = filtradas.reduce((n, s) => n + s.itens.length, 0);
+
   return (
     <main className="documento ajuda">
-      <Link to="/" aria-label="The Sala"><Marca /></Link>
-      <h1 className="display">{t("Ajuda", "Help")}</h1>
-      <nav className="ajuda-indice" aria-label={t("Assuntos", "Topics")}>
-        {secoes.map((s) => <a key={s.id} href={`#${s.id}`}>{s.titulo}</a>)}
-      </nav>
-      {secoes.map((s) => (
+      <header className="ajuda-topo">
+        <Link to="/" aria-label="The Sala"><Marca /></Link>
+        <h1 className="display">{t("Como podemos ajudar?", "How can we help?")}</h1>
+        <label className="ajuda-busca">
+          <IconeBusca tamanho={18} />
+          <span className="sr">{t("Buscar na ajuda", "Search help")}</span>
+          <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("Ex.: conectar o ChatGPT, aprovação, avisos", "E.g. connect ChatGPT, approvals, notifications")} autoFocus />
+        </label>
+        {!termo && (
+          <nav className="ajuda-indice" aria-label={t("Assuntos", "Topics")}>
+            {secoes.map((s) => <a key={s.id} href={`#${s.id}`}>{s.titulo}</a>)}
+          </nav>
+        )}
+        {termo && <p className="nota" role="status">{achou ? t(`${achou} resposta${achou > 1 ? "s" : ""} para “${q.trim()}”`, `${achou} answer${achou > 1 ? "s" : ""} for “${q.trim()}”`) : t(`Nada sobre “${q.trim()}”. Tente outra palavra ou escreva para nós.`, `Nothing about “${q.trim()}”. Try another word or email us.`)}</p>}
+      </header>
+      {filtradas.map((s) => (
         <section key={s.id} id={s.id}>
           <h2>{s.titulo}</h2>
           {s.itens.map((i) => (
-            <details key={i.p}>
+            <details key={`${i.p}${termo ? "-busca" : ""}`} open={!!termo && achou <= 3}>
               <summary>{i.p}</summary>
               <p>{i.r}</p>
             </details>

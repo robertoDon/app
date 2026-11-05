@@ -1586,3 +1586,14 @@ mark { background: color-mix(in srgb, var(--acento) 20%, transparent); color: va
 @media (hover: none) {
   .lateral-busca kbd, .cmd-lista button kbd { display: none; }
 }
+
+/* ajuda: busca no topo, perguntas como documento */
+.ajuda-topo { display: flex; flex-direction: column; gap: 20px; padding: 16px 0 8px; }
+.ajuda-topo .display { font-size: 36px; letter-spacing: -0.035em; margin-top: 24px; }
+.ajuda-busca { position: relative; display: flex; align-items: center; color: var(--cinza); }
+.ajuda-busca svg { position: absolute; left: 16px; pointer-events: none; }
+.ajuda-busca input { width: 100%; height: 52px; padding: 0 16px 0 46px; border-radius: 12px; font-size: 16px; background: var(--elevado); box-shadow: var(--sombra); border-color: var(--linha-forte); }
+.ajuda details[open] summary { color: var(--tinta); }
+.ajuda details p { line-height: 1.65; }
+@media (max-width: 720px) { .ajuda-topo .display { font-size: 28px; } }
+.ajuda-busca input::-webkit-search-cancel-button { -webkit-appearance: none; }
