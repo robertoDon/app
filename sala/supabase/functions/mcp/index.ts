@@ -726,8 +726,11 @@ async function montarPlano(q: Quem, sala: string, itens: unknown): Promise<ItemP
   if (itens.length > 60) throw new Falha(tr(q, "No máximo 60 tarefas por plano.", "At most 60 tasks per plan."));
   const out: ItemPlano[] = [];
   for (const [n, i] of (itens as Record<string, unknown>[]).entries()) {
-    const titulo = String(i?.titulo ?? "").trim().slice(0, 200);
+    const titulo = String(i?.titulo ?? "").replace(/\s+/g, " ").trim();
     if (!titulo) throw new Falha(tr(q, `Item ${n + 1} do plano sem título.`, `Plan item ${n + 1} has no title.`));
+    // título curto, como numa lista de tarefas; condições e detalhes vão no texto do plano
+    if (titulo.length > 120) throw new Falha(tr(q, `O título do item ${n + 1} tem ${titulo.length} caracteres; o limite é 120. Encurte ("${titulo.slice(0, 60)}…") e ponha os detalhes no texto do plano. Nada foi enviado.`,
+      `Plan item ${n + 1}'s title is ${titulo.length} characters; the limit is 120. Shorten it ("${titulo.slice(0, 60)}…") and put the details in the plan's texto. Nothing was sent.`));
     const ref = String(i?.responsavel ?? "").trim();
     const resp = ref ? await acharResponsavel(q, sala, ref) : null;
     const prazo = lerPrazo(i?.prazo);
@@ -973,7 +976,7 @@ const TOOLS_PT = [
           items: {
             type: "object",
             properties: {
-              titulo: { type: "string", description: "O que fazer, com verbo." },
+              titulo: { type: "string", description: "O que fazer, com verbo, curto (até 120 caracteres). Condições e detalhes vão no texto do plano." },
               frente: { type: "string", description: "Frente ou módulo (ex.: Cadastro). Curto, igual entre tarefas da mesma frente." },
               responsavel: { type: "string", description: "Primeiro nome (Ana) ou Agente-Pessoa (Claude-Ana). Vazio = sem responsável." },
               prazo: { type: "string", description: "Data, ex.: 2026-11-20 (vale até 18h de Brasília)." },
@@ -1206,7 +1209,7 @@ const EN: Record<string, { d: string; p?: Record<string, string> }> = {
   fazer_proposta: { d: "Asks the people in the room for a decision. Use it when something needs someone's yes before going ahead (spending, publishing, changing the plan, choosing between options). The room shows Approve and Decline; the decision comes back to you as a message and goes into the room's record.",
     p: { texto: "The proposal, clear and short: what will be done, why, and what changes. Markdown ok.", aprovadores: "Optional: first names of who must approve (e.g. [\"Roberto\", \"David\"]). Only they decide, and all of them must say yes. Empty = the room's rule.", responde_a: "Id of the message that led to the proposal, if any." } },
   propor_plano: { d: "Proposes a plan: a list of tasks with workstream, assignee and due date. Once approved, each item becomes a task and its due date becomes the plan (the dashboard compares plan and reality). To replan, send a new plan and cite in `tarefa` the tasks that change.",
-    p: { texto: "Plan summary: order of the workstreams and why. Markdown ok.", itens: "The plan's tasks (up to 60), in order: titulo, frente (workstream), responsavel (Ana or Claude-Ana), prazo (2026-11-20), tarefa (only when replanning).", aprovadores: "Optional: first names of who must approve. Empty = the room's rule.", responde_a: "Id of the message that led to the plan, if any." } },
+    p: { texto: "Plan summary: order of the workstreams and why. Markdown ok.", itens: "The plan's tasks (up to 60), in order: titulo (short, up to 120 characters; conditions and details go in texto), frente (workstream), responsavel (Ana or Claude-Ana), prazo (2026-11-20), tarefa (only when replanning).", aprovadores: "Optional: first names of who must approve. Empty = the room's rule.", responde_a: "Id of the message that led to the plan, if any." } },
   ver_painel: { d: "Shows the room's progress: by workstream (plan and projection), who still has to approve what, overdue tasks and weekly pace. The same numbers as the app's dashboard." },
   atualizar_memoria: { d: "Updates the room memory: the project's current state, which agents keep without asking for approval (it's versioned and people can undo). Prefer small replacements; rewrite everything only to reorganize.",
     p: { resumo: "One line: what changed and why (e.g. \"Annual price settled in today's decision\").", trocas: "Replacements in the current text: each `de` must appear exactly once in the memory and becomes `para`. An empty `de` appends `para` at the end.", texto: "Or the whole new memory (up to 50,000 characters), instead of trocas." } },
@@ -1578,7 +1581,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.21.0" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.21.1" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {
