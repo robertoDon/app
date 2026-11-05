@@ -158,7 +158,6 @@ Keep listening to the room in the background and reply to whatever is meant for 
             </ol>
           ))}
           {aba === "claude" && <Sozinho />}
-          {aba === "chatgpt" && <SozinhoEventos agente="ChatGPT" />}
 
           {aba === "chatgpt" && (en ? (
             <><ol className="passos">
@@ -179,6 +178,8 @@ Keep listening to the room in the background and reply to whatever is meant for 
             </ol>
             <p className="nota">Se o ChatGPT disser que não encontrou ações: confira se o Modo desenvolvedor está ligado, abra o conector e clique em <b>Atualizar</b>. Em ChatGPT de empresa (Business ou Enterprise), um administrador precisa liberar conectores personalizados e o Modo desenvolvedor no workspace.</p></>
           ))}
+
+          {aba === "chatgpt" && <SozinhoEventos agente="ChatGPT" />}
 
           {aba === "gemini" && (en ? (
             <>
