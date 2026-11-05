@@ -6,7 +6,7 @@ import { Bolha, Evento, type Citacao, type GrupoReacao } from "../components/Bol
 import { Ajustes } from "../components/Ajustes";
 import { Compor, type ComporApi, type Sugestao } from "../components/Compor";
 import { Decisoes } from "../components/Decisoes";
-import { Comparar, type Esperando } from "../components/Comparar";
+import { Comparar, porAgente, type Esperando } from "../components/Comparar";
 import { Busca } from "../components/Busca";
 import { Avisos } from "../components/Avisos";
 import { Tarefas, prazoCurto, valorResp, type RascunhoTarefa } from "../components/Tarefas";
@@ -625,7 +625,7 @@ export default function SalaPage() {
                   )}
                   {rs && (rs.length > 0 || esperando.length > 0) && (
                     <div className={`respostas ${minhaPessoa ? "respostas-minha" : ""}`} aria-label={t("Respostas dos agentes", "Agents' answers")}>
-                      {rs.map((r) => (
+                      {porAgente(rs).map(({ final: r }) => (
                         <button key={r.id} className="resp-chip" onClick={() => irPara(r.id)}>
                           <IconeCheck tamanho={14} /> {deQuem(r.agente ?? "", primeiro(r.user_id))}
                         </button>
@@ -637,7 +637,7 @@ export default function SalaPage() {
                       ))}
                       {rs.length > 0 && (
                         <button className="btn btn-pequeno btn-comparar" onClick={() => setComparar(m.id)}>
-                          <IconeColunas tamanho={16} /> {rs.length > 1 ? t("Comparar lado a lado", "Compare side by side") : t("Ver resposta", "View answer")}
+                          <IconeColunas tamanho={16} /> {porAgente(rs).length > 1 ? t("Comparar lado a lado", "Compare side by side") : t("Ver resposta", "View answer")}
                         </button>
                       )}
                     </div>

@@ -1,10 +1,25 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { Mensagem } from "../supabase";
-import { IconeAgente, IconeFechar } from "./Icones";
+import { IconeAgente, IconeFechar, IconeVoltar } from "./Icones";
 import { Texto } from "./Texto";
 import { gravado, locale, t } from "../i18n";
 
 export type Esperando = { nome: string; dono: string; status: string };
+
+// Numa discussão o mesmo agente responde várias vezes à pergunta: vale a mais recente (uma proposta dele, se houver),
+// e as anteriores ficam guardadas atrás dela.
+export function porAgente(rs: Mensagem[]) {
+  const grupos = new Map<string, Mensagem[]>();
+  for (const r of [...rs].sort((a, b) => a.id - b.id)) {
+    const k = `${r.agente}|${r.user_id}`;
+    grupos.set(k, [...(grupos.get(k) ?? []), r]);
+  }
+  return [...grupos.values()].map((ms) => {
+    const propostas = ms.filter((m) => m.tipo === "proposta");
+    const final = propostas[propostas.length - 1] ?? ms[ms.length - 1];
+    return { final, antes: ms.filter((m) => m.id !== final.id) };
+  });
+}
 
 type Props = {
   pergunta: Mensagem;
@@ -35,16 +50,8 @@ export function Comparar({ pergunta, autorPergunta, respostas, autor, esperando,
           <Texto texto={gravado(pergunta.texto)} chamaMim={() => false} />
         </blockquote>
         <div className="colunas" role="list">
-          {respostas.map((r) => (
-            <section key={r.id} className="coluna" role="listitem" aria-label={autor(r)}>
-              <header><IconeAgente tamanho={16} /> <strong>{autor(r)}</strong>
-                <time className="nota">{new Date(r.criada_em).toLocaleTimeString(locale(), { hour: "2-digit", minute: "2-digit" })}</time>
-              </header>
-              <div className="coluna-corpo msg-corpo">
-                {r.tipo === "proposta" && <p className="proposta-rotulo">{t("Proposta", "Proposal")} · {r.estado === "pendente" ? t("aguardando decisão", "awaiting decision") : r.estado === "aprovada" ? t("aprovada", "approved") : r.estado === "recusada" ? t("recusada", "declined") : r.estado}</p>}
-                <Texto texto={gravado(r.texto)} chamaMim={() => false} />
-              </div>
-            </section>
+          {porAgente(respostas).map(({ final: r, antes }) => (
+            <Coluna key={r.id} r={r} antes={antes} autor={autor} />
           ))}
           {esperando.map((e) => (
             <section key={`${e.nome}-${e.dono}`} className="coluna coluna-esperando" role="listitem" aria-label={t(`${e.nome} de ${e.dono}, sem resposta`, `${e.dono}'s ${e.nome}, no answer yet`)}>
@@ -60,5 +67,40 @@ export function Comparar({ pergunta, autorPergunta, respostas, autor, esperando,
         </div>
       </div>
     </div>
+  );
+}
+
+function Coluna({ r, antes, autor }: { r: Mensagem; antes: Mensagem[]; autor: (m: Mensagem) => string }) {
+  const [verAntes, setVerAntes] = useState(false);
+  const hora = (m: Mensagem) => new Date(m.criada_em).toLocaleTimeString(locale(), { hour: "2-digit", minute: "2-digit" });
+  return (
+    <section className="coluna" role="listitem" aria-label={autor(r)}>
+      <header><IconeAgente tamanho={16} /> <strong>{autor(r)}</strong>
+        <time className="nota">{hora(r)}</time>
+      </header>
+      <div className="coluna-corpo msg-corpo">
+        {r.tipo === "proposta" && (
+          <p className="proposta-rotulo">
+            <span className={`pilula ${r.estado === "aprovada" ? "pilula-ok" : r.estado === "recusada" ? "pilula-erro" : "pilula-acento"}`}>
+              {r.estado === "aprovada" ? t("Aprovada", "Approved") : r.estado === "recusada" ? t("Recusada", "Declined") : t("Proposta", "Proposal")}
+            </span>
+          </p>
+        )}
+        <Texto texto={gravado(r.texto)} chamaMim={() => false} />
+        {antes.length > 0 && (
+          <div className="coluna-antes">
+            <button className="secao-rotulo secao-dobra" aria-expanded={verAntes} onClick={() => setVerAntes((v) => !v)}>
+              <IconeVoltar tamanho={14} /> {antes.length === 1 ? t("1 mensagem antes", "1 earlier message") : t(`${antes.length} mensagens antes`, `${antes.length} earlier messages`)}
+            </button>
+            {verAntes && antes.map((m) => (
+              <div key={m.id} className="coluna-antiga">
+                <span className="nota">{hora(m)}</span>
+                <Texto texto={gravado(m.texto)} chamaMim={() => false} />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
