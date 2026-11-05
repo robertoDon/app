@@ -161,8 +161,19 @@ async function acharSala(q: Quem, ref?: string): Promise<Sala> {
 const SEL = "id, sala_id, user_id, agente, texto, criada_em, tipo, responde_a, estado, decidida_em, editada_em, apagada, anexos, novo_contexto, " +
   "autor:perfis!mensagens_user_id_fkey(nome), decisor:perfis!mensagens_decidida_por_fkey(nome), votos(perfis(nome))";
 
-async function ler(sala: string, depois = 0, limite = 50): Promise<Msg[]> {
+async function ler(sala: string, depois = 0, limite = 50, antes = 0, busca = ""): Promise<Msg[]> {
   limite = Math.max(1, Math.min(limite || 50, 200));
+  const termo = busca.replace(/[%_\\,()]/g, " ").trim().slice(0, 100);
+  if (termo || antes > 0) {
+    // histórico antigo: busca por texto ou página para trás
+    let qy = db.from("mensagens").select(SEL).eq("sala_id", sala).eq("apagada", false);
+    if (antes > 0) qy = qy.lt("id", antes);
+    if (depois > 0) qy = qy.gt("id", depois);
+    if (termo) qy = qy.ilike("texto", `%${termo}%`);
+    const { data, error } = await qy.order("id", { ascending: false }).limit(limite);
+    if (error) throw error;
+    return await comReacoes((data as unknown as Msg[]).reverse());
+  }
   if (depois > 0) {
     const { data, error } = await db.from("mensagens").select(SEL).eq("sala_id", sala).gt("id", depois).order("id").limit(limite);
     if (error) throw error;
@@ -327,19 +338,36 @@ function registro(ps: Msg[], q?: Quem) {
 // arquivos anexados na conversa: aparecem no cabeçalho mesmo quando a mensagem já saiu das últimas lidas
 async function anexosRecentes(sala: string): Promise<Msg[]> {
   const { data, error } = await db.from("mensagens").select("id, criada_em, agente, anexos, autor:perfis!mensagens_user_id_fkey(nome)")
-    .eq("sala_id", sala).eq("apagada", false).neq("anexos", "[]").order("id", { ascending: false }).limit(15);
+    .eq("sala_id", sala).eq("apagada", false).neq("anexos", "[]").order("id", { ascending: false }).limit(40);
   if (error) throw error;
   return data as unknown as Msg[];
 }
 
 function listaAnexos(ms: Msg[], bs: ItemBib[], q?: Quem) {
   const naBib = new Set(bs.map((b) => b.path).filter(Boolean));
-  const linhas = ms.flatMap((m) => (m.anexos ?? []).filter((a) => !naBib.has(a.path)).map((a) => {
+  const vistos = new Set<string>();
+  // mesmo nome de arquivo = versão nova: só a mais recente aparece (ms vem da mais nova para a mais antiga)
+  const linhas = ms.flatMap((m) => (m.anexos ?? []).filter((a) => {
+    const k = a.nome.toLowerCase();
+    if (naBib.has(a.path) || vistos.has(k)) return false;
+    vistos.add(k); return true;
+  }).map((a) => {
     const quem = m.agente ? tr(q, `${m.agente} de ${m.autor?.nome ?? "?"}`, `${m.autor?.nome ?? "?"}'s ${m.agente}`) : m.autor?.nome ?? "?";
     return `- 📎 ${a.nome} (${a.tipo.split(";")[0]}, ${tamanho(a.tamanho)}) · #${m.id}, ${quem}, ${m.criada_em.slice(0, 10)} · ler_arquivo: ${a.path}`;
-  })).slice(0, 20);
+  })).slice(0, 12);
   if (!linhas.length) return "";
   return `${tr(q, "Arquivos anexados na conversa (mais recentes; abra com ler_arquivo):", "Files attached in the conversation (most recent; open with ler_arquivo):")}\n${linhas.join("\n")}`;
+}
+
+// leitura de continuação (com `depois`): só o que pede ação; contexto, decisões e biblioteca já foram lidos
+async function cabecalhoCurto(s: Sala, q: Quem) {
+  const [ps, ts] = await Promise.all([propostas(s.id, 15), tarefas(s.id)]);
+  const pend = ps.filter((p) => p.estado === "pendente");
+  const t = listaTarefas(ts.filter((x) => x.estado === "aberta" && ehMinha(q, x)), q, 0);
+  const linhas = [tr(q, `Sala "${s.nome}" (só as novas; contexto, decisões e biblioteca: leia sem \`depois\`)`, `Room "${s.nome}" (new messages only; context, decisions and library: read without \`depois\`)`)];
+  if (pend.length) linhas.push(tr(q, "Propostas aguardando decisão:", "Proposals waiting for a decision:"), ...pend.map((p) => `- #${p.id} (${quemEscreveu(p, q)}): ${umaLinha(p.texto, 100)}`));
+  if (t) linhas.push(t);
+  return linhas.join("\n");
 }
 
 async function cabecalho(s: Sala, q?: Quem) {
@@ -569,6 +597,7 @@ function regras(q?: Quem) {
 - Tasks marked "← YOURS" are yours: do them and complete them with concluir_tarefa, stating the result (link, number, file). If you can't, say in the room what's missing. To split work, use criar_tarefa.
 - Files in the conversation show up with 📎; open them with ler_arquivo. To deliver a document (draft, table, code), use enviar_arquivo. Images and PDFs go in base64; other agents can't open private links (like a claude.ai artifact), so attach a screenshot instead.
 - The room library keeps reference documents and links (listed in the room header). Check it before answering about the project. Save lasting reference material there with adicionar_biblioteca; you can also edit and remove items.
+- Long rooms: what holds is the context, decisions, tasks and library, not the old conversation. After the first read, use ler_mensagens with depois (new messages only). To find something older, use busca or antes; don't ask people to repeat it. A new version of a file goes under the same file name, saying in one line what changed; the room shows only the latest. When a discussion ends, whoever led it posts a short summary and turns the result into a proposal, task or library item.
 - To just acknowledge ("got it", "ok", "looking into it"), react with an emoji (reagir) instead of sending a message.
 - Be concise and use light markdown. Write in the language the room is using. When in doubt, ask your person before answering on their behalf.
 - Your name shows on your messages automatically; no need to sign.
@@ -584,6 +613,7 @@ function regras(q?: Quem) {
 - Tarefas marcadas "← SUA" são suas: faça e conclua com concluir_tarefa, dizendo o resultado (link, número, arquivo). Se não der, diga na sala o que falta. Para dividir trabalho, use criar_tarefa.
 - Arquivos da conversa aparecem com 📎; abra com ler_arquivo. Para entregar um documento (rascunho, tabela, código), use enviar_arquivo. Imagem e PDF vão em base64; os outros agentes não abrem link privado (como artefato do claude.ai), então anexe a captura.
 - A biblioteca da sala guarda documentos e links de referência (listados no cabeçalho da sala). Consulte antes de responder sobre o projeto. Guarde ali material de referência durável com adicionar_biblioteca; você também pode editar e tirar itens.
+- Sala longa: o que vale é o contexto, as decisões, as tarefas e a biblioteca, não a conversa antiga. Depois da primeira leitura, use ler_mensagens com depois (só as novas). Para achar algo antigo, use busca ou antes; não peça para repetirem. Versão nova de um arquivo vai com o mesmo nome de arquivo, dizendo numa linha o que mudou; a sala mostra só a mais recente. Quando uma discussão termina, quem conduziu manda um resumo curto e transforma o resultado em proposta, tarefa ou item da biblioteca.
 - Para só confirmar ("entendi", "ok", "vou olhar"), reaja com emoji (reagir) em vez de mandar mensagem.
 - Seja objetivo e use markdown leve. Na dúvida, pergunte à sua pessoa antes de responder em nome dela.
 - Seu nome aparece sozinho nas suas mensagens; não precisa assinar.
@@ -650,12 +680,14 @@ const TOOLS_PT = [
   },
   {
     name: "ler_mensagens",
-    description: "Lê a conversa de uma sala. Sem `depois`, traz as últimas. Passe `depois` com o último id que você viu para pegar só as novas.",
+    description: "Lê a conversa de uma sala. Sem `depois`, traz o contexto, as decisões, a biblioteca e as últimas mensagens. Passe `depois` com o último id que você viu para pegar só as novas. Para o histórico antigo, use `busca` (texto) ou `antes` (página para trás).",
     inputSchema: {
       type: "object",
       properties: {
         sala: SALA_ARG,
         depois: { type: "integer", description: "Só mensagens com id maior que este." },
+        antes: { type: "integer", description: "Histórico: só mensagens com id menor que este (as mais recentes antes dele)." },
+        busca: { type: "string", description: "Histórico: só mensagens que contêm este texto, em toda a sala." },
         limite: { type: "integer", description: "Máximo de mensagens (padrão 50, máx 200)." },
       },
     },
@@ -841,8 +873,8 @@ const EN: Record<string, { d: string; p?: Record<string, string> }> = {
   fetch: { d: "Opens a search result: a whole room (context, decisions, tasks and recent conversation) or a message with the conversation around it.",
     p: { id: "The id returned by search (sala:... or msg:...)." } },
   listar_salas: { d: "Lists the rooms your person is in." },
-  ler_mensagens: { d: "Reads a room's conversation. Without `depois`, returns the latest messages. Pass `depois` with the last id you saw to get only new ones.",
-    p: { depois: "Only messages with an id greater than this.", limite: "Max messages (default 50, max 200)." } },
+  ler_mensagens: { d: "Reads a room's conversation. Without `depois`, returns the context, decisions, library and latest messages. Pass `depois` with the last id you saw to get only new ones. For older history, use `busca` (text) or `antes` (page back).",
+    p: { depois: "Only messages with an id greater than this.", antes: "History: only messages with an id lower than this (the latest before it).", busca: "History: only messages containing this text, across the whole room.", limite: "Max messages (default 50, max 200)." } },
   enviar_mensagem: { d: "Writes in the room on behalf of your person, as their agent. Read new messages first. When replying to a message, pass responde_a with its id.",
     p: { texto: "The message (markdown ok).", responde_a: "Id (#N) of the message you're replying to." } },
   fazer_proposta: { d: "Asks the people in the room for a decision. Use it when something needs someone's yes before going ahead (spending, publishing, changing the plan, choosing between options). The room shows Approve and Decline; the decision comes back to you as a message and goes into the room's record.",
@@ -978,7 +1010,13 @@ async function chamar(q: Quem, nome: string, a: any): Promise<string | Conteudo[
     }
     case "ler_mensagens": {
       const s = await acharSala(q, a.sala);
-      return `${await cabecalho(s, q)}\n\n${formatar(await ler(s.id, Number(a.depois) || 0, Number(a.limite) || 50), q)}`;
+      const depois = Number(a.depois) || 0, antes = Number(a.antes) || 0, busca = String(a.busca ?? "");
+      const ms = await ler(s.id, depois, Number(a.limite) || 50, antes, busca);
+      if (busca || antes) {
+        const vazio = busca ? tr(q, `(nada com "${busca}")`, `(nothing with "${busca}")`) : tr(q, "(nenhuma mensagem antes)", "(no earlier messages)");
+        return `${tr(q, `Sala "${s.nome}" · histórico`, `Room "${s.nome}" · history`)}${busca ? ` · ${tr(q, "busca", "search")}: "${busca}"` : ""}\n\n${ms.length ? formatar(ms, q) : vazio}`;
+      }
+      return `${depois ? await cabecalhoCurto(s, q) : await cabecalho(s, q)}\n\n${formatar(ms, q)}`;
     }
     case "enviar_mensagem":
     case "fazer_proposta": {
@@ -1176,7 +1214,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.15.0" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.16.0" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {

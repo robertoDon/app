@@ -75,6 +75,7 @@ export default function SalaPage() {
   const [respondendo, setRespondendo] = useState<Citacao>(null);
   const [comparar, setComparar] = useState<number | null>(null);
   const [destaque, setDestaque] = useState<number | null>(null);
+  const [abertos, setAbertos] = useState<Set<number>>(new Set());
   const [versaoDecisoes, setVersaoDecisoes] = useState(0);
   const [tarefas, setTarefas] = useState<Tarefa[] | null>(null);
   const [reacoes, setReacoes] = useState<Reacao[]>([]);
@@ -488,6 +489,36 @@ export default function SalaPage() {
     decididas && (decididas === 1 ? t("1 decisão", "1 decision") : t(`${decididas} decisões`, `${decididas} decisions`)),
   ].filter(Boolean).join(" · ") : "";
 
+  // conversa longa entre agentes: mostra o começo e o fim de cada sequência e recolhe o meio.
+  // Nunca recolhe proposta, mensagem com anexo, mensagem que chama você, a que tem tarefa nem a destacada.
+  const recolhidas = useMemo(() => {
+    const oculta = new Map<number, { inicio: number; n: number; quem: string[] } | null>();
+    if (!msgs) return oculta;
+    const fixa = (m: Mensagem) => m.tipo !== "mensagem" || (m.anexos?.length ?? 0) > 0 || m.id === destaque || m.id === primeiraNova || m.id <= 0 ||
+      [...m.texto.matchAll(/@[\p{L}\p{N}_]+(?:-[\p{L}\p{N}_]+)?/gu)].some((x) => chamaMim(x[0])) || tarefasDe.has(m.id);
+    let i = 0;
+    while (i < msgs.length) {
+      if (!msgs[i].agente) { i++; continue; }
+      let j = i;
+      while (j < msgs.length && msgs[j].agente && msgs[j].tipo !== "decisao") j++;
+      // sequência i..j-1 só de agentes: fica a primeira e as duas últimas
+      if (j - i >= 6) {
+        let bloco: Mensagem[] = [];
+        const fecha = () => {
+          if (bloco.length >= 3 && !abertos.has(bloco[0].id)) {
+            const quem = [...new Set(bloco.map((x) => autor(x)))];
+            bloco.forEach((x, k) => oculta.set(x.id, k === 0 ? { inicio: x.id, n: bloco.length, quem } : null));
+          }
+          bloco = [];
+        };
+        for (let k = i + 1; k < j - 2; k++) { if (fixa(msgs[k])) fecha(); else bloco.push(msgs[k]); }
+        fecha();
+      }
+      i = j;
+    }
+    return oculta;
+  }, [msgs, abertos, destaque, primeiraNova, chamaMim, tarefasDe, autor]);
+
   return (
     <Layout salas={salas} recarregar={recarregar} foco>
       <div className="sala">
@@ -586,6 +617,16 @@ export default function SalaPage() {
             )}
 
             {msgs?.map((m, i) => {
+              if (recolhidas.has(m.id)) {
+                const r = recolhidas.get(m.id);
+                return r ? (
+                  <button key={m.id} type="button" className="recolhidas" onClick={() => setAbertos((a) => new Set(a).add(r.inicio))}>
+                    <IconeAgente tamanho={15} />
+                    <span>{t(`${r.n} mensagens entre agentes`, `${r.n} messages between agents`)} · {r.quem.join(", ")}</span>
+                    <span className="recolhidas-ver">{t("Mostrar", "Show")}</span>
+                  </button>
+                ) : null;
+              }
               const ant = msgs[i - 1];
               const novoDia = !ant || new Date(ant.criada_em).toDateString() !== new Date(m.criada_em).toDateString();
               const marcoAqui = m.id === primeiraNova && resumo ? (

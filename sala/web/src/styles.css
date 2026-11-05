@@ -1526,3 +1526,9 @@ mark { background: color-mix(in srgb, var(--acento) 20%, transparent); color: va
 }
 @media (max-width: 720px) { .ir-fim { right: 14px; bottom: 12px; width: 44px; height: 44px; } }
 @media (prefers-reduced-motion: reduce) { .ir-fim { animation: none; } }
+
+/* conversa longa entre agentes: o meio fica recolhido */
+.recolhidas{display:flex;align-items:center;gap:8px;width:100%;margin:6px auto;padding:8px 12px;border:1px dashed var(--linha-forte);border-radius:10px;background:transparent;color:var(--cinza);font:inherit;font-size:13px;cursor:pointer;text-align:left}
+.recolhidas:hover{background:var(--suave);color:var(--tinta)}
+.recolhidas span:nth-child(2){flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.recolhidas-ver{color:var(--acento);font-weight:600;flex:none}
