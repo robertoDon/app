@@ -363,11 +363,28 @@ const tipoPorNome = (nome: string) => {
     xml: "application/xml", yaml: "application/yaml", yml: "application/yaml", js: "text/javascript", ts: "text/plain", py: "text/x-python",
     sql: "application/sql", css: "text/css" } as Record<string, string>)[ext] ?? "text/plain";
 };
+const BINARIOS: Record<string, string> = { png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", gif: "image/gif", webp: "image/webp", pdf: "application/pdf" };
 
-async function subirTexto(q: Quem, sala: string, nome: string, conteudo: string): Promise<Anexo> {
+async function subirTexto(q: Quem, sala: string, nome: string, conteudo: string, base64?: unknown): Promise<Anexo> {
   const limpo = (nome || "arquivo.txt").replace(/[\/\\\x00-\x1f]/g, "-").trim().slice(0, 200) || "arquivo.txt";
   // a chave do armazenamento só aceita letras sem acento, números, ponto, hífen e sublinhado; o nome real fica na mensagem
   const chave = (limpo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Za-z0-9._-]+/g, "-").replace(/\.{2,}/g, ".").replace(/^[-.]+|-+$/g, "") || "arquivo.txt").slice(-120);
+  // imagem ou PDF: o conteúdo vem em base64 (captura de tela, PDF gerado)
+  const bin = BINARIOS[limpo.split(".").pop()?.toLowerCase() ?? ""];
+  if (base64 === true || base64 === "true" || bin) {
+    if (!bin) throw new Falha(tr(q, "Em base64 só vão imagens (png, jpg, gif, webp) e PDF.", "Only images (png, jpg, gif, webp) and PDF go in base64."));
+    let bytes: Uint8Array;
+    try {
+      const b = atob(String(conteudo ?? "").replace(/^data:[^,]*,/, "").replace(/\s+/g, ""));
+      bytes = Uint8Array.from(b, (c) => c.charCodeAt(0));
+    } catch { throw new Falha(tr(q, "Conteúdo em base64 inválido. Para imagem ou PDF, passe os bytes do arquivo em base64.", "Invalid base64 content. For an image or PDF, pass the file bytes in base64.")); }
+    if (!bytes.length) throw new Falha(tr(q, "O arquivo está vazio.", "The file is empty."));
+    if (bytes.length > 4_000_000) throw new Falha(tr(q, "Imagem ou PDF acima de 4 MB.", "Image or PDF over 4 MB."));
+    const path = `${sala}/${q.userId}/${crypto.randomUUID()}-${chave}`;
+    const { error } = await db.storage.from("arquivos").upload(path, bytes, { contentType: bin });
+    if (error) throw new Falha(tr(q, "Não deu para guardar o arquivo: ", "Couldn't save the file: ") + error.message, 500);
+    return { path, nome: limpo, tipo: bin, tamanho: bytes.length };
+  }
   const bytes = new TextEncoder().encode(conteudo ?? "");
   if (!bytes.length) throw new Falha(tr(q, "O arquivo está vazio.", "The file is empty."));
   if (bytes.length > 1048576) throw new Falha(tr(q, "Arquivo de texto acima de 1 MB.", "Text file over 1 MB."));
@@ -550,7 +567,7 @@ function regras(q?: Quem) {
 - To change the room context, use propor_contexto with the whole new text. It needs every person's yes, and once the last one approves the app replaces the context by itself: nobody pastes anything, and there's no task to do.
 - To call someone, use @Name (a person) or @Agent-Person (someone's agent).
 - Tasks marked "← YOURS" are yours: do them and complete them with concluir_tarefa, stating the result (link, number, file). If you can't, say in the room what's missing. To split work, use criar_tarefa.
-- Files in the conversation show up with 📎; open them with ler_arquivo. To deliver a document (draft, table, code), use enviar_arquivo.
+- Files in the conversation show up with 📎; open them with ler_arquivo. To deliver a document (draft, table, code), use enviar_arquivo. Images and PDFs go in base64; other agents can't open private links (like a claude.ai artifact), so attach a screenshot instead.
 - The room library keeps reference documents and links (listed in the room header). Check it before answering about the project. Save lasting reference material there with adicionar_biblioteca; you can also edit and remove items.
 - To just acknowledge ("got it", "ok", "looking into it"), react with an emoji (reagir) instead of sending a message.
 - Be concise and use light markdown. Write in the language the room is using. When in doubt, ask your person before answering on their behalf.
@@ -565,7 +582,7 @@ function regras(q?: Quem) {
 - Para mudar o contexto da sala, use propor_contexto com o texto novo inteiro. Ela precisa do sim de todas as pessoas e, quando a última aprova, o app troca o contexto sozinho: ninguém cola nada e não há tarefa a fazer.
 - Para chamar alguém, use @Nome (pessoa) ou @Agente-Pessoa (agente de alguém).
 - Tarefas marcadas "← SUA" são suas: faça e conclua com concluir_tarefa, dizendo o resultado (link, número, arquivo). Se não der, diga na sala o que falta. Para dividir trabalho, use criar_tarefa.
-- Arquivos da conversa aparecem com 📎; abra com ler_arquivo. Para entregar um documento (rascunho, tabela, código), use enviar_arquivo.
+- Arquivos da conversa aparecem com 📎; abra com ler_arquivo. Para entregar um documento (rascunho, tabela, código), use enviar_arquivo. Imagem e PDF vão em base64; os outros agentes não abrem link privado (como artefato do claude.ai), então anexe a captura.
 - A biblioteca da sala guarda documentos e links de referência (listados no cabeçalho da sala). Consulte antes de responder sobre o projeto. Guarde ali material de referência durável com adicionar_biblioteca; você também pode editar e tirar itens.
 - Para só confirmar ("entendi", "ok", "vou olhar"), reaja com emoji (reagir) em vez de mandar mensagem.
 - Seja objetivo e use markdown leve. Na dúvida, pergunte à sua pessoa antes de responder em nome dela.
@@ -714,13 +731,14 @@ const TOOLS_PT = [
   },
   {
     name: "enviar_arquivo",
-    description: "Anexa um arquivo de texto na sala (markdown, csv, json, código...), com uma mensagem opcional. Use para entregar documentos em vez de colar textos longos.",
+    description: "Anexa um arquivo na sala, com uma mensagem opcional: texto (markdown, csv, json, código...) ou imagem/PDF em base64 (captura de tela, protótipo). Use para entregar documentos em vez de colar textos longos. Link privado (ex.: artefato do claude.ai) os outros agentes não abrem: mande a captura.",
     inputSchema: {
       type: "object",
       properties: {
         sala: SALA_ARG,
         nome: { type: "string", description: "Nome do arquivo com extensão, ex.: proposta-comercial.md" },
-        conteudo: { type: "string", description: "O conteúdo do arquivo (até 1 MB)." },
+        conteudo: { type: "string", description: "O conteúdo do arquivo: texto (até 1 MB) ou, para .png/.jpg/.gif/.webp/.pdf, os bytes em base64 (até 4 MB)." },
+        base64: { type: "boolean", description: "Opcional: conteudo está em base64. Automático para .png, .jpg, .gif, .webp e .pdf." },
         texto: { type: "string", description: "Mensagem que acompanha o arquivo (opcional)." },
         responde_a: { type: "integer", description: "Id da mensagem que você está respondendo, se houver." },
       },
@@ -836,8 +854,8 @@ const EN: Record<string, { d: string; p?: Record<string, string> }> = {
   ver_decisoes: { d: "Shows proposals waiting for a decision and the room's decision record (approved and declined, with who decided)." },
   ler_arquivo: { d: "Opens a file attached in the conversation (lines with 📎 show the path). Text and PDF come back as text, images as images; other types come with a temporary link.",
     p: { arquivo: "The path shown after 'ler_arquivo:' in the message." } },
-  enviar_arquivo: { d: "Attaches a text file in the room (markdown, csv, json, code...), with an optional message. Use it to deliver documents instead of pasting long text.",
-    p: { nome: "File name with extension, e.g. sales-proposal.md", conteudo: "The file content (up to 1 MB).", texto: "Message that goes with the file (optional).", responde_a: "Id of the message you're replying to, if any." } },
+  enviar_arquivo: { d: "Attaches a file in the room, with an optional message: text (markdown, csv, json, code...) or an image/PDF in base64 (screenshot, prototype). Use it to deliver documents instead of pasting long text. Other agents can't open private links (e.g. a claude.ai artifact): send the screenshot.",
+    p: { nome: "File name with extension, e.g. sales-proposal.md", conteudo: "The file content: text (up to 1 MB) or, for .png/.jpg/.gif/.webp/.pdf, the bytes in base64 (up to 4 MB).", base64: "Optional: conteudo is base64. Automatic for .png, .jpg, .gif, .webp and .pdf.", texto: "Message that goes with the file (optional).", responde_a: "Id of the message you're replying to, if any." } },
   ver_tarefas: { d: "Lists the room's tasks: open ones (with assignee and due date, yours marked) and recently completed ones." },
   concluir_tarefa: { d: "Marks a task as done and tells the room the result. You can attach a text file with the deliverable.",
     p: { tarefa: "The task number (task N).", resultado: "What was done: summary, link, numbers. Markdown ok.", arquivo_nome: "Optional: deliverable file name, e.g. final-ad.md", arquivo_conteudo: "Optional: deliverable file content (text, up to 1 MB)." } },
@@ -916,7 +934,7 @@ async function chamar(q: Quem, nome: string, a: any): Promise<string | Conteudo[
       return await lerArquivo(q, String(a.arquivo ?? ""));
     case "enviar_arquivo": {
       const s = await acharSala(q, a.sala);
-      const anexo = await subirTexto(q, s.id, String(a.nome ?? ""), String(a.conteudo ?? ""));
+      const anexo = await subirTexto(q, s.id, String(a.nome ?? ""), String(a.conteudo ?? ""), a.base64);
       const m = await enviar(q, s.id, { texto: String(a.texto ?? ""), responde_a: a.responde_a, anexos: [anexo] });
       return tr(q, `Arquivo "${anexo.nome}" enviado na sala "${s.nome}" (#${m.id}).`, `File "${anexo.nome}" sent to the room "${s.nome}" (#${m.id}).`);
     }
@@ -1158,7 +1176,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.14.0" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.15.0" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {
@@ -1324,7 +1342,7 @@ Deno.serve(async (req) => {
       }
       if (acao === "arquivos" && req.method === "POST") {
         const b = await req.json().catch(() => ({}));
-        const anexo = await subirTexto(q, s.id, String(b.nome ?? ""), String(b.conteudo ?? ""));
+        const anexo = await subirTexto(q, s.id, String(b.nome ?? ""), String(b.conteudo ?? ""), b.base64);
         const m = await enviar(q, s.id, { texto: String(b.texto ?? ""), responde_a: b.responde_a, anexos: [anexo] });
         return json({ id: m.id, arquivo: anexo.path }, 201);
       }
