@@ -364,7 +364,7 @@ async function cabecalhoCurto(s: Sala, q: Quem) {
   const [ps, ts] = await Promise.all([propostas(s.id, 15), tarefas(s.id)]);
   const pend = ps.filter((p) => p.estado === "pendente");
   const t = listaTarefas(ts.filter((x) => x.estado === "aberta" && ehMinha(q, x)), q, 0);
-  const linhas = [tr(q, `Sala "${s.nome}" (só as novas; contexto, decisões e biblioteca: leia sem \`depois\`)`, `Room "${s.nome}" (new messages only; context, decisions and library: read without \`depois\`)`)];
+  const linhas = [tr(q, `Sala "${s.nome}" (só as novas; instruções, memória, decisões e biblioteca: leia sem \`depois\`)`, `Room "${s.nome}" (new messages only; instructions, memory, decisions and library: read without \`depois\`)`)];
   if (pend.length) linhas.push(tr(q, "Propostas aguardando decisão:", "Proposals waiting for a decision:"), ...pend.map((p) => `- #${p.id} (${quemEscreveu(p, q)}): ${umaLinha(p.texto, 100)}`));
   if (t) linhas.push(t);
   return linhas.join("\n");
@@ -425,6 +425,48 @@ const tipoPorNome = (nome: string) => {
     sql: "application/sql", css: "text/css" } as Record<string, string>)[ext] ?? "text/plain";
 };
 const BINARIOS: Record<string, string> = { png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", gif: "image/gif", webp: "image/webp", pdf: "application/pdf" };
+
+const limparNome = (nome: string) => (nome || "arquivo.txt").replace(/[\/\\\x00-\x1f]/g, "-").trim().slice(0, 200) || "arquivo.txt";
+const chaveDe = (limpo: string) => (limpo.normalize("NFD").replace(/\p{M}/gu, "").replace(/[^A-Za-z0-9._-]+/g, "-").replace(/\.{2,}/g, ".").replace(/^[-.]+|-+$/g, "") || "arquivo.txt").slice(-120);
+const UUID_PREFIXO = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-/;
+
+// upload direto: o agente sobe os bytes pelo terminal (curl) e só passa o caminho; não gasta tokens com base64
+async function prepararEnvio(q: Quem, s: Sala, nomes: string[]) {
+  const lista = nomes.map((n) => n.trim()).filter(Boolean);
+  if (!lista.length) throw new Falha(tr(q, "Passe nomes: a lista de arquivos, com extensão.", "Pass nomes: the list of files, with extension."));
+  if (lista.length > 30) throw new Falha(tr(q, "No máximo 30 arquivos por vez.", "At most 30 files at a time."));
+  const linhas: string[] = [];
+  for (const n of lista) {
+    const limpo = limparNome(n);
+    const path = `${s.id}/${q.userId}/${crypto.randomUUID()}-${chaveDe(limpo)}`;
+    const { data, error } = await db.storage.from("arquivos").createSignedUploadUrl(path);
+    if (error || !data) throw new Falha(tr(q, "Não deu para preparar o envio: ", "Couldn't prepare the upload: ") + (error?.message ?? ""), 500);
+    const ext = limpo.split(".").pop()?.toLowerCase() ?? "";
+    const tipo = BINARIOS[ext] ?? tipoPorNome(limpo);
+    linhas.push(`- ${limpo}\n  curl -sS -X PUT -H 'content-type: ${tipo}' --data-binary @'${limpo.replace(/'/g, "")}' '${data.signedUrl}'\n  enviados: ${path}`);
+  }
+  return tr(q, `Links de upload (valem 2 horas). Rode cada curl na pasta do arquivo (troque o @ pelo caminho certo, se precisar). Depois chame enviar_arquivo com enviados = os caminhos abaixo e, se quiser, um texto.\n\n${linhas.join("\n")}`,
+    `Upload links (valid for 2 hours). Run each curl in the file's folder (change the @ to the right path if needed). Then call enviar_arquivo with enviados = the paths below and, optionally, a texto.\n\n${linhas.join("\n")}`);
+}
+
+async function anexosEnviados(q: Quem, sala: string, caminhos: string[]): Promise<Anexo[]> {
+  if (caminhos.length > 30) throw new Falha(tr(q, "No máximo 30 arquivos por mensagem.", "At most 30 files per message."));
+  const out: Anexo[] = [];
+  for (const path of caminhos.map((c) => c.trim())) {
+    const dir = `${sala}/${q.userId}`;
+    if (!path.startsWith(`${dir}/`) || path.slice(dir.length + 1).includes("/")) throw new Falha(tr(q, `Caminho "${path}" não é desta sala. Use os caminhos de preparar_envio.`, `Path "${path}" isn't from this room. Use the paths from preparar_envio.`));
+    const arquivo = path.slice(dir.length + 1);
+    const { data } = await db.storage.from("arquivos").list(dir, { search: arquivo, limit: 2 });
+    const obj = data?.find((o) => o.name === arquivo);
+    if (!obj) throw new Falha(tr(q, `O arquivo de "${path}" ainda não subiu. Rode o curl de preparar_envio e confira se ele não deu erro.`, `The file for "${path}" hasn't been uploaded yet. Run the curl from preparar_envio and check that it didn't fail.`));
+    const meta = (obj.metadata ?? {}) as { size?: number; mimetype?: string };
+    const nome = arquivo.replace(UUID_PREFIXO, "");
+    const ext = nome.split(".").pop()?.toLowerCase() ?? "";
+    const tipo = meta.mimetype && meta.mimetype !== "application/octet-stream" ? meta.mimetype.split(";")[0] : BINARIOS[ext] ?? tipoPorNome(nome);
+    out.push({ path, nome, tipo, tamanho: meta.size ?? 0 });
+  }
+  return out;
+}
 
 async function subirTexto(q: Quem, sala: string, nome: string, conteudo: string, base64?: unknown): Promise<Anexo> {
   const limpo = (nome || "arquivo.txt").replace(/[\/\\\x00-\x1f]/g, "-").trim().slice(0, 200) || "arquivo.txt";
@@ -630,7 +672,7 @@ function regras(q?: Quem) {
 - The room instructions belong to the people. To change them, use propor_contexto with the whole new text: it needs every person's yes, and the app swaps it by itself.
 - To call someone, use @Name (a person) or @Agent-Person (someone's agent).
 - Tasks marked "← YOURS" are yours: do them and complete them with concluir_tarefa, stating the result (link, number, file). If you can't, say in the room what's missing. To split work, use criar_tarefa.
-- Files in the conversation show up with 📎; open them with ler_arquivo. To deliver a document (draft, table, code), use enviar_arquivo. Images and PDFs go in base64; other agents can't open private links (like a claude.ai artifact), so attach a screenshot instead.
+- Files in the conversation show up with 📎; open them with ler_arquivo. To deliver a document (draft, table, code), use enviar_arquivo. Small images and PDFs can go in base64; for screenshots and many or large files, if you have a terminal, use preparar_envio (curl upload, no base64 tokens) and then enviar_arquivo with enviados. Other agents can't open private links (like a claude.ai artifact), so attach the screenshots.
 - The room library keeps reference documents and links (listed in the room header). Check it before answering about the project. Save lasting reference material there with adicionar_biblioteca; you can also edit and remove items.
 - Long rooms: what holds is the instructions, memory, decisions, tasks and library, not the old conversation. After the first read, use ler_mensagens with depois (new messages only). To find something older, use busca or antes; don't ask people to repeat it. A new version of a file goes under the same file name, saying in one line what changed; the room shows only the latest. When a discussion ends, whoever led it posts a short summary, updates the memory and turns the result into a proposal, task or library item.
 - To just acknowledge ("got it", "ok", "looking into it"), react with an emoji (reagir) instead of sending a message.
@@ -648,7 +690,7 @@ function regras(q?: Quem) {
 - As instruções da sala são das pessoas. Para mudar, use propor_contexto com o texto novo inteiro: precisa do sim de todas as pessoas, e o app troca sozinho.
 - Para chamar alguém, use @Nome (pessoa) ou @Agente-Pessoa (agente de alguém).
 - Tarefas marcadas "← SUA" são suas: faça e conclua com concluir_tarefa, dizendo o resultado (link, número, arquivo). Se não der, diga na sala o que falta. Para dividir trabalho, use criar_tarefa.
-- Arquivos da conversa aparecem com 📎; abra com ler_arquivo. Para entregar um documento (rascunho, tabela, código), use enviar_arquivo. Imagem e PDF vão em base64; os outros agentes não abrem link privado (como artefato do claude.ai), então anexe a captura.
+- Arquivos da conversa aparecem com 📎; abra com ler_arquivo. Para entregar um documento (rascunho, tabela, código), use enviar_arquivo. Imagem e PDF pequenos podem ir em base64; para capturas de tela e arquivos grandes ou muitos, se você tem terminal, use preparar_envio (upload por curl, sem gastar tokens) e depois enviar_arquivo com enviados. Os outros agentes não abrem link privado (como artefato do claude.ai), então anexe as capturas.
 - A biblioteca da sala guarda documentos e links de referência (listados no cabeçalho da sala). Consulte antes de responder sobre o projeto. Guarde ali material de referência durável com adicionar_biblioteca; você também pode editar e tirar itens.
 - Sala longa: o que vale são as instruções, a memória, as decisões, as tarefas e a biblioteca, não a conversa antiga. Depois da primeira leitura, use ler_mensagens com depois (só as novas). Para achar algo antigo, use busca ou antes; não peça para repetirem. Versão nova de um arquivo vai com o mesmo nome de arquivo, dizendo numa linha o que mudou; a sala mostra só a mais recente. Quando uma discussão termina, quem conduziu manda um resumo curto, atualiza a memória e transforma o resultado em proposta, tarefa ou item da biblioteca.
 - Para só confirmar ("entendi", "ok", "vou olhar"), reaja com emoji (reagir) em vez de mandar mensagem.
@@ -825,10 +867,22 @@ const TOOLS_PT = [
         nome: { type: "string", description: "Nome do arquivo com extensão, ex.: proposta-comercial.md" },
         conteudo: { type: "string", description: "O conteúdo do arquivo: texto (até 1 MB) ou, para .png/.jpg/.gif/.webp/.pdf, os bytes em base64 (até 4 MB)." },
         base64: { type: "boolean", description: "Opcional: conteudo está em base64. Automático para .png, .jpg, .gif, .webp e .pdf." },
+        enviados: { type: "array", items: { type: "string" }, description: "Em vez de nome e conteudo: os caminhos devolvidos por preparar_envio, depois que você subiu os arquivos. Vão todos na mesma mensagem." },
         texto: { type: "string", description: "Mensagem que acompanha o arquivo (opcional)." },
         responde_a: { type: "integer", description: "Id da mensagem que você está respondendo, se houver." },
       },
-      required: ["nome", "conteudo"],
+    },
+  },
+  {
+    name: "preparar_envio",
+    description: "Para arquivos grandes ou muitos (capturas de tela, PDF, planilha): devolve um link de upload por arquivo. Suba cada um com o comando curl indicado (sem gastar tokens com base64) e depois anexe tudo com enviar_arquivo passando enviados. Só serve se você tiver terminal com rede.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        sala: SALA_ARG,
+        nomes: { type: "array", items: { type: "string" }, description: "Nomes dos arquivos com extensão, ex.: [\"hoje.png\", \"grana.png\"] (até 30)." },
+      },
+      required: ["nomes"],
     },
   },
   {
@@ -942,8 +996,10 @@ const EN: Record<string, { d: string; p?: Record<string, string> }> = {
   ver_decisoes: { d: "Shows proposals waiting for a decision and the room's decision record (approved and declined, with who decided)." },
   ler_arquivo: { d: "Opens a file attached in the conversation (lines with 📎 show the path). Text and PDF come back as text, images as images; other types come with a temporary link.",
     p: { arquivo: "The path shown after 'ler_arquivo:' in the message." } },
+  preparar_envio: { d: "For large or many files (screenshots, PDF, spreadsheet): returns an upload link per file. Upload each one with the given curl command (no tokens spent on base64), then attach them all with enviar_arquivo passing enviados. Only works if you have a terminal with network access.",
+    p: { nomes: "File names with extension, e.g. [\"today.png\", \"money.png\"] (up to 30)." } },
   enviar_arquivo: { d: "Attaches a file in the room, with an optional message: text (markdown, csv, json, code...) or an image/PDF in base64 (screenshot, prototype). Use it to deliver documents instead of pasting long text. Other agents can't open private links (e.g. a claude.ai artifact): send the screenshot.",
-    p: { nome: "File name with extension, e.g. sales-proposal.md", conteudo: "The file content: text (up to 1 MB) or, for .png/.jpg/.gif/.webp/.pdf, the bytes in base64 (up to 4 MB).", base64: "Optional: conteudo is base64. Automatic for .png, .jpg, .gif, .webp and .pdf.", texto: "Message that goes with the file (optional).", responde_a: "Id of the message you're replying to, if any." } },
+    p: { nome: "File name with extension, e.g. sales-proposal.md", conteudo: "The file content: text (up to 1 MB) or, for .png/.jpg/.gif/.webp/.pdf, the bytes in base64 (up to 4 MB).", base64: "Optional: conteudo is base64. Automatic for .png, .jpg, .gif, .webp and .pdf.", enviados: "Instead of nome and conteudo: the paths returned by preparar_envio, after you uploaded the files. They all go in the same message.", texto: "Message that goes with the file (optional).", responde_a: "Id of the message you're replying to, if any." } },
   ver_tarefas: { d: "Lists the room's tasks: open ones (with assignee and due date, yours marked) and recently completed ones." },
   concluir_tarefa: { d: "Marks a task as done and tells the room the result. You can attach a text file with the deliverable.",
     p: { tarefa: "The task number (task N).", resultado: "What was done: summary, link, numbers. Markdown ok.", arquivo_nome: "Optional: deliverable file name, e.g. final-ad.md", arquivo_conteudo: "Optional: deliverable file content (text, up to 1 MB)." } },
@@ -1022,9 +1078,17 @@ async function chamar(q: Quem, nome: string, a: any): Promise<string | Conteudo[
       return await lerArquivo(q, String(a.arquivo ?? ""));
     case "enviar_arquivo": {
       const s = await acharSala(q, a.sala);
-      const anexo = await subirTexto(q, s.id, String(a.nome ?? ""), String(a.conteudo ?? ""), a.base64);
-      const m = await enviar(q, s.id, { texto: String(a.texto ?? ""), responde_a: a.responde_a, anexos: [anexo] });
-      return tr(q, `Arquivo "${anexo.nome}" enviado na sala "${s.nome}" (#${m.id}).`, `File "${anexo.nome}" sent to the room "${s.nome}" (#${m.id}).`);
+      const anexos = Array.isArray(a.enviados) && a.enviados.length
+        ? await anexosEnviados(q, s.id, (a.enviados as unknown[]).map(String))
+        : [await subirTexto(q, s.id, String(a.nome ?? ""), String(a.conteudo ?? ""), a.base64)];
+      const m = await enviar(q, s.id, { texto: String(a.texto ?? ""), responde_a: a.responde_a, anexos });
+      const nomes = anexos.map((x) => `"${x.nome}"`).join(", ");
+      return tr(q, `${anexos.length > 1 ? `${anexos.length} arquivos` : "Arquivo"} ${nomes} enviado${anexos.length > 1 ? "s" : ""} na sala "${s.nome}" (#${m.id}).`,
+        `${anexos.length > 1 ? `${anexos.length} files` : "File"} ${nomes} sent to the room "${s.nome}" (#${m.id}).`);
+    }
+    case "preparar_envio": {
+      const s = await acharSala(q, a.sala);
+      return await prepararEnvio(q, s, Array.isArray(a.nomes) ? (a.nomes as unknown[]).map(String) : []);
     }
     case "ver_tarefas": {
       const s = await acharSala(q, a.sala);
@@ -1274,7 +1338,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.17.0" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.18.0" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {
