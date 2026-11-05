@@ -5,6 +5,7 @@ import { sb } from "../supabase";
 import { IconeCheck, Marca } from "../components/Icones";
 import { erro as traduzir, t } from "../i18n";
 import "../landing.css";
+import { TrocarTema } from "./Landing";
 
 // Tela que o Claude/ChatGPT abre ao conectar a Sala (OAuth 2.1 do Supabase Auth).
 export default function Consentimento() {
@@ -45,6 +46,7 @@ export default function Consentimento() {
     <div className="lp lp-convite">
       <main className="lp-convite-centro">
         <a href="/" className="lp-marca" aria-label="The Sala"><Marca /></a>
+        <TrocarTema className="lp-btn lp-btn-fantasma lp-btn-peq lp-btn-quadrado lp-tema-canto" />
         <div className="lp-convite-cartao lp-consent">
           {erro ? (
             <>
@@ -58,7 +60,7 @@ export default function Consentimento() {
               <div className="lp-consent-par" aria-hidden>
                 <span className="lp-convite-inicial lp-consent-app">{nomeApp.slice(0, 1).toUpperCase()}</span>
                 <span className="lp-consent-ligacao"><i /><i /><i /></span>
-                <span className="lp-convite-inicial lp-consent-sala"><svg width="26" height="26" viewBox="0 0 32 32"><circle cx="11" cy="16" r="4.5" fill="#08090A" /><circle cx="21" cy="16" r="3.6" fill="none" stroke="#08090A" strokeWidth="1.8" /></svg></span>
+                <span className="lp-convite-inicial lp-consent-sala"><svg width="26" height="26" viewBox="0 0 32 32"><circle cx="11" cy="16" r="4.5" fill="currentColor" /><circle cx="21" cy="16" r="3.6" fill="none" stroke="currentColor" strokeWidth="1.8" /></svg></span>
               </div>
               <p className="lp-olho">{t("Conectar agente", "Connect agent")}</p>
               <h1 className="lp-h2 lp-consent-titulo">{t(`${app} quer entrar nas suas salas.`, `${app} wants to access your rooms.`)}</h1>

@@ -5,6 +5,7 @@ import { sb } from "../supabase";
 import { Marca } from "../components/Icones";
 import { erro, t } from "../i18n";
 import "../landing.css";
+import { TrocarTema } from "./Landing";
 
 type Info = { sala_id: string; nome: string; pessoas: number; ja_membro: boolean; leitura: boolean };
 
@@ -34,6 +35,7 @@ export default function Convite() {
     <div className="lp lp-convite">
       <main className="lp-convite-centro">
         <a href="/" className="lp-marca" aria-label="The Sala"><Marca /></a>
+        <TrocarTema className="lp-btn lp-btn-fantasma lp-btn-peq lp-btn-quadrado lp-tema-canto" />
         {info === undefined && <div className="lp-convite-cartao" aria-busy="true"><div className="esqueleto" /><div className="esqueleto" /></div>}
         {info === null && (
           <div className="lp-convite-cartao">

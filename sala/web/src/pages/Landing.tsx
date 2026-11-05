@@ -8,6 +8,7 @@ import {
   IconeAgente, IconeArquivo, IconeCheck, IconeConvite, IconeDecisao, IconeDocumento, IconeEnviar, IconeLink,
   IconeMemoria, IconePlugue, IconeProposta, IconeRelogio, IconeSino, IconeTarefa, Marca, Marcador,
 } from "../components/Icones";
+import { definirTema, useTema } from "../tema";
 import "../landing.css";
 
 /** Botão pequeno para trocar entre português e inglês nas páginas públicas. */
@@ -74,6 +75,20 @@ const perguntas = () => [
   },
 ];
 
+/** Claro ou escuro nas páginas públicas: troca o tema da pessoa (o mesmo do app). */
+export function TrocarTema({ className = "lp-btn lp-btn-fantasma lp-btn-peq lp-btn-quadrado" }: { className?: string }) {
+  const tema = useTema();
+  const escuro = tema === "escuro" || (tema === "sistema" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const rotulo = escuro ? t("Usar tema claro", "Use light theme") : t("Usar tema escuro", "Use dark theme");
+  return (
+    <button type="button" className={className} onClick={() => definirTema(escuro ? "claro" : "escuro")} aria-label={rotulo} title={rotulo}>
+      {escuro
+        ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>
+        : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z" /></svg>}
+    </button>
+  );
+}
+
 // Página pública: vitrine escura, o produto real no centro, uma ação principal.
 export default function Landing() {
   const { sessao } = useAuth();
@@ -105,6 +120,7 @@ export default function Landing() {
             <Link to="/ajuda">{t("Ajuda", "Help")}</Link>
           </nav>
           <div className="lp-nav-acoes">
+            <TrocarTema />
             <TrocarIdioma className="lp-btn lp-btn-fantasma lp-btn-peq some-celular" />
             {sessao
               ? <Link to="/" className="lp-btn lp-btn-claro lp-btn-peq">{t("Abrir minhas salas", "Open my rooms")}</Link>
@@ -292,7 +308,7 @@ export default function Landing() {
           <nav aria-label={t("Produto", "Product")}><p>{t("Produto", "Product")}</p><a href="#como">{t("Como funciona", "How it works")}</a><a href="#recursos">{t("Recursos", "Features")}</a><Link to="/entrar">{t("Entrar", "Sign in")}</Link></nav>
           <nav aria-label={t("Ajuda", "Help")}><p>{t("Ajuda", "Help")}</p><Link to="/ajuda">{t("Central de ajuda", "Help center")}</Link><a href="#perguntas">{t("Perguntas", "FAQ")}</a><Link to="/privacidade">{t("Privacidade", "Privacy")}</Link></nav>
         </div>
-        <div className="lp-rodape-base"><span>{t("um produto Don", "a Don product")}</span><TrocarIdioma className="lp-link" /></div>
+        <div className="lp-rodape-base"><span>{t("um produto Don", "a Don product")}</span><span className="lp-rodape-acoes"><TrocarIdioma className="lp-link" /><TrocarTema className="lp-link lp-link-icone" /></span></div>
       </footer>
     </div>
   );
