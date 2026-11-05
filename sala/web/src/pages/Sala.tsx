@@ -8,13 +8,14 @@ import { Compor, type ComporApi, type Sugestao } from "../components/Compor";
 import { Decisoes } from "../components/Decisoes";
 import { Comparar, porAgente, type Esperando } from "../components/Comparar";
 import { Busca } from "../components/Busca";
+import { Biblioteca } from "../components/Biblioteca";
 import { Avisos } from "../components/Avisos";
 import { Tarefas, prazoCurto, valorResp, type RascunhoTarefa } from "../components/Tarefas";
 import { Ata } from "../components/Ata";
 import { MENCAO_COLETIVA, chamaAgentes, chamaTodos, handle } from "../components/Texto";
 import { erro, gravado, idioma, locale, t } from "../i18n";
 import {
-  IconeAbrir, IconeAjustes, IconeAgente, IconeBusca, IconeCheck, IconeClipe, IconeCopiar, IconeTarefa, IconeColunas, IconeConvite, IconeDecisao, IconePlugue, IconeProposta, IconeVoltar, Marcador,
+  IconeAbrir, IconeAjustes, IconeAgente, IconeBusca, IconeCheck, IconeClipe, IconeCopiar, IconeTarefa, IconeColunas, IconeConvite, IconeDecisao, IconePlugue, IconeProposta, IconeVoltar, Marcador, IconeBiblioteca,
 } from "../components/Icones";
 import {
   abrirConectar, atrasada, copiarTexto, pedidoPara, presenca, sb, subirArquivo, ultimaSala,
@@ -51,7 +52,7 @@ const ouvindoAgora = (texto?: string) => texto === "ouvindo agora" || texto === 
 const PAGINA = 200;
 
 export type AgenteSala = { nome: string; uid: string; presenca: { ativo: boolean; texto: string } | null; sozinho?: boolean };
-type Painel = null | "ajustes" | "contexto" | "decisoes" | "busca" | "tarefas";
+type Painel = null | "ajustes" | "contexto" | "decisoes" | "busca" | "tarefas" | "biblioteca";
 
 export default function SalaPage() {
   const { id = "" } = useParams();
@@ -268,6 +269,7 @@ export default function SalaPage() {
       if (e.key === "/") { e.preventDefault(); setPainel("busca"); }
       if (e.key === "d") { e.preventDefault(); setPainel((p) => (p === "decisoes" ? null : "decisoes")); }
       if (e.key === "t") { e.preventDefault(); setPainel((p) => (p === "tarefas" ? null : "tarefas")); }
+      if (e.key === "b") { e.preventDefault(); setPainel((p) => (p === "biblioteca" ? null : "biblioteca")); }
     };
     window.addEventListener("keydown", tecla);
     return () => window.removeEventListener("keydown", tecla);
@@ -485,6 +487,10 @@ export default function SalaPage() {
               <IconeDecisao />
               {abertasSala > 0 && <span className="selo-num" aria-hidden>{abertasSala}</span>}
             </button>
+            <button data-guia="biblioteca" className={`btn-icone ${painel === "biblioteca" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "biblioteca" ? null : "biblioteca"))}
+              aria-expanded={painel === "biblioteca"} aria-label={t("Biblioteca da sala", "Room library")} title={t("Biblioteca (B)", "Library (B)")}>
+              <IconeBiblioteca />
+            </button>
             <button className={`btn-icone ${painel === "busca" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "busca" ? null : "busca"))}
               aria-expanded={painel === "busca"} aria-label={t("Buscar na sala", "Search the room")} title={t("Buscar (/)", "Search (/)")}>
               <IconeBusca />
@@ -670,6 +676,7 @@ export default function SalaPage() {
             rascunho={rascunho} limparRascunho={() => setRascunho(null)} irPara={irPara} fechar={() => { setPainel(null); setRascunho(null); }} />
         )}
         {painel === "busca" && sala && <Busca salaId={sala.id} autor={autor} irPara={irPara} fechar={() => setPainel(null)} />}
+        {painel === "biblioteca" && sala && <Biblioteca salaId={sala.id} eu={eu} podeEscrever={!leitor} nome={nome} fechar={() => setPainel(null)} />}
       </div>
 
       {ata && sala && <Ata salaId={sala.id} salaNome={sala.nome} autor={autor} nome={nome} fechar={() => setAta(false)} />}

@@ -78,3 +78,5 @@ export const Marcador = ({ feito, tamanho = 18 }: { feito?: boolean; tamanho?: n
 );
 export const IconeAjuda = ({ tamanho }: P) => <svg {...base(tamanho)}><circle cx="12" cy="12" r="9" /><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01" /></svg>;
 export const IconeMapa = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="m3 6 6-2 6 2 6-2v14l-6 2-6-2-6 2V6ZM9 4v14M15 6v14" /></svg>;
+export const IconeBiblioteca = ({ tamanho }: P) => <svg {...base(tamanho)}><rect x="3.5" y="4" width="4" height="16" rx="1" /><rect x="9" y="4" width="4" height="16" rx="1" /><path d="m14.6 5.3 3.8-.9 3.1 14.3-3.8.9Z" /></svg>;
+export const IconeLink = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></svg>;

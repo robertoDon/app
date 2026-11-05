@@ -1468,3 +1468,26 @@ mark { background: color-mix(in srgb, var(--acento) 20%, transparent); color: va
 .coluna-antes .secao-dobra { padding: 0; margin: 0; }
 .coluna-antiga { margin-top: 8px; padding: 8px 10px; border-radius: 8px; background: var(--suave); font-size: 13px; color: var(--cinza); }
 .coluna-antiga p { margin: 0 0 4px; }
+
+/* biblioteca: linhas com ícone por tipo, título que abre, nota em duas linhas */
+.item-biblioteca { align-items: flex-start; padding-top: 10px; padding-bottom: 10px; }
+.item-icone { border-radius: 9px !important; color: var(--cinza); }
+.item-link { color: var(--agente-tinta); background: var(--agente); }
+.item-titulo { display: block; max-width: 100%; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; color: inherit; font: inherit; font-weight: 500; }
+.item-titulo:hover { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); }
+.item-nota { margin-top: 4px; font-size: 13px; color: color-mix(in srgb, var(--tinta) 80%, var(--cinza)); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.item-biblioteca .menu-ancora { margin-top: 2px; }
+.biblioteca-form .abas { width: 100%; }
+.biblioteca-form .aba { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.biblioteca-form textarea, .biblioteca-edicao textarea { width: 100%; resize: vertical; padding: 8px 12px; line-height: 1.5; }
+.biblioteca-edicao { flex: 1; }
+.biblioteca-edicao input { width: 100%; }
+.soltar {
+  display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 10px 14px; border-radius: 10px; cursor: pointer;
+  border: 1.5px dashed var(--linha-forte); background: var(--suave); color: var(--cinza); font-size: 13.5px; transition: border-color var(--rapido), background var(--rapido);
+}
+.soltar:hover, .soltar:focus-within { border-color: var(--acento); background: color-mix(in srgb, var(--acento) 5%, var(--suave)); }
+.soltar.com-arquivo { border-style: solid; color: var(--tinta); }
+.soltar strong { font-weight: 500; overflow-wrap: anywhere; }
+.sala-titulo h1 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 720px) { .sala-topo { gap: 0; } .sala-topo .btn-icone { width: 40px; } }

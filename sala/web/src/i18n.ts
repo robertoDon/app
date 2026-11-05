@@ -105,6 +105,9 @@ export function erro(e: unknown): string {
 
 // Textos que o sistema grava na conversa e no histórico (ficam em português no banco).
 const GRAVADOS: Record<string, string> = {
+  "adicionou à biblioteca": "added to the library:",
+  "editou na biblioteca": "edited in the library:",
+  "tirou da biblioteca": "removed from the library:",
   "Aprovada.": "Approved.",
   "Recusada.": "Declined.",
   "entrou": "joined",
