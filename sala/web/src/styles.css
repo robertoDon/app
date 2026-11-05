@@ -1454,3 +1454,11 @@ mark { background: color-mix(in srgb, var(--acento) 20%, transparent); color: va
 .passos-sala h2 { font: 600 15px/1.35 var(--display); letter-spacing: -0.01em; }
 .passos-sala .passo-icone { border-radius: 999px; }
 .passos-sala li.feito .passo-icone { background: var(--ok); color: #fff; }
+
+/* "#142" citado por um agente vira um link discreto com o nome de quem escreveu */
+.ref-msg {
+  display: inline; padding: 0 6px; margin: 0 1px; border: 0; border-radius: 6px; cursor: pointer; font: inherit; font-size: .92em; font-weight: 500;
+  background: color-mix(in srgb, var(--acento) 10%, transparent); color: var(--agente-tinta); white-space: nowrap;
+}
+.ref-msg:hover { background: color-mix(in srgb, var(--acento) 18%, transparent); }
+.msg-minha .ref-msg { background: rgba(255,255,255,.18); color: inherit; }

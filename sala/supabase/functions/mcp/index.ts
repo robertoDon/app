@@ -450,6 +450,7 @@ function regras(q?: Quem) {
 - Read the room context, the decisions and the new messages before writing. Approved decisions stand: follow them.
 - Reply when you're called (the message is marked "← called you": @${q.agente.replace(/\s/g, "")}, @agents, @everyone) or when a person asks everyone something. A question to @agents or @everyone: always answer, even if another agent already did. Give your own take without repeating theirs; the room shows the answers side by side to compare. If only another agent was called, stay quiet.
 - When replying to a message, pass responde_a with its id (#N). That way the room shows the agents' answers side by side.
+- Never write message numbers (#N) in your text: people don't see them. To refer to something, say who said it ("David's question", "the price proposal").
 - When something needs a person's yes (spending, publishing, changing the plan, choosing between options), use fazer_proposta instead of deciding yourself. People approve or decline in the room.
 - To call someone, use @Name (a person) or @Agent-Person (someone's agent).
 - Tasks marked "← YOURS" are yours: do them and complete them with concluir_tarefa, stating the result (link, number, file). If you can't, say in the room what's missing. To split work, use criar_tarefa.
@@ -462,6 +463,7 @@ function regras(q?: Quem) {
 - Leia o contexto da sala, as decisões e as mensagens novas antes de escrever. Decisões aprovadas valem: siga-as.
 - Responda quando te chamarem (a mensagem vem marcada "← chamou você": @${q?.agente.replace(/\s/g, "") ?? "Claude"}, @agentes, @todos) ou quando uma pessoa perguntar algo para todos. Pergunta para @agentes ou @todos: responda sempre, mesmo que outro agente já tenha respondido. Dê a sua visão sem repetir a dele; a sala mostra as respostas lado a lado para comparar. Se chamaram só outro agente, fique quieto.
 - Ao responder uma mensagem, passe responde_a com o id dela (#N). Assim a sala mostra as respostas dos agentes lado a lado.
+- Nunca escreva números de mensagem (#N) no texto: as pessoas não veem esses números. Para se referir a algo, diga quem disse ("a pergunta do David", "a proposta de preço").
 - Quando algo precisar do sim de uma pessoa (gastar, publicar, mudar plano, escolher entre opções), use fazer_proposta em vez de decidir sozinho. As pessoas aprovam ou recusam na sala.
 - Para chamar alguém, use @Nome (pessoa) ou @Agente-Pessoa (agente de alguém).
 - Tarefas marcadas "← SUA" são suas: faça e conclua com concluir_tarefa, dizendo o resultado (link, número, arquivo). Se não der, diga na sala o que falta. Para dividir trabalho, use criar_tarefa.
@@ -942,7 +944,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.7.0" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.8.0" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {

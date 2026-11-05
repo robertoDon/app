@@ -31,6 +31,7 @@ type Props = {
   irPara?: (id: number) => void;
   reacoes?: GrupoReacao[];
   reagir?: (emoji: string) => void;
+  autorDe?: (id: number) => string | null; // para "#142" virar "mensagem de David"
 };
 
 // seletor rápido de emojis: abre ao lado do botão, fecha com Esc ou clique fora
@@ -152,7 +153,7 @@ export function Bolha(p: Props) {
             <p className="apagada">{tr("Mensagem apagada.", "Message deleted.")}</p>
           ) : (
             <>
-              {m.texto && <Texto texto={gravado(m.texto)} chamaMim={p.chamaMim ?? (() => false)} />}
+              {m.texto && <Texto texto={gravado(m.texto)} chamaMim={p.chamaMim ?? (() => false)} refMsg={p.irPara ? { ir: p.irPara, rotulo: (id) => { const a = p.autorDe?.(id); return a ? tr(`↩ ${a}`, `↩ ${a}`) : tr("↩ mensagem anterior", "↩ earlier message"); } } : undefined} />}
               {!!m.anexos?.length && <Anexos anexos={m.anexos} />}
             </>
           )}

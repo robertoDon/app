@@ -17,9 +17,12 @@ export const chamaTodos = (h: string) => TODOS.includes(h);
 export const MENCAO_COLETIVA = new RegExp(`@(${[...AGENTES, ...TODOS].join("|")})(?![\\p{L}\\p{N}_])`, "iu");
 
 const INLINE =
-  /(`[^`\n]+`)|(\*\*[^*\n]+\*\*)|(\*[^*\s\n][^*\n]*\*|_[^_\s\n][^_\n]*_)|(https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"])|(@[\p{L}\p{N}_]+(?:-[\p{L}\p{N}_]+)?)/gu;
+  /(`[^`\n]+`)|(\*\*[^*\n]+\*\*)|(\*[^*\s\n][^*\n]*\*|_[^_\s\n][^_\n]*_)|(https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"])|(@[\p{L}\p{N}_]+(?:-[\p{L}\p{N}_]+)?)|((?<![\p{L}\p{N}_&/])#\d{1,7}(?![\p{L}\p{N}_]))/gu;
 
-function inline(texto: string, chamaMim: (m: string) => boolean, chave: string): ReactNode[] {
+// "#142" no texto (agentes citam mensagens pelo número): vira um link com o nome de quem escreveu
+export type RefMsg = { rotulo: (id: number) => string; ir: (id: number) => void };
+
+function inline(texto: string, chamaMim: (m: string) => boolean, chave: string, ref?: RefMsg): ReactNode[] {
   const out: ReactNode[] = [];
   let ultimo = 0;
   let i = 0;
@@ -27,12 +30,13 @@ function inline(texto: string, chamaMim: (m: string) => boolean, chave: string):
     const ini = m.index ?? 0;
     if (ini > ultimo) out.push(texto.slice(ultimo, ini));
     const k = `${chave}-${i++}`;
-    const [tudo, codigo, negrito, italico, link, mencao] = m;
+    const [tudo, codigo, negrito, italico, link, mencao, numero] = m;
     if (codigo) out.push(<code key={k}>{codigo.slice(1, -1)}</code>);
-    else if (negrito) out.push(<strong key={k}>{inline(negrito.slice(2, -2), chamaMim, k)}</strong>);
+    else if (negrito) out.push(<strong key={k}>{inline(negrito.slice(2, -2), chamaMim, k, ref)}</strong>);
     else if (italico) out.push(<em key={k}>{italico.slice(1, -1)}</em>);
     else if (link) out.push(<a key={k} href={link} target="_blank" rel="noopener noreferrer">{link.replace(/^https?:\/\//, "")}</a>);
     else if (mencao) out.push(<span key={k} className={chamaMim(mencao) ? "mencao mencao-eu" : "mencao"}>{mencao}</span>);
+    else if (numero && ref) { const id = Number(numero.slice(1)); out.push(<button key={k} type="button" className="ref-msg" onClick={() => ref.ir(id)}>{ref.rotulo(id)}</button>); }
     else out.push(tudo);
     ultimo = ini + tudo.length;
   }
@@ -73,17 +77,17 @@ function blocos(texto: string): Bloco[] {
   return out.filter((b) => !(b.tipo === "p" && !b.linhas.length));
 }
 
-export function Texto({ texto, chamaMim }: { texto: string; chamaMim: (mencao: string) => boolean }) {
+export function Texto({ texto, chamaMim, refMsg }: { texto: string; chamaMim: (mencao: string) => boolean; refMsg?: RefMsg }) {
   return (
     <>
       {blocos(texto).map((b, i) => {
         const k = `b${i}`;
-        const linhas = (ls: string[]) => ls.flatMap((l, j) => (j ? [<br key={`${k}br${j}`} />, ...inline(l, chamaMim, `${k}l${j}`)] : inline(l, chamaMim, `${k}l${j}`)));
+        const linhas = (ls: string[]) => ls.flatMap((l, j) => (j ? [<br key={`${k}br${j}`} />, ...inline(l, chamaMim, `${k}l${j}`, refMsg)] : inline(l, chamaMim, `${k}l${j}`, refMsg)));
         switch (b.tipo) {
           case "code": return <pre key={k}><code>{b.texto}</code></pre>;
-          case "ul": return <ul key={k}>{b.itens.map((t, j) => <li key={j}>{inline(t, chamaMim, `${k}i${j}`)}</li>)}</ul>;
-          case "ol": return <ol key={k}>{b.itens.map((t, j) => <li key={j}>{inline(t, chamaMim, `${k}i${j}`)}</li>)}</ol>;
-          case "h": return <p key={k}><strong>{inline(b.texto, chamaMim, k)}</strong></p>;
+          case "ul": return <ul key={k}>{b.itens.map((t, j) => <li key={j}>{inline(t, chamaMim, `${k}i${j}`, refMsg)}</li>)}</ul>;
+          case "ol": return <ol key={k}>{b.itens.map((t, j) => <li key={j}>{inline(t, chamaMim, `${k}i${j}`, refMsg)}</li>)}</ol>;
+          case "h": return <p key={k}><strong>{inline(b.texto, chamaMim, k, refMsg)}</strong></p>;
           case "quote": return <blockquote key={k}>{linhas(b.linhas)}</blockquote>;
           default: return <p key={k}>{linhas(b.linhas)}</p>;
         }

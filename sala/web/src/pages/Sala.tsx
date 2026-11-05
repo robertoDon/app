@@ -574,6 +574,7 @@ export default function SalaPage() {
                   {marcoAqui}
                   <Bolha m={m} nome={nome(m.user_id)} quando={hora(m.criada_em)} quandoCompleto={completo(m.criada_em)}
                     minha={minhaPessoa} continua={continua} chamaMim={chamaMim} destaque={destaque === m.id}
+                    autorDe={(id) => { const x = porId.get(id); return x ? autor(x) : null; }}
                     decisor={m.decidida_por ? (m.decidida_por === eu ? t("você", "you") : nome(m.decidida_por)) : undefined}
                     citacao={m.responde_a && !emSequencia ? { id: m.responde_a, autor: citada ? autor(citada) : t("Mensagem anterior", "Earlier message"), texto: citada ? (citada.apagada ? t("Mensagem apagada.", "Message deleted.") : umaLinha(gravado(citada.texto), 120)) : "" } : null}
                     responder={m.id > 0 && !leitor ? () => responder(m) : undefined}
