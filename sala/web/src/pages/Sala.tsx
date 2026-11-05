@@ -424,6 +424,8 @@ export default function SalaPage() {
 
   const esperandoDe = (q: Mensagem): Esperando[] => {
     const ja = new Set((respostas.get(q.id) ?? []).map((r) => `${r.agente}|${r.user_id}`));
+    // agente que só reagiu (👍) também respondeu: não aparece como "sem resposta"
+    reacoes.filter((r) => r.mensagem_id === q.id && r.agente).forEach((r) => ja.add(`${r.agente}|${r.user_id}`));
     return agentes.filter((a) => !ja.has(`${a.nome}|${a.uid}`) && a.presenca && !(q.agente === a.nome && q.user_id === a.uid))
       .map((a) => ({ nome: a.nome, dono: nome(a.uid), status: a.presenca!.texto }));
   };
@@ -464,6 +466,7 @@ export default function SalaPage() {
     if (m.apagada || m.tipo === "decisao" || (m.user_id === eu && m.agente) || m.id < 0) return [];
     const ditas = [...m.texto.matchAll(/@([\p{L}\p{N}_]+)(?:-([\p{L}\p{N}_]+))?/gu)].map((x) => [handle(x[1]), x[2] ? handle(x[2]) : ""]);
     const ja = new Set((respostas.get(m.id) ?? []).filter((r) => r.user_id === eu).map((r) => r.agente));
+    reacoes.filter((r) => r.mensagem_id === m.id && r.user_id === eu && r.agente).forEach((r) => ja.add(r.agente));
     return meusAgentes.filter((a) => !ja.has(a.nome) && ditas.some(([h, p]) =>
       chamaAgentes(h) || chamaTodos(h) || (h === handle(a.nome) && (!p || p === meuPrimeiro))));
   };
@@ -614,6 +617,7 @@ export default function SalaPage() {
                   <Bolha m={m} nome={nome(m.user_id)} quando={hora(m.criada_em)} quandoCompleto={completo(m.criada_em)}
                     minha={minhaPessoa} continua={continua} chamaMim={chamaMim} destaque={destaque === m.id}
                     autorDe={(id) => { const x = porId.get(id); return x ? autor(x) : null; }}
+                    tarefaDe={(id) => tarefas?.find((x) => x.id === id)?.titulo ?? null} abrirTarefas={() => setPainel("tarefas")}
                     aprovacao={aprovacaoDe(m)}
                     decisor={m.decidida_por ? (m.decidida_por === eu ? t("você", "you") : nome(m.decidida_por)) : undefined}
                     citacao={m.responde_a && !emSequencia ? { id: m.responde_a, autor: citada ? autor(citada) : t("Mensagem anterior", "Earlier message"), texto: citada ? (citada.apagada ? t("Mensagem apagada.", "Message deleted.") : umaLinha(gravado(citada.texto), 120)) : "" } : null}

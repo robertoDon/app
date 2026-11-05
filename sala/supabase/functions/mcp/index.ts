@@ -545,7 +545,7 @@ function regras(q?: Quem) {
 - Read the room context, the decisions and the new messages before writing. Approved decisions stand: follow them.
 - Reply when you're called (the message is marked "← called you": @${q.agente.replace(/\s/g, "")}, @agents, @everyone) or when a person asks everyone something. A question to @agents or @everyone: always answer, even if another agent already did. Give your own take without repeating theirs; the room shows the answers side by side to compare. If only another agent was called, stay quiet.
 - When replying to a message, pass responde_a with its id (#N). That way the room shows the agents' answers side by side. In a discussion that started with a question to @agents, every message of yours (and your final proposal) replies to that original question, so the room can compare everyone's final answer.
-- Never write message numbers (#N) in your text: people don't see them. To refer to something, say who said it ("David's question", "the price proposal").
+- Never write message or task numbers in your text (#N, "task 12"): people don't see them. Refer to things by name: who said it ("David's question", "the price proposal") or what the task is ("the rule 3.2 approval task"). Numbers go only in tool parameters (responde_a, tarefa, item).
 - When something needs a person's yes (spending, publishing, changing the plan, choosing between options), use fazer_proposta instead of deciding yourself. People approve or decline in the room. Some rooms require more than one approval: the proposal only passes when they all arrive, and the app counts them; don't treat it as approved before that.
 - To change the room context, use propor_contexto with the whole new text. It needs every person's yes, and once the last one approves the app replaces the context by itself: nobody pastes anything, and there's no task to do.
 - To call someone, use @Name (a person) or @Agent-Person (someone's agent).
@@ -560,7 +560,7 @@ function regras(q?: Quem) {
 - Leia o contexto da sala, as decisões e as mensagens novas antes de escrever. Decisões aprovadas valem: siga-as.
 - Responda quando te chamarem (a mensagem vem marcada "← chamou você": @${q?.agente.replace(/\s/g, "") ?? "Claude"}, @agentes, @todos) ou quando uma pessoa perguntar algo para todos. Pergunta para @agentes ou @todos: responda sempre, mesmo que outro agente já tenha respondido. Dê a sua visão sem repetir a dele; a sala mostra as respostas lado a lado para comparar. Se chamaram só outro agente, fique quieto.
 - Ao responder uma mensagem, passe responde_a com o id dela (#N). Assim a sala mostra as respostas dos agentes lado a lado. Numa discussão que começou com uma pergunta para @agentes, toda mensagem sua (e a sua proposta final) responde à pergunta original, para a sala comparar a resposta final de cada um.
-- Nunca escreva números de mensagem (#N) no texto: as pessoas não veem esses números. Para se referir a algo, diga quem disse ("a pergunta do David", "a proposta de preço").
+- Nunca escreva números de mensagem ou de tarefa no texto (#N, "tarefa 12"): as pessoas não veem esses números. Cite pelo nome: quem disse ("a pergunta do David", "a proposta de preço") ou o que é a tarefa ("a tarefa de aprovar a regra 3.2"). Número só vai nos parâmetros das ferramentas (responde_a, tarefa, item).
 - Quando algo precisar do sim de uma pessoa (gastar, publicar, mudar plano, escolher entre opções), use fazer_proposta em vez de decidir sozinho. As pessoas aprovam ou recusam na sala. Algumas salas pedem mais de uma aprovação: a proposta só passa quando todas chegam, e o app conta sozinho; não trate como aprovada antes disso.
 - Para mudar o contexto da sala, use propor_contexto com o texto novo inteiro. Ela precisa do sim de todas as pessoas e, quando a última aprova, o app troca o contexto sozinho: ninguém cola nada e não há tarefa a fazer.
 - Para chamar alguém, use @Nome (pessoa) ou @Agente-Pessoa (agente de alguém).
@@ -1158,7 +1158,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.13.0" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.14.0" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {

@@ -51,6 +51,8 @@ type Props = {
   reagir?: (emoji: string) => void;
   autorDe?: (id: number) => string | null; // para "#142" virar "mensagem de David"
   aprovacao?: Aprovacao | null; // sala que pede mais de uma aprovação
+  tarefaDe?: (id: number) => string | null; // "#12" de uma tarefa desta sala vira o título dela
+  abrirTarefas?: () => void;
 };
 
 // seletor rápido de emojis: abre ao lado do botão, fecha com Esc ou clique fora
@@ -173,7 +175,10 @@ export function Bolha(p: Props) {
             <p className="apagada">{tr("Mensagem apagada.", "Message deleted.")}</p>
           ) : (
             <>
-              {m.texto && <Texto texto={gravado(m.texto)} chamaMim={p.chamaMim ?? (() => false)} refMsg={p.irPara && p.autorDe ? { ir: p.irPara, rotulo: (id) => { const a = p.autorDe?.(id); return a ? `↩ ${a}` : null; } } : undefined} />}
+              {m.texto && <Texto texto={gravado(m.texto)} chamaMim={p.chamaMim ?? (() => false)} refMsg={p.irPara && p.autorDe ? {
+                ir: (id) => (p.autorDe?.(id) ? p.irPara!(id) : p.abrirTarefas?.()),
+                rotulo: (id) => { const a = p.autorDe?.(id); if (a) return `↩ ${a}`; const tf = p.tarefaDe?.(id); return tf ? `☐ ${tf.length > 48 ? tf.slice(0, 47) + "…" : tf}` : null; },
+              } : undefined} />}
               {!!m.anexos?.length && <Anexos anexos={m.anexos} />}
               {proposta && m.novo_contexto && (
                 <details className="contexto-novo">
