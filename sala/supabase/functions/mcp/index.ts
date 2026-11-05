@@ -324,12 +324,32 @@ function registro(ps: Msg[], q?: Quem) {
   return linhas.join("\n");
 }
 
+// arquivos anexados na conversa: aparecem no cabeçalho mesmo quando a mensagem já saiu das últimas lidas
+async function anexosRecentes(sala: string): Promise<Msg[]> {
+  const { data, error } = await db.from("mensagens").select("id, criada_em, agente, anexos, autor:perfis!mensagens_user_id_fkey(nome)")
+    .eq("sala_id", sala).eq("apagada", false).neq("anexos", "[]").order("id", { ascending: false }).limit(15);
+  if (error) throw error;
+  return data as unknown as Msg[];
+}
+
+function listaAnexos(ms: Msg[], bs: ItemBib[], q?: Quem) {
+  const naBib = new Set(bs.map((b) => b.path).filter(Boolean));
+  const linhas = ms.flatMap((m) => (m.anexos ?? []).filter((a) => !naBib.has(a.path)).map((a) => {
+    const quem = m.agente ? tr(q, `${m.agente} de ${m.autor?.nome ?? "?"}`, `${m.autor?.nome ?? "?"}'s ${m.agente}`) : m.autor?.nome ?? "?";
+    return `- 📎 ${a.nome} (${a.tipo.split(";")[0]}, ${tamanho(a.tamanho)}) · #${m.id}, ${quem}, ${m.criada_em.slice(0, 10)} · ler_arquivo: ${a.path}`;
+  })).slice(0, 20);
+  if (!linhas.length) return "";
+  return `${tr(q, "Arquivos anexados na conversa (mais recentes; abra com ler_arquivo):", "Files attached in the conversation (most recent; open with ler_arquivo):")}\n${linhas.join("\n")}`;
+}
+
 async function cabecalho(s: Sala, q?: Quem) {
-  const [ps, ts, bs] = await Promise.all([propostas(s.id, 15), q ? tarefas(s.id) : Promise.resolve([] as Tarefa[]), biblioteca(s.id).catch(() => [] as ItemBib[])]);
+  const [ps, ts, bs, ax] = await Promise.all([propostas(s.id, 15), q ? tarefas(s.id) : Promise.resolve([] as Tarefa[]),
+    biblioteca(s.id).catch(() => [] as ItemBib[]), anexosRecentes(s.id).catch(() => [] as Msg[])]);
   const r = registro(ps, q);
   const t = q ? listaTarefas(ts, q, 3) : "";
   const b = listaBiblioteca(bs, q, true);
-  return `${tr(q, "Sala", "Room")} "${s.nome}"${s.contexto ? `\n${tr(q, "Contexto da sala", "Room context")}: ${s.contexto}` : ""}${r ? `\n${r}` : ""}${t ? `\n${t}` : ""}${b ? `\n${b}` : ""}`;
+  const a = listaAnexos(ax, bs, q);
+  return `${tr(q, "Sala", "Room")} "${s.nome}"${s.contexto ? `\n${tr(q, "Contexto da sala", "Room context")}: ${s.contexto}` : ""}${r ? `\n${r}` : ""}${t ? `\n${t}` : ""}${b ? `\n${b}` : ""}${a ? `\n${a}` : ""}`;
 }
 
 // ---------------------------------------------------------------- arquivos
@@ -1138,7 +1158,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.12.0" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.13.0" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {
