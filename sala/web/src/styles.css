@@ -19,6 +19,7 @@
   --acento-tinta: #FFFFFF;
   --erro: #C2312A;
   --ok: #18794E;
+  --aviso: #A35200;
   --palco: #0F1012;           /* fundo escuro das vitrines, nos dois temas */
   --sombra: 0 1px 2px rgba(17, 17, 26, .04), 0 1px 1px rgba(17, 17, 26, .03);
   --sombra-media: 0 4px 12px -2px rgba(17, 17, 26, .08), 0 1px 3px rgba(17, 17, 26, .05);
@@ -40,7 +41,7 @@
   :root:not([data-tema="claro"]) {
     --fundo: #0F1012; --painel: #151619; --lateral: #121315; --elevado: #1B1C20; --tinta: #EDEDF0; --cinza: #9496A1;
     --linha: #24252A; --linha-forte: #33343A; --suave: #1D1E22; --agente: #1C1B33; --agente-tinta: #B9B8FF;
-    --acento: #7273EA; --acento-forte: #8586F2; --acento-tinta: #FFFFFF; --erro: #FF8A80; --ok: #4CC38A;
+    --acento: #7273EA; --acento-forte: #8586F2; --acento-tinta: #FFFFFF; --erro: #FF8A80; --ok: #4CC38A; --aviso: #F0A54A;
     --sombra: 0 1px 2px rgba(0, 0, 0, .4); --sombra-media: 0 6px 16px -4px rgba(0, 0, 0, .5), 0 1px 3px rgba(0, 0, 0, .4);
     --sombra-alta: 0 24px 56px -12px rgba(0, 0, 0, .7), 0 4px 12px rgba(0, 0, 0, .4); --brilho: inset 0 1px 0 rgba(255, 255, 255, .05);
     color-scheme: dark;
@@ -49,7 +50,7 @@
 :root[data-tema="escuro"] {
   --fundo: #0F1012; --painel: #151619; --lateral: #121315; --elevado: #1B1C20; --tinta: #EDEDF0; --cinza: #9496A1;
   --linha: #24252A; --linha-forte: #33343A; --suave: #1D1E22; --agente: #1C1B33; --agente-tinta: #B9B8FF;
-  --acento: #7273EA; --acento-forte: #8586F2; --acento-tinta: #FFFFFF; --erro: #FF8A80; --ok: #4CC38A;
+  --acento: #7273EA; --acento-forte: #8586F2; --acento-tinta: #FFFFFF; --erro: #FF8A80; --ok: #4CC38A; --aviso: #F0A54A;
   --sombra: 0 1px 2px rgba(0, 0, 0, .4); --sombra-media: 0 6px 16px -4px rgba(0, 0, 0, .5), 0 1px 3px rgba(0, 0, 0, .4);
   --sombra-alta: 0 24px 56px -12px rgba(0, 0, 0, .7), 0 4px 12px rgba(0, 0, 0, .4); --brilho: inset 0 1px 0 rgba(255, 255, 255, .05);
   color-scheme: dark;
@@ -1548,3 +1549,77 @@ mark { background: color-mix(in srgb, var(--acento) 20%, transparent); color: va
 .memoria-texto p,.memoria-texto ul,.memoria-texto ol,.memoria-texto blockquote,.memoria-texto pre{margin:0}
 .memoria-texto pre{padding:8px 12px;border-radius:var(--r1);background:rgba(127,127,127,.12);overflow-x:auto;font-size:13px}
 .memoria-texto code{font-size:.92em;padding:1px 4px;border-radius:4px;background:rgba(127,127,127,.12)}
+
+/* ---------------------------------------------------------------- painel da sala, plano, quem aprova, esperando você */
+
+.plano { margin-top: 8px; border: 1px solid var(--linha); border-radius: var(--r2); background: var(--painel); }
+.plano summary { cursor: pointer; padding: 8px 12px; font-size: var(--t1); font-weight: 600; color: var(--tinta); }
+.plano ol { margin: 0; padding: 0 12px 10px 32px; display: flex; flex-direction: column; gap: 6px; font-size: var(--t1); }
+.plano li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; min-width: 0; }
+.plano li .pilula { height: 18px; padding: 0 6px; font-size: 10.5px; }
+
+.compor-aprovam { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.chip-opcao { height: 26px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--linha-forte); background: var(--painel); color: var(--tinta); font: 500 var(--t1)/1 var(--corpo); cursor: pointer; }
+.chip-opcao:hover { background: var(--suave); }
+.chip-opcao.ativo { background: var(--acento); border-color: var(--acento); color: var(--acento-tinta); }
+.chip-opcao:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+
+.pn-ok { margin: 4px 8px 6px; font-size: var(--t1); color: var(--cinza); }
+.pn-linhas, .pn-itens, .pn-frentes, .lt-linhas { list-style: none; margin: 0; padding: 0; }
+.pn-linhas { display: flex; flex-direction: column; }
+.pn-linha { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 8px; border: 0; border-radius: var(--r1); background: none; color: var(--tinta); font: inherit; font-size: var(--t2); cursor: pointer; text-align: left; }
+.pn-linha:hover { background: var(--suave); }
+.pn-linha strong { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.pn-eu .pn-linha { color: var(--acento-forte); }
+.pn-itens { display: flex; flex-direction: column; gap: 2px; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--linha); }
+.pn-item { width: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 7px 8px; border: 0; border-radius: var(--r1); background: none; color: var(--tinta); font: inherit; text-align: left; cursor: pointer; min-width: 0; }
+.pn-item:hover { background: var(--suave); }
+.pn-item-titulo { font-size: var(--t1); font-weight: 500; overflow-wrap: anywhere; }
+.pn-item-titulo .pilula, .pn-frente-topo .pilula { height: 18px; padding: 0 6px; font-size: 10.5px; }
+.pn-erro { color: var(--erro); }
+.pn-aviso { color: var(--aviso); }
+.pn-num { font-variant-numeric: tabular-nums; color: var(--cinza); font-size: var(--t1); }
+
+.pn-frentes { display: flex; flex-direction: column; gap: 14px; padding: 4px 8px 8px; }
+.pn-frente-topo { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.pn-frente-nome { font-weight: 500; font-size: var(--t2); overflow-wrap: anywhere; }
+.pn-trilho { height: 8px; border-radius: 4px; background: var(--suave); overflow: hidden; }
+.pn-trilho i { display: block; height: 100%; border-radius: 4px; background: var(--acento); transition: width var(--rapido); }
+.pn-frentes .nota { margin-top: 6px; }
+.pn-explica { padding: 0 8px 6px; }
+
+.pn-ritmo { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; height: 112px; padding: 4px 8px 0; align-items: end; }
+.pn-semana { display: grid; grid-template-rows: 16px 1fr 18px; height: 100%; justify-items: center; min-width: 0; }
+.pn-semana .pn-barra { align-self: end; width: 100%; max-width: 22px; min-height: 2px; border-radius: 3px 3px 0 0; background: color-mix(in srgb, var(--acento) 45%, transparent); }
+.pn-atual .pn-barra { background: var(--acento); }
+.pn-semana-rotulo { font-size: 10.5px; color: var(--cinza); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.pn-semana .pn-num { font-size: 11px; }
+
+.lt { padding: 4px 8px 8px; }
+.lt-escala { display: flex; justify-content: space-between; margin-left: 38%; font-size: 10.5px; color: var(--cinza); margin-bottom: 4px; }
+.lt-linhas { display: flex; flex-direction: column; gap: 4px; }
+.lt-linha { display: grid; grid-template-columns: 38% 1fr; gap: 8px; align-items: center; min-width: 0; }
+.lt-nome { font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--tinta); }
+.lt-trilho { position: relative; height: 14px; border-radius: 3px; background: var(--suave); }
+.lt-barra { position: absolute; top: 3px; height: 8px; border-radius: 4px; background: var(--acento); }
+.lt-barra.lt-feita, .lt-chave.lt-feita { background: var(--ok); }
+.lt-barra.lt-atrasada, .lt-chave.lt-atrasada { background: var(--erro); }
+.lt-previsto { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--tinta); opacity: .55; }
+.lt-hoje { position: absolute; top: -2px; bottom: -2px; width: 0; border-left: 1.5px dashed var(--acento); }
+.lt-legenda { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin-top: 10px; }
+.lt-chave { display: inline-block; width: 12px; height: 6px; border-radius: 3px; background: var(--acento); margin-left: 6px; }
+.lt-chave:first-child { margin-left: 0; }
+.lt-chave-previsto { display: inline-block; width: 2px; height: 10px; background: var(--tinta); opacity: .55; margin-left: 8px; }
+
+.fila { margin: 0 0 8px; border: 1px solid var(--linha); border-radius: var(--r2); background: var(--painel); }
+.fila-topo { width: 100%; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 0; background: none; color: var(--tinta); font: 500 var(--t1)/1.2 var(--corpo); cursor: pointer; }
+.fila-topo > span:first-child { flex: 1; text-align: left; }
+.fila-topo svg { transform: rotate(-90deg); transition: transform var(--rapido); color: var(--cinza); }
+.fila-topo[aria-expanded="true"] svg { transform: rotate(90deg); }
+.fila ul { list-style: none; margin: 0; padding: 0 4px 6px; display: flex; flex-direction: column; gap: 2px; max-height: 260px; overflow-y: auto; }
+.fila a { display: flex; gap: 8px; align-items: flex-start; padding: 6px; border-radius: var(--r1); color: var(--tinta); text-decoration: none; }
+.fila a:hover { background: var(--suave); }
+.fila a svg { flex: none; margin-top: 2px; color: var(--cinza); }
+.fila-texto { display: flex; flex-direction: column; min-width: 0; font-size: var(--t1); }
+.fila-texto strong { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .pn-trilho i, .fila-topo svg { transition: none; } }

@@ -41,14 +41,15 @@ export const prazoCurto = (iso: string) => {
   return d.toLocaleDateString(locale(), { day: "numeric", month: "short" }).replace(".", "");
 };
 
-function Formulario({ inicial, membros, agentes, nome, salvar, cancelar, botao }: {
-  inicial: { titulo: string; responsavel: string; prazo: string };
-  membros: Membro[]; agentes: AgenteSala[]; nome: (uid: string | null) => string;
-  salvar: (titulo: string, resp: string, prazo: string) => Promise<string | null>; cancelar: () => void; botao: string;
+function Formulario({ inicial, membros, agentes, nome, salvar, cancelar, botao, frentes }: {
+  inicial: { titulo: string; responsavel: string; prazo: string; frente: string };
+  membros: Membro[]; agentes: AgenteSala[]; nome: (uid: string | null) => string; frentes: string[];
+  salvar: (titulo: string, resp: string, prazo: string, frente: string) => Promise<string | null>; cancelar: () => void; botao: string;
 }) {
   const [titulo, setTitulo] = useState(inicial.titulo);
   const [resp, setResp] = useState(inicial.responsavel);
   const [prazo, setPrazo] = useState(inicial.prazo);
+  const [frente, setFrente] = useState(inicial.frente);
   const [erro, setErro] = useState("");
   const [indo, setIndo] = useState(false);
   return (
@@ -56,7 +57,7 @@ function Formulario({ inicial, membros, agentes, nome, salvar, cancelar, botao }
       e.preventDefault();
       if (!titulo.trim()) return;
       setIndo(true);
-      const r = await salvar(titulo.trim(), resp, prazo);
+      const r = await salvar(titulo.trim(), resp, prazo, frente.trim());
       setIndo(false);
       if (r) setErro(r);
     }} onKeyDown={(e) => e.key === "Escape" && cancelar()}>
@@ -79,6 +80,10 @@ function Formulario({ inicial, membros, agentes, nome, salvar, cancelar, botao }
         <label><span className="rotulo">{t("Prazo", "Due date")}</span>
           <input type="date" value={prazo} onChange={(e) => setPrazo(e.target.value)} title={t("vale até as 18h", "due by 6 pm")} />
           {prazo && <span className="nota">{t("vale até as 18h", "due by 6 pm")}</span>}
+        </label>
+        <label><span className="rotulo">{t("Frente", "Workstream")}</span>
+          <input value={frente} maxLength={40} list="tf-frentes" placeholder={t("Opcional", "Optional")} onChange={(e) => setFrente(e.target.value)} />
+          <datalist id="tf-frentes">{frentes.map((f) => <option key={f} value={f} />)}</datalist>
         </label>
       </div>
       {erro && <p className="nota erro" role="alert">{erro}</p>}
@@ -147,19 +152,21 @@ export function Tarefas({ salaId, tarefas, membros, agentes, eu, nome, rascunho,
     .sort((a, b) => Number(atrasada(b)) - Number(atrasada(a)) || (a.prazo ? new Date(a.prazo).getTime() : Infinity) - (b.prazo ? new Date(b.prazo).getTime() : Infinity) || b.id - a.id);
   const feitas = lista.filter((tf) => tf.estado === "feita" && !marcando.has(tf.id)).sort((a, b) => (b.concluida_em ?? "").localeCompare(a.concluida_em ?? "")).slice(0, 30);
 
-  const criar = async (titulo: string, resp: string, prazo: string) => {
+  const frentes = [...new Set(vivas.map((tf) => tf.frente).filter((f): f is string => !!f))].sort();
+
+  const criar = async (titulo: string, resp: string, prazo: string, frente: string) => {
     const r = lerResp(resp);
     const { error } = await sb.rpc("criar_tarefa", {
-      sala: salaId, titulo, origem: rascunho?.origem ?? null, responsavel: r.responsavel, responsavel_agente: r.responsavel_agente, prazo: doInput(prazo),
+      sala: salaId, titulo, origem: rascunho?.origem ?? null, responsavel: r.responsavel, responsavel_agente: r.responsavel_agente, prazo: doInput(prazo), frente: frente || null,
     });
     if (error) return msgErro(error);
     setNova(false); limparRascunho();
     return null;
   };
 
-  const salvar = (tf: Tarefa) => async (titulo: string, resp: string, prazo: string) => {
+  const salvar = (tf: Tarefa) => async (titulo: string, resp: string, prazo: string, frente: string) => {
     const r = lerResp(resp);
-    const { error } = await sb.rpc("editar_tarefa", { tarefa: tf.id, titulo, responsavel: r.responsavel, responsavel_agente: r.responsavel_agente, prazo: doInput(prazo), estado: "aberta" });
+    const { error } = await sb.rpc("editar_tarefa", { tarefa: tf.id, titulo, responsavel: r.responsavel, responsavel_agente: r.responsavel_agente, prazo: doInput(prazo), estado: "aberta", frente });
     if (error) return msgErro(error);
     setEditando(null);
     return null;
@@ -216,8 +223,8 @@ export function Tarefas({ salaId, tarefas, membros, agentes, eu, nome, rascunho,
 
       {nova && (
         <section className="painel-secao">
-          <Formulario key={rascunho?.origem ?? "nova"} membros={membros} agentes={agentes} nome={nome} botao={t("Criar tarefa", "Create task")}
-            inicial={{ titulo: rascunho?.titulo ?? "", responsavel: rascunho?.responsavel ?? valorResp(eu, null), prazo: rascunho?.prazo ?? "" }}
+          <Formulario key={rascunho?.origem ?? "nova"} membros={membros} agentes={agentes} nome={nome} botao={t("Criar tarefa", "Create task")} frentes={frentes}
+            inicial={{ titulo: rascunho?.titulo ?? "", responsavel: rascunho?.responsavel ?? valorResp(eu, null), prazo: rascunho?.prazo ?? "", frente: "" }}
             salvar={criar} cancelar={() => { setNova(false); limparRascunho(); }} />
         </section>
       )}
@@ -241,8 +248,8 @@ export function Tarefas({ salaId, tarefas, membros, agentes, eu, nome, rascunho,
               return (
                 <li key={tf.id} className={`tarefa ${atrasada(tf) ? "tarefa-atrasada" : ""} ${saindo ? "tarefa-saindo" : ""}`}>
                   {editando === tf.id ? (
-                    <Formulario membros={membros} agentes={agentes} nome={nome} botao={t("Salvar", "Save")}
-                      inicial={{ titulo: tf.titulo, responsavel: valorResp(tf.responsavel, tf.responsavel_agente), prazo: paraInput(tf.prazo) }}
+                    <Formulario membros={membros} agentes={agentes} nome={nome} botao={t("Salvar", "Save")} frentes={frentes}
+                      inicial={{ titulo: tf.titulo, responsavel: valorResp(tf.responsavel, tf.responsavel_agente), prazo: paraInput(tf.prazo), frente: tf.frente ?? "" }}
                       salvar={salvar(tf)} cancelar={() => setEditando(null)} />
                   ) : (
                     <>
@@ -255,6 +262,10 @@ export function Tarefas({ salaId, tarefas, membros, agentes, eu, nome, rascunho,
                         <div className="tarefa-meta">
                           <Resp nome={quemNome(tf)} agente={!!tf.responsavel_agente} eu={minha(tf) && !tf.responsavel_agente} />
                           <Prazo tf={tf} />
+                          {tf.frente && <span className="pilula">{tf.frente}</span>}
+                          {tf.prazo_previsto && tf.prazo && new Date(tf.prazo).toDateString() !== new Date(tf.prazo_previsto).toDateString() && (
+                            <span className="nota" title={t("Prazo do plano aprovado", "Due date in the approved plan")}>{t(`previsto ${prazoCurto(tf.prazo_previsto)}`, `planned ${prazoCurto(tf.prazo_previsto)}`)}</span>
+                          )}
                         </div>
                         {concluindo === tf.id && (
                           <form className="tarefa-form" onSubmit={(e) => { e.preventDefault(); concluir(tf); }}>

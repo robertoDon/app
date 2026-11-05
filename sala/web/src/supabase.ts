@@ -18,6 +18,7 @@ export type Sala = {
   ultima_agente: string | null; ultima_nome: string | null; ultima_em: string | null; ultima_tipo: Mensagem["tipo"] | null;
 };
 export type Anexo = { path: string; nome: string; tipo: string; tamanho: number };
+export type ItemPlano = { titulo: string; frente?: string; responsavel?: string; responsavel_agente?: string; prazo?: string; tarefa?: number };
 export type Agente = { user_id: string; nome: string; visto_em: string; ouvindo_ate: string | null; desperta?: boolean };
 export type Membro = { user_id: string; papel: "dono" | "membro" | "leitor"; perfis: Perfil | null };
 
@@ -38,6 +39,8 @@ export type Mensagem = {
   apagada: boolean;
   anexos: Anexo[];
   novo_contexto?: string | null; // proposta que troca o contexto da sala
+  aprovadores?: string[] | null; // só estas pessoas decidem (todas precisam aprovar)
+  plano?: ItemPlano[] | null; // proposta de plano: cada item vira tarefa quando aprovada
   pendente?: boolean; // enviando
   falhou?: boolean;
 };
@@ -131,7 +134,22 @@ export type Tarefa = {
   estado: "aberta" | "feita" | "cancelada"; resultado: string | null;
   criada_por: string | null; criada_por_agente: string | null; criada_em: string;
   concluida_em: string | null; concluida_por: string | null; concluida_por_agente: string | null;
+  frente?: string | null; prazo_previsto?: string | null; plano?: number | null;
 };
+
+// Painel da sala: o que o banco calcula (painel_sala), os mesmos números que os agentes leem em ver_painel
+export type DadosPainel = {
+  agora: string;
+  nomes: Record<string, string>;
+  totais: { abertas: number; feitas: number; atrasadas: number; sem_responsavel: number };
+  frentes: { frente: string; total: number; feitas: number; atrasadas: number; previsto: string | null; projecao: string | null; desvio_dias: number | null }[];
+  propostas: { id: number; titulo: string; user_id: string; agente: string | null; criada_em: string; plano: boolean; precisa: number; votos: number; faltam: string[]; exato: boolean }[];
+  esperando: { user_id: string; propostas: number }[];
+  atrasadas: { id: number; titulo: string; frente: string | null; prazo: string; responsavel: string | null; responsavel_agente: string | null }[];
+  ritmo: { semana: string; feitas: number }[];
+  tarefas: { id: number; titulo: string; frente: string | null; estado: Tarefa["estado"]; criada_em: string; prazo: string | null; prazo_previsto: string | null; concluida_em: string | null }[];
+};
+export type ItemFila = { sala_id: string; sala: string; tipo: "proposta" | "tarefa"; ref: number; titulo: string; desde: string; prazo: string | null };
 
 export const atrasada = (t: Tarefa) => t.estado === "aberta" && !!t.prazo && new Date(t.prazo).getTime() < Date.now();
 

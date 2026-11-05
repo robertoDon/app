@@ -124,3 +124,16 @@ describe("idioma", () => {
     expect(pedidoPara("Gemini", "Follou", { id: 7 }, "Ana").texto).toMatch(/^Read the room "Follou"/);
   });
 });
+
+describe("quem aprova o quê", () => {
+  test("proposta com aprovadores diz quem decide e quem falta", async () => {
+    const { LinhaAprovacao } = await import("../components/Bolha");
+    const html = renderToStaticMarkup(<LinhaAprovacao a={{ precisa: 2, quem: ["Roberto"], euAprovei: false, faltam: ["David"], indicados: ["Roberto", "David"], posso: false }} />);
+    expect(html).toContain("Decidem: Roberto e David");
+    expect(html).toContain("falta David");
+  });
+  test("decisão de plano aparece em inglês", () => {
+    definirIdioma("en", false);
+    expect(gravado("Aprovada. O plano virou tarefas, com o prazo previsto de cada uma.")).toBe("Approved. The plan became tasks, each with its planned due date.");
+  });
+});

@@ -14,14 +14,16 @@ type Props = {
   sugestoesBase: Sugestao[];
   respondendo: Citacao;
   cancelarResposta: () => void;
-  enviar: (texto: string, proposta: boolean, anexos: Anexo[]) => void;
+  enviar: (texto: string, proposta: boolean, anexos: Anexo[], aprovadores?: string[]) => void;
   subir: (f: File) => Promise<Anexo>;
+  pessoas?: { id: string; nome: string }[]; // quem pode aprovar uma proposta
 };
 
 // Barra de escrever: @menção com sugestões, responder a uma mensagem e "fazer proposta".
-export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBase, respondendo, cancelarResposta, enviar, subir }, ref) {
+export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBase, respondendo, cancelarResposta, enviar, subir, pessoas = [] }, ref) {
   const [texto, setTexto] = useState("");
   const [proposta, setProposta] = useState(false);
+  const [aprovam, setAprovam] = useState<string[]>([]); // vazio = a regra da sala
   const [busca, setBusca] = useState<string | null>(null); // texto depois do @ que está sendo digitado
   const [escolha, setEscolha] = useState(0);
   const caixa = useRef<HTMLTextAreaElement>(null);
@@ -94,9 +96,9 @@ export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBa
   const mandar = () => {
     const t = texto.trim();
     if ((!t && !prontos.length) || enviando) return;
-    enviar(t, proposta, prontos);
+    enviar(t, proposta, prontos, proposta ? aprovam : undefined);
     arquivos.forEach((a) => a.previa && URL.revokeObjectURL(a.previa));
-    setTexto(""); setBusca(null); setProposta(false); setArquivos([]);
+    setTexto(""); setBusca(null); setProposta(false); setArquivos([]); setAprovam([]);
   };
 
   return (
@@ -144,7 +146,19 @@ export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBa
             )}
             {proposta && (
               <span className="compor-chip">
-                <IconeProposta tamanho={14} /> <strong>{tr("Proposta", "Proposal")}</strong> · {tr("as pessoas da sala aprovam ou recusam", "people in the room approve or decline")}
+                <IconeProposta tamanho={14} /> <strong>{tr("Proposta", "Proposal")}</strong> · {aprovam.length ? tr("só decide quem você marcou", "only the people you picked decide") : tr("as pessoas da sala aprovam ou recusam", "people in the room approve or decline")}
+              </span>
+            )}
+            {proposta && pessoas.length > 1 && (
+              <span className="compor-aprovam" role="group" aria-label={tr("Quem aprova", "Who approves")}>
+                <span className="nota">{tr("Quem aprova:", "Who approves:")}</span>
+                <button type="button" className={`chip-opcao ${aprovam.length ? "" : "ativo"}`} aria-pressed={!aprovam.length}
+                  onClick={(e) => { e.stopPropagation(); setAprovam([]); }}>{tr("Regra da sala", "Room rule")}</button>
+                {pessoas.map((x) => {
+                  const on = aprovam.includes(x.id);
+                  return <button key={x.id} type="button" className={`chip-opcao ${on ? "ativo" : ""}`} aria-pressed={on}
+                    onClick={(e) => { e.stopPropagation(); setAprovam((a) => (on ? a.filter((y) => y !== x.id) : [...a, x.id])); }}>{x.nome}</button>;
+                })}
               </span>
             )}
           </div>

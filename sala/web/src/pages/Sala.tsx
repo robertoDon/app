@@ -13,10 +13,11 @@ import { Memoria } from "../components/Memoria";
 import { Avisos } from "../components/Avisos";
 import { Tarefas, prazoCurto, valorResp, type RascunhoTarefa } from "../components/Tarefas";
 import { Ata } from "../components/Ata";
+import { PainelSala } from "../components/PainelSala";
 import { MENCAO_COLETIVA, chamaAgentes, chamaTodos, handle } from "../components/Texto";
 import { erro, gravado, idioma, locale, t } from "../i18n";
 import {
-  IconeAbrir, IconeAjustes, IconeAgente, IconeBusca, IconeCheck, IconeClipe, IconeCopiar, IconeTarefa, IconeColunas, IconeConvite, IconeDecisao, IconePlugue, IconeProposta, IconeVoltar, Marcador, IconeBiblioteca,
+  IconeAbrir, IconeAjustes, IconeAgente, IconeBusca, IconeCheck, IconeClipe, IconeCopiar, IconeTarefa, IconeColunas, IconeConvite, IconeDecisao, IconePlugue, IconeProposta, IconeVoltar, Marcador, IconeBiblioteca, IconePainel,
 } from "../components/Icones";
 import {
   abrirConectar, atrasada, copiarTexto, pedidoPara, presenca, sb, subirArquivo, ultimaSala,
@@ -53,14 +54,14 @@ const ouvindoAgora = (texto?: string) => texto === "ouvindo agora" || texto === 
 const PAGINA = 200;
 
 export type AgenteSala = { nome: string; uid: string; presenca: { ativo: boolean; texto: string } | null; sozinho?: boolean };
-type Painel = null | "ajustes" | "contexto" | "decisoes" | "busca" | "tarefas" | "biblioteca" | "memoria";
+type Painel = null | "ajustes" | "contexto" | "decisoes" | "busca" | "tarefas" | "biblioteca" | "memoria" | "painel";
 
 export default function SalaPage() {
   const { id = "" } = useParams();
   const [busca, setBusca] = useSearchParams();
   const { sessao, perfil } = useAuth();
   const eu = sessao!.user.id;
-  const { salas, recarregar } = useSalas();
+  const { salas, fila, recarregar } = useSalas();
   const sala = salas?.find((s) => s.id === id);
   const dono = sala?.papel === "dono";
   const leitor = sala?.papel === "leitor"; // convidado: lê tudo, não escreve
@@ -272,6 +273,8 @@ export default function SalaPage() {
   useEffect(() => {
     if (busca.get("contexto") && sala) { setPainel("contexto"); setBusca({}, { replace: true }); }
     if (busca.get("tarefas") && sala) { setPainel("tarefas"); setBusca({}, { replace: true }); }
+    const ir = Number(busca.get("ir")); // veio de "Esperando você"
+    if (ir && msgs) { irPara(ir); setBusca({}, { replace: true }); }
     const pedir = Number(busca.get("pedir"));
     if (pedir && msgs) { setPedido(pedir); irPara(pedir); setBusca({}, { replace: true }); }
   }, [busca, sala, msgs !== null]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -286,6 +289,7 @@ export default function SalaPage() {
       if (e.key === "t") { e.preventDefault(); setPainel((p) => (p === "tarefas" ? null : "tarefas")); }
       if (e.key === "b") { e.preventDefault(); setPainel((p) => (p === "biblioteca" ? null : "biblioteca")); }
       if (e.key === "m") { e.preventDefault(); setPainel((p) => (p === "memoria" ? null : "memoria")); }
+      if (e.key === "p") { e.preventDefault(); setPainel((p) => (p === "painel" ? null : "painel")); }
     };
     window.addEventListener("keydown", tecla);
     return () => window.removeEventListener("keydown", tecla);
@@ -328,7 +332,8 @@ export default function SalaPage() {
 
   const mandar = async (temp: Mensagem) => {
     const { data, error } = await sb.from("mensagens")
-      .insert({ sala_id: id, user_id: eu, texto: temp.texto, tipo: temp.tipo, estado: temp.estado, responde_a: temp.responde_a, anexos: temp.anexos })
+      .insert({ sala_id: id, user_id: eu, texto: temp.texto, tipo: temp.tipo, estado: temp.estado, responde_a: temp.responde_a, anexos: temp.anexos,
+        aprovadores: temp.aprovadores?.length ? temp.aprovadores : null })
       .select("*").single();
     setMsgs((a) => {
       if (!a) return a;
@@ -338,13 +343,14 @@ export default function SalaPage() {
     });
   };
 
-  const enviar = (texto: string, proposta: boolean, anexos: Anexo[]) => {
+  const enviar = (texto: string, proposta: boolean, anexos: Anexo[], aprovadores?: string[]) => {
     if (longe.current) carregarRecentes(id);
     noFim.current = true;
     const temp: Mensagem = {
       id: -Date.now(), sala_id: id, user_id: eu, agente: null, texto, criada_em: new Date().toISOString(),
       tipo: proposta ? "proposta" : "mensagem", estado: proposta ? "pendente" : null, responde_a: respondendo?.id ?? null,
       decidida_por: null, decidida_em: null, editada_em: null, apagada: false, anexos, pendente: true,
+      aprovadores: proposta && aprovadores?.length ? aprovadores : null,
     };
     setRespondendo(null);
     setMsgs((a) => [...(a ?? []), temp]);
@@ -396,7 +402,7 @@ export default function SalaPage() {
 
   if (salas && !sala) {
     return (
-      <Layout salas={salas} recarregar={recarregar} foco>
+      <Layout salas={salas} recarregar={recarregar} fila={fila} foco>
         <section className="vazio">
           <h1 className="display">{t("Sala não encontrada.", "Room not found.")}</h1>
           <p className="sub">{t("Ela pode ter sido apagada, ou você saiu dela. Para entrar, peça um convite a quem está lá.", "It may have been deleted, or you left it. To join, ask someone in it for an invite.")}</p>
@@ -409,12 +415,15 @@ export default function SalaPage() {
   // quem já aprovou e quem falta, quando a sala pede mais de uma aprovação
   const aprovacaoDe = (m: Mensagem): Aprovacao | null => {
     if (m.tipo !== "proposta" || m.estado !== "pendente") return null;
+    const escrevem = membros.filter((x) => x.papel !== "leitor").map((x) => x.user_id);
+    const indicados = m.aprovadores?.length ? m.aprovadores : null; // a proposta disse quem decide
     // troca de contexto: todas as pessoas que escrevem, seja qual for a regra da sala
-    const precisa = m.novo_contexto ? Math.max(1, membros.filter((x) => x.papel !== "leitor").length) : precisaSala;
-    if (precisa < 2) return null;
+    const precisa = m.novo_contexto ? Math.max(1, escrevem.length) : indicados ? indicados.length : precisaSala;
+    if (precisa < 2 && !indicados) return null;
+    const curto = (u: string) => (u === eu ? t("você", "you") : nome(u).split(" ")[0]);
     const quem = votos.filter((v) => v.proposta_id === m.id).map((v) => v.user_id);
-    const faltam = membros.filter((x) => x.papel !== "leitor" && !quem.includes(x.user_id)).map((x) => (x.user_id === eu ? t("você", "you") : (x.perfis?.nome ?? "").split(" ")[0]));
-    return { precisa, quem: quem.map((u) => (u === eu ? t("você", "you") : nome(u).split(" ")[0])), euAprovei: quem.includes(eu), faltam };
+    const faltam = (indicados ?? escrevem).filter((u) => !quem.includes(u)).map(curto);
+    return { precisa, quem: quem.map(curto), euAprovei: quem.includes(eu), faltam, indicados: indicados?.map(curto) ?? null, posso: !indicados || indicados.includes(eu) };
   };
 
   const passos = [
@@ -522,7 +531,7 @@ export default function SalaPage() {
   }, [msgs, abertos, destaque, primeiraNova, chamaMim, tarefasDe, autor]);
 
   return (
-    <Layout salas={salas} recarregar={recarregar} foco>
+    <Layout salas={salas} recarregar={recarregar} fila={fila} foco>
       <div className="sala">
         <div className={`sala-principal ${arrastando ? "arrastando" : ""}`}
           onDragOver={(e) => { if (!leitor && e.dataTransfer.types.includes("Files")) { e.preventDefault(); setArrastando(true); } }}
@@ -548,6 +557,10 @@ export default function SalaPage() {
               aria-expanded={painel === "tarefas"} aria-label={abertasSala ? t(`Tarefas, ${abertasSala} abertas`, `Tasks, ${abertasSala} open`) : t("Tarefas", "Tasks")} title={t("Tarefas (T)", "Tasks (T)")}>
               <IconeDecisao />
               {abertasSala > 0 && <span className="selo-num" aria-hidden>{abertasSala}</span>}
+            </button>
+            <button className={`btn-icone ${painel === "painel" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "painel" ? null : "painel"))}
+              aria-expanded={painel === "painel"} aria-label={t("Painel da sala", "Room dashboard")} title={t("Painel (P)", "Dashboard (P)")}>
+              <IconePainel />
             </button>
             <button data-guia="biblioteca" className={`btn-icone ${painel === "biblioteca" || painel === "memoria" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "biblioteca" || p === "memoria" ? null : "biblioteca"))}
               aria-expanded={painel === "biblioteca"} aria-label={t("Biblioteca da sala", "Room library")} title={t("Biblioteca (B)", "Library (B)")}>
@@ -661,7 +674,7 @@ export default function SalaPage() {
                     minha={minhaPessoa} continua={continua} chamaMim={chamaMim} destaque={destaque === m.id}
                     autorDe={(id) => { const x = porId.get(id); return x ? autor(x) : null; }}
                     tarefaDe={(id) => tarefas?.find((x) => x.id === id)?.titulo ?? null} abrirTarefas={() => setPainel("tarefas")}
-                    aprovacao={aprovacaoDe(m)}
+                    aprovacao={aprovacaoDe(m)} nomeDe={nome}
                     decisor={m.decidida_por ? (m.decidida_por === eu ? t("você", "you") : nome(m.decidida_por)) : undefined}
                     citacao={m.responde_a && !emSequencia ? { id: m.responde_a, autor: citada ? autor(citada) : t("Mensagem anterior", "Earlier message"), texto: citada ? (citada.apagada ? t("Mensagem apagada.", "Message deleted.") : umaLinha(gravado(citada.texto), 120)) : "" } : null}
                     responder={m.id > 0 && !leitor ? () => responder(m) : undefined}
@@ -751,7 +764,8 @@ export default function SalaPage() {
           {!leitor && <Avisos />}
           {leitor ? (
             <p className="so-leitura" role="status">{t("Você está acompanhando esta sala como convidado: vê a conversa, as decisões e as tarefas, mas não escreve. Para participar, peça a quem cuida da sala.", "You're a viewer in this room: you can see the conversation, decisions and tasks, but you can't write. To join in, ask the room owner.")}</p>
-          ) : <Compor key={id} ref={compor} subir={(f) => subirArquivo(id, eu, f)} sugestoesBase={sugestoes} respondendo={respondendo} cancelarResposta={() => setRespondendo(null)} enviar={enviar} />}
+          ) : <Compor key={id} ref={compor} subir={(f) => subirArquivo(id, eu, f)} sugestoesBase={sugestoes} respondendo={respondendo} cancelarResposta={() => setRespondendo(null)} enviar={enviar}
+            pessoas={membros.filter((x) => x.papel !== "leitor").map((x) => ({ id: x.user_id, nome: x.user_id === eu ? t("Você", "You") : (x.perfis?.nome ?? "").split(" ")[0] }))} />}
         </div>
 
         {(painel === "ajustes" || painel === "contexto") && sala && (
@@ -765,6 +779,10 @@ export default function SalaPage() {
         {painel === "tarefas" && sala && (
           <Tarefas salaId={sala.id} tarefas={tarefas} membros={membros} agentes={agentes} eu={eu} nome={nome}
             rascunho={rascunho} limparRascunho={() => setRascunho(null)} irPara={irPara} fechar={() => { setPainel(null); setRascunho(null); }} />
+        )}
+        {painel === "painel" && sala && (
+          <PainelSala salaId={sala.id} eu={eu} versao={versaoDecisoes + votos.length} tarefas={tarefas} irPara={irPara}
+            abrirTarefas={() => setPainel("tarefas")} abrirDecisoes={() => setPainel("decisoes")} fechar={() => setPainel(null)} />
         )}
         {painel === "busca" && sala && <Busca salaId={sala.id} autor={autor} irPara={irPara} fechar={() => setPainel(null)} />}
         {painel === "biblioteca" && sala && <Biblioteca salaId={sala.id} eu={eu} podeEscrever={!leitor} nome={nome} fechar={() => setPainel(null)} abrirMemoria={() => setPainel("memoria")} />}

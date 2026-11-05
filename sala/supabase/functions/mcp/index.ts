@@ -12,9 +12,10 @@
 //   GET  /api/instrucoes                     como usar, com os comandos prontos
 //   GET  /api/salas                          salas da pessoa
 //   GET  /api/salas/:sala/mensagens?depois=N
-//   POST /api/salas/:sala/mensagens          {texto, proposta?, responde_a?}
+//   POST /api/salas/:sala/mensagens          {texto, proposta?, responde_a?, aprovadores?}
 //   GET  /api/salas/:sala/decisoes           propostas pendentes e decisões
 //   GET  /api/salas/:sala/tarefas            tarefas abertas e feitas
+//   GET  /api/salas/:sala/painel             o painel: avanço por frente, quem falta aprovar, atrasos, ritmo
 //   POST /api/tarefas/:id/concluir           {resultado}
 //   POST /api/salas/:sala/arquivos           {nome, conteudo, texto?} arquivo de texto (até 1 MB)
 //   GET  /api/arquivo?caminho=...            baixa um anexo da conversa
@@ -128,10 +129,12 @@ async function autenticar(req: Request): Promise<Quem | null> {
 
 type Sala = { id: string; nome: string; contexto?: string; memoria?: string };
 type Anexo = { path: string; nome: string; tipo: string; tamanho: number };
+type ItemPlano = { titulo: string; frente?: string; responsavel?: string; responsavel_agente?: string; prazo?: string; tarefa?: number };
 type Msg = {
   id: number; sala_id: string; user_id: string; agente: string | null; texto: string; criada_em: string;
   tipo: "mensagem" | "proposta" | "decisao"; responde_a: number | null; estado: "pendente" | "aprovada" | "recusada" | null;
   decidida_em: string | null; editada_em: string | null; apagada: boolean; anexos: Anexo[]; novo_contexto?: string | null;
+  aprovadores?: string[] | null; plano?: ItemPlano[] | null; nomes?: Record<string, string>;
   autor?: { nome: string }; decisor?: { nome: string } | null;
   reacoes?: { emoji: string; agente: string | null; perfis: { nome: string } | null }[];
   votos?: { perfis: { nome: string } | null }[];
@@ -158,7 +161,7 @@ async function acharSala(q: Quem, ref?: string): Promise<Sala> {
   return s;
 }
 
-const SEL = "id, sala_id, user_id, agente, texto, criada_em, tipo, responde_a, estado, decidida_em, editada_em, apagada, anexos, novo_contexto, " +
+const SEL = "id, sala_id, user_id, agente, texto, criada_em, tipo, responde_a, estado, decidida_em, editada_em, apagada, anexos, novo_contexto, aprovadores, plano, " +
   "autor:perfis!mensagens_user_id_fkey(nome), decisor:perfis!mensagens_decidida_por_fkey(nome), votos(perfis(nome))";
 
 async function ler(sala: string, depois = 0, limite = 50, antes = 0, busca = ""): Promise<Msg[]> {
@@ -184,9 +187,23 @@ async function ler(sala: string, depois = 0, limite = 50, antes = 0, busca = "")
   return await comReacoes((data as unknown as Msg[]).reverse());
 }
 
+// nomes de quem aprova e de quem faz cada item do plano
+async function comNomes(ms: Msg[]): Promise<Msg[]> {
+  const ids = new Set<string>();
+  for (const m of ms) {
+    (m.aprovadores ?? []).forEach((u) => ids.add(u));
+    (m.plano ?? []).forEach((i) => i.responsavel && ids.add(i.responsavel));
+  }
+  if (!ids.size) return ms;
+  const { data } = await db.from("perfis").select("id, nome").in("id", [...ids]);
+  const nomes = Object.fromEntries(((data ?? []) as { id: string; nome: string }[]).map((p) => [p.id, p.nome]));
+  return ms.map((m) => (m.aprovadores?.length || m.plano?.length ? { ...m, nomes } : m));
+}
+
 // reações de cada mensagem, para o agente ver quem reagiu com o quê
 async function comReacoes(ms: Msg[]): Promise<Msg[]> {
   if (!ms.length) return ms;
+  ms = await comNomes(ms);
   const { data } = await db.from("reacoes").select("mensagem_id, emoji, agente, perfis(nome)").in("mensagem_id", ms.map((m) => m.id)).order("id");
   const por = new Map<number, Msg["reacoes"]>();
   for (const r of (data ?? []) as any[]) por.set(r.mensagem_id, [...(por.get(r.mensagem_id) ?? []), r]);
@@ -237,7 +254,7 @@ async function reagir(q: Quem, mensagem: number, emoji: string) {
   return true;
 }
 
-type Envio = { texto: string; proposta?: boolean; responde_a?: number | null; anexos?: Anexo[]; novo_contexto?: string };
+type Envio = { texto: string; proposta?: boolean; responde_a?: number | null; anexos?: Anexo[]; novo_contexto?: string; aprovadores?: string[]; plano?: ItemPlano[] };
 
 async function enviar(q: Quem, sala: string, e: Envio): Promise<Msg> {
   const texto = (e.texto ?? "").trim();
@@ -260,7 +277,8 @@ async function enviar(q: Quem, sala: string, e: Envio): Promise<Msg> {
     }
   }
   const { data, error } = await db.from("mensagens")
-    .insert({ sala_id: sala, user_id: q.userId, agente: q.agente, texto, tipo: e.proposta ? "proposta" : "mensagem", responde_a: responde, anexos: e.anexos ?? [], novo_contexto: novo })
+    .insert({ sala_id: sala, user_id: q.userId, agente: q.agente, texto, tipo: e.proposta ? "proposta" : "mensagem", responde_a: responde, anexos: e.anexos ?? [], novo_contexto: novo,
+      aprovadores: e.proposta && e.aprovadores?.length ? e.aprovadores : null, plano: e.proposta && e.plano?.length ? e.plano : null })
     .select(SEL).single();
   if (error) throw new Falha(error.message, 429);
   return data as unknown as Msg;
@@ -304,18 +322,24 @@ const quemEscreveu = (m: Msg, q?: Quem) => (m.agente
 // textos que o banco grava em português
 const gravado = (t: string, q?: Quem) => q?.lingua !== "en" ? t
   : t === "Aprovada." ? "Approved." : t === "Recusada." ? "Declined." :
-  t === "Aprovada. O contexto da sala foi trocado pelo texto da proposta." ? "Approved. The room context was replaced with the proposal's text." : t.replace(/^✓ Concluí a tarefa: /, "✓ Completed the task: ");
+  t === "Aprovada. O contexto da sala foi trocado pelo texto da proposta." ? "Approved. The room context was replaced with the proposal's text." :
+  t === "Aprovada. O plano virou tarefas, com o prazo previsto de cada uma." ? "Approved. The plan became tasks, each with its planned due date." : t.replace(/^✓ Concluí a tarefa: /, "✓ Completed the task: ");
 const tamanho = (b: number) => (b < 1024 ? `${b} B` : b < 1048576 ? `${Math.round(b / 1024)} KB` : `${(b / 1048576).toFixed(1)} MB`);
 const quando = (iso: string) => iso.slice(0, 16).replace("T", " ") + " UTC";
+
+const nomeDe = (m: Msg, u?: string) => (u && m.nomes?.[u]) || "?";
+const quemAprova = (m: Msg) => (m.aprovadores ?? []).map((u) => nomeDe(m, u).split(" ")[0]).join(", ");
 
 function rotulo(m: Msg, q?: Quem) {
   if (m.apagada) return "";
   if (m.tipo === "proposta") {
-    const ctx = m.novo_contexto ? tr(q, " DE TROCA DO CONTEXTO DA SALA", " TO REPLACE THE ROOM CONTEXT") : "";
+    const ctx = m.novo_contexto ? tr(q, " DE TROCA DO CONTEXTO DA SALA", " TO REPLACE THE ROOM CONTEXT")
+      : m.plano?.length ? tr(q, ` DE PLANO (${m.plano.length} tarefas)`, ` OF A PLAN (${m.plano.length} tasks)`) : "";
     if (m.estado === "pendente") {
       const ja = (m.votos ?? []).map((v) => v.perfis?.nome ?? "?");
       const parcial = ja.length ? tr(q, ` (já aprovou: ${ja.join(", ")}; falta outra aprovação)`, ` (already approved by: ${ja.join(", ")}; another approval is needed)`) : "";
-      const todos = m.novo_contexto ? tr(q, "; precisa do sim de todas as pessoas", "; needs every person's yes") : "";
+      const todos = m.novo_contexto ? tr(q, "; precisa do sim de todas as pessoas", "; needs every person's yes")
+        : m.aprovadores?.length ? tr(q, `; só decide quem foi indicado: ${quemAprova(m)}`, `; only the named people decide: ${quemAprova(m)}`) : "";
       return tr(q, ` · PROPOSTA${ctx} aguardando decisão das pessoas${parcial}${todos}`, ` · PROPOSAL${ctx} waiting for people to decide${parcial}${todos}`);
     }
     if (m.novo_contexto) return tr(q, ` · PROPOSTA${ctx} ${m.estado === "aprovada" ? "APROVADA (contexto já trocado)" : "RECUSADA"} por ${m.decisor?.nome ?? "?"}`,
@@ -327,6 +351,11 @@ function rotulo(m: Msg, q?: Quem) {
     ` · DECISION: ${m.estado === "aprovada" ? "approved" : "declined"} proposal #${m.responde_a}`);
   return "";
 }
+
+const listaPlano = (m: Msg, q?: Quem) => (m.plano ?? []).map((i) => {
+  const quem = i.responsavel ? (i.responsavel_agente ? tr(q, `${i.responsavel_agente} de ${nomeDe(m, i.responsavel)}`, `${nomeDe(m, i.responsavel)}'s ${i.responsavel_agente}`) : nomeDe(m, i.responsavel)) : tr(q, "sem responsável", "unassigned");
+  return `- ${i.frente ? `[${i.frente}] ` : ""}${i.titulo} · ${quem}${i.prazo ? ` · ${tr(q, "prazo", "due")} ${i.prazo.slice(0, 10)}` : ""}${i.tarefa ? tr(q, ` · atualiza a tarefa ${i.tarefa}`, ` · updates task ${i.tarefa}`) : ""}`;
+}).join("\n");
 
 const formatar = (ms: Msg[], q?: Quem) =>
   ms.length
@@ -341,7 +370,8 @@ const formatar = (ms: Msg[], q?: Quem) =>
         grupos.set(r.emoji, [...(grupos.get(r.emoji) ?? []), quem]);
       }
       const reacoes = grupos.size && !m.apagada ? `\n${tr(q, "reações", "reactions")}: ${[...grupos].map(([e, qs]) => `${e} ${qs.join(", ")}`).join(" · ")}` : "";
-      return `#${m.id} · ${quando(m.criada_em)} · ${quemEscreveu(m, q)}${rotulo(m, q)}${resp}${ed}${chamou}\n${m.apagada ? tr(q, "(mensagem apagada)", "(message deleted)") : gravado(m.texto, q)}${anexos}${reacoes}`;
+      const plano = m.plano?.length && !m.apagada ? `\n${tr(q, "Tarefas do plano", "Plan tasks")}:\n${listaPlano(m, q)}` : "";
+      return `#${m.id} · ${quando(m.criada_em)} · ${quemEscreveu(m, q)}${rotulo(m, q)}${resp}${ed}${chamou}\n${m.apagada ? tr(q, "(mensagem apagada)", "(message deleted)") : gravado(m.texto, q)}${plano}${anexos}${reacoes}`;
     }).join("\n\n")
     : tr(q, "(nenhuma mensagem nova)", "(no new messages)");
 
@@ -349,7 +379,7 @@ async function propostas(sala: string, limite = 30): Promise<Msg[]> {
   const { data, error } = await db.from("mensagens").select(SEL).eq("sala_id", sala).eq("tipo", "proposta").eq("apagada", false)
     .order("id", { ascending: false }).limit(limite);
   if (error) throw error;
-  return data as unknown as Msg[];
+  return await comNomes(data as unknown as Msg[]);
 }
 
 const umaLinha = (t: string, n = 160) => { const l = t.replace(/\s+/g, " ").trim(); return l.length > n ? l.slice(0, n - 1) + "…" : l; };
@@ -358,7 +388,7 @@ function registro(ps: Msg[], q?: Quem) {
   const pend = ps.filter((p) => p.estado === "pendente");
   const dec = ps.filter((p) => p.estado !== "pendente");
   const linhas: string[] = [];
-  if (pend.length) linhas.push(tr(q, "Propostas aguardando decisão:", "Proposals waiting for a decision:"), ...pend.map((p) => `- #${p.id} (${quemEscreveu(p, q)}): ${umaLinha(p.texto)}`));
+  if (pend.length) linhas.push(tr(q, "Propostas aguardando decisão:", "Proposals waiting for a decision:"), ...pend.map((p) => `- #${p.id} (${quemEscreveu(p, q)})${p.aprovadores?.length ? tr(q, ` [decide: ${quemAprova(p)}]`, ` [decides: ${quemAprova(p)}]`) : ""}: ${umaLinha(p.texto)}`));
   if (dec.length) linhas.push(tr(q, "Decisões da sala (mais recentes primeiro):", "Room decisions (most recent first):"), ...dec.map((p) =>
     tr(q, `- #${p.id} ${p.estado === "aprovada" ? "APROVADA" : "RECUSADA"} por ${p.decisor?.nome ?? "?"} em ${p.decidida_em?.slice(0, 10)}: `,
       `- #${p.id} ${p.estado === "aprovada" ? "APPROVED" : "DECLINED"} by ${p.decisor?.nome ?? "?"} on ${p.decidida_em?.slice(0, 10)}: `) + umaLinha(p.texto)));
@@ -619,9 +649,10 @@ const registrar = (q: Quem, sala: string, acao: string, detalhe: string) =>
 type Tarefa = {
   id: number; sala_id: string; titulo: string; origem: number | null; responsavel: string | null; responsavel_agente: string | null;
   prazo: string | null; estado: "aberta" | "feita" | "cancelada"; resultado: string | null; concluida_em: string | null;
+  frente: string | null; prazo_previsto: string | null;
   dono?: { nome: string } | null;
 };
-const SEL_T = "id, sala_id, titulo, origem, responsavel, responsavel_agente, prazo, estado, resultado, concluida_em, dono:perfis!tarefas_responsavel_fkey(nome)";
+const SEL_T = "id, sala_id, titulo, origem, responsavel, responsavel_agente, prazo, estado, resultado, concluida_em, frente, prazo_previsto, dono:perfis!tarefas_responsavel_fkey(nome)";
 
 async function tarefas(sala: string): Promise<Tarefa[]> {
   const { data, error } = await db.from("tarefas").select(SEL_T).eq("sala_id", sala).neq("estado", "cancelada")
@@ -644,7 +675,8 @@ function listaTarefas(ts: Tarefa[], q: Quem, feitas = 5) {
   if (abertas.length) linhas.push(tr(q, "Tarefas abertas:", "Open tasks:"), ...abertas.map((t) => {
     const atrasada = t.prazo && new Date(t.prazo).getTime() < Date.now() ? tr(q, " · ATRASADA", " · OVERDUE") : "";
     const sua = ehMinha(q, t) ? (t.responsavel_agente ? tr(q, " ← SUA", " ← YOURS") : tr(q, " ← da sua pessoa", " ← your person's")) : "";
-    return `- ${tarefa} ${t.id}: ${t.titulo} · ${quemFaz(t, q)}${t.prazo ? ` · ${tr(q, "prazo", "due")} ${dataCurta(t.prazo)}` : ""}${atrasada}${t.origem ? ` · ${tr(q, "veio da", "from")} #${t.origem}` : ""}${sua}`;
+    const previsto = t.prazo_previsto && t.prazo_previsto !== t.prazo ? ` · ${tr(q, "previsto no plano", "planned")} ${t.prazo_previsto.slice(0, 10)}` : "";
+    return `- ${tarefa} ${t.id}: ${t.frente ? `[${t.frente}] ` : ""}${t.titulo} · ${quemFaz(t, q)}${t.prazo ? ` · ${tr(q, "prazo", "due")} ${dataCurta(t.prazo)}` : ""}${previsto}${atrasada}${t.origem ? ` · ${tr(q, "veio da", "from")} #${t.origem}` : ""}${sua}`;
   }));
   if (prontas.length) linhas.push(tr(q, "Feitas recentemente:", "Recently completed:"), ...prontas.map((t) => `- ${tarefa} ${t.id}: ${t.titulo} · ${quemFaz(t, q)}${t.resultado ? ` · ${umaLinha(t.resultado, 100)}` : ""}`));
   return linhas.join("\n");
@@ -666,6 +698,94 @@ async function acharResponsavel(q: Quem, sala: string, ref?: string): Promise<{ 
   if (m) return { responsavel: m.user_id, responsavel_agente: null };
   throw new Falha(tr(q, `Não achei "${ref}" na sala. Use o primeiro nome da pessoa (Ana) ou Agente-Pessoa (Claude-Ana).`,
     `Couldn't find "${ref}" in the room. Use the person's first name (Ana) or Agent-Person (Claude-Ana).`));
+}
+
+// "Roberto, David" → as pessoas da sala que podem aprovar
+async function acharAprovadores(q: Quem, sala: string, refs: unknown): Promise<string[] | undefined> {
+  const lista = (Array.isArray(refs) ? refs : typeof refs === "string" ? refs.split(/[,;]| e | and /) : []).map((r) => String(r).trim().replace(/^@/, "")).filter(Boolean);
+  if (!lista.length) return undefined;
+  const { data } = await db.from("membros").select("user_id, papel, perfis(nome)").eq("sala_id", sala);
+  const membros = (data ?? []) as unknown as { user_id: string; papel: string; perfis: { nome: string } | null }[];
+  return lista.map((r) => {
+    const m = membros.find((x) => handle((x.perfis?.nome ?? "").split(" ")[0]) === handle(r) || handle(x.perfis?.nome ?? "") === handle(r));
+    if (!m) throw new Falha(tr(q, `Não achei "${r}" na sala para aprovar. Use o primeiro nome da pessoa.`, `Couldn't find "${r}" in the room to approve. Use the person's first name.`));
+    if (m.papel === "leitor") throw new Falha(tr(q, `${m.perfis?.nome} só acompanha esta sala e não aprova.`, `${m.perfis?.nome} only views this room and can't approve.`));
+    return m.user_id;
+  });
+}
+
+// só a data ("2026-11-10"): vale até 18h de Brasília, como no app
+function lerPrazo(v: unknown): string | null {
+  const p = String(v ?? "").trim();
+  return /^\d{4}-\d{2}-\d{2}$/.test(p) ? new Date(`${p}T18:00:00-03:00`).toISOString()
+    : p && !isNaN(Date.parse(p)) ? new Date(p).toISOString() : null;
+}
+
+async function montarPlano(q: Quem, sala: string, itens: unknown): Promise<ItemPlano[]> {
+  if (!Array.isArray(itens) || !itens.length) throw new Falha(tr(q, "Passe itens: a lista de tarefas do plano.", "Pass itens: the plan's list of tasks."));
+  if (itens.length > 60) throw new Falha(tr(q, "No máximo 60 tarefas por plano.", "At most 60 tasks per plan."));
+  const out: ItemPlano[] = [];
+  for (const [n, i] of (itens as Record<string, unknown>[]).entries()) {
+    const titulo = String(i?.titulo ?? "").trim().slice(0, 200);
+    if (!titulo) throw new Falha(tr(q, `Item ${n + 1} do plano sem título.`, `Plan item ${n + 1} has no title.`));
+    const ref = String(i?.responsavel ?? "").trim();
+    const resp = ref ? await acharResponsavel(q, sala, ref) : null;
+    const prazo = lerPrazo(i?.prazo);
+    if (String(i?.prazo ?? "").trim() && !prazo) throw new Falha(tr(q, `Prazo inválido em "${titulo}". Use 2026-11-20.`, `Invalid due date in "${titulo}". Use 2026-11-20.`));
+    out.push({ titulo, frente: String(i?.frente ?? "").trim().slice(0, 40) || undefined, responsavel: resp?.responsavel, responsavel_agente: resp?.responsavel_agente ?? undefined,
+      prazo: prazo ?? undefined, tarefa: Number(i?.tarefa) || undefined });
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------- painel
+
+type Painel = {
+  nomes: Record<string, string>;
+  totais: { abertas: number; feitas: number; atrasadas: number; sem_responsavel: number };
+  frentes: { frente: string; total: number; feitas: number; atrasadas: number; previsto: string | null; projecao: string | null; desvio_dias: number | null }[];
+  propostas: { id: number; titulo: string; precisa: number; votos: number; faltam: string[]; exato: boolean; criada_em: string; plano: boolean }[];
+  esperando: { user_id: string; propostas: number }[];
+  atrasadas: { id: number; titulo: string; frente: string | null; prazo: string; responsavel: string | null; responsavel_agente: string | null }[];
+  ritmo: { semana: string; feitas: number }[];
+};
+
+async function painel(q: Quem, s: Sala) {
+  const { data, error } = await db.rpc("painel_sala", { sala: s.id });
+  if (error) throw new Falha(error.message);
+  const p = data as Painel;
+  const nome = (u: string | null) => (u && p.nomes[u]?.split(" ")[0]) || "?";
+  const dias = (iso: string) => Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 864e5));
+  const L: string[] = [tr(q, `Painel da sala "${s.nome}" (os mesmos números que as pessoas veem no app)`, `Dashboard of the room "${s.nome}" (the same numbers people see in the app)`)];
+  const t = p.totais;
+  L.push(tr(q, `Tarefas: ${t.abertas} abertas, ${t.feitas} feitas, ${t.atrasadas} atrasadas, ${t.sem_responsavel} sem responsável.`,
+    `Tasks: ${t.abertas} open, ${t.feitas} done, ${t.atrasadas} overdue, ${t.sem_responsavel} unassigned.`));
+  if (p.frentes.length) {
+    L.push(tr(q, "Avanço por frente:", "Progress by workstream:"));
+    for (const f of p.frentes) {
+      const plano = f.previsto ? tr(q, ` · previsto ${f.previsto.slice(0, 10)}, projeção ${f.projecao?.slice(0, 10) ?? "?"}`, ` · planned ${f.previsto.slice(0, 10)}, projected ${f.projecao?.slice(0, 10) ?? "?"}`)
+        + (f.desvio_dias && f.desvio_dias > 0 ? tr(q, ` (+${f.desvio_dias} dias)`, ` (+${f.desvio_dias} days)`) : tr(q, " (no prazo)", " (on time)")) : "";
+      L.push(`- ${f.frente || tr(q, "Sem frente", "No workstream")}: ${f.feitas}/${f.total}${f.atrasadas ? tr(q, ` · ${f.atrasadas} atrasada(s)`, ` · ${f.atrasadas} overdue`) : ""}${plano}`);
+    }
+  }
+  if (p.propostas.length) {
+    L.push(tr(q, "Esperando aprovação:", "Waiting for approval:"));
+    for (const e of p.esperando) L.push(tr(q, `- ${nome(e.user_id)}: ${e.propostas} proposta(s)`, `- ${nome(e.user_id)}: ${e.propostas} proposal(s)`));
+    for (const x of p.propostas) {
+      const falta = x.exato ? x.faltam.map(nome).join(", ") : tr(q, `${x.precisa - x.votos} de: ${x.faltam.map(nome).join(", ")}`, `${x.precisa - x.votos} of: ${x.faltam.map(nome).join(", ")}`);
+      L.push(tr(q, `- #${x.id}${x.plano ? " (plano)" : ""}: ${x.titulo} · falta ${falta} · há ${dias(x.criada_em)} dia(s)`, `- #${x.id}${x.plano ? " (plan)" : ""}: ${x.titulo} · waiting for ${falta} · ${dias(x.criada_em)} day(s)`));
+    }
+  }
+  if (p.atrasadas.length) {
+    L.push(tr(q, "Atrasadas:", "Overdue:"));
+    for (const a of p.atrasadas) {
+      const quem = a.responsavel ? (a.responsavel_agente ? tr(q, `${a.responsavel_agente} de ${nome(a.responsavel)}`, `${nome(a.responsavel)}'s ${a.responsavel_agente}`) : nome(a.responsavel)) : tr(q, "sem responsável", "unassigned");
+      L.push(tr(q, `- tarefa ${a.id}: ${a.frente ? `[${a.frente}] ` : ""}${a.titulo} · ${quem} · ${dias(a.prazo)} dia(s) de atraso`, `- task ${a.id}: ${a.frente ? `[${a.frente}] ` : ""}${a.titulo} · ${quem} · ${dias(a.prazo)} day(s) late`));
+    }
+  }
+  L.push(tr(q, `Ritmo, tarefas feitas por semana (8 semanas, a última é esta): ${p.ritmo.map((r) => r.feitas).join(", ")}`,
+    `Pace, tasks done per week (8 weeks, the last is this one): ${p.ritmo.map((r) => r.feitas).join(", ")}`));
+  return L.join("\n");
 }
 
 async function concluirTarefa(q: Quem, id: number, resultado: string, anexo?: Anexo) {
@@ -701,6 +821,9 @@ function regras(q?: Quem) {
 - Keep a "Roles in practice" section in the memory: what each agent and person actually does in this room, observed from the work, not assigned (e.g. "David's ChatGPT: reviews deliveries and reports to the room"). Update it when you notice a pattern change. Use it to split work: do your part, and don't redo what is someone else's role.
 - When a person asks for a standing way of working ("always list tasks with the assignee in bold", "@ the agent you delegate to"), follow it from then on and record it in the memory under "Agreements" until the people move it into the instructions.
 - The room instructions belong to the people. To change them, use propor_contexto with the whole new text: it needs every person's yes, and the app swaps it by itself.
+- If the instructions say who approves what (e.g. "spending: both; technical: Roberto"), pass aprovadores in fazer_proposta or propor_plano: only those people decide.
+- To plan a piece of work (e.g. a spec in the library), break it into tasks with workstream, assignee and due date and send it with propor_plano. Once approved, the tasks are created and the due dates become the plan. To replan, send a new plan citing the tasks that change; don't change the plan on the side.
+- ver_painel shows progress (by workstream, who still has to approve, overdue tasks, pace), the same numbers people see. If the instructions gave you the follow-up, post a short weekly summary in the room from it: what moved, what's stuck and what's needed from whom.
 - To call someone, use @Name (a person) or @Agent-Person (someone's agent).
 - Tasks marked "← YOURS" are yours: do them and complete them with concluir_tarefa, stating the result (link, number, file). If you can't, say in the room what's missing. To split work, use criar_tarefa.
 - Files in the conversation show up with 📎; open them with ler_arquivo. To deliver a document (draft, table, code), use enviar_arquivo. Small images and PDFs can go in base64; for screenshots and many or large files, if you have a terminal, use preparar_envio (curl upload, no base64 tokens) and then enviar_arquivo with enviados. Other agents can't open private links (like a claude.ai artifact), so attach the screenshots.
@@ -721,6 +844,9 @@ function regras(q?: Quem) {
 - Mantenha na memória uma seção "Papéis na prática": o que cada agente e cada pessoa faz de fato nesta sala, observado no trabalho, não atribuído (ex.: "ChatGPT de David: revisa as entregas e reporta à sala"). Atualize quando notar que o padrão mudou. Use para dividir o trabalho: faça a sua parte e não refaça o que é papel de outro.
 - Quando uma pessoa pedir um jeito fixo de trabalhar ("sempre liste as tarefas com o responsável em negrito", "marque com @ o agente a quem delegar"), siga daí em diante e registre na memória, na seção "Combinados", até as pessoas passarem para as instruções.
 - As instruções da sala são das pessoas. Para mudar, use propor_contexto com o texto novo inteiro: precisa do sim de todas as pessoas, e o app troca sozinho.
+- Se as instruções dizem quem aprova o quê (ex.: "gasto: os dois; técnico: Roberto"), passe aprovadores em fazer_proposta ou propor_plano: só essas pessoas decidem.
+- Para planejar um trabalho (ex.: um descritivo na biblioteca), quebre em tarefas com frente, responsável e prazo e mande com propor_plano. Aprovado, as tarefas nascem sozinhas e o prazo vira o previsto. Para replanejar, mande um plano novo citando as tarefas que mudam; não mude o plano por fora.
+- ver_painel mostra o andamento (avanço por frente, quem falta aprovar, atrasos, ritmo), os mesmos números que as pessoas veem. Se as instruções te deram o acompanhamento, mande na sala, uma vez por semana, um resumo curto tirado dele: o que andou, o que travou e o que precisa de quem.
 - Para chamar alguém, use @Nome (pessoa) ou @Agente-Pessoa (agente de alguém).
 - Tarefas marcadas "← SUA" são suas: faça e conclua com concluir_tarefa, dizendo o resultado (link, número, arquivo). Se não der, diga na sala o que falta. Para dividir trabalho, use criar_tarefa.
 - Arquivos da conversa aparecem com 📎; abra com ler_arquivo. Para entregar um documento (rascunho, tabela, código), use enviar_arquivo. Imagem e PDF pequenos podem ir em base64; para capturas de tela e arquivos grandes ou muitos, se você tem terminal, use preparar_envio (upload por curl, sem gastar tokens) e depois enviar_arquivo com enviados. Os outros agentes não abrem link privado (como artefato do claude.ai), então anexe as capturas.
@@ -750,6 +876,7 @@ Propor:  curl -s ${H} -X POST '${A}/salas/${exemplo}/mensagens' -H 'content-type
 ${en ? "Context:" : "Contexto:"} curl -s ${H} -X POST '${A}/salas/${exemplo}/mensagens' -H 'content-type: application/json' -d '{"texto":"o que muda","contexto":"o contexto novo inteiro"}'
 Decisões: curl -s ${H} '${A}/salas/${exemplo}/decisoes'
 Tarefas:  curl -s ${H} '${A}/salas/${exemplo}/tarefas'
+Painel:   curl -s ${H} '${A}/salas/${exemplo}/painel'
 Concluir: curl -s ${H} -X POST '${A}/tarefas/<N>/concluir' -H 'content-type: application/json' -d '{"resultado":"..."}'
 Arquivo:  curl -s ${H} -X POST '${A}/salas/${exemplo}/arquivos' -H 'content-type: application/json' -d '{"nome":"rascunho.md","conteudo":"...","texto":"Segue o rascunho"}'
 Abrir:    curl -s ${H} '${A}/arquivo?caminho=<caminho do 📎>'
@@ -827,10 +954,45 @@ const TOOLS_PT = [
       properties: {
         sala: SALA_ARG,
         texto: { type: "string", description: "A proposta, clara e curta: o que será feito, por quê e o que muda. Markdown ok." },
+        aprovadores: { type: "array", items: { type: "string" }, description: "Opcional: primeiros nomes de quem precisa aprovar (ex.: [\"Roberto\", \"David\"]). Só essas pessoas decidem, e todas precisam dizer sim. Vazio = a regra da sala." },
         responde_a: { type: "integer", description: "Id da mensagem que originou a proposta, se houver." },
       },
       required: ["texto"],
     },
+  },
+  {
+    name: "propor_plano",
+    description: "Propõe um plano: uma lista de tarefas com frente, responsável e prazo. Aprovado, cada item vira tarefa e o prazo vira o previsto (o painel compara previsto e real). Para replanejar, mande um plano novo e cite em `tarefa` as tarefas que mudam.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        sala: SALA_ARG,
+        texto: { type: "string", description: "Resumo do plano: ordem das frentes e por quê. Markdown ok." },
+        itens: {
+          type: "array", description: "As tarefas do plano (até 60), na ordem.",
+          items: {
+            type: "object",
+            properties: {
+              titulo: { type: "string", description: "O que fazer, com verbo." },
+              frente: { type: "string", description: "Frente ou módulo (ex.: Cadastro). Curto, igual entre tarefas da mesma frente." },
+              responsavel: { type: "string", description: "Primeiro nome (Ana) ou Agente-Pessoa (Claude-Ana). Vazio = sem responsável." },
+              prazo: { type: "string", description: "Data, ex.: 2026-11-20 (vale até 18h de Brasília)." },
+              tarefa: { type: "integer", description: "Só ao replanejar: o número da tarefa que este item atualiza." },
+            },
+            required: ["titulo"],
+          },
+        },
+        aprovadores: { type: "array", items: { type: "string" }, description: "Opcional: primeiros nomes de quem precisa aprovar. Vazio = a regra da sala." },
+        responde_a: { type: "integer", description: "Id da mensagem que originou o plano, se houver." },
+      },
+      required: ["texto", "itens"],
+    },
+  },
+  {
+    name: "ver_painel",
+    description: "Mostra o andamento da sala: avanço por frente (previsto e projeção), quem falta aprovar o quê, tarefas atrasadas e o ritmo de entregas por semana. São os mesmos números do painel do app.",
+    inputSchema: { type: "object", properties: { sala: SALA_ARG } },
+    annotations: { readOnlyHint: true },
   },
   {
     name: "atualizar_memoria",
@@ -969,6 +1131,7 @@ const TOOLS_PT = [
         sala: SALA_ARG,
         titulo: { type: "string", description: "O que precisa ser feito, curto e com verbo. Ex.: Revisar o contrato do cliente X." },
         responsavel: { type: "string", description: "Quem faz. Vazio = você." },
+        frente: { type: "string", description: "Opcional: frente ou módulo (ex.: Cadastro), para o avanço por frente no painel." },
         prazo: { type: "string", description: "Opcional. Só a data (2026-11-10, vale até 18h de Brasília) ou data e hora ISO 8601." },
         origem: { type: "integer", description: "Opcional: id da mensagem de onde a tarefa veio." },
       },
@@ -1041,7 +1204,10 @@ const EN: Record<string, { d: string; p?: Record<string, string> }> = {
   enviar_mensagem: { d: "Writes in the room on behalf of your person, as their agent. Read new messages first. When replying to a message, pass responde_a with its id.",
     p: { texto: "The message (markdown ok).", responde_a: "Id (#N) of the message you're replying to." } },
   fazer_proposta: { d: "Asks the people in the room for a decision. Use it when something needs someone's yes before going ahead (spending, publishing, changing the plan, choosing between options). The room shows Approve and Decline; the decision comes back to you as a message and goes into the room's record.",
-    p: { texto: "The proposal, clear and short: what will be done, why, and what changes. Markdown ok.", responde_a: "Id of the message that led to the proposal, if any." } },
+    p: { texto: "The proposal, clear and short: what will be done, why, and what changes. Markdown ok.", aprovadores: "Optional: first names of who must approve (e.g. [\"Roberto\", \"David\"]). Only they decide, and all of them must say yes. Empty = the room's rule.", responde_a: "Id of the message that led to the proposal, if any." } },
+  propor_plano: { d: "Proposes a plan: a list of tasks with workstream, assignee and due date. Once approved, each item becomes a task and its due date becomes the plan (the dashboard compares plan and reality). To replan, send a new plan and cite in `tarefa` the tasks that change.",
+    p: { texto: "Plan summary: order of the workstreams and why. Markdown ok.", itens: "The plan's tasks (up to 60), in order: titulo, frente (workstream), responsavel (Ana or Claude-Ana), prazo (2026-11-20), tarefa (only when replanning).", aprovadores: "Optional: first names of who must approve. Empty = the room's rule.", responde_a: "Id of the message that led to the plan, if any." } },
+  ver_painel: { d: "Shows the room's progress: by workstream (plan and projection), who still has to approve what, overdue tasks and weekly pace. The same numbers as the app's dashboard." },
   atualizar_memoria: { d: "Updates the room memory: the project's current state, which agents keep without asking for approval (it's versioned and people can undo). Prefer small replacements; rewrite everything only to reorganize.",
     p: { resumo: "One line: what changed and why (e.g. \"Annual price settled in today's decision\").", trocas: "Replacements in the current text: each `de` must appear exactly once in the memory and becomes `para`. An empty `de` appends `para` at the end.", texto: "Or the whole new memory (up to 50,000 characters), instead of trocas." } },
   propor_contexto: { d: "Proposes replacing the room instructions (the people's text) with a new text. It only passes with the yes of every person who writes in the room; once the last one approves, the app swaps it by itself. To record the project's state, use atualizar_memoria.",
@@ -1063,7 +1229,7 @@ const EN: Record<string, { d: string; p?: Record<string, string> }> = {
   concluir_tarefa: { d: "Marks a task as done and tells the room the result. You can attach a text file with the deliverable.",
     p: { tarefa: "The task number (task N).", resultado: "What was done: summary, link, numbers. Markdown ok.", arquivo_nome: "Optional: deliverable file name, e.g. final-ad.md", arquivo_conteudo: "Optional: deliverable file content (text, up to 1 MB)." } },
   criar_tarefa: { d: "Creates a task in the room. Assignee: empty = yourself; a person's first name (Ana); or Agent-Person (Claude-Ana).",
-    p: { titulo: "What needs to be done, short and starting with a verb. E.g. Review client X's contract.", responsavel: "Who does it. Empty = you.",
+    p: { titulo: "What needs to be done, short and starting with a verb. E.g. Review client X's contract.", responsavel: "Who does it. Empty = you.", frente: "Optional: workstream or module (e.g. Signup), for progress by workstream on the dashboard.",
       prazo: "Optional. Date only (2026-11-10, due by 6 pm Brasília time) or an ISO 8601 date and time.", origem: "Optional: id of the message the task came from." } },
   ver_biblioteca: { d: "Lists the room library: reference documents and links, with title, note, who added them and the path to open files with ler_arquivo." },
   adicionar_biblioteca: { d: "Saves a link (pass url) or a text document (pass nome and conteudo: markdown, csv, json...) to the room library. Use it for lasting reference material, not for conversation.",
@@ -1168,17 +1334,15 @@ async function chamar(q: Quem, nome: string, a: any): Promise<string | Conteudo[
       const titulo = String(a.titulo ?? "").trim().slice(0, 200);
       if (!titulo) throw new Falha(tr(q, "Falta o título da tarefa.", "Missing the task title."));
       const resp = await acharResponsavel(q, s.id, a.responsavel);
-      // só a data ("2026-11-10"): vale até 18h de Brasília, como no app
-      const p = String(a.prazo ?? "").trim();
-      const prazo = /^\d{4}-\d{2}-\d{2}$/.test(p) ? new Date(`${p}T18:00:00-03:00`).toISOString()
-        : p && !isNaN(Date.parse(p)) ? new Date(p).toISOString() : null;
+      const prazo = lerPrazo(a.prazo);
+      const frente = String(a.frente ?? "").trim().slice(0, 40) || null;
       let origem = Number(a.origem) || null;
       if (origem) {
         const { data: o } = await db.from("mensagens").select("id").eq("id", origem).eq("sala_id", s.id).maybeSingle();
         if (!o) origem = null;
       }
       const { data, error } = await db.from("tarefas").insert({
-        sala_id: s.id, titulo, ...resp, prazo, origem, criada_por: q.userId, criada_por_agente: q.agente,
+        sala_id: s.id, titulo, ...resp, prazo, origem, frente, criada_por: q.userId, criada_por_agente: q.agente,
       }).select("id").single();
       if (error) throw new Falha(error.message);
       return tr(q, `Tarefa ${data.id} criada na sala "${s.nome}".`, `Task ${data.id} created in the room "${s.nome}".`);
@@ -1201,12 +1365,25 @@ async function chamar(q: Quem, nome: string, a: any): Promise<string | Conteudo[
     case "fazer_proposta": {
       const s = await acharSala(q, a.sala);
       const proposta = nome === "fazer_proposta";
-      const m = await enviar(q, s.id, { texto: String(a.texto ?? ""), proposta, responde_a: a.responde_a });
+      const aprovadores = proposta ? await acharAprovadores(q, s.id, a.aprovadores) : undefined;
+      const m = await enviar(q, s.id, { texto: String(a.texto ?? ""), proposta, responde_a: a.responde_a, aprovadores });
       return proposta
         ? tr(q, `Proposta #${m.id} enviada na sala "${s.nome}". As pessoas aprovam ou recusam; a decisão chega como mensagem nova.`,
           `Proposal #${m.id} sent to the room "${s.nome}". People approve or decline; the decision arrives as a new message.`)
         : tr(q, `Enviada na sala "${s.nome}" como ${q.agente} de ${q.pessoa} (#${m.id}${m.responde_a ? `, respondendo #${m.responde_a}` : ""}).`,
           `Sent to the room "${s.nome}" as ${q.pessoa}'s ${q.agente} (#${m.id}${m.responde_a ? `, replying to #${m.responde_a}` : ""}).`);
+    }
+    case "propor_plano": {
+      const s = await acharSala(q, a.sala);
+      const plano = await montarPlano(q, s.id, a.itens);
+      const aprovadores = await acharAprovadores(q, s.id, a.aprovadores);
+      const m = await enviar(q, s.id, { texto: String(a.texto ?? ""), proposta: true, responde_a: a.responde_a, aprovadores, plano });
+      return tr(q, `Plano #${m.id} com ${plano.length} tarefas enviado na sala "${s.nome}". Aprovado, as tarefas nascem sozinhas; a decisão chega como mensagem nova.`,
+        `Plan #${m.id} with ${plano.length} tasks sent to the room "${s.nome}". Once approved, the tasks are created; the decision arrives as a new message.`);
+    }
+    case "ver_painel": {
+      const s = await acharSala(q, a.sala);
+      return await painel(q, s);
     }
     case "atualizar_memoria": {
       const s = await acharSala(q, a.sala);
@@ -1401,7 +1578,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.20.0" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.21.0" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {
@@ -1565,8 +1742,10 @@ Deno.serve(async (req) => {
       }
       if (acao === "mensagens" && req.method === "POST") {
         const b = await req.json().catch(() => ({}));
-        const m = await enviar(q, s.id, { texto: b.texto, proposta: !!b.proposta || b.contexto !== undefined, responde_a: b.responde_a,
-          novo_contexto: b.contexto === undefined ? undefined : String(b.contexto) });
+        const proposta = !!b.proposta || b.contexto !== undefined;
+        const m = await enviar(q, s.id, { texto: b.texto, proposta, responde_a: b.responde_a,
+          novo_contexto: b.contexto === undefined ? undefined : String(b.contexto),
+          aprovadores: proposta && b.contexto === undefined ? await acharAprovadores(q, s.id, b.aprovadores) : undefined });
         return json({ id: m.id, responde_a: m.responde_a }, 201);
       }
       if (acao === "arquivos" && req.method === "POST") {
@@ -1575,6 +1754,7 @@ Deno.serve(async (req) => {
         const m = await enviar(q, s.id, { texto: String(b.texto ?? ""), responde_a: b.responde_a, anexos: [anexo] });
         return json({ id: m.id, arquivo: anexo.path }, 201);
       }
+      if (acao === "painel") return text(await painel(q, s));
       if (acao === "tarefas") return text(listaTarefas(await tarefas(s.id), q, 20) || tr(q, "Nenhuma tarefa ainda.", "No tasks yet."));
       if (acao === "decisoes") return text(registro(await propostas(s.id, 100), q) || tr(q, "Nenhuma proposta ainda.", "No proposals yet."));
       if (acao === "esperar") {

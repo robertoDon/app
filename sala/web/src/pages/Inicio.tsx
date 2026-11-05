@@ -7,7 +7,7 @@ import { ultimaSala } from "../supabase";
 
 // Abre no próximo passo: a última sala aberta, senão a primeira, senão "crie a sua".
 export default function Inicio() {
-  const { salas, recarregar } = useSalas();
+  const { salas, fila, recarregar } = useSalas();
   const [criar, setCriar] = useState<string | null>(null);
   const [celular, setCelular] = useState(() => window.matchMedia("(max-width: 720px)").matches);
 
@@ -24,7 +24,7 @@ export default function Inicio() {
   }
 
   return (
-    <Layout salas={salas} recarregar={recarregar}>
+    <Layout salas={salas} recarregar={recarregar} fila={fila}>
       {salas && !salas.length && (
         <section className="vazio">
           <h1 className="display">{t("Crie sua primeira sala.", "Create your first room.")}</h1>

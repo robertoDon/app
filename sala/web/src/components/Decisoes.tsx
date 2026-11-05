@@ -116,6 +116,7 @@ export function Decisoes({ salaId, salaNome, versao, autor, nome, decidir, aprov
                   </form>
                 ) : (() => {
                   const a = aprovacaoDe?.(p);
+                  if (a?.posso === false) return <LinhaAprovacao a={a} />;
                   return (
                     <>
                       {a && <LinhaAprovacao a={a} />}

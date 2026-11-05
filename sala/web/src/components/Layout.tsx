@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../App";
-import { sb, type Sala } from "../supabase";
+import { sb, type ItemFila, type Sala } from "../supabase";
 import { gravado, locale, t } from "../i18n";
-import { IconeAgente, IconeMais, Marcador, IconePlugue, IconeProposta, Marca } from "./Icones";
+import { IconeAgente, IconeMais, Marcador, IconePlugue, IconeProposta, IconeVoltar, Marca } from "./Icones";
 import { Conectar } from "./Conectar";
 import { Conta } from "./Conta";
 import { NovaSala } from "./NovaSala";
@@ -12,11 +12,13 @@ import { Guia } from "./Guia";
 // Lista de salas com não lidas e prévia, ao vivo. Também mantém o contador na aba do navegador.
 export function useSalas() {
   const [salas, setSalas] = useState<Sala[] | null>(null);
+  const [fila, setFila] = useState<ItemFila[]>([]);
   const espera = useRef<number | undefined>(undefined);
 
   const carregar = async () => {
-    const { data } = await sb.rpc("minhas_salas");
+    const [{ data }, f] = await Promise.all([sb.rpc("minhas_salas"), sb.rpc("minha_fila")]);
     setSalas((data as Sala[]) ?? []);
+    setFila((f.data as ItemFila[]) ?? []);
   };
 
   useEffect(() => {
@@ -26,6 +28,8 @@ export function useSalas() {
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "mensagens" }, depois)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "membros" }, depois)
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "membros" }, depois)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "votos" }, depois)
+      .on("postgres_changes", { event: "*", schema: "public", table: "tarefas" }, depois)
       .subscribe();
     return () => { sb.removeChannel(canal); window.clearTimeout(espera.current); };
   }, []);
@@ -35,7 +39,36 @@ export function useSalas() {
     document.title = total ? `(${total}) The Sala` : "The Sala";
   }, [salas]);
 
-  return { salas, recarregar: carregar };
+  return { salas, fila, recarregar: carregar };
+}
+
+// O que espera por você em todas as salas: propostas que você pode decidir e tarefas suas vencendo
+function Fila({ fila }: { fila: ItemFila[] }) {
+  const [aberta, setAberta] = useState(false);
+  if (!fila.length) return null;
+  const vencida = (f: ItemFila) => !!f.prazo && new Date(f.prazo).getTime() < Date.now();
+  return (
+    <div className="fila">
+      <button className="fila-topo" aria-expanded={aberta} onClick={() => setAberta((v) => !v)}>
+        <span>{t("Esperando você", "Waiting for you")}</span>
+        <span className="sala-novas">{fila.length}</span>
+        <IconeVoltar tamanho={14} />
+      </button>
+      {aberta && (
+        <ul>
+          {fila.map((f) => (
+            <li key={`${f.tipo}${f.ref}`}>
+              <Link to={f.tipo === "proposta" ? `/s/${f.sala_id}?ir=${f.ref}` : `/s/${f.sala_id}?tarefas=1`}>
+                {f.tipo === "proposta" ? <IconeProposta tamanho={12} /> : <Marcador tamanho={11} />}
+                <span className="fila-texto"><strong>{f.titulo || t("Proposta", "Proposal")}</strong>
+                  <span className="nota">{f.sala}{f.tipo === "tarefa" && f.prazo ? ` · ${vencida(f) ? t("atrasada", "overdue") : t("vence logo", "due soon")}` : ` · ${t("para decidir", "to decide")}`}</span></span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 }
 
 export async function novaSala(nome: string) {
@@ -54,11 +87,12 @@ const quando = (iso: string | null) => {
   return d.toLocaleDateString(locale(), { day: "2-digit", month: "short" }).replace(".", "");
 };
 
-export function Layout({ children, salas, recarregar, foco }: {
+export function Layout({ children, salas, recarregar, foco, fila = [] }: {
   children: React.ReactNode;
   salas: Sala[] | null;
   recarregar: () => void;
   foco?: boolean; // no celular, mostra só o conteúdo (a sala aberta)
+  fila?: ItemFila[];
 }) {
   const { perfil } = useAuth();
   const { id } = useParams();
@@ -90,6 +124,8 @@ export function Layout({ children, salas, recarregar, foco }: {
             <IconeMais tamanho={18} />
           </button>
         </div>
+
+        <Fila fila={fila} />
 
         <ul className="lista-salas">
           {salas === null && [0, 1, 2].map((i) => <li key={i} className="esqueleto" aria-hidden />)}

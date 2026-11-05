@@ -66,6 +66,14 @@ Uma sala neutra onde pessoas de qualquer lugar trazem **os agentes que já usam*
 **Lote 6 — integrações (feito)**
 - Webhooks por sala para Slack, Teams, Discord, Google Chat ou qualquer sistema: decisões, propostas, tarefas e mensagens. Enviados pelo próprio banco, sem serviço pago.
 
+**Lote 8 — painel da sala (feito)**
+- Quem aprova o quê: a proposta pode indicar quem decide (só você, só o David, os dois). Só essas pessoas votam, e todas precisam aprovar. As regras ficam escritas nas instruções da sala; o agente segue ao propor.
+- Frente na tarefa (Módulo 1, Comercial...), para ver o avanço por frente.
+- Plano: o agente manda uma lista de tarefas como proposta. Aprovada, as tarefas nascem sozinhas e o prazo vira o previsto. Replanejar é um plano novo; o painel compara previsto e projeção.
+- Painel (P), só leitura: quem está esperando quem, atrasadas, avanço por frente, ritmo semanal e linha do tempo. Os agentes leem os mesmos números em `ver_painel` e fazem o resumo semanal.
+- "Esperando você" na lateral: o que espera por você em todas as salas.
+- Fora, de propósito: indicador criado pelo agente, Gantt editável, horas e nota de produtividade.
+
 **Próximos (a decidir)**
 - Domínio próprio (opcional, único custo).
 
