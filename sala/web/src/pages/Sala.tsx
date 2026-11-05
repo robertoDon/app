@@ -32,7 +32,8 @@ const dia = (iso: string) => {
   return d.toLocaleDateString(locale(), { day: "numeric", month: "long", year: d.getFullYear() === hoje.getFullYear() ? undefined : "numeric" });
 };
 const umaLinha = (t: string, n = 90) => { const l = t.replace(/\s+/g, " ").trim(); return l.length > n ? `${l.slice(0, n - 1)}…` : l; };
-const perguntaATodos = (m: Mensagem) => !m.agente && m.tipo === "mensagem" && !m.apagada && MENCAO_COLETIVA.test(m.texto);
+// pessoa ou agente chamando @agentes/@todos: as respostas viram uma comparação lado a lado
+const perguntaATodos = (m: Mensagem) => m.tipo === "mensagem" && !m.apagada && MENCAO_COLETIVA.test(m.texto);
 const tr = t; // onde "t" já é uma tarefa
 // junta reações sem repetir (a mesma pode chegar pela leitura e pelo tempo real); as provisórias (id < 0) saem quando chega a de verdade
 const juntarReacoes = (atual: Reacao[], novas: Reacao[]) => {
@@ -395,7 +396,7 @@ export default function SalaPage() {
 
   const esperandoDe = (q: Mensagem): Esperando[] => {
     const ja = new Set((respostas.get(q.id) ?? []).map((r) => `${r.agente}|${r.user_id}`));
-    return agentes.filter((a) => !ja.has(`${a.nome}|${a.uid}`) && a.presenca)
+    return agentes.filter((a) => !ja.has(`${a.nome}|${a.uid}`) && a.presenca && !(q.agente === a.nome && q.user_id === a.uid))
       .map((a) => ({ nome: a.nome, dono: nome(a.uid), status: a.presenca!.texto }));
   };
   const comparando = comparar !== null ? porId.get(comparar) : undefined;
