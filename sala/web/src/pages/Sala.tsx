@@ -103,6 +103,14 @@ export default function SalaPage() {
   const longe = useRef(false);  // vendo uma janela antiga: o que chega ao vivo não entra no meio
   const marco = useRef<{ sala: string; ate: number } | null>(null); // até onde você tinha lido ao abrir a sala
   const [arrastando, setArrastando] = useState(false);
+  // sala que não está na lista (ex.: acabou de ser criada): recarrega a lista uma vez antes de dizer que não existe
+  const [conferida, setConferida] = useState<string | null>(null);
+  useEffect(() => {
+    if (!salas || sala || conferida === id) return;
+    let vivo = true;
+    recarregar().finally(() => vivo && setConferida(id));
+    return () => { vivo = false; };
+  }, [salas, sala, id, conferida]); // eslint-disable-line react-hooks/exhaustive-deps
   if (sala && marco.current?.sala !== id) marco.current = { sala: id, ate: Number(sala.lido_ate ?? 0) };
 
   const nomes = useMemo(() => new Map(membros.map((m) => [m.user_id, m.perfis?.nome ?? t("Alguém", "Someone")])), [membros]);
@@ -416,17 +424,6 @@ export default function SalaPage() {
   const link = sala ? `${window.location.origin}/c/${sala.convite}` : "";
   const copiarConvite = async () => { if (await copiarTexto(link)) { setCopiado(true); setTimeout(() => setCopiado(false), 1500); } };
 
-  if (salas && !sala) {
-    return (
-      <Layout salas={salas} recarregar={recarregar} fila={fila} foco>
-        <section className="vazio">
-          <h1 className="display">{t("Sala não encontrada.", "Room not found.")}</h1>
-          <p className="sub">{t("Ela pode ter sido apagada, ou você saiu dela. Para entrar, peça um convite a quem está lá.", "It may have been deleted, or you left it. To get back in, ask someone in the room for an invite.")}</p>
-          <Link to="/" className="btn">{t("Ver minhas salas", "See my rooms")}</Link>
-        </section>
-      </Layout>
-    );
-  }
 
   // quem já aprovou e quem falta, quando a sala pede mais de uma aprovação
   const aprovacaoDe = (m: Mensagem): Aprovacao | null => {
@@ -545,6 +542,19 @@ export default function SalaPage() {
     }
     return oculta;
   }, [msgs, abertos, destaque, primeiraNova, chamaMim, tarefasDe, autor]);
+
+  // "não encontrada" só depois de recarregar a lista: sala recém-criada ainda não estava nela
+  if (salas && !sala && conferida === id) {
+    return (
+      <Layout salas={salas} recarregar={recarregar} fila={fila} foco>
+        <section className="vazio">
+          <h1 className="display">{t("Sala não encontrada.", "Room not found.")}</h1>
+          <p className="sub">{t("Ela pode ter sido apagada, ou você saiu dela. Para entrar, peça um convite a quem está lá.", "It may have been deleted, or you left it. To get back in, ask someone in the room for an invite.")}</p>
+          <Link to="/" className="btn">{t("Ver minhas salas", "See my rooms")}</Link>
+        </section>
+      </Layout>
+    );
+  }
 
   return (
     <Layout salas={salas} recarregar={recarregar} fila={fila} foco>

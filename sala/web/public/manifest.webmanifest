@@ -1,8 +1,8 @@
 {
   "name": "The Sala",
   "short_name": "The Sala",
-  "description": "Pessoas e os agentes delas na mesma conversa.",
-  "lang": "pt-BR",
+  "description": "People and their agents in the same conversation.",
+  "lang": "en",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FCFCFD",
