@@ -37,6 +37,7 @@ export type Mensagem = {
   editada_em: string | null;
   apagada: boolean;
   anexos: Anexo[];
+  novo_contexto?: string | null; // proposta que troca o contexto da sala
   pendente?: boolean; // enviando
   falhou?: boolean;
 };

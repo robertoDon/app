@@ -79,7 +79,7 @@ export default function SalaPage() {
   const [tarefas, setTarefas] = useState<Tarefa[] | null>(null);
   const [reacoes, setReacoes] = useState<Reacao[]>([]);
   const [votos, setVotos] = useState<{ proposta_id: number; user_id: string }[]>([]);
-  const [precisa, setPrecisa] = useState(1); // aprovações que uma proposta precisa nesta sala
+  const [precisaSala, setPrecisa] = useState(1); // aprovações que uma proposta precisa nesta sala
   const [rascunho, setRascunho] = useState<RascunhoTarefa>(null);
   const [ata, setAta] = useState(false);
   const [pedido, setPedido] = useState<number | null>(null); // veio do aviso "chamaram seu agente"
@@ -193,6 +193,7 @@ export default function SalaPage() {
 
     const chegou = (m: Mensagem) => {
       if (m.tipo !== "mensagem") setVersaoDecisoes((v) => v + 1);
+      if (m.tipo === "decisao") recarregar(); // a aprovação pode ter trocado o contexto da sala
       if (longe.current) { setTemPosteriores(true); return; }
       setMsgs((atual) => {
         if (!atual) { buffer.push(m); return atual; }
@@ -401,7 +402,10 @@ export default function SalaPage() {
 
   // quem já aprovou e quem falta, quando a sala pede mais de uma aprovação
   const aprovacaoDe = (m: Mensagem): Aprovacao | null => {
-    if (m.tipo !== "proposta" || m.estado !== "pendente" || precisa < 2) return null;
+    if (m.tipo !== "proposta" || m.estado !== "pendente") return null;
+    // troca de contexto: todas as pessoas que escrevem, seja qual for a regra da sala
+    const precisa = m.novo_contexto ? Math.max(1, membros.filter((x) => x.papel !== "leitor").length) : precisaSala;
+    if (precisa < 2) return null;
     const quem = votos.filter((v) => v.proposta_id === m.id).map((v) => v.user_id);
     const faltam = membros.filter((x) => x.papel !== "leitor" && !quem.includes(x.user_id)).map((x) => (x.user_id === eu ? t("você", "you") : (x.perfis?.nome ?? "").split(" ")[0]));
     return { precisa, quem: quem.map((u) => (u === eu ? t("você", "you") : nome(u).split(" ")[0])), euAprovei: quem.includes(eu), faltam };

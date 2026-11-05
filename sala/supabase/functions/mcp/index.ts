@@ -131,7 +131,7 @@ type Anexo = { path: string; nome: string; tipo: string; tamanho: number };
 type Msg = {
   id: number; sala_id: string; user_id: string; agente: string | null; texto: string; criada_em: string;
   tipo: "mensagem" | "proposta" | "decisao"; responde_a: number | null; estado: "pendente" | "aprovada" | "recusada" | null;
-  decidida_em: string | null; editada_em: string | null; apagada: boolean; anexos: Anexo[];
+  decidida_em: string | null; editada_em: string | null; apagada: boolean; anexos: Anexo[]; novo_contexto?: string | null;
   autor?: { nome: string }; decisor?: { nome: string } | null;
   reacoes?: { emoji: string; agente: string | null; perfis: { nome: string } | null }[];
   votos?: { perfis: { nome: string } | null }[];
@@ -158,7 +158,7 @@ async function acharSala(q: Quem, ref?: string): Promise<Sala> {
   return s;
 }
 
-const SEL = "id, sala_id, user_id, agente, texto, criada_em, tipo, responde_a, estado, decidida_em, editada_em, apagada, anexos, " +
+const SEL = "id, sala_id, user_id, agente, texto, criada_em, tipo, responde_a, estado, decidida_em, editada_em, apagada, anexos, novo_contexto, " +
   "autor:perfis!mensagens_user_id_fkey(nome), decisor:perfis!mensagens_decidida_por_fkey(nome), votos(perfis(nome))";
 
 async function ler(sala: string, depois = 0, limite = 50): Promise<Msg[]> {
@@ -196,12 +196,18 @@ async function reagir(q: Quem, mensagem: number, emoji: string) {
   return true;
 }
 
-type Envio = { texto: string; proposta?: boolean; responde_a?: number | null; anexos?: Anexo[] };
+type Envio = { texto: string; proposta?: boolean; responde_a?: number | null; anexos?: Anexo[]; novo_contexto?: string };
 
 async function enviar(q: Quem, sala: string, e: Envio): Promise<Msg> {
   const texto = (e.texto ?? "").trim();
   if (!texto && !e.anexos?.length) throw new Falha(tr(q, "Falta o texto.", "Missing text."));
   if (texto.length > 20000) throw new Falha(tr(q, "Mensagem acima de 20.000 caracteres.", "Message over 20,000 characters."));
+  const novo = e.novo_contexto === undefined ? null : String(e.novo_contexto).trim();
+  if (novo !== null) {
+    if (!e.proposta) throw new Falha(tr(q, "Troca de contexto só vai como proposta.", "A context change can only be a proposal."));
+    if (!novo) throw new Falha(tr(q, "Falta o texto novo do contexto.", "Missing the new context text."));
+    if (novo.length > 50000) throw new Falha(tr(q, "Contexto acima de 50.000 caracteres.", "Context over 50,000 characters."));
+  }
   let responde = Number(e.responde_a) || null;
   // sem responde_a: liga à última mensagem que chamou este agente e que ele ainda não respondeu
   if (!responde) {
@@ -213,7 +219,7 @@ async function enviar(q: Quem, sala: string, e: Envio): Promise<Msg> {
     }
   }
   const { data, error } = await db.from("mensagens")
-    .insert({ sala_id: sala, user_id: q.userId, agente: q.agente, texto, tipo: e.proposta ? "proposta" : "mensagem", responde_a: responde, anexos: e.anexos ?? [] })
+    .insert({ sala_id: sala, user_id: q.userId, agente: q.agente, texto, tipo: e.proposta ? "proposta" : "mensagem", responde_a: responde, anexos: e.anexos ?? [], novo_contexto: novo })
     .select(SEL).single();
   if (error) throw new Falha(error.message, 429);
   return data as unknown as Msg;
@@ -256,18 +262,23 @@ const quemEscreveu = (m: Msg, q?: Quem) => (m.agente
   : `${m.autor?.nome ?? "?"} (${tr(q, "pessoa", "person")})`);
 // textos que o banco grava em português
 const gravado = (t: string, q?: Quem) => q?.lingua !== "en" ? t
-  : t === "Aprovada." ? "Approved." : t === "Recusada." ? "Declined." : t.replace(/^✓ Concluí a tarefa: /, "✓ Completed the task: ");
+  : t === "Aprovada." ? "Approved." : t === "Recusada." ? "Declined." :
+  t === "Aprovada. O contexto da sala foi trocado pelo texto da proposta." ? "Approved. The room context was replaced with the proposal's text." : t.replace(/^✓ Concluí a tarefa: /, "✓ Completed the task: ");
 const tamanho = (b: number) => (b < 1024 ? `${b} B` : b < 1048576 ? `${Math.round(b / 1024)} KB` : `${(b / 1048576).toFixed(1)} MB`);
 const quando = (iso: string) => iso.slice(0, 16).replace("T", " ") + " UTC";
 
 function rotulo(m: Msg, q?: Quem) {
   if (m.apagada) return "";
   if (m.tipo === "proposta") {
+    const ctx = m.novo_contexto ? tr(q, " DE TROCA DO CONTEXTO DA SALA", " TO REPLACE THE ROOM CONTEXT") : "";
     if (m.estado === "pendente") {
       const ja = (m.votos ?? []).map((v) => v.perfis?.nome ?? "?");
       const parcial = ja.length ? tr(q, ` (já aprovou: ${ja.join(", ")}; falta outra aprovação)`, ` (already approved by: ${ja.join(", ")}; another approval is needed)`) : "";
-      return tr(q, ` · PROPOSTA aguardando decisão das pessoas${parcial}`, ` · PROPOSAL waiting for people to decide${parcial}`);
+      const todos = m.novo_contexto ? tr(q, "; precisa do sim de todas as pessoas", "; needs every person's yes") : "";
+      return tr(q, ` · PROPOSTA${ctx} aguardando decisão das pessoas${parcial}${todos}`, ` · PROPOSAL${ctx} waiting for people to decide${parcial}${todos}`);
     }
+    if (m.novo_contexto) return tr(q, ` · PROPOSTA${ctx} ${m.estado === "aprovada" ? "APROVADA (contexto já trocado)" : "RECUSADA"} por ${m.decisor?.nome ?? "?"}`,
+      ` · PROPOSAL${ctx} ${m.estado === "aprovada" ? "APPROVED (context already replaced)" : "DECLINED"} by ${m.decisor?.nome ?? "?"}`);
     return tr(q, ` · PROPOSTA ${m.estado === "aprovada" ? "APROVADA" : "RECUSADA"} por ${m.decisor?.nome ?? "?"}`,
       ` · PROPOSAL ${m.estado === "aprovada" ? "APPROVED" : "DECLINED"} by ${m.decisor?.nome ?? "?"}`);
   }
@@ -516,6 +527,7 @@ function regras(q?: Quem) {
 - When replying to a message, pass responde_a with its id (#N). That way the room shows the agents' answers side by side. In a discussion that started with a question to @agents, every message of yours (and your final proposal) replies to that original question, so the room can compare everyone's final answer.
 - Never write message numbers (#N) in your text: people don't see them. To refer to something, say who said it ("David's question", "the price proposal").
 - When something needs a person's yes (spending, publishing, changing the plan, choosing between options), use fazer_proposta instead of deciding yourself. People approve or decline in the room. Some rooms require more than one approval: the proposal only passes when they all arrive, and the app counts them; don't treat it as approved before that.
+- To change the room context, use propor_contexto with the whole new text. It needs every person's yes, and once the last one approves the app replaces the context by itself: nobody pastes anything, and there's no task to do.
 - To call someone, use @Name (a person) or @Agent-Person (someone's agent).
 - Tasks marked "← YOURS" are yours: do them and complete them with concluir_tarefa, stating the result (link, number, file). If you can't, say in the room what's missing. To split work, use criar_tarefa.
 - Files in the conversation show up with 📎; open them with ler_arquivo. To deliver a document (draft, table, code), use enviar_arquivo.
@@ -530,6 +542,7 @@ function regras(q?: Quem) {
 - Ao responder uma mensagem, passe responde_a com o id dela (#N). Assim a sala mostra as respostas dos agentes lado a lado. Numa discussão que começou com uma pergunta para @agentes, toda mensagem sua (e a sua proposta final) responde à pergunta original, para a sala comparar a resposta final de cada um.
 - Nunca escreva números de mensagem (#N) no texto: as pessoas não veem esses números. Para se referir a algo, diga quem disse ("a pergunta do David", "a proposta de preço").
 - Quando algo precisar do sim de uma pessoa (gastar, publicar, mudar plano, escolher entre opções), use fazer_proposta em vez de decidir sozinho. As pessoas aprovam ou recusam na sala. Algumas salas pedem mais de uma aprovação: a proposta só passa quando todas chegam, e o app conta sozinho; não trate como aprovada antes disso.
+- Para mudar o contexto da sala, use propor_contexto com o texto novo inteiro. Ela precisa do sim de todas as pessoas e, quando a última aprova, o app troca o contexto sozinho: ninguém cola nada e não há tarefa a fazer.
 - Para chamar alguém, use @Nome (pessoa) ou @Agente-Pessoa (agente de alguém).
 - Tarefas marcadas "← SUA" são suas: faça e conclua com concluir_tarefa, dizendo o resultado (link, número, arquivo). Se não der, diga na sala o que falta. Para dividir trabalho, use criar_tarefa.
 - Arquivos da conversa aparecem com 📎; abra com ler_arquivo. Para entregar um documento (rascunho, tabela, código), use enviar_arquivo.
@@ -554,6 +567,7 @@ ${ss.length ? ss.map((s) => `- ${s.nome}  (id ${s.id})`).join("\n") : en ? `- no
 ${en ? "Read:    " : "Ler:     "}curl -s ${H} '${A}/salas/${exemplo}/mensagens'
 Enviar:  curl -s ${H} -X POST '${A}/salas/${exemplo}/mensagens' -H 'content-type: application/json' -d '{"texto":"...","responde_a":123}'
 Propor:  curl -s ${H} -X POST '${A}/salas/${exemplo}/mensagens' -H 'content-type: application/json' -d '{"texto":"...","proposta":true}'
+${en ? "Context:" : "Contexto:"} curl -s ${H} -X POST '${A}/salas/${exemplo}/mensagens' -H 'content-type: application/json' -d '{"texto":"o que muda","contexto":"o contexto novo inteiro"}'
 Decisões: curl -s ${H} '${A}/salas/${exemplo}/decisoes'
 Tarefas:  curl -s ${H} '${A}/salas/${exemplo}/tarefas'
 Concluir: curl -s ${H} -X POST '${A}/tarefas/<N>/concluir' -H 'content-type: application/json' -d '{"resultado":"..."}'
@@ -634,6 +648,20 @@ const TOOLS_PT = [
         responde_a: { type: "integer", description: "Id da mensagem que originou a proposta, se houver." },
       },
       required: ["texto"],
+    },
+  },
+  {
+    name: "propor_contexto",
+    description: "Propõe trocar o contexto da sala por um texto novo. Só passa com o sim de todas as pessoas que escrevem na sala; quando a última aprova, o app troca o contexto sozinho.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        sala: SALA_ARG,
+        texto: { type: "string", description: "A proposta, curta: o que muda em relação ao contexto atual e por quê. Markdown ok." },
+        contexto: { type: "string", description: "O contexto novo inteiro, como deve ficar (até 50.000 caracteres)." },
+        responde_a: { type: "integer", description: "Id da mensagem que originou a proposta, se houver." },
+      },
+      required: ["texto", "contexto"],
     },
   },
   {
@@ -781,6 +809,8 @@ const EN: Record<string, { d: string; p?: Record<string, string> }> = {
     p: { texto: "The message (markdown ok).", responde_a: "Id (#N) of the message you're replying to." } },
   fazer_proposta: { d: "Asks the people in the room for a decision. Use it when something needs someone's yes before going ahead (spending, publishing, changing the plan, choosing between options). The room shows Approve and Decline; the decision comes back to you as a message and goes into the room's record.",
     p: { texto: "The proposal, clear and short: what will be done, why, and what changes. Markdown ok.", responde_a: "Id of the message that led to the proposal, if any." } },
+  propor_contexto: { d: "Proposes replacing the room context with a new text. It only passes with the yes of every person who writes in the room; once the last one approves, the app replaces the context by itself.",
+    p: { texto: "The proposal, short: what changes compared to the current context and why. Markdown ok.", contexto: "The whole new context, as it should read (up to 50,000 characters).", responde_a: "Id of the message that led to the proposal, if any." } },
   reagir: { d: "Reacts to a message with an emoji (👍 got it/agree, 👀 looking into it, ✅ done). Sending the same emoji again removes it. Use it instead of a short confirmation message.",
     p: { mensagem: "Id (#N) of the message.", emoji: "One emoji, e.g. 👍" } },
   ver_decisoes: { d: "Shows proposals waiting for a decision and the room's decision record (approved and declined, with who decided)." },
@@ -922,6 +952,15 @@ async function chamar(q: Quem, nome: string, a: any): Promise<string | Conteudo[
           `Proposal #${m.id} sent to the room "${s.nome}". People approve or decline; the decision arrives as a new message.`)
         : tr(q, `Enviada na sala "${s.nome}" como ${q.agente} de ${q.pessoa} (#${m.id}${m.responde_a ? `, respondendo #${m.responde_a}` : ""}).`,
           `Sent to the room "${s.nome}" as ${q.pessoa}'s ${q.agente} (#${m.id}${m.responde_a ? `, replying to #${m.responde_a}` : ""}).`);
+    }
+    case "propor_contexto": {
+      const s = await acharSala(q, a.sala);
+      const { data: mb } = await db.from("membros").select("papel").eq("sala_id", s.id).eq("user_id", q.userId).maybeSingle();
+      if (!mb || mb.papel === "leitor") throw new Falha(tr(q, "Nesta sala a sua pessoa só acompanha: não dá para propor.", "Your person can only view this room: you can't propose."), 403);
+      const m = await enviar(q, s.id, { texto: String(a.texto ?? ""), proposta: true, responde_a: a.responde_a, novo_contexto: String(a.contexto ?? "") });
+      const { count } = await db.from("membros").select("user_id", { count: "exact", head: true }).eq("sala_id", s.id).in("papel", ["dono", "membro"]);
+      return tr(q, `Proposta #${m.id} de troca do contexto enviada na sala "${s.nome}". Precisa do sim de todas as ${count ?? "?"} pessoas; quando a última aprovar, o contexto muda sozinho.`,
+        `Context proposal #${m.id} sent to the room "${s.nome}". It needs the yes of all ${count ?? "?"} people; when the last one approves, the context changes by itself.`);
     }
     case "reagir": {
       const pos = await reagir(q, Number(a.mensagem), String(a.emoji ?? ""));
@@ -1099,7 +1138,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.11.0" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.12.0" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {
@@ -1259,7 +1298,8 @@ Deno.serve(async (req) => {
       }
       if (acao === "mensagens" && req.method === "POST") {
         const b = await req.json().catch(() => ({}));
-        const m = await enviar(q, s.id, { texto: b.texto, proposta: !!b.proposta, responde_a: b.responde_a });
+        const m = await enviar(q, s.id, { texto: b.texto, proposta: !!b.proposta || b.contexto !== undefined, responde_a: b.responde_a,
+          novo_contexto: b.contexto === undefined ? undefined : String(b.contexto) });
         return json({ id: m.id, responde_a: m.responde_a }, 201);
       }
       if (acao === "arquivos" && req.method === "POST") {

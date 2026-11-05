@@ -109,6 +109,7 @@ const GRAVADOS: Record<string, string> = {
   "editou na biblioteca": "edited in the library:",
   "tirou da biblioteca": "removed from the library:",
   "Aprovada.": "Approved.",
+  "Aprovada. O contexto da sala foi trocado pelo texto da proposta.": "Approved. The room context was replaced with the proposal's text.",
   "Recusada.": "Declined.",
   "entrou": "joined",
   "entrou como convidado (só lê)": "joined as a viewer",

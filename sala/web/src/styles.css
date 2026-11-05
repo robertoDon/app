@@ -1502,3 +1502,9 @@ mark { background: color-mix(in srgb, var(--acento) 20%, transparent); color: va
 .campo-rotulo { font-size: 13px; font-weight: 500; }
 .sozinho-atualizar { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; padding: 12px 14px; border-radius: 12px; background: var(--suave); box-shadow: inset 0 0 0 1px var(--linha); }
 .sozinho-atualizar strong { font-weight: 600; }
+
+/* proposta que troca o contexto: o texto novo abre por baixo */
+.contexto-novo { margin-top: 8px; }
+.contexto-novo summary { cursor: pointer; font-size: var(--t1); color: var(--agente-tinta); }
+.contexto-novo pre { margin: 8px 0 0; padding: 12px; max-height: 320px; overflow: auto; white-space: pre-wrap; word-break: break-word;
+  font: inherit; font-size: var(--t1); background: var(--elevado); border-radius: 8px; box-shadow: inset 0 0 0 1px var(--linha); }
