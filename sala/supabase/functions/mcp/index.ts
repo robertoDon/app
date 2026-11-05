@@ -357,6 +357,21 @@ async function lerArquivo(q: Quem, caminho: string): Promise<Conteudo[]> {
     if (error || !data) throw new Falha(tr(q, "Não deu para abrir o arquivo.", "Couldn't open the file."), 500);
     return [{ type: "text", text: `${a.nome}\n\n${await data.text()}` }];
   }
+  if ((a.tipo === "application/pdf" || /\.pdf$/i.test(a.nome)) && a.tamanho <= 20_000_000) {
+    const { data, error } = await db.storage.from("arquivos").download(path);
+    if (error || !data) throw new Falha(tr(q, "Não deu para abrir o arquivo.", "Couldn't open the file."), 500);
+    try {
+      const { extractText, getDocumentProxy } = await import("npm:unpdf@1.4.0");
+      const pdf = await getDocumentProxy(new Uint8Array(await data.arrayBuffer()));
+      const { totalPages, text } = await extractText(pdf, { mergePages: false });
+      const paginas = (text as string[]).map((t, i) => `--- ${tr(q, "página", "page")} ${i + 1} ---\n${t.trim()}`).join("\n\n");
+      if (paginas.replace(/--- .*? ---/g, "").trim()) {
+        const corpo = paginas.length > 400_000 ? paginas.slice(0, 400_000) + tr(q, "\n\n(cortado: o PDF passa de 400 mil caracteres)", "\n\n(cut: the PDF is over 400k characters)") : paginas;
+        return [{ type: "text", text: `${a.nome} (PDF, ${totalPages} ${tr(q, "páginas", "pages")})\n\n${corpo}` }];
+      }
+    } catch (e) { console.log(JSON.stringify({ mcp: "pdf_falhou", erro: String(e).slice(0, 200) })); }
+    // PDF só de imagem (escaneado) ou ilegível: cai no link temporário abaixo
+  }
   if (a.tipo.startsWith("image/") && a.tamanho <= 4_000_000) {
     const { data, error } = await db.storage.from("arquivos").download(path);
     if (error || !data) throw new Falha(tr(q, "Não deu para abrir o arquivo.", "Couldn't open the file."), 500);
@@ -449,7 +464,7 @@ function regras(q?: Quem) {
   if (q?.lingua === "en") return `You're in The Sala: chat rooms where people and their agents talk. You are "${q.agente}", ${q.pessoa}'s agent.
 - Read the room context, the decisions and the new messages before writing. Approved decisions stand: follow them.
 - Reply when you're called (the message is marked "← called you": @${q.agente.replace(/\s/g, "")}, @agents, @everyone) or when a person asks everyone something. A question to @agents or @everyone: always answer, even if another agent already did. Give your own take without repeating theirs; the room shows the answers side by side to compare. If only another agent was called, stay quiet.
-- When replying to a message, pass responde_a with its id (#N). That way the room shows the agents' answers side by side.
+- When replying to a message, pass responde_a with its id (#N). That way the room shows the agents' answers side by side. In a discussion that started with a question to @agents, every message of yours (and your final proposal) replies to that original question, so the room can compare everyone's final answer.
 - Never write message numbers (#N) in your text: people don't see them. To refer to something, say who said it ("David's question", "the price proposal").
 - When something needs a person's yes (spending, publishing, changing the plan, choosing between options), use fazer_proposta instead of deciding yourself. People approve or decline in the room.
 - To call someone, use @Name (a person) or @Agent-Person (someone's agent).
@@ -458,11 +473,11 @@ function regras(q?: Quem) {
 - To just acknowledge ("got it", "ok", "looking into it"), react with an emoji (reagir) instead of sending a message.
 - Be concise and use light markdown. Write in the language the room is using. When in doubt, ask your person before answering on their behalf.
 - Your name shows on your messages automatically; no need to sign.
-- After 5 agent messages in a row, the room waits for a person to write.`;
+- After a few agent messages in a row (the room sets how many), the room waits for a person to write.`;
   return `Você está no The Sala: salas de conversa entre pessoas e os agentes delas.${q ? ` Você é "${q.agente}", agente de ${q.pessoa}.` : ""}
 - Leia o contexto da sala, as decisões e as mensagens novas antes de escrever. Decisões aprovadas valem: siga-as.
 - Responda quando te chamarem (a mensagem vem marcada "← chamou você": @${q?.agente.replace(/\s/g, "") ?? "Claude"}, @agentes, @todos) ou quando uma pessoa perguntar algo para todos. Pergunta para @agentes ou @todos: responda sempre, mesmo que outro agente já tenha respondido. Dê a sua visão sem repetir a dele; a sala mostra as respostas lado a lado para comparar. Se chamaram só outro agente, fique quieto.
-- Ao responder uma mensagem, passe responde_a com o id dela (#N). Assim a sala mostra as respostas dos agentes lado a lado.
+- Ao responder uma mensagem, passe responde_a com o id dela (#N). Assim a sala mostra as respostas dos agentes lado a lado. Numa discussão que começou com uma pergunta para @agentes, toda mensagem sua (e a sua proposta final) responde à pergunta original, para a sala comparar a resposta final de cada um.
 - Nunca escreva números de mensagem (#N) no texto: as pessoas não veem esses números. Para se referir a algo, diga quem disse ("a pergunta do David", "a proposta de preço").
 - Quando algo precisar do sim de uma pessoa (gastar, publicar, mudar plano, escolher entre opções), use fazer_proposta em vez de decidir sozinho. As pessoas aprovam ou recusam na sala.
 - Para chamar alguém, use @Nome (pessoa) ou @Agente-Pessoa (agente de alguém).
@@ -471,7 +486,7 @@ function regras(q?: Quem) {
 - Para só confirmar ("entendi", "ok", "vou olhar"), reaja com emoji (reagir) em vez de mandar mensagem.
 - Seja objetivo e use markdown leve. Na dúvida, pergunte à sua pessoa antes de responder em nome dela.
 - Seu nome aparece sozinho nas suas mensagens; não precisa assinar.
-- Depois de 5 mensagens seguidas de agentes, a sala espera uma pessoa escrever.`;
+- Depois de algumas mensagens seguidas de agentes (cada sala define quantas), a sala espera uma pessoa escrever.`;
 }
 
 async function instrucoes(q: Quem, chave: string) {
@@ -590,7 +605,7 @@ const TOOLS_PT = [
   },
   {
     name: "ler_arquivo",
-    description: "Abre um arquivo anexado na conversa (as linhas com 📎 trazem o caminho). Texto vem como texto, imagem como imagem; outros tipos vêm com um link temporário.",
+    description: "Abre um arquivo anexado na conversa (as linhas com 📎 trazem o caminho). Texto e PDF vêm como texto, imagem como imagem; outros tipos vêm com um link temporário.",
     inputSchema: {
       type: "object",
       properties: { arquivo: { type: "string", description: "O caminho que aparece depois de 'ler_arquivo:' na mensagem." } },
@@ -678,7 +693,7 @@ const EN: Record<string, { d: string; p?: Record<string, string> }> = {
   reagir: { d: "Reacts to a message with an emoji (👍 got it/agree, 👀 looking into it, ✅ done). Sending the same emoji again removes it. Use it instead of a short confirmation message.",
     p: { mensagem: "Id (#N) of the message.", emoji: "One emoji, e.g. 👍" } },
   ver_decisoes: { d: "Shows proposals waiting for a decision and the room's decision record (approved and declined, with who decided)." },
-  ler_arquivo: { d: "Opens a file attached in the conversation (lines with 📎 show the path). Text comes back as text, images as images; other types come with a temporary link.",
+  ler_arquivo: { d: "Opens a file attached in the conversation (lines with 📎 show the path). Text and PDF come back as text, images as images; other types come with a temporary link.",
     p: { arquivo: "The path shown after 'ler_arquivo:' in the message." } },
   enviar_arquivo: { d: "Attaches a text file in the room (markdown, csv, json, code...), with an optional message. Use it to deliver documents instead of pasting long text.",
     p: { nome: "File name with extension, e.g. sales-proposal.md", conteudo: "The file content (up to 1 MB).", texto: "Message that goes with the file (optional).", responde_a: "Id of the message you're replying to, if any." } },
@@ -944,7 +959,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.8.0" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.9.0" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {
