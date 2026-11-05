@@ -127,7 +127,7 @@ async function autenticar(req: Request): Promise<Quem | null> {
 
 // ---------------------------------------------------------------- salas e mensagens
 
-type Sala = { id: string; nome: string; contexto?: string; memoria?: string };
+type Sala = { id: string; nome: string; contexto?: string; memoria?: string; idioma?: "pt" | "en" };
 type Anexo = { path: string; nome: string; tipo: string; tamanho: number };
 type ItemPlano = { titulo: string; frente?: string; responsavel?: string; responsavel_agente?: string; prazo?: string; tarefa?: number };
 type Msg = {
@@ -141,7 +141,7 @@ type Msg = {
 };
 
 async function salasDe(q: Quem): Promise<Sala[]> {
-  const { data, error } = await db.from("membros").select("salas(id, nome, contexto, memoria)").eq("user_id", q.userId).order("entrou_em");
+  const { data, error } = await db.from("membros").select("salas(id, nome, contexto, memoria, idioma)").eq("user_id", q.userId).order("entrou_em");
   if (error) throw error;
   return (data ?? []).map((r: any) => r.salas).filter(Boolean);
 }
@@ -446,11 +446,16 @@ function listaAnexos(ms: Msg[], bs: ItemBib[], q?: Quem) {
 }
 
 // leitura de continuação (com `depois`): só o que pede ação; contexto, decisões e biblioteca já foram lidos
+// a conversa tem idioma próprio: o agente escreve nele, mesmo que a sua pessoa use outro
+const idiomaDaSala = (s: Sala, q?: Quem) => (s.idioma === "en"
+  ? tr(q, "Idioma da sala: inglês. Escreva suas mensagens, propostas, tarefas e a memória em inglês.", "Room language: English. Write your messages, proposals, tasks and the memory in English.")
+  : tr(q, "Idioma da sala: português. Escreva suas mensagens, propostas, tarefas e a memória em português.", "Room language: Portuguese. Write your messages, proposals, tasks and the memory in Portuguese."));
+
 async function cabecalhoCurto(s: Sala, q: Quem) {
   const [ps, ts] = await Promise.all([propostas(s.id, 15), tarefas(s.id)]);
   const pend = ps.filter((p) => p.estado === "pendente");
   const t = listaTarefas(ts.filter((x) => x.estado === "aberta" && ehMinha(q, x)), q, 0);
-  const linhas = [tr(q, `Sala "${s.nome}" (só as novas; instruções, memória, decisões e biblioteca: leia sem \`depois\`)`, `Room "${s.nome}" (new messages only; instructions, memory, decisions and library: read without \`depois\`)`)];
+  const linhas = [tr(q, `Sala "${s.nome}" (só as novas; instruções, memória, decisões e biblioteca: leia sem \`depois\`)`, `Room "${s.nome}" (new messages only; instructions, memory, decisions and library: read without \`depois\`)`), idiomaDaSala(s, q)];
   if (pend.length) linhas.push(tr(q, "Propostas aguardando decisão:", "Proposals waiting for a decision:"), ...pend.map((p) => `- #${p.id} (${quemEscreveu(p, q)}): ${umaLinha(p.texto, 100)}`));
   if (t) linhas.push(t);
   return linhas.join("\n");
@@ -465,7 +470,7 @@ async function cabecalho(s: Sala, q?: Quem) {
   const a = listaAnexos(ax, bs, q);
   const ins = s.contexto?.trim() ? `\n${tr(q, "Instruções da sala (das pessoas)", "Room instructions (from the people)")}: ${s.contexto.trim()}` : "";
   const mem = `\n${tr(q, "Memória da sala (mantida pelos agentes; atualize com atualizar_memoria)", "Room memory (kept by the agents; update it with atualizar_memoria)")}:${s.memoria?.trim() ? `\n${s.memoria.trim()}` : tr(q, " (vazia: comece a preencher)", " (empty: start filling it in)")}`;
-  return `${tr(q, "Sala", "Room")} "${s.nome}"${ins}${mem}${r ? `\n${r}` : ""}${t ? `\n${t}` : ""}${b ? `\n${b}` : ""}${a ? `\n${a}` : ""}`;
+  return `${tr(q, "Sala", "Room")} "${s.nome}"\n${idiomaDaSala(s, q)}${ins}${mem}${r ? `\n${r}` : ""}${t ? `\n${t}` : ""}${b ? `\n${b}` : ""}${a ? `\n${a}` : ""}`;
 }
 
 // ---------------------------------------------------------------- memória
@@ -876,6 +881,7 @@ async function concluirTarefa(q: Quem, id: number, resultado: string, anexo?: An
 function regras(q?: Quem) {
   if (q?.lingua === "en") return `You're in The Sala: chat rooms where people and their agents talk. You are "${q.agente}", ${q.pessoa}'s agent.
 - Read the room instructions, the memory, the decisions and the new messages before writing. Approved decisions stand: follow them.
+- Write in the room's language (shown at the top when you read the room), even if your person uses another one.
 - Reply when you're called (the message is marked "← called you": @${q.agente.replace(/\s/g, "")}, @agents, @everyone) or when a person asks everyone something. A question to @agents or @everyone: always answer, even if another agent already did. Give your own take without repeating theirs; the room shows the answers side by side to compare. If only another agent was called, stay quiet.
 - When replying to a message, pass responde_a with its id (#N). That way the room shows the agents' answers side by side. In a discussion that started with a question to @agents, every message of yours (and your final proposal) replies to that original question, so the room can compare everyone's final answer.
 - Never write message or task numbers in your text (#N, "task 12"): people don't see them. Refer to things by name: who said it ("David's question", "the price proposal") or what the task is ("the rule 3.2 approval task"). Numbers go only in tool parameters (responde_a, tarefa, item).
@@ -901,6 +907,7 @@ function regras(q?: Quem) {
 - After a few agent messages in a row (the room sets how many), the room waits for a person to write.`;
   return `Você está no The Sala: salas de conversa entre pessoas e os agentes delas.${q ? ` Você é "${q.agente}", agente de ${q.pessoa}.` : ""}
 - Leia as instruções da sala, a memória, as decisões e as mensagens novas antes de escrever. Decisões aprovadas valem: siga-as.
+- Escreva no idioma da sala (aparece no topo quando você lê a sala), mesmo que a sua pessoa use outro.
 - Responda quando te chamarem (a mensagem vem marcada "← chamou você": @${q?.agente.replace(/\s/g, "") ?? "Claude"}, @agentes, @todos) ou quando uma pessoa perguntar algo para todos. Pergunta para @agentes ou @todos: responda sempre, mesmo que outro agente já tenha respondido. Dê a sua visão sem repetir a dele; a sala mostra as respostas lado a lado para comparar. Se chamaram só outro agente, fique quieto.
 - Ao responder uma mensagem, passe responde_a com o id dela (#N). Assim a sala mostra as respostas dos agentes lado a lado. Numa discussão que começou com uma pergunta para @agentes, toda mensagem sua (e a sua proposta final) responde à pergunta original, para a sala comparar a resposta final de cada um.
 - Nunca escreva números de mensagem ou de tarefa no texto (#N, "tarefa 12"): as pessoas não veem esses números. Cite pelo nome: quem disse ("a pergunta do David", "a proposta de preço") ou o que é a tarefa ("a tarefa de aprovar a regra 3.2"). Número só vai nos parâmetros das ferramentas (responde_a, tarefa, item).
@@ -1670,7 +1677,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.24.0" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.25.0" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {
