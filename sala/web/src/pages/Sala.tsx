@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "../App";
 import { Layout, useSalas } from "../components/Layout";
-import { Bolha, Evento, type Citacao, type GrupoReacao } from "../components/Bolha";
+import { type Aprovacao, Bolha, Evento, type Citacao, type GrupoReacao } from "../components/Bolha";
 import { Ajustes } from "../components/Ajustes";
 import { Compor, type ComporApi, type Sugestao } from "../components/Compor";
 import { Decisoes } from "../components/Decisoes";
@@ -78,6 +78,8 @@ export default function SalaPage() {
   const [versaoDecisoes, setVersaoDecisoes] = useState(0);
   const [tarefas, setTarefas] = useState<Tarefa[] | null>(null);
   const [reacoes, setReacoes] = useState<Reacao[]>([]);
+  const [votos, setVotos] = useState<{ proposta_id: number; user_id: string }[]>([]);
+  const [precisa, setPrecisa] = useState(1); // aprovações que uma proposta precisa nesta sala
   const [rascunho, setRascunho] = useState<RascunhoTarefa>(null);
   const [ata, setAta] = useState(false);
   const [pedido, setPedido] = useState<number | null>(null); // veio do aviso "chamaram seu agente"
@@ -180,6 +182,12 @@ export default function SalaPage() {
     });
 
     setReacoes([]);
+    setVotos([]);
+    const carregarVotos = () => {
+      sb.from("votos").select("proposta_id, user_id").eq("sala_id", id).limit(5000)
+        .then(({ data }) => { if (salaAtual.current === id) setVotos((data as { proposta_id: number; user_id: string }[]) ?? []); });
+      sb.rpc("aprovacoes_necessarias", { sala: id }).then(({ data }) => { if (salaAtual.current === id && typeof data === "number") setPrecisa(data); });
+    };
     const carregarReacoes = () => sb.from("reacoes").select("id, mensagem_id, user_id, agente, emoji").eq("sala_id", id).order("id").limit(5000)
       .then(({ data }) => { if (salaAtual.current === id) setReacoes((atual) => juntarReacoes(atual, (data as Reacao[]) ?? [])); });
 
@@ -194,7 +202,7 @@ export default function SalaPage() {
         return [...atual, m];
       });
     };
-    const primeira = () => { if (!carregado) { carregado = true; carregarRecentes(id, buffer); carregarTarefas(); carregarReacoes(); } };
+    const primeira = () => { if (!carregado) { carregado = true; carregarRecentes(id, buffer); carregarTarefas(); carregarReacoes(); carregarVotos(); } };
 
     const canal = sb.channel(`sala:${id}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "mensagens", filter: `sala_id=eq.${id}` }, (p) => chegou(p.new as Mensagem))
@@ -207,6 +215,7 @@ export default function SalaPage() {
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "membros" }, carregarMembros)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "tarefas", filter: `sala_id=eq.${id}` }, (p) => { mudouTarefa(p.new as Tarefa); recarregar(); })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "tarefas", filter: `sala_id=eq.${id}` }, (p) => { mudouTarefa(p.new as Tarefa); recarregar(); })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "votos", filter: `sala_id=eq.${id}` }, carregarVotos)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "reacoes", filter: `sala_id=eq.${id}` }, (p) => setReacoes((atual) => juntarReacoes(atual, [p.new as Reacao])))
       // apagar não aceita filtro no tempo real e chega só com o id: tira pelo id
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "reacoes" }, (p) => setReacoes((atual) => atual.filter((r) => r.id !== (p.old as Reacao).id)))
@@ -341,8 +350,10 @@ export default function SalaPage() {
   };
 
   const decidir = async (pid: number, aprovar: boolean, nota?: string) => {
-    const { error } = await sb.rpc("decidir", { proposta: pid, aprovar, nota: nota ?? null });
+    const { data, error } = await sb.rpc("decidir", { proposta: pid, aprovar, nota: nota ?? null });
     if (error) return erro(error);
+    // aprovou, mas a sala pede mais aprovações: a proposta continua pendente com o seu voto
+    if (aprovar && data == null) { setVotos((v) => [...v.filter((x) => !(x.proposta_id === pid && x.user_id === eu)), { proposta_id: pid, user_id: eu }]); return null; }
     setMsgs((a) => a?.map((x) => (x.id === pid ? { ...x, estado: aprovar ? "aprovada" : "recusada", decidida_por: eu, decidida_em: new Date().toISOString() } : x)) ?? a);
     recarregar();
     return null;
@@ -387,6 +398,14 @@ export default function SalaPage() {
       </Layout>
     );
   }
+
+  // quem já aprovou e quem falta, quando a sala pede mais de uma aprovação
+  const aprovacaoDe = (m: Mensagem): Aprovacao | null => {
+    if (m.tipo !== "proposta" || m.estado !== "pendente" || precisa < 2) return null;
+    const quem = votos.filter((v) => v.proposta_id === m.id).map((v) => v.user_id);
+    const faltam = membros.filter((x) => x.papel !== "leitor" && !quem.includes(x.user_id)).map((x) => (x.user_id === eu ? t("você", "you") : (x.perfis?.nome ?? "").split(" ")[0]));
+    return { precisa, quem: quem.map((u) => (u === eu ? t("você", "you") : nome(u).split(" ")[0])), euAprovei: quem.includes(eu), faltam };
+  };
 
   const passos = [
     { feito: membros.length > 1, titulo: t("Chame as pessoas", "Invite people"), texto: t("Mande o link do convite.", "Send them the invite link."), acao: () => setConvite(true), botao: t("Copiar convite", "Copy invite"), icone: <IconeConvite tamanho={18} /> },
@@ -582,6 +601,7 @@ export default function SalaPage() {
                   <Bolha m={m} nome={nome(m.user_id)} quando={hora(m.criada_em)} quandoCompleto={completo(m.criada_em)}
                     minha={minhaPessoa} continua={continua} chamaMim={chamaMim} destaque={destaque === m.id}
                     autorDe={(id) => { const x = porId.get(id); return x ? autor(x) : null; }}
+                    aprovacao={aprovacaoDe(m)}
                     decisor={m.decidida_por ? (m.decidida_por === eu ? t("você", "you") : nome(m.decidida_por)) : undefined}
                     citacao={m.responde_a && !emSequencia ? { id: m.responde_a, autor: citada ? autor(citada) : t("Mensagem anterior", "Earlier message"), texto: citada ? (citada.apagada ? t("Mensagem apagada.", "Message deleted.") : umaLinha(gravado(citada.texto), 120)) : "" } : null}
                     responder={m.id > 0 && !leitor ? () => responder(m) : undefined}
@@ -669,7 +689,7 @@ export default function SalaPage() {
         )}
         {painel === "decisoes" && sala && (
           <Decisoes salaId={sala.id} salaNome={sala.nome} versao={versaoDecisoes} autor={autor} nome={nome}
-            decidir={decidir} irPara={irPara} fechar={() => setPainel(null)} abrirAta={() => setAta(true)} />
+            decidir={decidir} aprovacaoDe={aprovacaoDe} irPara={irPara} fechar={() => setPainel(null)} abrirAta={() => setAta(true)} />
         )}
         {painel === "tarefas" && sala && (
           <Tarefas salaId={sala.id} tarefas={tarefas} membros={membros} agentes={agentes} eu={eu} nome={nome}

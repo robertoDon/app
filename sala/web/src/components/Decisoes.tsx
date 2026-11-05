@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { copiarTexto, sb, type Mensagem } from "../supabase";
 import { IconeCheck, IconeDecisao, IconeDocumento, IconeFechar, IconeProposta, IconeSeta } from "./Icones";
 import { Texto } from "./Texto";
+import { LinhaAprovacao, type Aprovacao } from "./Bolha";
 import { erro as msgErro, locale, t } from "../i18n";
 
 type Props = {
@@ -11,6 +12,7 @@ type Props = {
   autor: (m: Mensagem) => string;
   nome: (uid: string | null) => string;
   decidir: (id: number, aprovar: boolean, nota?: string) => Promise<string | null>;
+  aprovacaoDe?: (m: Mensagem) => Aprovacao | null;
   irPara: (id: number) => void;
   fechar: () => void;
   abrirAta: () => void;
@@ -19,7 +21,7 @@ type Props = {
 const data = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString(locale(), { day: "numeric", month: "short" }).replace(".", "") : "");
 
 // Registro de decisões: o que espera um sim e o que já foi decidido, com quem e quando.
-export function Decisoes({ salaId, salaNome, versao, autor, nome, decidir, irPara, fechar, abrirAta }: Props) {
+export function Decisoes({ salaId, salaNome, versao, autor, nome, decidir, aprovacaoDe, irPara, fechar, abrirAta }: Props) {
   const [lista, setLista] = useState<Mensagem[] | null>(null);
   const [copiado, setCopiado] = useState(false);
   const [ocupado, setOcupado] = useState<number | null>(null);
@@ -112,12 +114,20 @@ export function Decisoes({ salaId, salaNome, versao, autor, nome, decidir, irPar
                       <button className="btn btn-recusar" disabled={ocupado === p.id}>{t("Recusar", "Decline")}</button>
                     </div>
                   </form>
-                ) : (
-                  <div className="decidir">
-                    <button className="btn" disabled={ocupado === p.id} onClick={() => { setRecusando(p.id); setNota(""); }}>{t("Recusar", "Decline")}</button>
-                    <button className="btn btn-cheio" disabled={ocupado === p.id} onClick={() => agir(p.id, true)}>{t("Aprovar", "Approve")}</button>
-                  </div>
-                )}
+                ) : (() => {
+                  const a = aprovacaoDe?.(p);
+                  return (
+                    <>
+                      {a && <LinhaAprovacao a={a} />}
+                      <div className="decidir">
+                        <button className="btn" disabled={ocupado === p.id} onClick={() => { setRecusando(p.id); setNota(""); }}>{t("Recusar", "Decline")}</button>
+                        {a?.euAprovei
+                          ? <button className="btn btn-aprovei" disabled><IconeCheck tamanho={14} /> {t("Você aprovou", "You approved")}</button>
+                          : <button className="btn btn-cheio" disabled={ocupado === p.id} onClick={() => agir(p.id, true)}>{t("Aprovar", "Approve")}</button>}
+                      </div>
+                    </>
+                  );
+                })()}
               </li>
             ))}
           </ul>

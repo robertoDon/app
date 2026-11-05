@@ -20,6 +20,14 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco }
   const link = sala.convite ? `${window.location.origin}/c/${sala.convite}` : "";
   const linkLeitura = sala.convite_leitura ? `${window.location.origin}/c/${sala.convite_leitura}` : "";
   const [historico, setHistorico] = useState<Historico[] | null>(null);
+  const [aprovacoes, setAprovacoes] = useState<number | null>(null);
+  useEffect(() => { sb.from("salas").select("aprovacoes").eq("id", sala.id).maybeSingle().then(({ data }) => setAprovacoes((data as { aprovacoes: number } | null)?.aprovacoes ?? 1)); }, [sala.id]);
+  const mudarAprovacoes = async (n: number) => {
+    const antes = aprovacoes; setAprovacoes(n);
+    const { error } = await sb.from("salas").update({ aprovacoes: n }).eq("id", sala.id);
+    if (error) { setAprovacoes(antes); return alert(erro(error)); }
+    setSalvo("aprovacoes"); setTimeout(() => setSalvo(""), 2000);
+  };
   const verHistorico = async () => {
     const { data } = await sb.from("historico").select("*").eq("sala_id", sala.id).order("id", { ascending: false }).limit(60);
     setHistorico((data as Historico[]) ?? []);
@@ -123,6 +131,19 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco }
               <button className="btn btn-pequeno btn-cheio" onClick={() => salvar({ contexto: contexto.trim() }, "contexto")}>{t("Salvar contexto", "Save context")}</button>
             </div>
           )}
+        </div>
+        <div className="campo">
+          <div className="campo-topo">
+            <span id="aj-aprov" className="campo-rotulo">{t("Aprovações para uma proposta passar", "Approvals for a proposal to pass")}</span>
+            {salvo === "aprovacoes" && <span className="salvo" role="status"><IconeCheck tamanho={12} /> {t("Salvo", "Saved")}</span>}
+          </div>
+          <div className="abas" role="radiogroup" aria-labelledby="aj-aprov">
+            {[[1, t("1 pessoa", "1 person")], [2, t("2 pessoas", "2 people")], [20, t("Todos", "Everyone")]].map(([n, rot]) => (
+              <button key={n} type="button" role="radio" aria-checked={aprovacoes === n} disabled={!dono || aprovacoes === null}
+                className={`aba ${aprovacoes === n ? "ativa" : ""}`} onClick={() => mudarAprovacoes(n as number)}>{rot}</button>
+            ))}
+          </div>
+          <p className="nota">{t("Um “Recusar” encerra a proposta na hora. “Todos” conta quem escreve na sala, não quem só acompanha.", "One “Decline” closes the proposal right away. “Everyone” counts people who write in the room, not viewers.")}</p>
         </div>
       </section>
 

@@ -1491,3 +1491,12 @@ mark { background: color-mix(in srgb, var(--acento) 20%, transparent); color: va
 .soltar strong { font-weight: 500; overflow-wrap: anywhere; }
 .sala-titulo h1 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 720px) { .sala-topo { gap: 0; } .sala-topo .btn-icone { width: 40px; } }
+
+/* propostas com mais de uma aprovação: pontos por aprovação e quem falta */
+.aprovacoes { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: 12.5px; color: var(--cinza); }
+.aprovacoes strong { color: var(--tinta); font-weight: 600; }
+.aprovacoes-pontos { display: inline-flex; gap: 3px; flex: none; }
+.aprovacoes-pontos span { width: 8px; height: 8px; border-radius: 999px; box-shadow: inset 0 0 0 1.5px var(--linha-forte); }
+.aprovacoes-pontos span.cheio { background: var(--ok); box-shadow: none; }
+.btn-aprovei { justify-content: center; color: var(--ok); background: color-mix(in srgb, var(--ok) 8%, var(--elevado)); border-color: color-mix(in srgb, var(--ok) 30%, var(--linha)); opacity: 1 !important; gap: 6px; }
+.campo-rotulo { font-size: 13px; font-weight: 500; }

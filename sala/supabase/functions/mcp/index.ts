@@ -134,6 +134,7 @@ type Msg = {
   decidida_em: string | null; editada_em: string | null; apagada: boolean; anexos: Anexo[];
   autor?: { nome: string }; decisor?: { nome: string } | null;
   reacoes?: { emoji: string; agente: string | null; perfis: { nome: string } | null }[];
+  votos?: { perfis: { nome: string } | null }[];
 };
 
 async function salasDe(q: Quem): Promise<Sala[]> {
@@ -158,7 +159,7 @@ async function acharSala(q: Quem, ref?: string): Promise<Sala> {
 }
 
 const SEL = "id, sala_id, user_id, agente, texto, criada_em, tipo, responde_a, estado, decidida_em, editada_em, apagada, anexos, " +
-  "autor:perfis!mensagens_user_id_fkey(nome), decisor:perfis!mensagens_decidida_por_fkey(nome)";
+  "autor:perfis!mensagens_user_id_fkey(nome), decisor:perfis!mensagens_decidida_por_fkey(nome), votos(perfis(nome))";
 
 async function ler(sala: string, depois = 0, limite = 50): Promise<Msg[]> {
   limite = Math.max(1, Math.min(limite || 50, 200));
@@ -262,7 +263,11 @@ const quando = (iso: string) => iso.slice(0, 16).replace("T", " ") + " UTC";
 function rotulo(m: Msg, q?: Quem) {
   if (m.apagada) return "";
   if (m.tipo === "proposta") {
-    if (m.estado === "pendente") return tr(q, " · PROPOSTA aguardando decisão das pessoas", " · PROPOSAL waiting for people to decide");
+    if (m.estado === "pendente") {
+      const ja = (m.votos ?? []).map((v) => v.perfis?.nome ?? "?");
+      const parcial = ja.length ? tr(q, ` (já aprovou: ${ja.join(", ")}; falta outra aprovação)`, ` (already approved by: ${ja.join(", ")}; another approval is needed)`) : "";
+      return tr(q, ` · PROPOSTA aguardando decisão das pessoas${parcial}`, ` · PROPOSAL waiting for people to decide${parcial}`);
+    }
     return tr(q, ` · PROPOSTA ${m.estado === "aprovada" ? "APROVADA" : "RECUSADA"} por ${m.decisor?.nome ?? "?"}`,
       ` · PROPOSAL ${m.estado === "aprovada" ? "APPROVED" : "DECLINED"} by ${m.decisor?.nome ?? "?"}`);
   }
@@ -510,7 +515,7 @@ function regras(q?: Quem) {
 - Reply when you're called (the message is marked "← called you": @${q.agente.replace(/\s/g, "")}, @agents, @everyone) or when a person asks everyone something. A question to @agents or @everyone: always answer, even if another agent already did. Give your own take without repeating theirs; the room shows the answers side by side to compare. If only another agent was called, stay quiet.
 - When replying to a message, pass responde_a with its id (#N). That way the room shows the agents' answers side by side. In a discussion that started with a question to @agents, every message of yours (and your final proposal) replies to that original question, so the room can compare everyone's final answer.
 - Never write message numbers (#N) in your text: people don't see them. To refer to something, say who said it ("David's question", "the price proposal").
-- When something needs a person's yes (spending, publishing, changing the plan, choosing between options), use fazer_proposta instead of deciding yourself. People approve or decline in the room.
+- When something needs a person's yes (spending, publishing, changing the plan, choosing between options), use fazer_proposta instead of deciding yourself. People approve or decline in the room. Some rooms require more than one approval: the proposal only passes when they all arrive, and the app counts them; don't treat it as approved before that.
 - To call someone, use @Name (a person) or @Agent-Person (someone's agent).
 - Tasks marked "← YOURS" are yours: do them and complete them with concluir_tarefa, stating the result (link, number, file). If you can't, say in the room what's missing. To split work, use criar_tarefa.
 - Files in the conversation show up with 📎; open them with ler_arquivo. To deliver a document (draft, table, code), use enviar_arquivo.
@@ -524,7 +529,7 @@ function regras(q?: Quem) {
 - Responda quando te chamarem (a mensagem vem marcada "← chamou você": @${q?.agente.replace(/\s/g, "") ?? "Claude"}, @agentes, @todos) ou quando uma pessoa perguntar algo para todos. Pergunta para @agentes ou @todos: responda sempre, mesmo que outro agente já tenha respondido. Dê a sua visão sem repetir a dele; a sala mostra as respostas lado a lado para comparar. Se chamaram só outro agente, fique quieto.
 - Ao responder uma mensagem, passe responde_a com o id dela (#N). Assim a sala mostra as respostas dos agentes lado a lado. Numa discussão que começou com uma pergunta para @agentes, toda mensagem sua (e a sua proposta final) responde à pergunta original, para a sala comparar a resposta final de cada um.
 - Nunca escreva números de mensagem (#N) no texto: as pessoas não veem esses números. Para se referir a algo, diga quem disse ("a pergunta do David", "a proposta de preço").
-- Quando algo precisar do sim de uma pessoa (gastar, publicar, mudar plano, escolher entre opções), use fazer_proposta em vez de decidir sozinho. As pessoas aprovam ou recusam na sala.
+- Quando algo precisar do sim de uma pessoa (gastar, publicar, mudar plano, escolher entre opções), use fazer_proposta em vez de decidir sozinho. As pessoas aprovam ou recusam na sala. Algumas salas pedem mais de uma aprovação: a proposta só passa quando todas chegam, e o app conta sozinho; não trate como aprovada antes disso.
 - Para chamar alguém, use @Nome (pessoa) ou @Agente-Pessoa (agente de alguém).
 - Tarefas marcadas "← SUA" são suas: faça e conclua com concluir_tarefa, dizendo o resultado (link, número, arquivo). Se não der, diga na sala o que falta. Para dividir trabalho, use criar_tarefa.
 - Arquivos da conversa aparecem com 📎; abra com ler_arquivo. Para entregar um documento (rascunho, tabela, código), use enviar_arquivo.
@@ -1094,7 +1099,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.10.0" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.11.0" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {

@@ -7,6 +7,24 @@ import { gravado, locale, t as tr } from "../i18n";
 
 export type Citacao = { id: number; autor: string; texto: string } | null;
 export type GrupoReacao = { emoji: string; quem: string[]; minha: boolean };
+export type Aprovacao = { precisa: number; quem: string[]; euAprovei: boolean; faltam: string[] };
+
+const lista = (xs: string[]) => (xs.length < 2 ? xs.join("") : `${xs.slice(0, -1).join(", ")} ${tr("e", "and")} ${xs[xs.length - 1]}`);
+
+// "1 de 2 aprovações · Roberto aprovou · falta David", com um marcador por aprovação
+export function LinhaAprovacao({ a }: { a: Aprovacao }) {
+  return (
+    <p className="aprovacoes">
+      <span className="aprovacoes-pontos" aria-hidden>{Array.from({ length: a.precisa }, (_, i) => <span key={i} className={i < a.quem.length ? "cheio" : ""} />)}</span>
+      <span><strong>{tr(`${a.quem.length} de ${a.precisa} aprovações`, `${a.quem.length} of ${a.precisa} approvals`)}</strong>
+        {a.quem.length > 0 && <> · {lista(a.quem)} {a.quem.length > 1 ? tr("aprovaram", "approved") : tr("aprovou", "approved")}</>}
+        {a.faltam.length > 0 && a.quem.length < a.precisa && (a.faltam.length <= a.precisa - a.quem.length
+          ? <> · {tr(`falta ${lista(a.faltam)}`, `waiting for ${lista(a.faltam)}`)}</>
+          : <> · {tr(`falta mais ${a.precisa - a.quem.length}`, `${a.precisa - a.quem.length} more needed`)}</>)}
+      </span>
+    </p>
+  );
+}
 export const EMOJIS = ["👍", "❤️", "😂", "🎉", "👀", "✅", "🙏", "🔥"];
 
 type Props = {
@@ -32,6 +50,7 @@ type Props = {
   reacoes?: GrupoReacao[];
   reagir?: (emoji: string) => void;
   autorDe?: (id: number) => string | null; // para "#142" virar "mensagem de David"
+  aprovacao?: Aprovacao | null; // sala que pede mais de uma aprovação
 };
 
 // seletor rápido de emojis: abre ao lado do botão, fecha com Esc ou clique fora
@@ -158,7 +177,7 @@ export function Bolha(p: Props) {
             </>
           )}
 
-          {proposta && (m.estado !== "pendente" || p.decidir) && (
+          {proposta && (m.estado !== "pendente" || p.decidir || p.aprovacao) && (
             <div className="proposta-pe">
               {m.estado === "pendente" ? (
                 p.decidir ? (
@@ -173,12 +192,17 @@ export function Bolha(p: Props) {
                       </div>
                     </form>
                   ) : (
-                    <div className="decidir">
-                      <button type="button" className="btn" disabled={ocupado} onClick={() => setRecusando(true)}>{tr("Recusar", "Decline")}</button>
-                      <button type="button" className="btn btn-cheio" disabled={ocupado} onClick={() => decidir(true)}>{tr("Aprovar", "Approve")}</button>
-                    </div>
+                    <>
+                      {p.aprovacao && <LinhaAprovacao a={p.aprovacao} />}
+                      <div className="decidir">
+                        <button type="button" className="btn" disabled={ocupado} onClick={() => setRecusando(true)}>{tr("Recusar", "Decline")}</button>
+                        {p.aprovacao?.euAprovei
+                          ? <button type="button" className="btn btn-aprovei" disabled><IconeCheck tamanho={14} /> {tr("Você aprovou", "You approved")}</button>
+                          : <button type="button" className="btn btn-cheio" disabled={ocupado} onClick={() => decidir(true)}>{tr("Aprovar", "Approve")}</button>}
+                      </div>
+                    </>
                   )
-                ) : null
+                ) : p.aprovacao ? <LinhaAprovacao a={p.aprovacao} /> : null
               ) : (
                 <p className="nota">
                   {p.decisor ? tr(`Decidida por ${p.decisor}`, `Decided by ${p.decisor}`) : tr("Decidida", "Decided")}
