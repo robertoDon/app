@@ -1622,3 +1622,12 @@ time, kbd, .aba-num, .ir-fim-num, .novas, .sala-novas, .sala-pendentes, .sala-qu
 .pn-trilho i { background: var(--ok); }
 .pn-semana .pn-barra { background: color-mix(in srgb, var(--tinta) 18%, transparent); }
 .pn-atual .pn-barra { background: var(--tinta); }
+
+/* toque: a barra de ações aberta ganha fundo próprio e nunca fica por cima do texto sem contraste */
+@media (hover: none) {
+  .msg:focus-within .msg-acoes { background: var(--elevado); border: 1px solid var(--linha); box-shadow: var(--sombra-media); border-radius: 10px; padding: 2px; }
+}
+@media (max-width: 720px) {
+  .msg-proposta .msg-acoes { top: -14px; right: 8px; flex-direction: row; }
+  .msg-proposta:not(:focus-within) .msg-acoes { background: var(--elevado); border: 1px solid var(--linha); border-radius: 999px; }
+}
