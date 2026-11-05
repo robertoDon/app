@@ -258,7 +258,7 @@ async function esperar(q: Quem, sala: string, depois: number, segundos: number) 
 }
 
 // @Claude, @Claude-Roberto, @agentes, @todos
-const handle = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Za-z0-9]/g, "").toLowerCase();
+const handle = (s: string) => s.normalize("NFD").replace(/\p{M}/gu, "").replace(/[^A-Za-z0-9]/g, "").toLowerCase();
 function meChamou(q: Quem, texto: string) {
   for (const [, a, p] of texto.matchAll(/@([\p{L}\p{N}_]+)(?:-([\p{L}\p{N}_]+))?/gu)) {
     const h = handle(a);
@@ -429,7 +429,7 @@ const BINARIOS: Record<string, string> = { png: "image/png", jpg: "image/jpeg", 
 async function subirTexto(q: Quem, sala: string, nome: string, conteudo: string, base64?: unknown): Promise<Anexo> {
   const limpo = (nome || "arquivo.txt").replace(/[\/\\\x00-\x1f]/g, "-").trim().slice(0, 200) || "arquivo.txt";
   // a chave do armazenamento só aceita letras sem acento, números, ponto, hífen e sublinhado; o nome real fica na mensagem
-  const chave = (limpo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Za-z0-9._-]+/g, "-").replace(/\.{2,}/g, ".").replace(/^[-.]+|-+$/g, "") || "arquivo.txt").slice(-120);
+  const chave = (limpo.normalize("NFD").replace(/\p{M}/gu, "").replace(/[^A-Za-z0-9._-]+/g, "-").replace(/\.{2,}/g, ".").replace(/^[-.]+|-+$/g, "") || "arquivo.txt").slice(-120);
   // imagem ou PDF: o conteúdo vem em base64 (captura de tela, PDF gerado)
   const bin = BINARIOS[limpo.split(".").pop()?.toLowerCase() ?? ""];
   if (base64 === true || base64 === "true" || bin) {
