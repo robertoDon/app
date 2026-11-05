@@ -80,3 +80,4 @@ export const IconeAjuda = ({ tamanho }: P) => <svg {...base(tamanho)}><circle cx
 export const IconeMapa = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="m3 6 6-2 6 2 6-2v14l-6 2-6-2-6 2V6ZM9 4v14M15 6v14" /></svg>;
 export const IconeBiblioteca = ({ tamanho }: P) => <svg {...base(tamanho)}><rect x="3.5" y="4" width="4" height="16" rx="1" /><rect x="9" y="4" width="4" height="16" rx="1" /><path d="m14.6 5.3 3.8-.9 3.1 14.3-3.8.9Z" /></svg>;
 export const IconeLink = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></svg>;
+export const IconeMemoria = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M6 3.5h9l3.5 3.5v13.5H6Z" /><path d="M14.5 3.5V7.5h4" /><path d="M9 12h6M9 15.5h6M9 8.5h2.5" /></svg>;

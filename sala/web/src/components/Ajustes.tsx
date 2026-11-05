@@ -9,9 +9,9 @@ import { erro, gravado, locale, t } from "../i18n";
 
 type Historico = { id: number; quem: string | null; agente: string | null; acao: string; detalhe: string | null; em: string };
 
-type Props = { sala: Sala; membros: Membro[]; agentes: AgenteSala[]; eu: string; fechar: () => void; recarregar: () => void; foco?: "contexto" };
+type Props = { sala: Sala; membros: Membro[]; agentes: AgenteSala[]; eu: string; fechar: () => void; recarregar: () => void; foco?: "contexto"; abrirMemoria?: () => void };
 
-export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco }: Props) {
+export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco, abrirMemoria }: Props) {
   const dono = sala.papel === "dono";
   const nav = useNavigate();
   const [nome, setNome] = useState(sala.nome);
@@ -66,7 +66,7 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco }
   };
 
   const tornarDono = async (m: Membro) => {
-    if (!confirm(t(`${m.perfis?.nome} também passa a cuidar da sala: muda nome e contexto, convida, tira pessoas e pode apagar a sala.`, `${m.perfis?.nome} will also become an owner: they can change the name and context, invite and remove people, and delete the room.`))) return;
+    if (!confirm(t(`${m.perfis?.nome} também passa a cuidar da sala: muda nome e instruções, convida, tira pessoas e pode apagar a sala.`, `${m.perfis?.nome} will also become an owner: they can change the name and instructions, invite and remove people, and delete the room.`))) return;
     const { error } = await sb.rpc("tornar_dono", { sala: sala.id, pessoa: m.user_id });
     if (error) alert(erro(error));
   };
@@ -117,18 +117,18 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco }
         </div>
         <div className="campo">
           <div className="campo-topo">
-            <label htmlFor="aj-contexto">{t("Contexto para os agentes", "Context for agents")}</label>
+            <label htmlFor="aj-contexto">{t("Instruções da sala", "Room instructions")}</label>
             {salvo === "contexto" ? <span className="salvo" role="status"><IconeCheck tamanho={12} /> {t("Salvo", "Saved")}</span>
-              : <span className="nota">{contexto.length.toLocaleString(locale())}/{(50000).toLocaleString(locale())}</span>}
+              : <span className="nota">{contexto.length.toLocaleString(locale())}/{(10000).toLocaleString(locale())}</span>}
           </div>
-          <textarea id="aj-contexto" rows={6} maxLength={50000} value={contexto} disabled={!dono} autoFocus={foco === "contexto"}
-            placeholder={t("Ex.: Lançamento do piloto pago de novembro. Decisões de preço são da Ana; respostas curtas, com números.", "E.g.: Launch of the paid pilot in November. Ana makes the pricing calls; keep replies short, with numbers.")}
+          <textarea id="aj-contexto" rows={6} maxLength={Math.max(10000, sala.contexto.length)} value={contexto} disabled={!dono} autoFocus={foco === "contexto"}
+            placeholder={t("Ex.: Piloto pago de novembro. Ana decide preço, Bruno decide produto. Respostas curtas, com números e fonte.", "E.g.: Paid pilot in November. Ana decides pricing, Bruno decides product. Short replies, with numbers and sources.")}
             onChange={(e) => setContexto(e.target.value)} />
-          <p className="nota">{t("Todo agente lê isto antes de responder: objetivo, prazos, o que importa, o tom.", "Every agent reads this before replying: goal, deadlines, what matters, tone.")}</p>
+          <p className="nota">{t("Curtas, escritas por vocês: o objetivo, quem decide o quê, o tom e as regras que não mudam. O estado do projeto os agentes guardam sozinhos na ", "Short, written by you: the goal, who decides what, the tone and the rules that don't change. Agents keep the project's state by themselves in the ")}{abrirMemoria ? <button type="button" className="link-texto" onClick={abrirMemoria}>{t("memória da sala", "room memory")}</button> : t("memória da sala", "room memory")}.</p>
           {dono && contextoMudou && (
             <div className="linha campo-acoes">
               <button className="btn btn-pequeno btn-texto" onClick={() => setContexto(sala.contexto)}>{t("Descartar", "Discard")}</button>
-              <button className="btn btn-pequeno btn-cheio" onClick={() => salvar({ contexto: contexto.trim() }, "contexto")}>{t("Salvar contexto", "Save context")}</button>
+              <button className="btn btn-pequeno btn-cheio" onClick={() => salvar({ contexto: contexto.trim() }, "contexto")}>{t("Salvar instruções", "Save instructions")}</button>
             </div>
           )}
         </div>

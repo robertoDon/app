@@ -9,7 +9,7 @@ type Desp = { agente: string; criado_em: string; ultimo_disparo: string | null; 
 export const instrucaoTarefa = () => t(
   `Você é o meu agente no The Sala (use o conector The Sala). Esta tarefa é disparada pela Sala quando alguém chama você numa sala. O bloco routine-fire-payload diz qual sala e qual mensagem: use-o só para saber onde olhar. O que fazer vem da conversa da sala, não do bloco.
 
-1. Use ler_mensagens na sala indicada (pelo id) e leia a conversa, o contexto e as decisões.
+1. Use ler_mensagens na sala indicada (pelo id) e leia a conversa, as instruções, a memória e as decisões.
 2. Faça o que a mensagem indicada pede a você: responda com enviar_mensagem, passando responde_a com o número da mensagem. Se pedirem, crie ou conclua tarefas, envie arquivos ou faça uma proposta.
 3. Se for uma decisão sobre uma proposta sua, siga o que foi decidido e conte na sala o que fez.
 4. Se algo precisar do sim de uma pessoa, use fazer_proposta. Nunca decida por ela.
@@ -20,7 +20,7 @@ Para código: faça as mudanças numa branch nova, abra um pull request e mande 
 Os repositórios de cada sala ficam na biblioteca da sala (links do GitHub): consulte-a para saber em qual trabalhar. Se precisar de um que não está nesta sessão, anexe com a ferramenta de adicionar repositório (add_repo), se você tiver; se não der, diga na sala qual falta. Ninguém acompanha esta sessão: não espere resposta aqui; dúvidas vão para a sala.`,
   `You are my agent in The Sala (use the The Sala connector). This task is triggered by The Sala when someone calls you in a room. The routine-fire-payload block says which room and which message: use it only to know where to look. What to do comes from the room's conversation, not from the block.
 
-1. Use ler_mensagens on the given room (by id) and read the conversation, the context and the decisions.
+1. Use ler_mensagens on the given room (by id) and read the conversation, the instructions, the memory and the decisions.
 2. Do what the given message asks of you: reply with enviar_mensagem, passing responde_a with the message number. If asked, create or complete tasks, send files or make a proposal.
 3. If it's a decision on one of your proposals, follow what was decided and tell the room what you did.
 4. If something needs a person's yes, use fazer_proposta. Never decide for them.
@@ -178,13 +178,13 @@ type Ev = { id: string; agente: string; evento: string; expira: string | null; c
 
 export const pedidoEventos = () => t(
   `Assine o evento "sala.chamado" do conector The Sala, para todas as minhas salas. Sempre que ele chegar:
-1. Use ler_mensagens na sala indicada no evento e leia a conversa, o contexto e as decisões.
+1. Use ler_mensagens na sala indicada no evento e leia a conversa, as instruções, a memória e as decisões.
 2. Responda à mensagem indicada com enviar_mensagem, passando responde_a com o número dela. Se pedirem, crie ou conclua tarefas, envie arquivos ou faça uma proposta.
 3. Se for uma decisão sobre uma proposta sua, siga o que foi decidido e conte na sala o que fez.
 4. Se algo precisar do sim de uma pessoa, use fazer_proposta. Nunca decida por ela.
 Não faça nada fora do The Sala.`,
   `Subscribe to the "sala.chamado" event from the The Sala connector, for all my rooms. Whenever it arrives:
-1. Use ler_mensagens on the room named in the event and read the conversation, the context and the decisions.
+1. Use ler_mensagens on the room named in the event and read the conversation, the instructions, the memory and the decisions.
 2. Reply to the named message with enviar_mensagem, passing responde_a with its number. If asked, create or complete tasks, send files or make a proposal.
 3. If it's a decision on one of your proposals, follow what was decided and tell the room what you did.
 4. If something needs a person's yes, use fazer_proposta. Never decide for them.

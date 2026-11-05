@@ -9,6 +9,7 @@ import { Decisoes } from "../components/Decisoes";
 import { Comparar, porAgente, type Esperando } from "../components/Comparar";
 import { Busca } from "../components/Busca";
 import { Biblioteca } from "../components/Biblioteca";
+import { Memoria } from "../components/Memoria";
 import { Avisos } from "../components/Avisos";
 import { Tarefas, prazoCurto, valorResp, type RascunhoTarefa } from "../components/Tarefas";
 import { Ata } from "../components/Ata";
@@ -52,7 +53,7 @@ const ouvindoAgora = (texto?: string) => texto === "ouvindo agora" || texto === 
 const PAGINA = 200;
 
 export type AgenteSala = { nome: string; uid: string; presenca: { ativo: boolean; texto: string } | null; sozinho?: boolean };
-type Painel = null | "ajustes" | "contexto" | "decisoes" | "busca" | "tarefas" | "biblioteca";
+type Painel = null | "ajustes" | "contexto" | "decisoes" | "busca" | "tarefas" | "biblioteca" | "memoria";
 
 export default function SalaPage() {
   const { id = "" } = useParams();
@@ -284,6 +285,7 @@ export default function SalaPage() {
       if (e.key === "d") { e.preventDefault(); setPainel((p) => (p === "decisoes" ? null : "decisoes")); }
       if (e.key === "t") { e.preventDefault(); setPainel((p) => (p === "tarefas" ? null : "tarefas")); }
       if (e.key === "b") { e.preventDefault(); setPainel((p) => (p === "biblioteca" ? null : "biblioteca")); }
+      if (e.key === "m") { e.preventDefault(); setPainel((p) => (p === "memoria" ? null : "memoria")); }
     };
     window.addEventListener("keydown", tecla);
     return () => window.removeEventListener("keydown", tecla);
@@ -418,7 +420,7 @@ export default function SalaPage() {
   const passos = [
     { feito: membros.length > 1, titulo: t("Chame as pessoas", "Invite people"), texto: t("Mande o link do convite.", "Send them the invite link."), acao: () => setConvite(true), botao: t("Copiar convite", "Copy invite"), icone: <IconeConvite tamanho={18} /> },
     { feito: agentes.some((a) => a.uid === eu), titulo: t("Conecte o seu agente", "Connect your agent"), texto: t("Claude, ChatGPT, Claude Code ou outro.", "Claude, ChatGPT, Claude Code or another one."), acao: abrirConectar, botao: t("Conectar agente", "Connect agent"), icone: <IconePlugue tamanho={18} /> },
-    { feito: !!sala?.contexto, titulo: t("Conte do que se trata", "Say what it's about"), texto: t("Todo agente lê o contexto antes de responder.", "Every agent reads the context before answering."), acao: () => setPainel("contexto"), botao: t("Escrever contexto", "Write context"), icone: <IconeAjustes tamanho={18} /> },
+    { feito: !!sala?.contexto, titulo: t("Escreva as instruções", "Write the instructions"), texto: t("Curtas: o objetivo, quem decide o quê e o tom. Todo agente lê antes de responder.", "Short: the goal, who decides what and the tone. Every agent reads them before answering."), acao: () => setPainel("contexto"), botao: t("Escrever instruções", "Write instructions"), icone: <IconeAjustes tamanho={18} /> },
   ];
   const pendentes = Number(sala?.pendentes ?? 0);
   const ouvindo = agentes.filter((a) => ouvindoAgora(a.presenca?.texto));
@@ -547,7 +549,7 @@ export default function SalaPage() {
               <IconeDecisao />
               {abertasSala > 0 && <span className="selo-num" aria-hidden>{abertasSala}</span>}
             </button>
-            <button data-guia="biblioteca" className={`btn-icone ${painel === "biblioteca" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "biblioteca" ? null : "biblioteca"))}
+            <button data-guia="biblioteca" className={`btn-icone ${painel === "biblioteca" || painel === "memoria" ? "ativo" : ""}`} onClick={() => setPainel((p) => (p === "biblioteca" || p === "memoria" ? null : "biblioteca"))}
               aria-expanded={painel === "biblioteca"} aria-label={t("Biblioteca da sala", "Room library")} title={t("Biblioteca (B)", "Library (B)")}>
               <IconeBiblioteca />
             </button>
@@ -754,7 +756,7 @@ export default function SalaPage() {
 
         {(painel === "ajustes" || painel === "contexto") && sala && (
           <Ajustes sala={sala} membros={membros} agentes={agentes} eu={eu} fechar={() => setPainel(null)} recarregar={recarregar}
-            foco={painel === "contexto" ? "contexto" : undefined} />
+            foco={painel === "contexto" ? "contexto" : undefined} abrirMemoria={() => setPainel("memoria")} />
         )}
         {painel === "decisoes" && sala && (
           <Decisoes salaId={sala.id} salaNome={sala.nome} versao={versaoDecisoes} autor={autor} nome={nome}
@@ -765,7 +767,8 @@ export default function SalaPage() {
             rascunho={rascunho} limparRascunho={() => setRascunho(null)} irPara={irPara} fechar={() => { setPainel(null); setRascunho(null); }} />
         )}
         {painel === "busca" && sala && <Busca salaId={sala.id} autor={autor} irPara={irPara} fechar={() => setPainel(null)} />}
-        {painel === "biblioteca" && sala && <Biblioteca salaId={sala.id} eu={eu} podeEscrever={!leitor} nome={nome} fechar={() => setPainel(null)} />}
+        {painel === "biblioteca" && sala && <Biblioteca salaId={sala.id} eu={eu} podeEscrever={!leitor} nome={nome} fechar={() => setPainel(null)} abrirMemoria={() => setPainel("memoria")} />}
+        {painel === "memoria" && sala && <Memoria salaId={sala.id} eu={eu} podeEscrever={!leitor} nome={nome} fechar={() => setPainel(null)} voltar={() => setPainel("biblioteca")} />}
       </div>
 
       {ata && sala && <Ata salaId={sala.id} salaNome={sala.nome} autor={autor} nome={nome} fechar={() => setAta(false)} />}

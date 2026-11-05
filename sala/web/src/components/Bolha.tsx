@@ -147,7 +147,7 @@ export function Bolha(p: Props) {
             <p className="proposta-rotulo">
               {m.estado === "pendente" ? <span className="pilula pilula-acento"><IconeProposta tamanho={12} /> {tr("Proposta", "Proposal")}</span>
                 : <span className={`pilula ${m.estado === "aprovada" ? "pilula-ok" : "pilula-erro"}`}>{m.estado === "aprovada" ? <IconeCheck tamanho={12} /> : <IconeFechar tamanho={12} />}{m.estado === "aprovada" ? tr("Aprovada", "Approved") : tr("Recusada", "Declined")}</span>}
-              {m.novo_contexto && <span className="nota">{tr("troca o contexto da sala", "replaces the room context")}</span>}
+              {m.novo_contexto && <span className="nota">{tr("troca as instruções da sala", "replaces the room instructions")}</span>}
               {m.estado === "pendente" && <span className="nota">· {m.novo_contexto ? tr("precisa do sim de todas as pessoas", "needs everyone's yes") : tr("aguardando decisão", "awaiting decision")}</span>}
             </p>
           )}
@@ -182,7 +182,7 @@ export function Bolha(p: Props) {
               {!!m.anexos?.length && <Anexos anexos={m.anexos} />}
               {proposta && m.novo_contexto && (
                 <details className="contexto-novo">
-                  <summary>{m.estado === "aprovada" ? tr("Ver o contexto aplicado", "See the applied context") : tr("Ver o contexto proposto", "See the proposed context")}</summary>
+                  <summary>{m.estado === "aprovada" ? tr("Ver as instruções aplicadas", "See the applied instructions") : tr("Ver as instruções propostas", "See the proposed instructions")}</summary>
                   <pre>{m.novo_contexto}</pre>
                 </details>
               )}

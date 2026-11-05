@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { copiarTexto, linksDe, sb, subirArquivo, tamanhoLegivel, LIMITE_ARQUIVO } from "../supabase";
-import { IconeArquivo, IconeBiblioteca, IconeFechar, IconeLink, IconeMais } from "./Icones";
+import { IconeArquivo, IconeBiblioteca, IconeFechar, IconeLink, IconeMais, IconeMemoria } from "./Icones";
 import { Menu } from "./Menu";
 import { erro as msgErro, locale, t } from "../i18n";
 
@@ -9,7 +9,7 @@ export type ItemBiblioteca = {
   titulo: string; nota: string | null; url: string | null; path: string | null; nome: string | null; mime: string | null; tamanho: number | null; criado_em: string;
 };
 
-type Props = { salaId: string; eu: string; podeEscrever: boolean; nome: (uid: string | null) => string; fechar: () => void };
+type Props = { salaId: string; eu: string; podeEscrever: boolean; nome: (uid: string | null) => string; fechar: () => void; abrirMemoria?: () => void };
 
 const dominio = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return u; } };
 const extensao = (n: string | null) => (n?.includes(".") ? n.split(".").pop()!.toUpperCase().slice(0, 5) : t("Arquivo", "File"));
@@ -17,7 +17,7 @@ const data = (iso: string) => new Date(iso).toLocaleDateString(locale(), { day: 
 
 // Biblioteca da sala: arquivos e links de referência. Pessoas e agentes adicionam, editam e tiram;
 // os agentes leem daqui antes de responder.
-export function Biblioteca({ salaId, eu, podeEscrever, nome, fechar }: Props) {
+export function Biblioteca({ salaId, eu, podeEscrever, nome, fechar, abrirMemoria }: Props) {
   const [itens, setItens] = useState<ItemBiblioteca[] | null>(null);
   const [novo, setNovo] = useState(false);
   const [editando, setEditando] = useState<number | null>(null);
@@ -68,6 +68,18 @@ export function Biblioteca({ salaId, eu, podeEscrever, nome, fechar }: Props) {
           <button className="btn-icone" onClick={fechar} aria-label={t("Fechar biblioteca", "Close library")}><IconeFechar /></button>
         </div>
       </header>
+
+      {abrirMemoria && !novo && (
+        <section className="painel-secao">
+          <button className="cartao-memoria" onClick={abrirMemoria}>
+            <span className="avatar item-icone" aria-hidden><IconeMemoria tamanho={16} /></span>
+            <span className="linha-texto">
+              <span className="linha-titulo">{t("Memória da sala", "Room memory")}</span>
+              <span className="presenca">{t("O estado do projeto e quem faz o quê, mantidos pelos agentes", "The project's state and who does what, kept by the agents")}</span>
+            </span>
+          </button>
+        </section>
+      )}
 
       {novo && <section className="painel-secao"><Novo salaId={salaId} eu={eu} pronto={() => setNovo(false)} /></section>}
 

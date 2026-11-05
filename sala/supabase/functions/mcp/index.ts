@@ -126,7 +126,7 @@ async function autenticar(req: Request): Promise<Quem | null> {
 
 // ---------------------------------------------------------------- salas e mensagens
 
-type Sala = { id: string; nome: string; contexto?: string };
+type Sala = { id: string; nome: string; contexto?: string; memoria?: string };
 type Anexo = { path: string; nome: string; tipo: string; tamanho: number };
 type Msg = {
   id: number; sala_id: string; user_id: string; agente: string | null; texto: string; criada_em: string;
@@ -138,7 +138,7 @@ type Msg = {
 };
 
 async function salasDe(q: Quem): Promise<Sala[]> {
-  const { data, error } = await db.from("membros").select("salas(id, nome, contexto)").eq("user_id", q.userId).order("entrou_em");
+  const { data, error } = await db.from("membros").select("salas(id, nome, contexto, memoria)").eq("user_id", q.userId).order("entrou_em");
   if (error) throw error;
   return (data ?? []).map((r: any) => r.salas).filter(Boolean);
 }
@@ -377,7 +377,40 @@ async function cabecalho(s: Sala, q?: Quem) {
   const t = q ? listaTarefas(ts, q, 3) : "";
   const b = listaBiblioteca(bs, q, true);
   const a = listaAnexos(ax, bs, q);
-  return `${tr(q, "Sala", "Room")} "${s.nome}"${s.contexto ? `\n${tr(q, "Contexto da sala", "Room context")}: ${s.contexto}` : ""}${r ? `\n${r}` : ""}${t ? `\n${t}` : ""}${b ? `\n${b}` : ""}${a ? `\n${a}` : ""}`;
+  const ins = s.contexto?.trim() ? `\n${tr(q, "Instruções da sala (das pessoas)", "Room instructions (from the people)")}: ${s.contexto.trim()}` : "";
+  const mem = `\n${tr(q, "Memória da sala (mantida pelos agentes; atualize com atualizar_memoria)", "Room memory (kept by the agents; update it with atualizar_memoria)")}:${s.memoria?.trim() ? `\n${s.memoria.trim()}` : tr(q, " (vazia: comece a preencher)", " (empty: start filling it in)")}`;
+  return `${tr(q, "Sala", "Room")} "${s.nome}"${ins}${mem}${r ? `\n${r}` : ""}${t ? `\n${t}` : ""}${b ? `\n${b}` : ""}${a ? `\n${a}` : ""}`;
+}
+
+// ---------------------------------------------------------------- memória
+
+async function atualizarMemoria(q: Quem, s: Sala, a: Record<string, unknown>) {
+  const { data: mb } = await db.from("membros").select("papel").eq("sala_id", s.id).eq("user_id", q.userId).maybeSingle();
+  if (!mb || mb.papel === "leitor") throw new Falha(tr(q, "Nesta sala a sua pessoa só acompanha: não dá para mudar a memória.", "Your person can only view this room: you can't change the memory."), 403);
+  const resumo = String(a.resumo ?? "").replace(/\s+/g, " ").trim().slice(0, 300);
+  if (!resumo) throw new Falha(tr(q, "Falta o resumo: uma linha dizendo o que mudou.", "Missing resumo: one line saying what changed."));
+  const { data: atual, error: e1 } = await db.from("salas").select("memoria").eq("id", s.id).single();
+  if (e1) throw e1;
+  let texto = String(atual.memoria ?? "");
+  if (typeof a.texto === "string" && a.texto.trim()) texto = a.texto.trim();
+  else if (Array.isArray(a.trocas) && a.trocas.length) {
+    for (const [i, t] of (a.trocas as { de?: unknown; para?: unknown }[]).entries()) {
+      const de = String(t?.de ?? ""), para = String(t?.para ?? "");
+      if (!de) { texto = texto.trim() ? `${texto.trimEnd()}\n${para}` : para; continue; }
+      const n = texto.split(de).length - 1;
+      if (n !== 1) throw new Falha(tr(q, `Troca ${i + 1}: o trecho de \`de\` aparece ${n} vezes na memória; precisa aparecer uma vez só. Nada foi mudado.`,
+        `Replacement ${i + 1}: the \`de\` text appears ${n} times in the memory; it must appear exactly once. Nothing was changed.`));
+      texto = texto.replace(de, () => para);
+    }
+    texto = texto.trim();
+  } else throw new Falha(tr(q, "Passe trocas (pequenas) ou texto (a memória inteira).", "Pass trocas (small) or texto (the whole memory)."));
+  if (texto.length > 50000) throw new Falha(tr(q, `A memória ficaria com ${texto.length} caracteres; o limite é 50.000. Enxugue o que ficou velho.`, `The memory would be ${texto.length} characters; the limit is 50,000. Trim what's outdated.`));
+  if (texto === String(atual.memoria ?? "").trim()) return tr(q, "Nada mudou na memória.", "Nothing changed in the memory.");
+  const { error: e2 } = await db.from("salas").update({ memoria: texto }).eq("id", s.id);
+  if (e2) throw e2;
+  await db.from("memoria_versoes").insert({ sala_id: s.id, texto, resumo, user_id: q.userId, agente: q.agente });
+  registrar(q, s.id, "atualizou a memória", resumo);
+  return tr(q, `Memória da sala "${s.nome}" atualizada (${texto.length.toLocaleString("pt-BR")} caracteres): ${resumo}`, `Memory of the room "${s.nome}" updated (${texto.length.toLocaleString("en-US")} characters): ${resumo}`);
 }
 
 // ---------------------------------------------------------------- arquivos
@@ -587,33 +620,37 @@ async function concluirTarefa(q: Quem, id: number, resultado: string, anexo?: An
 
 function regras(q?: Quem) {
   if (q?.lingua === "en") return `You're in The Sala: chat rooms where people and their agents talk. You are "${q.agente}", ${q.pessoa}'s agent.
-- Read the room context, the decisions and the new messages before writing. Approved decisions stand: follow them.
+- Read the room instructions, the memory, the decisions and the new messages before writing. Approved decisions stand: follow them.
 - Reply when you're called (the message is marked "← called you": @${q.agente.replace(/\s/g, "")}, @agents, @everyone) or when a person asks everyone something. A question to @agents or @everyone: always answer, even if another agent already did. Give your own take without repeating theirs; the room shows the answers side by side to compare. If only another agent was called, stay quiet.
 - When replying to a message, pass responde_a with its id (#N). That way the room shows the agents' answers side by side. In a discussion that started with a question to @agents, every message of yours (and your final proposal) replies to that original question, so the room can compare everyone's final answer.
 - Never write message or task numbers in your text (#N, "task 12"): people don't see them. Refer to things by name: who said it ("David's question", "the price proposal") or what the task is ("the rule 3.2 approval task"). Numbers go only in tool parameters (responde_a, tarefa, item).
 - When something needs a person's yes (spending, publishing, changing the plan, choosing between options), use fazer_proposta instead of deciding yourself. People approve or decline in the room. Some rooms require more than one approval: the proposal only passes when they all arrive, and the app counts them; don't treat it as approved before that.
-- To change the room context, use propor_contexto with the whole new text. It needs every person's yes, and once the last one approves the app replaces the context by itself: nobody pastes anything, and there's no task to do.
+- The room memory is yours to keep: the project's current state (what was decided, delivered, what's pending and where things are). When something is decided, delivered or changes state, update it with atualizar_memoria, without asking: small replacements, plus a one-line summary of what changed. It records what happened and what was decided; it doesn't create rules or decide anything. Keep it short and current: rewrite what's outdated instead of piling up history.
+- Keep a "Roles in practice" section in the memory: what each agent and person actually does in this room, observed from the work, not assigned (e.g. "David's ChatGPT: reviews deliveries and reports to the room"). Update it when you notice a pattern change. Use it to split work: do your part, and don't redo what is someone else's role.
+- The room instructions belong to the people. To change them, use propor_contexto with the whole new text: it needs every person's yes, and the app swaps it by itself.
 - To call someone, use @Name (a person) or @Agent-Person (someone's agent).
 - Tasks marked "← YOURS" are yours: do them and complete them with concluir_tarefa, stating the result (link, number, file). If you can't, say in the room what's missing. To split work, use criar_tarefa.
 - Files in the conversation show up with 📎; open them with ler_arquivo. To deliver a document (draft, table, code), use enviar_arquivo. Images and PDFs go in base64; other agents can't open private links (like a claude.ai artifact), so attach a screenshot instead.
 - The room library keeps reference documents and links (listed in the room header). Check it before answering about the project. Save lasting reference material there with adicionar_biblioteca; you can also edit and remove items.
-- Long rooms: what holds is the context, decisions, tasks and library, not the old conversation. After the first read, use ler_mensagens with depois (new messages only). To find something older, use busca or antes; don't ask people to repeat it. A new version of a file goes under the same file name, saying in one line what changed; the room shows only the latest. When a discussion ends, whoever led it posts a short summary and turns the result into a proposal, task or library item.
+- Long rooms: what holds is the instructions, memory, decisions, tasks and library, not the old conversation. After the first read, use ler_mensagens with depois (new messages only). To find something older, use busca or antes; don't ask people to repeat it. A new version of a file goes under the same file name, saying in one line what changed; the room shows only the latest. When a discussion ends, whoever led it posts a short summary, updates the memory and turns the result into a proposal, task or library item.
 - To just acknowledge ("got it", "ok", "looking into it"), react with an emoji (reagir) instead of sending a message.
 - Be concise and use light markdown. Write in the language the room is using. When in doubt, ask your person before answering on their behalf.
 - Your name shows on your messages automatically; no need to sign.
 - After a few agent messages in a row (the room sets how many), the room waits for a person to write.`;
   return `Você está no The Sala: salas de conversa entre pessoas e os agentes delas.${q ? ` Você é "${q.agente}", agente de ${q.pessoa}.` : ""}
-- Leia o contexto da sala, as decisões e as mensagens novas antes de escrever. Decisões aprovadas valem: siga-as.
+- Leia as instruções da sala, a memória, as decisões e as mensagens novas antes de escrever. Decisões aprovadas valem: siga-as.
 - Responda quando te chamarem (a mensagem vem marcada "← chamou você": @${q?.agente.replace(/\s/g, "") ?? "Claude"}, @agentes, @todos) ou quando uma pessoa perguntar algo para todos. Pergunta para @agentes ou @todos: responda sempre, mesmo que outro agente já tenha respondido. Dê a sua visão sem repetir a dele; a sala mostra as respostas lado a lado para comparar. Se chamaram só outro agente, fique quieto.
 - Ao responder uma mensagem, passe responde_a com o id dela (#N). Assim a sala mostra as respostas dos agentes lado a lado. Numa discussão que começou com uma pergunta para @agentes, toda mensagem sua (e a sua proposta final) responde à pergunta original, para a sala comparar a resposta final de cada um.
 - Nunca escreva números de mensagem ou de tarefa no texto (#N, "tarefa 12"): as pessoas não veem esses números. Cite pelo nome: quem disse ("a pergunta do David", "a proposta de preço") ou o que é a tarefa ("a tarefa de aprovar a regra 3.2"). Número só vai nos parâmetros das ferramentas (responde_a, tarefa, item).
 - Quando algo precisar do sim de uma pessoa (gastar, publicar, mudar plano, escolher entre opções), use fazer_proposta em vez de decidir sozinho. As pessoas aprovam ou recusam na sala. Algumas salas pedem mais de uma aprovação: a proposta só passa quando todas chegam, e o app conta sozinho; não trate como aprovada antes disso.
-- Para mudar o contexto da sala, use propor_contexto com o texto novo inteiro. Ela precisa do sim de todas as pessoas e, quando a última aprova, o app troca o contexto sozinho: ninguém cola nada e não há tarefa a fazer.
+- A memória da sala é sua de manter: o estado atual do projeto (o que foi decidido, entregue, o que está pendente e onde está cada coisa). Quando algo for decidido, entregue ou mudar de estado, atualize com atualizar_memoria, sem pedir: trocas pequenas e um resumo de uma linha do que mudou. Ela registra o que aconteceu e foi decidido; não cria regra nem decide nada. Mantenha curta e atual: reescreva o que ficou velho em vez de acumular histórico.
+- Mantenha na memória uma seção "Papéis na prática": o que cada agente e cada pessoa faz de fato nesta sala, observado no trabalho, não atribuído (ex.: "ChatGPT de David: revisa as entregas e reporta à sala"). Atualize quando notar que o padrão mudou. Use para dividir o trabalho: faça a sua parte e não refaça o que é papel de outro.
+- As instruções da sala são das pessoas. Para mudar, use propor_contexto com o texto novo inteiro: precisa do sim de todas as pessoas, e o app troca sozinho.
 - Para chamar alguém, use @Nome (pessoa) ou @Agente-Pessoa (agente de alguém).
 - Tarefas marcadas "← SUA" são suas: faça e conclua com concluir_tarefa, dizendo o resultado (link, número, arquivo). Se não der, diga na sala o que falta. Para dividir trabalho, use criar_tarefa.
 - Arquivos da conversa aparecem com 📎; abra com ler_arquivo. Para entregar um documento (rascunho, tabela, código), use enviar_arquivo. Imagem e PDF vão em base64; os outros agentes não abrem link privado (como artefato do claude.ai), então anexe a captura.
 - A biblioteca da sala guarda documentos e links de referência (listados no cabeçalho da sala). Consulte antes de responder sobre o projeto. Guarde ali material de referência durável com adicionar_biblioteca; você também pode editar e tirar itens.
-- Sala longa: o que vale é o contexto, as decisões, as tarefas e a biblioteca, não a conversa antiga. Depois da primeira leitura, use ler_mensagens com depois (só as novas). Para achar algo antigo, use busca ou antes; não peça para repetirem. Versão nova de um arquivo vai com o mesmo nome de arquivo, dizendo numa linha o que mudou; a sala mostra só a mais recente. Quando uma discussão termina, quem conduziu manda um resumo curto e transforma o resultado em proposta, tarefa ou item da biblioteca.
+- Sala longa: o que vale são as instruções, a memória, as decisões, as tarefas e a biblioteca, não a conversa antiga. Depois da primeira leitura, use ler_mensagens com depois (só as novas). Para achar algo antigo, use busca ou antes; não peça para repetirem. Versão nova de um arquivo vai com o mesmo nome de arquivo, dizendo numa linha o que mudou; a sala mostra só a mais recente. Quando uma discussão termina, quem conduziu manda um resumo curto, atualiza a memória e transforma o resultado em proposta, tarefa ou item da biblioteca.
 - Para só confirmar ("entendi", "ok", "vou olhar"), reaja com emoji (reagir) em vez de mandar mensagem.
 - Seja objetivo e use markdown leve. Na dúvida, pergunte à sua pessoa antes de responder em nome dela.
 - Seu nome aparece sozinho nas suas mensagens; não precisa assinar.
@@ -720,8 +757,25 @@ const TOOLS_PT = [
     },
   },
   {
+    name: "atualizar_memoria",
+    description: "Atualiza a memória da sala: o estado atual do projeto, que os agentes mantêm sem pedir aprovação (fica no histórico e as pessoas podem desfazer). Prefira trocas pequenas; reescreva tudo só quando precisar reorganizar.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        sala: SALA_ARG,
+        resumo: { type: "string", description: "Uma linha: o que mudou e por quê (ex.: \"Preço anual fechado na decisão de hoje\")." },
+        trocas: {
+          type: "array", description: "Trocas no texto atual: cada `de` precisa aparecer uma vez só na memória e vira `para`. `de` vazio acrescenta `para` no fim.",
+          items: { type: "object", properties: { de: { type: "string" }, para: { type: "string" } }, required: ["de", "para"] },
+        },
+        texto: { type: "string", description: "Ou a memória inteira nova (até 50.000 caracteres), no lugar das trocas." },
+      },
+      required: ["resumo"],
+    },
+  },
+  {
     name: "propor_contexto",
-    description: "Propõe trocar o contexto da sala por um texto novo. Só passa com o sim de todas as pessoas que escrevem na sala; quando a última aprova, o app troca o contexto sozinho.",
+    description: "Propõe trocar as instruções da sala (o texto das pessoas) por um texto novo. Só passa com o sim de todas as pessoas que escrevem na sala; quando a última aprova, o app troca sozinho. Para registrar o estado do projeto, use atualizar_memoria.",
     inputSchema: {
       type: "object",
       properties: {
@@ -879,7 +933,9 @@ const EN: Record<string, { d: string; p?: Record<string, string> }> = {
     p: { texto: "The message (markdown ok).", responde_a: "Id (#N) of the message you're replying to." } },
   fazer_proposta: { d: "Asks the people in the room for a decision. Use it when something needs someone's yes before going ahead (spending, publishing, changing the plan, choosing between options). The room shows Approve and Decline; the decision comes back to you as a message and goes into the room's record.",
     p: { texto: "The proposal, clear and short: what will be done, why, and what changes. Markdown ok.", responde_a: "Id of the message that led to the proposal, if any." } },
-  propor_contexto: { d: "Proposes replacing the room context with a new text. It only passes with the yes of every person who writes in the room; once the last one approves, the app replaces the context by itself.",
+  atualizar_memoria: { d: "Updates the room memory: the project's current state, which agents keep without asking for approval (it's versioned and people can undo). Prefer small replacements; rewrite everything only to reorganize.",
+    p: { resumo: "One line: what changed and why (e.g. \"Annual price settled in today's decision\").", trocas: "Replacements in the current text: each `de` must appear exactly once in the memory and becomes `para`. An empty `de` appends `para` at the end.", texto: "Or the whole new memory (up to 50,000 characters), instead of trocas." } },
+  propor_contexto: { d: "Proposes replacing the room instructions (the people's text) with a new text. It only passes with the yes of every person who writes in the room; once the last one approves, the app swaps it by itself. To record the project's state, use atualizar_memoria.",
     p: { texto: "The proposal, short: what changes compared to the current context and why. Markdown ok.", contexto: "The whole new context, as it should read (up to 50,000 characters).", responde_a: "Id of the message that led to the proposal, if any." } },
   reagir: { d: "Reacts to a message with an emoji (👍 got it/agree, 👀 looking into it, ✅ done). Sending the same emoji again removes it. Use it instead of a short confirmation message.",
     p: { mensagem: "Id (#N) of the message.", emoji: "One emoji, e.g. 👍" } },
@@ -921,7 +977,7 @@ async function buscar(q: Quem, termo: string) {
   const ss = await salasDe(q);
   const url = (s: Sala) => `${APP}/s/${s.id}`;
   const t = termo.trim().toLowerCase();
-  const salas = ss.filter((s) => !t || s.nome.toLowerCase().includes(t) || (s.contexto ?? "").toLowerCase().includes(t))
+  const salas = ss.filter((s) => !t || s.nome.toLowerCase().includes(t) || (s.contexto ?? "").toLowerCase().includes(t) || (s.memoria ?? "").toLowerCase().includes(t))
     .map((s) => ({ id: `sala:${s.id}`, title: tr(q, `Sala ${s.nome}`, `Room ${s.nome}`), url: url(s) }));
   let msgs: { id: string; title: string; url: string }[] = [];
   if (t && ss.length) {
@@ -1028,6 +1084,10 @@ async function chamar(q: Quem, nome: string, a: any): Promise<string | Conteudo[
           `Proposal #${m.id} sent to the room "${s.nome}". People approve or decline; the decision arrives as a new message.`)
         : tr(q, `Enviada na sala "${s.nome}" como ${q.agente} de ${q.pessoa} (#${m.id}${m.responde_a ? `, respondendo #${m.responde_a}` : ""}).`,
           `Sent to the room "${s.nome}" as ${q.pessoa}'s ${q.agente} (#${m.id}${m.responde_a ? `, replying to #${m.responde_a}` : ""}).`);
+    }
+    case "atualizar_memoria": {
+      const s = await acharSala(q, a.sala);
+      return await atualizarMemoria(q, s, a);
     }
     case "propor_contexto": {
       const s = await acharSala(q, a.sala);
@@ -1214,7 +1274,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.16.0" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.17.0" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {
@@ -1368,6 +1428,10 @@ Deno.serve(async (req) => {
     }
     if (rec === "salas" && salaRef) {
       const s = await acharSala(q, decodeURIComponent(salaRef));
+      if (acao === "memoria" && req.method === "POST") {
+        const b = await req.json().catch(() => ({}));
+        return text(await atualizarMemoria(q, s, b));
+      }
       if (acao === "mensagens" && req.method === "GET") {
         const ms = await ler(s.id, Number(url.searchParams.get("depois")) || 0, Number(url.searchParams.get("limite")) || 50);
         return url.searchParams.get("formato") === "json" ? json(ms) : text(`${await cabecalho(s, q)}\n\n${formatar(ms, q)}`);
