@@ -72,6 +72,10 @@ function Fila({ fila }: { fila: ItemFila[] }) {
   );
 }
 
+// cor fixa por sala (pelo id): ajuda a achar a sala de olho, sem usar o acento, que é só de ação
+const CORES = ["#5B5BD6", "#0D9488", "#D97706", "#DB2777", "#2563EB", "#7C3AED", "#65A30D", "#0891B2"];
+export const corDaSala = (id: string) => CORES[[...id].reduce((n, c) => (n * 31 + c.charCodeAt(0)) >>> 0, 7) % CORES.length];
+
 export async function novaSala(nome: string) {
   const { data, error } = await sb.rpc("criar_sala", { nome });
   if (error) throw error;
@@ -139,7 +143,7 @@ export function Layout({ children, salas, recarregar, foco, fila = [] }: {
             return (
               <li key={s.id}>
                 <Link to={`/s/${s.id}`} className={`${ativa ? "ativa" : ""} ${novas && !ativa ? "tem-novas" : ""}`} aria-current={ativa ? "page" : undefined}>
-                  <span className="sala-inicial" aria-hidden>{s.nome.slice(0, 1).toUpperCase()}</span>
+                  <span className="sala-inicial" style={{ "--cor": corDaSala(s.id) } as React.CSSProperties} aria-hidden>{s.nome.slice(0, 1).toUpperCase()}</span>
                   <span className="sala-info">
                     <span className="sala-linha">
                       <span className="sala-nome">{s.nome}</span>

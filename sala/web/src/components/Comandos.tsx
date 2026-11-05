@@ -8,6 +8,7 @@ import {
   IconeAjuda, IconeAjustes, IconeBiblioteca, IconeBusca, IconeConvite, IconeDecisao, IconeMais, IconeMemoria,
   IconePainel, IconePlugue, IconeProposta,
 } from "./Icones";
+import { corDaSala } from "./Layout";
 
 // ⌘K: ir para uma sala ou fazer qualquer ação sem tirar a mão do teclado.
 // Ações da sala aberta viajam por evento ("sala:painel", "sala:convidar"); a Sala escuta.
@@ -69,7 +70,7 @@ export function Comandos({ salas, salaAberta, novaSala, conectar, conta }: {
       if (s.id === salaAberta) continue;
       const n = Number(s.nao_lidas);
       r.push({ id: `s${s.id}`, grupo: gs, rotulo: s.nome, dica: n ? t(`${n} não lida${n > 1 ? "s" : ""}`, `${n} unread`) : undefined,
-        icone: <span className="cmd-inicial" aria-hidden>{s.nome.slice(0, 1).toUpperCase()}</span>, fazer: () => nav(`/s/${s.id}`) });
+        icone: <span className="cmd-inicial cmd-sala" style={{ "--cor": corDaSala(s.id) } as React.CSSProperties} aria-hidden>{s.nome.slice(0, 1).toUpperCase()}</span>, fazer: () => nav(`/s/${s.id}`) });
     }
     const ga = t("Geral", "General");
     const proximo = tema === "escuro" ? "claro" : tema === "claro" ? "sistema" : "escuro";
