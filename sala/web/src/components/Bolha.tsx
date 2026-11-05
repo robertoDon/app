@@ -10,6 +10,7 @@ export type GrupoReacao = { emoji: string; quem: string[]; minha: boolean };
 // indicados: a proposta disse quem decide; posso: eu estou entre quem pode decidir
 export type Aprovacao = { precisa: number; quem: string[]; euAprovei: boolean; faltam: string[]; indicados?: string[] | null; posso?: boolean };
 
+const ou = (xs: string[], palavra = "ou") => (xs.length < 2 ? xs.join("") : `${xs.slice(0, -1).join(", ")} ${palavra} ${xs[xs.length - 1]}`);
 const lista = (xs: string[]) => (xs.length < 2 ? xs.join("") : `${xs.slice(0, -1).join(", ")} ${tr("e", "and")} ${xs[xs.length - 1]}`);
 
 // "1 de 2 aprovações · Roberto aprovou · falta David", com um marcador por aprovação
@@ -18,7 +19,9 @@ export function LinhaAprovacao({ a }: { a: Aprovacao }) {
     <p className="aprovacoes">
       <span className="aprovacoes-pontos" aria-hidden>{Array.from({ length: a.precisa }, (_, i) => <span key={i} className={i < a.quem.length ? "cheio" : ""} />)}</span>
       <span><strong>{a.indicados?.length
-          ? tr(`${a.indicados.length > 1 ? "Decidem" : "Decide"}: ${lista(a.indicados)}`, `${a.indicados.length > 1 ? "Deciding" : "Decides"}: ${lista(a.indicados)}`)
+          ? a.precisa < a.indicados.length
+            ? tr(`${a.precisa} de: ${ou(a.indicados)}`, `${a.precisa} of: ${ou(a.indicados, "or")}`)
+            : tr(`${a.indicados.length > 1 ? "Decidem" : "Decide"}: ${lista(a.indicados)}`, `${a.indicados.length > 1 ? "Deciding" : "Decides"}: ${lista(a.indicados)}`)
           : tr(`${a.quem.length} de ${a.precisa} aprovações`, `${a.quem.length} of ${a.precisa} approvals`)}</strong>
         {a.quem.length > 0 && <> · {lista(a.quem)} {a.quem.length > 1 ? tr("aprovaram", "approved") : tr("aprovou", "approved")}</>}
         {a.faltam.length > 0 && a.quem.length < a.precisa && (a.faltam.length <= a.precisa - a.quem.length

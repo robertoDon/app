@@ -432,7 +432,7 @@ export default function SalaPage() {
     const escrevem = membros.filter((x) => x.papel !== "leitor").map((x) => x.user_id);
     const indicados = m.aprovadores?.length ? m.aprovadores : null; // a proposta disse quem decide
     // troca de contexto: todas as pessoas que escrevem, seja qual for a regra da sala
-    const precisa = m.novo_contexto ? Math.max(1, escrevem.length) : indicados ? indicados.length : precisaSala;
+    const precisa = m.novo_contexto ? Math.max(1, escrevem.length) : indicados ? Math.min(indicados.length, precisaSala) : precisaSala; // indicados dizem quem; a sala diz quantos
     if (precisa < 2 && !indicados) return null;
     const curto = (u: string) => (u === eu ? t("você", "you") : nome(u).split(" ")[0]);
     const quem = votos.filter((v) => v.proposta_id === m.id).map((v) => v.user_id);

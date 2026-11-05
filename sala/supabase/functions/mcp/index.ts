@@ -354,7 +354,7 @@ function rotulo(m: Msg, q?: Quem) {
       const ja = (m.votos ?? []).map((v) => v.perfis?.nome ?? "?");
       const parcial = ja.length ? tr(q, ` (já aprovou: ${ja.join(", ")}; falta outra aprovação)`, ` (already approved by: ${ja.join(", ")}; another approval is needed)`) : "";
       const todos = m.novo_contexto ? tr(q, "; precisa do sim de todas as pessoas", "; needs every person's yes")
-        : m.aprovadores?.length ? tr(q, `; só decide quem foi indicado: ${quemAprova(m)}`, `; only the named people decide: ${quemAprova(m)}`) : "";
+        : m.aprovadores?.length ? tr(q, `; decide quem foi indicado: ${quemAprova(m)} (quantos, pela regra da sala)`, `; the named people decide: ${quemAprova(m)} (how many, per the room setting)`) : "";
       return tr(q, ` · PROPOSTA${ctx} aguardando decisão das pessoas${parcial}${todos}`, ` · PROPOSAL${ctx} waiting for people to decide${parcial}${todos}`);
     }
     if (m.estado === "ajuste") return tr(q, ` · PROPOSTA${ctx} EM AJUSTE: ${m.decisor?.nome ?? "?"} pediu ajuste (veja a nota na decisão logo depois). Quem propôs corrige e reenvia com substitui=${m.id}`,
@@ -886,7 +886,7 @@ function regras(q?: Quem) {
 - Keep a "Roles in practice" section in the memory: what each agent and person actually does in this room, observed from the work, not assigned (e.g. "David's ChatGPT: reviews deliveries and reports to the room"). Update it when you notice a pattern change. Use it to split work: do your part, and don't redo what is someone else's role.
 - When a person asks for a standing way of working ("always list tasks with the assignee in bold", "@ the agent you delegate to"), follow it from then on and record it in the memory under "Agreements" until the people move it into the instructions.
 - The room instructions belong to the people. To change them, use propor_contexto with the whole new text: it needs every person's yes, and the app swaps it by itself.
-- If the instructions say who approves what (e.g. "spending: both; technical: Roberto"), pass aprovadores in fazer_proposta or propor_plano: only those people decide.
+- Only pass aprovadores in fazer_proposta or propor_plano when the room instructions say who approves what (e.g. "spending: Roberto and David; technical: Roberto"). They set who may decide; how many approvals are needed is always the room setting, and the app counts. Without such a rule in the instructions, don't pass aprovadores, and never write in the proposal that it needs everyone's yes.
 - To plan a piece of work (e.g. a spec in the library), break it into tasks with workstream, assignee and due date and send it with propor_plano. Once approved, the tasks are created and the due dates become the plan. To replan, send a new plan citing the tasks that change; don't change the plan on the side.
 - ver_painel shows progress (by workstream, who still has to approve, overdue tasks, pace), the same numbers people see. If the instructions gave you the follow-up, post a short weekly summary in the room from it: what moved, what's stuck and what's needed from whom.
 - To call someone, use @Name (a person) or @Agent-Person (someone's agent).
@@ -911,7 +911,7 @@ function regras(q?: Quem) {
 - Mantenha na memória uma seção "Papéis na prática": o que cada agente e cada pessoa faz de fato nesta sala, observado no trabalho, não atribuído (ex.: "ChatGPT de David: revisa as entregas e reporta à sala"). Atualize quando notar que o padrão mudou. Use para dividir o trabalho: faça a sua parte e não refaça o que é papel de outro.
 - Quando uma pessoa pedir um jeito fixo de trabalhar ("sempre liste as tarefas com o responsável em negrito", "marque com @ o agente a quem delegar"), siga daí em diante e registre na memória, na seção "Combinados", até as pessoas passarem para as instruções.
 - As instruções da sala são das pessoas. Para mudar, use propor_contexto com o texto novo inteiro: precisa do sim de todas as pessoas, e o app troca sozinho.
-- Se as instruções dizem quem aprova o quê (ex.: "gasto: os dois; técnico: Roberto"), passe aprovadores em fazer_proposta ou propor_plano: só essas pessoas decidem.
+- Só passe aprovadores em fazer_proposta ou propor_plano quando as instruções da sala disserem quem aprova o quê (ex.: "gasto: Roberto e David; técnico: Roberto"). Eles dizem quem pode decidir; quantas aprovações precisam é sempre a regra da sala, e o app conta. Sem essa regra nas instruções, não passe aprovadores, e nunca escreva na proposta que precisa do sim de todos.
 - Para planejar um trabalho (ex.: um descritivo na biblioteca), quebre em tarefas com frente, responsável e prazo e mande com propor_plano. Aprovado, as tarefas nascem sozinhas e o prazo vira o previsto. Para replanejar, mande um plano novo citando as tarefas que mudam; não mude o plano por fora.
 - ver_painel mostra o andamento (avanço por frente, quem falta aprovar, atrasos, ritmo), os mesmos números que as pessoas veem. Se as instruções te deram o acompanhamento, mande na sala, uma vez por semana, um resumo curto tirado dele: o que andou, o que travou e o que precisa de quem.
 - Para chamar alguém, use @Nome (pessoa) ou @Agente-Pessoa (agente de alguém).
@@ -1022,7 +1022,7 @@ const TOOLS_PT = [
         sala: SALA_ARG,
         substitui: { type: "integer", description: "Id da sua proposta anterior que esta versão substitui (a que pediram ajuste ou que você está corrigindo). A antiga sai da fila e as aprovações dela não contam." },
         texto: { type: "string", description: "A proposta, clara e curta: o que será feito, por quê e o que muda. Markdown ok." },
-        aprovadores: { type: "array", items: { type: "string" }, description: "Opcional: primeiros nomes de quem precisa aprovar (ex.: [\"Roberto\", \"David\"]). Só essas pessoas decidem, e todas precisam dizer sim. Vazio = a regra da sala." },
+        aprovadores: { type: "array", items: { type: "string" }, description: "Opcional: primeiros nomes de quem precisa aprovar (ex.: [\"Roberto\", \"David\"]). Só essas pessoas podem decidir; quantas precisam dizer sim é a regra da sala. Use só se as instruções disserem quem aprova o quê." },
         responde_a: { type: "integer", description: "Id da mensagem que originou a proposta, se houver." },
       },
       required: ["texto"],
@@ -1290,7 +1290,7 @@ const EN: Record<string, { d: string; p?: Record<string, string> }> = {
   enviar_mensagem: { d: "Writes in the room on behalf of your person, as their agent. Read new messages first. When replying to a message, pass responde_a with its id.",
     p: { texto: "The message (markdown ok).", responde_a: "Id (#N) of the message you're replying to." } },
   fazer_proposta: { d: "Asks the people in the room for a decision. Use it when something needs someone's yes before going ahead (spending, publishing, changing the plan, choosing between options). The room shows Approve and Decline; the decision comes back to you as a message and goes into the room's record.",
-    p: { substitui: "Id of your earlier proposal that this version replaces (the one they asked to adjust, or that you are fixing). The old one leaves the queue and its approvals don't count.", texto: "The proposal, clear and short: what will be done, why, and what changes. Markdown ok.", aprovadores: "Optional: first names of who must approve (e.g. [\"Roberto\", \"David\"]). Only they decide, and all of them must say yes. Empty = the room's rule.", responde_a: "Id of the message that led to the proposal, if any." } },
+    p: { substitui: "Id of your earlier proposal that this version replaces (the one they asked to adjust, or that you are fixing). The old one leaves the queue and its approvals don't count.", texto: "The proposal, clear and short: what will be done, why, and what changes. Markdown ok.", aprovadores: "Optional: first names of who must approve (e.g. [\"Roberto\", \"David\"]). Only they may decide; how many must say yes is the room setting. Use only if the instructions say who approves what.", responde_a: "Id of the message that led to the proposal, if any." } },
   propor_plano: { d: "Proposes a plan: a list of tasks with workstream, assignee and due date. Once approved, each item becomes a task and its due date becomes the plan (the dashboard compares plan and reality). To replan, send a new plan and cite in `tarefa` the tasks that change.",
     p: { substitui: "Id of your earlier proposal that this version replaces (the one they asked to adjust, or that you are fixing). The old one leaves the queue and its approvals don't count.", texto: "Plan summary: order of the workstreams and why. Markdown ok.", itens: "The plan's tasks (up to 60), in order: titulo (short, up to 120 characters; conditions and details go in texto), frente (workstream), responsavel (Ana or Claude-Ana), prazo (2026-11-20), tarefa (only when replanning).", aprovadores: "Optional: first names of who must approve. Empty = the room's rule.", responde_a: "Id of the message that led to the plan, if any." } },
   ver_painel: { d: "Shows the room's progress: by workstream (plan and projection), who still has to approve what, overdue tasks and weekly pace. The same numbers as the app's dashboard." },
@@ -1670,7 +1670,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.23.0" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.24.0" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {
