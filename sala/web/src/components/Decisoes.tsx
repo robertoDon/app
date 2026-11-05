@@ -11,7 +11,7 @@ type Props = {
   versao: number; // muda quando chega proposta ou decisão
   autor: (m: Mensagem) => string;
   nome: (uid: string | null) => string;
-  decidir: (id: number, aprovar: boolean, nota?: string) => Promise<string | null>;
+  decidir: (id: number, aprovar: boolean | "ajuste", nota?: string) => Promise<string | null>;
   aprovacaoDe?: (m: Mensagem) => Aprovacao | null;
   irPara: (id: number) => void;
   fechar: () => void;
@@ -41,7 +41,8 @@ export function Decisoes({ salaId, salaNome, versao, autor, nome, decidir, aprov
   }, [fechar, recusando]);
 
   const pendentes = lista?.filter((p) => p.estado === "pendente") ?? [];
-  const decididas = lista?.filter((p) => p.estado !== "pendente") ?? [];
+  // em ajuste e substituídas não são decisão: a versão nova volta para "Para decidir"
+  const decididas = lista?.filter((p) => p.estado === "aprovada" || p.estado === "recusada") ?? [];
 
   const copiar = async () => {
     const linhas = [`# ${t("Decisões", "Decisions")} · ${salaNome}`, ""];
@@ -55,7 +56,8 @@ export function Decisoes({ salaId, salaNome, versao, autor, nome, decidir, aprov
     if (await copiarTexto(linhas.join("\n"))) { setCopiado(true); setTimeout(() => setCopiado(false), 1500); }
   };
 
-  const agir = async (id: number, aprovar: boolean, nota?: string) => {
+  const agir = async (id: number, aprovar: boolean | "ajuste", nota?: string) => {
+    if (aprovar === "ajuste" && !nota) return alert(t("Diga o que precisa mudar.", "Say what needs to change."));
     setOcupado(id);
     const erro = await decidir(id, aprovar, nota);
     setOcupado(null);
@@ -105,14 +107,15 @@ export function Decisoes({ salaId, salaNome, versao, autor, nome, decidir, aprov
                   <Texto texto={p.texto} chamaMim={() => false} />
                 </Recolhe>
                 {recusando === p.id ? (
-                  <form className="recusar" onSubmit={(e) => { e.preventDefault(); agir(p.id, false, nota.trim() || undefined); }}>
-                    <label className="sr" htmlFor={`dn${p.id}`}>{t("Por que recusar", "Why decline")}</label>
-                    <input id={`dn${p.id}`} autoFocus value={nota} maxLength={2000} placeholder={t("Por quê? Quem propôs lê isto. (opcional)", "Why? The proposer reads this. (optional)")}
+                  <form className="recusar" onSubmit={(e) => { e.preventDefault(); agir(p.id, "ajuste", nota.trim() || undefined); }}>
+                    <label className="sr" htmlFor={`dn${p.id}`}>{t("O que precisa mudar", "What needs to change")}</label>
+                    <input id={`dn${p.id}`} autoFocus value={nota} maxLength={2000} placeholder={t("O que precisa mudar? Quem propôs lê isto.", "What needs to change? The proposer reads this.")}
                       onChange={(e) => setNota(e.target.value)} onKeyDown={(e) => e.key === "Escape" && setRecusando(null)} />
                     <div className="decidir">
                       <button type="button" className="btn" onClick={() => setRecusando(null)}>{t("Voltar", "Back")}</button>
-                      <button className="btn btn-recusar" disabled={ocupado === p.id}>{t("Recusar", "Decline")}</button>
+                      <button className="btn btn-cheio" disabled={ocupado === p.id}>{t("Pedir ajuste", "Request changes")}</button>
                     </div>
+                    <button type="button" className="link-texto recusar-de-vez" disabled={ocupado === p.id} onClick={() => agir(p.id, false, nota.trim() || undefined)}>{t("Recusar de vez", "Decline for good")}</button>
                   </form>
                 ) : (() => {
                   const a = aprovacaoDe?.(p);
@@ -121,7 +124,7 @@ export function Decisoes({ salaId, salaNome, versao, autor, nome, decidir, aprov
                     <>
                       {a && <LinhaAprovacao a={a} />}
                       <div className="decidir">
-                        <button className="btn" disabled={ocupado === p.id} onClick={() => { setRecusando(p.id); setNota(""); }}>{t("Recusar", "Decline")}</button>
+                        <button className="btn" disabled={ocupado === p.id} onClick={() => { setRecusando(p.id); setNota(""); }}>{t("Ajustar ou recusar", "Adjust or decline")}</button>
                         {a?.euAprovei
                           ? <button className="btn btn-aprovei" disabled><IconeCheck tamanho={14} /> {t("Você aprovou", "You approved")}</button>
                           : <button className="btn btn-cheio" disabled={ocupado === p.id} onClick={() => agir(p.id, true)}>{t("Aprovar", "Approve")}</button>}

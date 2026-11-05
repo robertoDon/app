@@ -132,8 +132,8 @@ type Anexo = { path: string; nome: string; tipo: string; tamanho: number };
 type ItemPlano = { titulo: string; frente?: string; responsavel?: string; responsavel_agente?: string; prazo?: string; tarefa?: number };
 type Msg = {
   id: number; sala_id: string; user_id: string; agente: string | null; texto: string; criada_em: string;
-  tipo: "mensagem" | "proposta" | "decisao"; responde_a: number | null; estado: "pendente" | "aprovada" | "recusada" | null;
-  decidida_em: string | null; editada_em: string | null; apagada: boolean; anexos: Anexo[]; novo_contexto?: string | null;
+  tipo: "mensagem" | "proposta" | "decisao"; responde_a: number | null; estado: "pendente" | "aprovada" | "recusada" | "ajuste" | "substituida" | null;
+  decidida_em: string | null; editada_em: string | null; apagada: boolean; anexos: Anexo[]; novo_contexto?: string | null; substituida_por?: number | null;
   aprovadores?: string[] | null; plano?: ItemPlano[] | null; nomes?: Record<string, string>;
   autor?: { nome: string }; decisor?: { nome: string } | null;
   reacoes?: { emoji: string; agente: string | null; perfis: { nome: string } | null }[];
@@ -161,7 +161,7 @@ async function acharSala(q: Quem, ref?: string): Promise<Sala> {
   return s;
 }
 
-const SEL = "id, sala_id, user_id, agente, texto, criada_em, tipo, responde_a, estado, decidida_em, editada_em, apagada, anexos, novo_contexto, aprovadores, plano, " +
+const SEL = "id, sala_id, user_id, agente, texto, criada_em, tipo, responde_a, estado, substituida_por, decidida_em, editada_em, apagada, anexos, novo_contexto, aprovadores, plano, " +
   "autor:perfis!mensagens_user_id_fkey(nome), decisor:perfis!mensagens_decidida_por_fkey(nome), votos(perfis(nome))";
 
 async function ler(sala: string, depois = 0, limite = 50, antes = 0, busca = ""): Promise<Msg[]> {
@@ -254,7 +254,7 @@ async function reagir(q: Quem, mensagem: number, emoji: string) {
   return true;
 }
 
-type Envio = { texto: string; proposta?: boolean; responde_a?: number | null; anexos?: Anexo[]; novo_contexto?: string; aprovadores?: string[]; plano?: ItemPlano[] };
+type Envio = { texto: string; proposta?: boolean; substitui?: unknown; responde_a?: number | null; anexos?: Anexo[]; novo_contexto?: string; aprovadores?: string[]; plano?: ItemPlano[] };
 
 async function enviar(q: Quem, sala: string, e: Envio): Promise<Msg> {
   const texto = (e.texto ?? "").trim();
@@ -267,6 +267,17 @@ async function enviar(q: Quem, sala: string, e: Envio): Promise<Msg> {
     if (novo.length > 50000) throw new Falha(tr(q, "Contexto acima de 50.000 caracteres.", "Context over 50,000 characters."));
   }
   let responde = Number(e.responde_a) || null;
+  // versão nova de uma proposta sua: a antiga sai da fila
+  let antiga: { id: number; estado: string; responde_a: number | null } | null = null;
+  if (e.proposta && Number(e.substitui)) {
+    const { data: o } = await db.from("mensagens").select("id, sala_id, user_id, agente, tipo, estado, responde_a, apagada").eq("id", Number(e.substitui)).maybeSingle();
+    if (!o || o.sala_id !== sala || o.tipo !== "proposta" || o.apagada || o.user_id !== q.userId || o.agente !== q.agente)
+      throw new Falha(tr(q, `A proposta #${e.substitui} não é uma proposta sua nesta sala.`, `Proposal #${e.substitui} isn't one of your proposals in this room.`));
+    if (o.estado !== "pendente" && o.estado !== "ajuste")
+      throw new Falha(tr(q, `A proposta #${e.substitui} já foi decidida (${o.estado}); mande uma proposta nova, sem substitui.`, `Proposal #${e.substitui} was already decided (${o.estado}); send a new proposal, without substitui.`));
+    antiga = o;
+    if (!responde) responde = o.responde_a ?? o.id;
+  }
   // sem responde_a: liga à última mensagem que chamou este agente e que ele ainda não respondeu
   if (!responde) {
     const recentes = await ler(sala, 0, 30);
@@ -281,6 +292,10 @@ async function enviar(q: Quem, sala: string, e: Envio): Promise<Msg> {
       aprovadores: e.proposta && e.aprovadores?.length ? e.aprovadores : null, plano: e.proposta && e.plano?.length ? e.plano : null })
     .select(SEL).single();
   if (error) throw new Falha(error.message, 429);
+  if (antiga) {
+    await db.from("mensagens").update({ estado: "substituida", substituida_por: (data as unknown as Msg).id }).eq("id", antiga.id);
+    await db.from("votos").delete().eq("proposta_id", antiga.id);
+  }
   return data as unknown as Msg;
 }
 
@@ -342,11 +357,17 @@ function rotulo(m: Msg, q?: Quem) {
         : m.aprovadores?.length ? tr(q, `; só decide quem foi indicado: ${quemAprova(m)}`, `; only the named people decide: ${quemAprova(m)}`) : "";
       return tr(q, ` · PROPOSTA${ctx} aguardando decisão das pessoas${parcial}${todos}`, ` · PROPOSAL${ctx} waiting for people to decide${parcial}${todos}`);
     }
+    if (m.estado === "ajuste") return tr(q, ` · PROPOSTA${ctx} EM AJUSTE: ${m.decisor?.nome ?? "?"} pediu ajuste (veja a nota na decisão logo depois). Quem propôs corrige e reenvia com substitui=${m.id}`,
+      ` · PROPOSAL${ctx} BEING ADJUSTED: ${m.decisor?.nome ?? "?"} asked for changes (see the note in the decision right after). The proposer fixes it and resends with substitui=${m.id}`);
+    if (m.estado === "substituida") return tr(q, ` · PROPOSTA${ctx} SUBSTITUÍDA pela versão nova${m.substituida_por ? ` #${m.substituida_por}` : ""} (não vale mais)`,
+      ` · PROPOSAL${ctx} REPLACED by the new version${m.substituida_por ? ` #${m.substituida_por}` : ""} (no longer valid)`);
     if (m.novo_contexto) return tr(q, ` · PROPOSTA${ctx} ${m.estado === "aprovada" ? "APROVADA (contexto já trocado)" : "RECUSADA"} por ${m.decisor?.nome ?? "?"}`,
       ` · PROPOSAL${ctx} ${m.estado === "aprovada" ? "APPROVED (context already replaced)" : "DECLINED"} by ${m.decisor?.nome ?? "?"}`);
     return tr(q, ` · PROPOSTA ${m.estado === "aprovada" ? "APROVADA" : "RECUSADA"} por ${m.decisor?.nome ?? "?"}`,
       ` · PROPOSAL ${m.estado === "aprovada" ? "APPROVED" : "DECLINED"} by ${m.decisor?.nome ?? "?"}`);
   }
+  if (m.tipo === "decisao" && m.estado === "ajuste") return tr(q, ` · PEDIDO DE AJUSTE na proposta #${m.responde_a} (não é recusa: corrija e reenvie com substitui)`,
+    ` · ADJUSTMENT REQUEST on proposal #${m.responde_a} (not a decline: fix it and resend with substitui)`);
   if (m.tipo === "decisao") return tr(q, ` · DECISÃO: ${m.estado === "aprovada" ? "aprovou" : "recusou"} a proposta #${m.responde_a}`,
     ` · DECISION: ${m.estado === "aprovada" ? "approved" : "declined"} proposal #${m.responde_a}`);
   return "";
@@ -357,8 +378,9 @@ const listaPlano = (m: Msg, q?: Quem) => (m.plano ?? []).map((i) => {
   return `- ${i.frente ? `[${i.frente}] ` : ""}${i.titulo} · ${quem}${i.prazo ? ` · ${tr(q, "prazo", "due")} ${i.prazo.slice(0, 10)}` : ""}${i.tarefa ? tr(q, ` · atualiza a tarefa ${i.tarefa}`, ` · updates task ${i.tarefa}`) : ""}`;
 }).join("\n");
 
-const formatar = (ms: Msg[], q?: Quem) =>
-  ms.length
+const formatar = (todas: Msg[], q?: Quem) => {
+  const ms = todas.filter((m) => !(m.apagada && m.agente)); // envio por engano que o agente apagou: some
+  return ms.length
     ? ms.map((m) => {
       const chamou = q && !minha(q, m) && !m.apagada && meChamou(q, m.texto) ? tr(q, "  ← chamou você", "  ← called you") : "";
       const resp = m.responde_a && m.tipo !== "decisao" ? tr(q, ` · responde a #${m.responde_a}`, ` · replies to #${m.responde_a}`) : "";
@@ -374,6 +396,7 @@ const formatar = (ms: Msg[], q?: Quem) =>
       return `#${m.id} · ${quando(m.criada_em)} · ${quemEscreveu(m, q)}${rotulo(m, q)}${resp}${ed}${chamou}\n${m.apagada ? tr(q, "(mensagem apagada)", "(message deleted)") : gravado(m.texto, q)}${plano}${anexos}${reacoes}`;
     }).join("\n\n")
     : tr(q, "(nenhuma mensagem nova)", "(no new messages)");
+};
 
 async function propostas(sala: string, limite = 30): Promise<Msg[]> {
   const { data, error } = await db.from("mensagens").select(SEL).eq("sala_id", sala).eq("tipo", "proposta").eq("apagada", false)
@@ -386,8 +409,11 @@ const umaLinha = (t: string, n = 160) => { const l = t.replace(/\s+/g, " ").trim
 
 function registro(ps: Msg[], q?: Quem) {
   const pend = ps.filter((p) => p.estado === "pendente");
-  const dec = ps.filter((p) => p.estado !== "pendente");
+  const ajuste = ps.filter((p) => p.estado === "ajuste");
+  const dec = ps.filter((p) => p.estado === "aprovada" || p.estado === "recusada");
   const linhas: string[] = [];
+  if (ajuste.length) linhas.push(tr(q, "Propostas em ajuste (quem propôs corrige e reenvia com substitui):", "Proposals being adjusted (the proposer fixes and resends with substitui):"),
+    ...ajuste.map((p) => `- #${p.id} (${quemEscreveu(p, q)}), ${tr(q, "pedido por", "asked by")} ${p.decisor?.nome ?? "?"}: ${umaLinha(p.texto)}`));
   if (pend.length) linhas.push(tr(q, "Propostas aguardando decisão:", "Proposals waiting for a decision:"), ...pend.map((p) => `- #${p.id} (${quemEscreveu(p, q)})${p.aprovadores?.length ? tr(q, ` [decide: ${quemAprova(p)}]`, ` [decides: ${quemAprova(p)}]`) : ""}: ${umaLinha(p.texto)}`));
   if (dec.length) linhas.push(tr(q, "Decisões da sala (mais recentes primeiro):", "Room decisions (most recent first):"), ...dec.map((p) =>
     tr(q, `- #${p.id} ${p.estado === "aprovada" ? "APROVADA" : "RECUSADA"} por ${p.decisor?.nome ?? "?"} em ${p.decidida_em?.slice(0, 10)}: `,
@@ -820,6 +846,8 @@ function regras(q?: Quem) {
 - When replying to a message, pass responde_a with its id (#N). That way the room shows the agents' answers side by side. In a discussion that started with a question to @agents, every message of yours (and your final proposal) replies to that original question, so the room can compare everyone's final answer.
 - Never write message or task numbers in your text (#N, "task 12"): people don't see them. Refer to things by name: who said it ("David's question", "the price proposal") or what the task is ("the rule 3.2 approval task"). Numbers go only in tool parameters (responde_a, tarefa, item).
 - When something needs a person's yes (spending, publishing, changing the plan, choosing between options), use fazer_proposta instead of deciding yourself. People approve or decline in the room. Some rooms require more than one approval: the proposal only passes when they all arrive, and the app counts them; don't treat it as approved before that.
+- Send a proposal only when the discussion is closed: no open points between the agents, and the people aren't still deciding. If a person says to wait or that they're still deciding, don't propose until the discussion ends. Never repeat a proposal's content as a message: point to it.
+- If a person asks for changes on your proposal ("ADJUSTMENT REQUEST") or declines it with a reason, it's not over: fix it, check with the other agents if it touches their part, and resend once, with substitui = the old proposal's id. Don't resend in the same minute without changes.
 - The room memory is yours to keep: the project's current state (what was decided, delivered, what's pending and where things are). When something is decided, delivered or changes state, update it with atualizar_memoria, without asking: small replacements, plus a one-line summary of what changed. It records what happened and what was decided; it doesn't create rules or decide anything. Keep it short and current: rewrite what's outdated instead of piling up history.
 - Keep a "Roles in practice" section in the memory: what each agent and person actually does in this room, observed from the work, not assigned (e.g. "David's ChatGPT: reviews deliveries and reports to the room"). Update it when you notice a pattern change. Use it to split work: do your part, and don't redo what is someone else's role.
 - When a person asks for a standing way of working ("always list tasks with the assignee in bold", "@ the agent you delegate to"), follow it from then on and record it in the memory under "Agreements" until the people move it into the instructions.
@@ -843,6 +871,8 @@ function regras(q?: Quem) {
 - Ao responder uma mensagem, passe responde_a com o id dela (#N). Assim a sala mostra as respostas dos agentes lado a lado. Numa discussão que começou com uma pergunta para @agentes, toda mensagem sua (e a sua proposta final) responde à pergunta original, para a sala comparar a resposta final de cada um.
 - Nunca escreva números de mensagem ou de tarefa no texto (#N, "tarefa 12"): as pessoas não veem esses números. Cite pelo nome: quem disse ("a pergunta do David", "a proposta de preço") ou o que é a tarefa ("a tarefa de aprovar a regra 3.2"). Número só vai nos parâmetros das ferramentas (responde_a, tarefa, item).
 - Quando algo precisar do sim de uma pessoa (gastar, publicar, mudar plano, escolher entre opções), use fazer_proposta em vez de decidir sozinho. As pessoas aprovam ou recusam na sala. Algumas salas pedem mais de uma aprovação: a proposta só passa quando todas chegam, e o app conta sozinho; não trate como aprovada antes disso.
+- Só mande proposta quando a discussão fechou: nenhum ponto em aberto entre os agentes e as pessoas não estão mais decidindo. Se uma pessoa disser para esperar ou que ainda está decidindo, não proponha até a discussão terminar. Nunca repita o conteúdo de uma proposta como mensagem: aponte para ela.
+- Se uma pessoa pedir ajuste na sua proposta ("PEDIDO DE AJUSTE") ou recusar com um motivo, não acabou: corrija, confirme com os outros agentes se mexer na parte deles e reenvie uma vez, com substitui = o id da proposta antiga. Não reenvie no mesmo minuto sem mudar nada.
 - A memória da sala é sua de manter: o estado atual do projeto (o que foi decidido, entregue, o que está pendente e onde está cada coisa). Quando algo for decidido, entregue ou mudar de estado, atualize com atualizar_memoria, sem pedir: trocas pequenas e um resumo de uma linha do que mudou. Ela registra o que aconteceu e foi decidido; não cria regra nem decide nada. Mantenha curta e atual: reescreva o que ficou velho em vez de acumular histórico.
 - Mantenha na memória uma seção "Papéis na prática": o que cada agente e cada pessoa faz de fato nesta sala, observado no trabalho, não atribuído (ex.: "ChatGPT de David: revisa as entregas e reporta à sala"). Atualize quando notar que o padrão mudou. Use para dividir o trabalho: faça a sua parte e não refaça o que é papel de outro.
 - Quando uma pessoa pedir um jeito fixo de trabalhar ("sempre liste as tarefas com o responsável em negrito", "marque com @ o agente a quem delegar"), siga daí em diante e registre na memória, na seção "Combinados", até as pessoas passarem para as instruções.
@@ -956,6 +986,7 @@ const TOOLS_PT = [
       type: "object",
       properties: {
         sala: SALA_ARG,
+        substitui: { type: "integer", description: "Id da sua proposta anterior que esta versão substitui (a que pediram ajuste ou que você está corrigindo). A antiga sai da fila e as aprovações dela não contam." },
         texto: { type: "string", description: "A proposta, clara e curta: o que será feito, por quê e o que muda. Markdown ok." },
         aprovadores: { type: "array", items: { type: "string" }, description: "Opcional: primeiros nomes de quem precisa aprovar (ex.: [\"Roberto\", \"David\"]). Só essas pessoas decidem, e todas precisam dizer sim. Vazio = a regra da sala." },
         responde_a: { type: "integer", description: "Id da mensagem que originou a proposta, se houver." },
@@ -970,6 +1001,7 @@ const TOOLS_PT = [
       type: "object",
       properties: {
         sala: SALA_ARG,
+        substitui: { type: "integer", description: "Id da sua proposta anterior que esta versão substitui (a que pediram ajuste ou que você está corrigindo). A antiga sai da fila e as aprovações dela não contam." },
         texto: { type: "string", description: "Resumo do plano: ordem das frentes e por quê. Markdown ok." },
         itens: {
           type: "array", description: "As tarefas do plano (até 60), na ordem.",
@@ -1021,6 +1053,7 @@ const TOOLS_PT = [
       type: "object",
       properties: {
         sala: SALA_ARG,
+        substitui: { type: "integer", description: "Id da sua proposta anterior que esta versão substitui (a que pediram ajuste ou que você está corrigindo). A antiga sai da fila e as aprovações dela não contam." },
         texto: { type: "string", description: "A proposta, curta: o que muda em relação ao contexto atual e por quê. Markdown ok." },
         contexto: { type: "string", description: "O contexto novo inteiro, como deve ficar (até 50.000 caracteres)." },
         responde_a: { type: "integer", description: "Id da mensagem que originou a proposta, se houver." },
@@ -1207,14 +1240,14 @@ const EN: Record<string, { d: string; p?: Record<string, string> }> = {
   enviar_mensagem: { d: "Writes in the room on behalf of your person, as their agent. Read new messages first. When replying to a message, pass responde_a with its id.",
     p: { texto: "The message (markdown ok).", responde_a: "Id (#N) of the message you're replying to." } },
   fazer_proposta: { d: "Asks the people in the room for a decision. Use it when something needs someone's yes before going ahead (spending, publishing, changing the plan, choosing between options). The room shows Approve and Decline; the decision comes back to you as a message and goes into the room's record.",
-    p: { texto: "The proposal, clear and short: what will be done, why, and what changes. Markdown ok.", aprovadores: "Optional: first names of who must approve (e.g. [\"Roberto\", \"David\"]). Only they decide, and all of them must say yes. Empty = the room's rule.", responde_a: "Id of the message that led to the proposal, if any." } },
+    p: { substitui: "Id of your earlier proposal that this version replaces (the one they asked to adjust, or that you are fixing). The old one leaves the queue and its approvals don't count.", texto: "The proposal, clear and short: what will be done, why, and what changes. Markdown ok.", aprovadores: "Optional: first names of who must approve (e.g. [\"Roberto\", \"David\"]). Only they decide, and all of them must say yes. Empty = the room's rule.", responde_a: "Id of the message that led to the proposal, if any." } },
   propor_plano: { d: "Proposes a plan: a list of tasks with workstream, assignee and due date. Once approved, each item becomes a task and its due date becomes the plan (the dashboard compares plan and reality). To replan, send a new plan and cite in `tarefa` the tasks that change.",
-    p: { texto: "Plan summary: order of the workstreams and why. Markdown ok.", itens: "The plan's tasks (up to 60), in order: titulo (short, up to 120 characters; conditions and details go in texto), frente (workstream), responsavel (Ana or Claude-Ana), prazo (2026-11-20), tarefa (only when replanning).", aprovadores: "Optional: first names of who must approve. Empty = the room's rule.", responde_a: "Id of the message that led to the plan, if any." } },
+    p: { substitui: "Id of your earlier proposal that this version replaces (the one they asked to adjust, or that you are fixing). The old one leaves the queue and its approvals don't count.", texto: "Plan summary: order of the workstreams and why. Markdown ok.", itens: "The plan's tasks (up to 60), in order: titulo (short, up to 120 characters; conditions and details go in texto), frente (workstream), responsavel (Ana or Claude-Ana), prazo (2026-11-20), tarefa (only when replanning).", aprovadores: "Optional: first names of who must approve. Empty = the room's rule.", responde_a: "Id of the message that led to the plan, if any." } },
   ver_painel: { d: "Shows the room's progress: by workstream (plan and projection), who still has to approve what, overdue tasks and weekly pace. The same numbers as the app's dashboard." },
   atualizar_memoria: { d: "Updates the room memory: the project's current state, which agents keep without asking for approval (it's versioned and people can undo). Prefer small replacements; rewrite everything only to reorganize.",
     p: { resumo: "One line: what changed and why (e.g. \"Annual price settled in today's decision\").", trocas: "Replacements in the current text: each `de` must appear exactly once in the memory and becomes `para`. An empty `de` appends `para` at the end.", texto: "Or the whole new memory (up to 50,000 characters), instead of trocas." } },
   propor_contexto: { d: "Proposes replacing the room instructions (the people's text) with a new text. It only passes with the yes of every person who writes in the room; once the last one approves, the app swaps it by itself. To record the project's state, use atualizar_memoria.",
-    p: { texto: "The proposal, short: what changes compared to the current context and why. Markdown ok.", contexto: "The whole new context, as it should read (up to 50,000 characters).", responde_a: "Id of the message that led to the proposal, if any." } },
+    p: { substitui: "Id of your earlier proposal that this version replaces (the one they asked to adjust, or that you are fixing). The old one leaves the queue and its approvals don't count.", texto: "The proposal, short: what changes compared to the current context and why. Markdown ok.", contexto: "The whole new context, as it should read (up to 50,000 characters).", responde_a: "Id of the message that led to the proposal, if any." } },
   editar_mensagem: { d: "Fixes the text of one of your own messages (sent by you, the agent). Regular messages only; proposals and decisions don't change. The room shows \"(edited)\".",
     p: { mensagem: "Id (#N) of your message.", texto: "The whole new text." } },
   apagar_mensagem: { d: "Deletes one of your own messages (sent by you, the agent) that went out by mistake: the text and attachments disappear for everyone. Also withdraws a proposal of yours that hasn't been decided yet.",
@@ -1369,7 +1402,7 @@ async function chamar(q: Quem, nome: string, a: any): Promise<string | Conteudo[
       const s = await acharSala(q, a.sala);
       const proposta = nome === "fazer_proposta";
       const aprovadores = proposta ? await acharAprovadores(q, s.id, a.aprovadores) : undefined;
-      const m = await enviar(q, s.id, { texto: String(a.texto ?? ""), proposta, responde_a: a.responde_a, aprovadores });
+      const m = await enviar(q, s.id, { texto: String(a.texto ?? ""), proposta, responde_a: a.responde_a, aprovadores, substitui: proposta ? a.substitui : undefined });
       return proposta
         ? tr(q, `Proposta #${m.id} enviada na sala "${s.nome}". As pessoas aprovam ou recusam; a decisão chega como mensagem nova.`,
           `Proposal #${m.id} sent to the room "${s.nome}". People approve or decline; the decision arrives as a new message.`)
@@ -1380,7 +1413,7 @@ async function chamar(q: Quem, nome: string, a: any): Promise<string | Conteudo[
       const s = await acharSala(q, a.sala);
       const plano = await montarPlano(q, s.id, a.itens);
       const aprovadores = await acharAprovadores(q, s.id, a.aprovadores);
-      const m = await enviar(q, s.id, { texto: String(a.texto ?? ""), proposta: true, responde_a: a.responde_a, aprovadores, plano });
+      const m = await enviar(q, s.id, { texto: String(a.texto ?? ""), proposta: true, responde_a: a.responde_a, aprovadores, plano, substitui: a.substitui });
       return tr(q, `Plano #${m.id} com ${plano.length} tarefas enviado na sala "${s.nome}". Aprovado, as tarefas nascem sozinhas; a decisão chega como mensagem nova.`,
         `Plan #${m.id} with ${plano.length} tasks sent to the room "${s.nome}". Once approved, the tasks are created; the decision arrives as a new message.`);
     }
@@ -1396,7 +1429,7 @@ async function chamar(q: Quem, nome: string, a: any): Promise<string | Conteudo[
       const s = await acharSala(q, a.sala);
       const { data: mb } = await db.from("membros").select("papel").eq("sala_id", s.id).eq("user_id", q.userId).maybeSingle();
       if (!mb || mb.papel === "leitor") throw new Falha(tr(q, "Nesta sala a sua pessoa só acompanha: não dá para propor.", "Your person can only view this room: you can't propose."), 403);
-      const m = await enviar(q, s.id, { texto: String(a.texto ?? ""), proposta: true, responde_a: a.responde_a, novo_contexto: String(a.contexto ?? "") });
+      const m = await enviar(q, s.id, { texto: String(a.texto ?? ""), proposta: true, responde_a: a.responde_a, novo_contexto: String(a.contexto ?? ""), substitui: a.substitui });
       const { count } = await db.from("membros").select("user_id", { count: "exact", head: true }).eq("sala_id", s.id).in("papel", ["dono", "membro"]);
       return tr(q, `Proposta #${m.id} de troca do contexto enviada na sala "${s.nome}". Precisa do sim de todas as ${count ?? "?"} pessoas; quando a última aprovar, o contexto muda sozinho.`,
         `Context proposal #${m.id} sent to the room "${s.nome}". It needs the yes of all ${count ?? "?"} people; when the last one approves, the context changes by itself.`);
@@ -1581,7 +1614,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.21.1" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.22.0" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {

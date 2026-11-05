@@ -101,7 +101,7 @@ async function empurrar(i: { endpoint: string; p256dh: string; auth: string }, d
 
 // ---------------------------------------------------------------- quem avisar
 
-const handle = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Za-z0-9]/g, "").toLowerCase();
+const handle = (s: string) => s.normalize("NFD").replace(/\p{M}/gu, "").replace(/[^A-Za-z0-9]/g, "").toLowerCase();
 // @agents/@everyone/@all (inglês) valem o mesmo que @agentes/@todos
 const ALIAS: Record<string, string> = { agents: "agentes", everyone: "todos", all: "todos" };
 const apelido = (h: string) => ALIAS[h] ?? h;
@@ -117,7 +117,7 @@ const limpo = (t: string, n = 140) => {
 };
 
 let segredoAviso: string | null = null;
-const TODOS = "\u0000todos"; // "todos os seus agentes" (marca interna)
+const TODOS = String.fromCharCode(0) + "todos"; // "todos os seus agentes" (marca interna)
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -193,10 +193,10 @@ Deno.serve(async (req) => {
 
   const titulo = (l: Lingua) => l === "en"
     ? (m.tipo === "proposta" ? `Proposal from ${quem(l)} · ${sala}` :
-      m.tipo === "decisao" ? `${primeiro} ${m.estado === "aprovada" ? "approved" : "declined"} a proposal · ${sala}` :
+      m.tipo === "decisao" ? `${primeiro} ${m.estado === "aprovada" ? "approved" : m.estado === "ajuste" ? "asked to adjust" : "declined"} a proposal · ${sala}` :
       `${quem(l)} · ${sala}`)
     : (m.tipo === "proposta" ? `Proposta de ${quem(l)} · ${sala}` :
-      m.tipo === "decisao" ? `${primeiro} ${m.estado === "aprovada" ? "aprovou" : "recusou"} uma proposta · ${sala}` :
+      m.tipo === "decisao" ? `${primeiro} ${m.estado === "aprovada" ? "aprovou" : m.estado === "ajuste" ? "pediu ajuste em" : "recusou"} uma proposta · ${sala}` :
       `${quem(l)} · ${sala}`);
   const dadosPara = (uid: string) => {
     const l = lingua.get(uid) ?? "pt";
@@ -316,10 +316,10 @@ async function despertar(id: number) {
     const quem = m.agente ? `${m.agente} (${autorNome})` : autorNome;
     const texto = en
       ? `The Sala · room "${sala}" (id ${m.sala_id}) · message #${m.id} from ${quem}` +
-        (m.tipo === "decisao" ? ` · decision on proposal #${m.responde_a}: ${m.estado === "aprovada" ? "APPROVED" : "DECLINED"}` : "") +
+        (m.tipo === "decisao" ? ` · decision on proposal #${m.responde_a}: ${m.estado === "aprovada" ? "APPROVED" : m.estado === "ajuste" ? "ADJUSTMENT REQUESTED" : "DECLINED"}` : "") +
         `\nExcerpt: ${limpo(emIngles(m.texto), 400)}`
       : `The Sala · sala "${sala}" (id ${m.sala_id}) · mensagem #${m.id} de ${quem}` +
-        (m.tipo === "decisao" ? ` · decisão sobre a proposta #${m.responde_a}: ${m.estado === "aprovada" ? "APROVADA" : "RECUSADA"}` : "") +
+        (m.tipo === "decisao" ? ` · decisão sobre a proposta #${m.responde_a}: ${m.estado === "aprovada" ? "APROVADA" : m.estado === "ajuste" ? "PEDIDO DE AJUSTE" : "RECUSADA"}` : "") +
         `\nTrecho: ${limpo(m.texto, 400)}`;
     let status = 0, erro: string | null = null;
     if (d.evento) {
@@ -328,9 +328,13 @@ async function despertar(id: number) {
         sala_id: m.sala_id, sala, mensagem: m.id, autor: quem, motivo, trecho: limpo(en ? emIngles(m.texto) : m.texto, 400),
         instrucao: en
           ? `Use ler_mensagens on room ${m.sala_id} and reply to message #${m.id} with enviar_mensagem (responde_a=${m.id}).` +
-            (motivo === "decisao" ? " It's a decision on your proposal: follow it and tell the room what you did." : "")
+            (motivo === "decisao" ? (m.estado === "ajuste"
+              ? ` It's an adjustment request on your proposal: fix what the note asks, check with the other agents if it touches their part, and resend once with substitui=${m.responde_a}.`
+              : " It's a decision on your proposal: follow it and tell the room what you did.") : "")
           : `Use ler_mensagens na sala ${m.sala_id} e responda à mensagem #${m.id} com enviar_mensagem (responde_a=${m.id}).` +
-            (motivo === "decisao" ? " É uma decisão sobre a sua proposta: siga-a e conte na sala o que fez." : ""),
+            (motivo === "decisao" ? (m.estado === "ajuste"
+              ? ` É um pedido de ajuste na sua proposta: corrija o que a nota pede, confirme com os outros agentes se mexer na parte deles e reenvie uma vez com substitui=${m.responde_a}.`
+              : " É uma decisão sobre a sua proposta: siga-a e conte na sala o que fez.") : ""),
       };
       try { ({ status, erro } = await entregarEvento(d.evento, d.url, `evt_${m.id}_${d.evento.slice(4, 16)}`, dados)); }
       catch (e) { erro = (e as Error).message; }

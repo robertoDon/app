@@ -47,7 +47,7 @@ type Props = {
   editar?: (texto: string) => Promise<string | null>; // devolve erro ou null
   apagar?: () => void;
   virarTarefa?: () => void;
-  decidir?: (aprovar: boolean, nota?: string) => Promise<string | null>;
+  decidir?: (aprovar: boolean | "ajuste", nota?: string) => Promise<string | null>;
   tentarDeNovo?: () => void;
   irPara?: (id: number) => void;
   reacoes?: GrupoReacao[];
@@ -117,9 +117,10 @@ export function Bolha(p: Props) {
     if (e) setErro(e); else { setEditando(false); setErro(""); }
   };
 
-  const decidir = async (aprovar: boolean) => {
+  const decidir = async (aprovar: boolean | "ajuste") => {
+    if (aprovar === "ajuste" && !nota.trim()) { setErro(tr("Diga o que precisa mudar.", "Say what needs to change.")); return; }
     setOcupado(true);
-    const e = await p.decidir!(aprovar, aprovar ? undefined : nota);
+    const e = await p.decidir!(aprovar, aprovar === true ? undefined : nota.trim() || undefined);
     setOcupado(false);
     if (e) setErro(e); else { setRecusando(false); setErro(""); }
   };
@@ -150,7 +151,11 @@ export function Bolha(p: Props) {
           {proposta && (
             <p className="proposta-rotulo">
               {m.estado === "pendente" ? <span className="pilula pilula-acento"><IconeProposta tamanho={12} /> {tr("Proposta", "Proposal")}</span>
+                : m.estado === "ajuste" ? <span className="pilula pilula-ajuste"><IconeLapis tamanho={12} /> {tr("Em ajuste", "Being adjusted")}</span>
+                : m.estado === "substituida" ? <span className="pilula"><IconeProposta tamanho={12} /> {tr("Substituída", "Replaced")}</span>
                 : <span className={`pilula ${m.estado === "aprovada" ? "pilula-ok" : "pilula-erro"}`}>{m.estado === "aprovada" ? <IconeCheck tamanho={12} /> : <IconeFechar tamanho={12} />}{m.estado === "aprovada" ? tr("Aprovada", "Approved") : tr("Recusada", "Declined")}</span>}
+              {m.estado === "substituida" && m.substituida_por && <button type="button" className="link nota" onClick={() => p.irPara?.(m.substituida_por!)}>{tr("ver a versão nova", "see the new version")}</button>}
+              {m.estado === "ajuste" && <span className="nota">· {tr("quem propôs vai corrigir e reenviar", "the proposer will fix and resend")}</span>}
               {m.novo_contexto && <span className="nota">{tr("troca as instruções da sala", "replaces the room instructions")}</span>}
               {m.estado === "pendente" && <span className="nota">· {m.novo_contexto ? tr("precisa do sim de todas as pessoas", "needs everyone's yes") : tr("aguardando decisão", "awaiting decision")}</span>}
             </p>
@@ -216,20 +221,21 @@ export function Bolha(p: Props) {
               {m.estado === "pendente" ? (
                 p.decidir && p.aprovacao?.posso !== false ? (
                   recusando ? (
-                    <form className="recusar" onSubmit={(e) => { e.preventDefault(); decidir(false); }}>
-                      <label className="sr" htmlFor={`nota${m.id}`}>{tr("Por que recusar", "Why decline")}</label>
-                      <input id={`nota${m.id}`} autoFocus placeholder={tr("Por quê? Quem propôs lê isto. (opcional)", "Why? The proposer reads this. (optional)")} value={nota} maxLength={2000}
-                        onChange={(e) => setNota(e.target.value)} onKeyDown={(e) => e.key === "Escape" && setRecusando(false)} />
+                    <form className="recusar" onSubmit={(e) => { e.preventDefault(); decidir("ajuste"); }}>
+                      <label className="sr" htmlFor={`nota${m.id}`}>{tr("O que precisa mudar", "What needs to change")}</label>
+                      <input id={`nota${m.id}`} autoFocus placeholder={tr("O que precisa mudar? Quem propôs lê isto.", "What needs to change? The proposer reads this.")} value={nota} maxLength={2000}
+                        onChange={(e) => { setNota(e.target.value); setErro(""); }} onKeyDown={(e) => e.key === "Escape" && setRecusando(false)} />
                       <div className="decidir">
                         <button type="button" className="btn" onClick={() => setRecusando(false)}>{tr("Voltar", "Back")}</button>
-                        <button className="btn btn-recusar" disabled={ocupado}>{tr("Recusar", "Decline")}</button>
+                        <button className="btn btn-cheio" disabled={ocupado}>{tr("Pedir ajuste", "Request changes")}</button>
                       </div>
+                      <button type="button" className="link-texto recusar-de-vez" disabled={ocupado} onClick={() => decidir(false)}>{tr("Recusar de vez", "Decline for good")}</button>
                     </form>
                   ) : (
                     <>
                       {p.aprovacao && <LinhaAprovacao a={p.aprovacao} />}
                       <div className="decidir">
-                        <button type="button" className="btn" disabled={ocupado} onClick={() => setRecusando(true)}>{tr("Recusar", "Decline")}</button>
+                        <button type="button" className="btn" disabled={ocupado} onClick={() => { setRecusando(true); setErro(""); }}>{tr("Ajustar ou recusar", "Adjust or decline")}</button>
                         {p.aprovacao?.euAprovei
                           ? <button type="button" className="btn btn-aprovei" disabled><IconeCheck tamanho={14} /> {tr("Você aprovou", "You approved")}</button>
                           : <button type="button" className="btn btn-cheio" disabled={ocupado} onClick={() => decidir(true)}>{tr("Aprovar", "Approve")}</button>}
@@ -294,13 +300,14 @@ export function Bolha(p: Props) {
 // Decisão vira um acontecimento na linha do tempo: "Bruno aprovou a proposta de ChatGPT de Bruno".
 export function Evento({ m, quem, de, quando, irPara }: { m: Mensagem; quem: string; de: string; quando: string; irPara?: (id: number) => void }) {
   const aprovou = m.estado === "aprovada";
+  const ajuste = m.estado === "ajuste";
   const nota = m.texto !== "Aprovada." && m.texto !== "Recusada." ? m.texto : "";
   return (
     <div className={`evento evento-${m.estado}`} id={`m${m.id}`}>
-      <span className="evento-icone" aria-hidden>{aprovou ? <IconeDecisao tamanho={16} /> : <IconeRecusa tamanho={16} />}</span>
+      <span className="evento-icone" aria-hidden>{aprovou ? <IconeDecisao tamanho={16} /> : ajuste ? <IconeLapis tamanho={16} /> : <IconeRecusa tamanho={16} />}</span>
       <span className="evento-texto">
-        <strong>{quem}</strong> {aprovou ? tr("aprovou", "approved") : tr("recusou", "declined")}{" "}
-        <button type="button" className="link" onClick={() => m.responde_a && irPara?.(m.responde_a)}>{de ? tr(`a proposta de ${de}`, `the proposal from ${de}`) : tr("a proposta", "the proposal")}</button>
+        <strong>{quem}</strong> {aprovou ? tr("aprovou", "approved") : ajuste ? tr("pediu ajuste", "asked for changes to") : tr("recusou", "declined")}{" "}
+        <button type="button" className="link" onClick={() => m.responde_a && irPara?.(m.responde_a)}>{ajuste ? (de ? tr(`na proposta de ${de}`, `the proposal from ${de}`) : tr("na proposta", "the proposal")) : de ? tr(`a proposta de ${de}`, `the proposal from ${de}`) : tr("a proposta", "the proposal")}</button>
         {nota && <span className="evento-nota">“{nota}”</span>}
       </span>
       <time>{quando}</time>

@@ -362,7 +362,15 @@ export default function SalaPage() {
     mandar(m);
   };
 
-  const decidir = async (pid: number, aprovar: boolean, nota?: string) => {
+  const decidir = async (pid: number, aprovar: boolean | "ajuste", nota?: string) => {
+    if (aprovar === "ajuste") {
+      const { error } = await sb.rpc("pedir_ajuste", { proposta: pid, nota: nota ?? "" });
+      if (error) return erro(error);
+      setVotos((v) => v.filter((x) => x.proposta_id !== pid));
+      setMsgs((a) => a?.map((x) => (x.id === pid ? { ...x, estado: "ajuste", decidida_por: eu, decidida_em: new Date().toISOString() } : x)) ?? a);
+      recarregar();
+      return null;
+    }
     const { data, error } = await sb.rpc("decidir", { proposta: pid, aprovar, nota: nota ?? null });
     if (error) return erro(error);
     // aprovou, mas a sala pede mais aprovações: a proposta continua pendente com o seu voto
@@ -632,6 +640,8 @@ export default function SalaPage() {
             )}
 
             {msgs?.map((m, i) => {
+              // mensagem de agente apagada (quase sempre um envio por engano que ele mesmo corrigiu) some da conversa
+              if (m.apagada && m.agente) return null;
               if (recolhidas.has(m.id)) {
                 const r = recolhidas.get(m.id);
                 return r ? (

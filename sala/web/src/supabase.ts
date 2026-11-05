@@ -32,7 +32,8 @@ export type Mensagem = {
   criada_em: string;
   tipo: "mensagem" | "proposta" | "decisao";
   responde_a: number | null;
-  estado: "pendente" | "aprovada" | "recusada" | null;
+  estado: "pendente" | "aprovada" | "recusada" | "ajuste" | "substituida" | null;
+  substituida_por?: number | null;
   decidida_por: string | null;
   decidida_em: string | null;
   editada_em: string | null;
