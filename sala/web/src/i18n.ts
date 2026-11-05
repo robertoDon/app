@@ -139,11 +139,25 @@ const GRAVADOS: Record<string, string> = {
   "criou a sala": "created the room",
 };
 
-/** Texto fixo gravado pelo sistema (decisão sem comentário, ação do histórico), no idioma da pessoa. */
-export function gravado(texto: string): string {
-  if (atual !== "en") return texto;
-  if (GRAVADOS[texto]) return GRAVADOS[texto];
-  const m = texto.match(/^✓ Concluí a tarefa: (.*)$/s);
-  if (m) return `✓ Completed the task: ${m[1]}`;
-  return texto;
+const DE_VOLTA: Record<string, string> = Object.fromEntries(Object.entries(GRAVADOS).map(([pt, en]) => [en, pt]));
+
+/** Texto fixo gravado pelo sistema (decisão sem comentário, ação do histórico), no idioma pedido (por padrão, o da pessoa). */
+export function gravado(texto: string, lingua: Idioma = atual): string {
+  if (lingua === "en") {
+    if (GRAVADOS[texto]) return GRAVADOS[texto];
+    const m = texto.match(/^✓ Concluí a tarefa: (.*)$/s);
+    return m ? `✓ Completed the task: ${m[1]}` : texto;
+  }
+  if (DE_VOLTA[texto]) return DE_VOLTA[texto];
+  const m = texto.match(/^✓ Completed the task: (.*)$/s);
+  return m ? `✓ Concluí a tarefa: ${m[1]}` : texto;
 }
+
+// Idioma da conversa aberta: o que está gravado nela aparece no idioma da sala, para todo mundo.
+let conversa: Idioma | null = null;
+export const definirIdiomaConversa = (i: Idioma | null) => { conversa = i; };
+export const idiomaConversa = (): Idioma => conversa ?? atual;
+/** Texto gravado na conversa, no idioma da sala. */
+export const naConversa = (texto: string) => gravado(texto, idiomaConversa());
+/** Texto que vai para dentro da conversa (ex.: @agentes/@agents), no idioma da sala. */
+export const tc = (pt: string, en: string) => (idiomaConversa() === "en" ? en : pt);

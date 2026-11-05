@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { Mensagem } from "../supabase";
 import { IconeAgente, IconeFechar, IconeVoltar } from "./Icones";
 import { Texto } from "./Texto";
-import { gravado, locale, t } from "../i18n";
+import { naConversa, locale, t } from "../i18n";
 
 export type Esperando = { nome: string; dono: string; status: string };
 
@@ -47,7 +47,7 @@ export function Comparar({ pergunta, autorPergunta, respostas, autor, esperando,
         </div>
         <blockquote className="comparar-pergunta">
           <span className="nota">{t(`${autorPergunta} perguntou`, `${autorPergunta} asked`)}</span>
-          <Texto texto={gravado(pergunta.texto)} chamaMim={() => false} />
+          <Texto texto={naConversa(pergunta.texto)} chamaMim={() => false} />
         </blockquote>
         <div className="colunas" role="list">
           {porAgente(respostas).map(({ final: r, antes }) => (
@@ -86,7 +86,7 @@ function Coluna({ r, antes, autor }: { r: Mensagem; antes: Mensagem[]; autor: (m
             </span>
           </p>
         )}
-        <Texto texto={gravado(r.texto)} chamaMim={() => false} />
+        <Texto texto={naConversa(r.texto)} chamaMim={() => false} />
         {antes.length > 0 && (
           <div className="coluna-antes">
             <button className="secao-rotulo secao-dobra" aria-expanded={verAntes} onClick={() => setVerAntes((v) => !v)}>
@@ -95,7 +95,7 @@ function Coluna({ r, antes, autor }: { r: Mensagem; antes: Mensagem[]; autor: (m
             {verAntes && antes.map((m) => (
               <div key={m.id} className="coluna-antiga">
                 <span className="nota">{hora(m)}</span>
-                <Texto texto={gravado(m.texto)} chamaMim={() => false} />
+                <Texto texto={naConversa(m.texto)} chamaMim={() => false} />
               </div>
             ))}
           </div>

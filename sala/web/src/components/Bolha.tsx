@@ -3,7 +3,7 @@ import type { Mensagem } from "../supabase";
 import { IconeAgente, IconeReagir, IconeCopiar, IconeCheck, IconeDecisao, IconeFechar, IconeLapis, IconeLixo, IconeProposta, IconeRecusa, IconeResponder, IconeTarefa } from "./Icones";
 import { Texto } from "./Texto";
 import { Anexos } from "./Anexos";
-import { gravado, locale, t as tr } from "../i18n";
+import { naConversa, locale, t as tr } from "../i18n";
 
 export type Citacao = { id: number; autor: string; texto: string } | null;
 export type GrupoReacao = { emoji: string; quem: string[]; minha: boolean };
@@ -187,7 +187,7 @@ export function Bolha(p: Props) {
             <p className="apagada">{tr("Mensagem apagada.", "Message deleted.")}</p>
           ) : (
             <>
-              {m.texto && <Texto texto={gravado(m.texto)} chamaMim={p.chamaMim ?? (() => false)} refMsg={p.irPara && p.autorDe ? {
+              {m.texto && <Texto texto={naConversa(m.texto)} chamaMim={p.chamaMim ?? (() => false)} refMsg={p.irPara && p.autorDe ? {
                 ir: (id) => (p.autorDe?.(id) ? p.irPara!(id) : p.abrirTarefas?.()),
                 rotulo: (id) => { const a = p.autorDe?.(id); if (a) return `↩ ${a}`; const tf = p.tarefaDe?.(id); return tf ? `☐ ${tf.length > 48 ? tf.slice(0, 47) + "…" : tf}` : null; },
               } : undefined} />}

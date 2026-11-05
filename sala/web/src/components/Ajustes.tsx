@@ -28,6 +28,13 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco, 
     if (error) { setAprovacoes(antes); return alert(erro(error)); }
     setSalvo("aprovacoes"); setTimeout(() => setSalvo(""), 2000);
   };
+  const mudarIdioma = async (i: "pt" | "en") => {
+    if ((sala.idioma ?? "pt") === i) return;
+    const { error } = await sb.from("salas").update({ idioma: i }).eq("id", sala.id);
+    if (error) return alert(erro(error));
+    setSalvo("idioma"); setTimeout(() => setSalvo(""), 2000);
+    recarregar();
+  };
   const verHistorico = async () => {
     const { data } = await sb.from("historico").select("*").eq("sala_id", sala.id).order("id", { ascending: false }).limit(60);
     setHistorico((data as Historico[]) ?? []);
@@ -144,6 +151,19 @@ export function Ajustes({ sala, membros, agentes, eu, fechar, recarregar, foco, 
             ))}
           </div>
           <p className="nota">{t("Um “Recusar” encerra a proposta na hora. “Todos” conta quem escreve na sala, não quem só acompanha.", "One “Decline” closes the proposal right away. “Everyone” counts people who write in the room, not viewers.")}</p>
+        </div>
+        <div className="campo">
+          <div className="campo-topo">
+            <span id="aj-idioma" className="campo-rotulo">{t("Idioma da sala", "Room language")}</span>
+            {salvo === "idioma" && <span className="salvo" role="status"><IconeCheck tamanho={12} /> {t("Salvo", "Saved")}</span>}
+          </div>
+          <div className="abas" role="radiogroup" aria-labelledby="aj-idioma">
+            {([["pt", "Português"], ["en", "English"]] as const).map(([v, rot]) => (
+              <button key={v} type="button" role="radio" aria-checked={(sala.idioma ?? "pt") === v} disabled={!dono}
+                className={`aba ${(sala.idioma ?? "pt") === v ? "ativa" : ""}`} lang={v === "en" ? "en" : "pt-BR"} onClick={() => mudarIdioma(v)}>{rot}</button>
+            ))}
+          </div>
+          <p className="nota">{t("A conversa segue a sala: os agentes escrevem nesse idioma e os textos do sistema aparecem nele para todos. Botões e menus seguem cada pessoa.", "The conversation follows the room: agents write in this language and system messages show in it for everyone. Buttons and menus follow each person's setting.")}</p>
         </div>
       </section>
 

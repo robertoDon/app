@@ -3,7 +3,7 @@ import { handle } from "./Texto";
 import { IconeAgente, IconeArquivo, IconeClipe, IconeEnviar, IconeFechar, IconeProposta, IconeResponder } from "./Icones";
 import type { Citacao } from "./Bolha";
 import { sb, tamanhoLegivel, type Anexo } from "../supabase";
-import { erro, t as tr } from "../i18n";
+import { erro, t as tr, tc } from "../i18n";
 
 type Subindo = { id: string; nome: string; tamanho: number; previa?: string; anexo?: Anexo; erro?: string };
 
@@ -196,7 +196,7 @@ export const Compor = forwardRef<ComporApi, Props>(function Compor({ sugestoesBa
         </div>
       </div>
       <p className="compor-dica" aria-hidden>
-        <kbd>@</kbd> {tr("chama alguém", "mentions someone")} · <kbd>{tr("@agentes", "@agents")}</kbd> {tr("pergunta a todos", "asks all agents")} · <kbd>Enter</kbd> {tr("envia", "sends")} · <kbd>Shift</kbd> + <kbd>Enter</kbd> {tr("quebra linha", "new line")}
+        <kbd>@</kbd> {tr("chama alguém", "mentions someone")} · <kbd>@{tc("agentes", "agents")}</kbd> {tr("pergunta a todos", "asks all agents")} · <kbd>Enter</kbd> {tr("envia", "sends")} · <kbd>Shift</kbd> + <kbd>Enter</kbd> {tr("quebra linha", "new line")}
       </p>
     </form>
   );

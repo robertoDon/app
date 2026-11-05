@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../App";
 import { sb, type ItemFila, type Sala } from "../supabase";
-import { gravado, locale, t } from "../i18n";
+import { gravado, idioma, locale, t } from "../i18n";
 import { IconeAgente, IconeBusca, IconeMais, Marcador, IconePlugue, IconeProposta, IconeVoltar, Marca } from "./Icones";
 import { Conectar } from "./Conectar";
 import { Conta } from "./Conta";
@@ -153,7 +153,7 @@ export function Layout({ children, salas, recarregar, foco, fila = [] }: {
                       <span className="sala-previa">
                         {s.ultima_texto ? (
                           <>{s.ultima_agente && <IconeAgente tamanho={12} />}{s.ultima_agente ?? s.ultima_nome?.split(" ")[0]}
-                            {s.ultima_tipo === "proposta" ? t(" propôs", " proposed") : s.ultima_tipo === "decisao" ? t(" decidiu", " decided") : ""}: {gravado(s.ultima_texto).replace(/\*\*|__|`|^#+\s/gm, "")}</>
+                            {s.ultima_tipo === "proposta" ? t(" propôs", " proposed") : s.ultima_tipo === "decisao" ? t(" decidiu", " decided") : ""}: {gravado(s.ultima_texto, s.idioma ?? idioma()).replace(/\*\*|__|`|^#+\s/gm, "")}</>
                         ) : t("Sem mensagens ainda", "No messages yet")}
                       </span>
                       {Number(s.minhas_tarefas) > 0 && (

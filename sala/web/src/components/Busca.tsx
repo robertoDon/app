@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { sb, type Mensagem } from "../supabase";
 import { IconeAgente, IconeBusca, IconeFechar, IconeProposta } from "./Icones";
-import { gravado, locale, t as tr } from "../i18n";
+import { naConversa, locale, t as tr } from "../i18n";
 
 type Props = { salaId: string; autor: (m: Mensagem) => string; irPara: (id: number) => void; fechar: () => void };
 
@@ -128,7 +128,7 @@ export function Busca({ salaId, autor, irPara, fechar }: Props) {
                       {m.tipo === "proposta" && <span className="pilula pilula-acento"><IconeProposta tamanho={11} /> {tr("Proposta", "Proposal")}</span>}
                       <time>{quando(m.criada_em)}</time>
                     </span>
-                    <span className="resultado-texto">{trecho(gravado(m.texto), termo.trim())}</span>
+                    <span className="resultado-texto">{trecho(naConversa(m.texto), termo.trim())}</span>
                   </span>
                 </button>
               </li>

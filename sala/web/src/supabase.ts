@@ -16,6 +16,7 @@ export type Sala = {
   id: string; nome: string; convite: string | null; convite_leitura: string | null; contexto: string; papel: "dono" | "membro" | "leitor";
   nao_lidas: number; pendentes: number; lido_ate: number; minhas_tarefas: number; ultima_id: number | null; ultima_texto: string | null;
   ultima_agente: string | null; ultima_nome: string | null; ultima_em: string | null; ultima_tipo: Mensagem["tipo"] | null;
+  idioma?: "pt" | "en"; // idioma da conversa (a interface segue a pessoa)
 };
 export type Anexo = { path: string; nome: string; tipo: string; tamanho: number };
 export type ItemPlano = { titulo: string; frente?: string; responsavel?: string; responsavel_agente?: string; prazo?: string; tarefa?: number };

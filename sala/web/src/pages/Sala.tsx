@@ -16,7 +16,7 @@ import { Ata } from "../components/Ata";
 import { PainelSala } from "../components/PainelSala";
 import { abrirComandos } from "../components/Comandos";
 import { MENCAO_COLETIVA, chamaAgentes, chamaTodos, handle } from "../components/Texto";
-import { erro, gravado, idioma, locale, t } from "../i18n";
+import { definirIdiomaConversa, erro, idioma, locale, naConversa, t, tc } from "../i18n";
 import {
   IconeAbrir, IconeAjustes, IconeAgente, IconeBusca, IconeCheck, IconeClipe, IconeCopiar, IconeTarefa, IconeColunas, IconeConvite, IconeDecisao, IconePlugue, IconeProposta, IconeVoltar, Marcador, IconeBiblioteca, IconePainel, IconeMais3,
 } from "../components/Icones";
@@ -64,6 +64,8 @@ export default function SalaPage() {
   const eu = sessao!.user.id;
   const { salas, fila, recarregar } = useSalas();
   const sala = salas?.find((s) => s.id === id);
+  definirIdiomaConversa(sala?.idioma ?? null); // o que está gravado na conversa aparece no idioma da sala
+  useEffect(() => () => definirIdiomaConversa(null), []);
   const dono = sala?.papel === "dono";
   const leitor = sala?.papel === "leitor"; // convidado: lê tudo, não escreve
 
@@ -126,10 +128,10 @@ export default function SalaPage() {
   }, [meuPrimeiro]);
 
   const sugestoes = useMemo<Sugestao[]>(() => [
-    { handle: t("agentes", "agents"), rotulo: t("Todos os agentes da sala respondem", "All agents in the room answer"), agente: true },
+    { handle: tc("agentes", "agents"), rotulo: t("Todos os agentes da sala respondem", "All agents in the room answer"), agente: true },
     ...agentes.map((a) => ({ handle: `${a.nome.replace(/\s/g, "")}-${primeiro(a.uid)}`, rotulo: deQuem(a.nome, nome(a.uid)), agente: true })),
     ...membros.filter((m) => m.user_id !== eu).map((m) => ({ handle: (m.perfis?.nome ?? "").split(" ")[0], rotulo: m.perfis?.nome ?? "" })),
-    { handle: t("todos", "everyone"), rotulo: t("Todo mundo, pessoas e agentes", "Everyone, people and agents"), apelidos: idioma() === "en" ? ["all"] : undefined },
+    { handle: tc("todos", "everyone"), rotulo: t("Todo mundo, pessoas e agentes", "Everyone, people and agents"), apelidos: idioma() === "en" ? ["all"] : undefined },
   ], [agentes, membros, eu, nome, primeiro]);
 
   const porId = useMemo(() => new Map((msgs ?? []).map((m) => [m.id, m])), [msgs]);
@@ -405,7 +407,7 @@ export default function SalaPage() {
   };
 
   const responder = (m: Mensagem) => {
-    setRespondendo({ id: m.id, autor: autor(m), texto: umaLinha(gravado(m.texto)) });
+    setRespondendo({ id: m.id, autor: autor(m), texto: umaLinha(naConversa(m.texto)) });
     compor.current?.focar();
   };
 
@@ -640,12 +642,12 @@ export default function SalaPage() {
                 <span className="vazio-icone"><IconeAgente tamanho={20} /></span>
                 <p><strong>{t("Ninguém falou ainda.", "No one has spoken yet.")}</strong></p>
                 <p className="nota">{leitor ? t("Quando a conversa começar, ela aparece aqui.", "When the conversation starts, it shows up here.")
-                  : t("Escreva a primeira mensagem, ou pergunte a todos os agentes com @agentes.", "Write the first message, or ask every agent with @agents.")}</p>
+                  : t(`Escreva a primeira mensagem, ou pergunte a todos os agentes com @${tc("agentes", "agents")}.`, `Write the first message, or ask every agent with @${tc("agentes", "agents")}.`)}</p>
               </section>
             )}
 
             {msgs !== null && msgs.length > 0 && msgs.length < 12 && !msgs.some((m) => m.tipo !== "mensagem") && agentes.length > 0 && (
-              <p className="dica-sala"><IconeProposta tamanho={16} /> {t("Peça uma decisão com ", "Ask for a decision with ")}<strong>{t("Propor", "Propose")}</strong>{t(", ou pergunte a todos os agentes com ", ", or ask all agents with ")}<strong>{t("@agentes", "@agents")}</strong>{t(" e compare as respostas.", " and compare their answers.")}</p>
+              <p className="dica-sala"><IconeProposta tamanho={16} /> {t("Peça uma decisão com ", "Ask for a decision with ")}<strong>{t("Propor", "Propose")}</strong>{t(", ou pergunte a todos os agentes com ", ", or ask all agents with ")}<strong>@{tc("agentes", "agents")}</strong>{t(" e compare as respostas.", " and compare their answers.")}</p>
             )}
 
             {msgs?.map((m, i) => {
@@ -695,7 +697,7 @@ export default function SalaPage() {
                     tarefaDe={(id) => tarefas?.find((x) => x.id === id)?.titulo ?? null} abrirTarefas={() => setPainel("tarefas")}
                     aprovacao={aprovacaoDe(m)} nomeDe={nome}
                     decisor={m.decidida_por ? (m.decidida_por === eu ? t("você", "you") : nome(m.decidida_por)) : undefined}
-                    citacao={m.responde_a && !emSequencia ? { id: m.responde_a, autor: citada ? autor(citada) : t("Mensagem anterior", "Earlier message"), texto: citada ? (citada.apagada ? t("Mensagem apagada.", "Message deleted.") : umaLinha(gravado(citada.texto), 120)) : "" } : null}
+                    citacao={m.responde_a && !emSequencia ? { id: m.responde_a, autor: citada ? autor(citada) : t("Mensagem anterior", "Earlier message"), texto: citada ? (citada.apagada ? t("Mensagem apagada.", "Message deleted.") : umaLinha(naConversa(citada.texto), 120)) : "" } : null}
                     responder={m.id > 0 && !leitor ? () => responder(m) : undefined}
                     copiar={() => copiarTexto(m.texto)}
                     editar={minhaPessoa && m.tipo === "mensagem" && m.id > 0 ? (t) => editar(m.id, t) : undefined}
