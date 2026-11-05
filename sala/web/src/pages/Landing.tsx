@@ -6,7 +6,7 @@ import { idioma, t } from "../i18n";
 import { Demo } from "../components/Demo";
 import {
   IconeAgente, IconeArquivo, IconeCheck, IconeConvite, IconeDecisao, IconeDocumento, IconeEnviar, IconeLink,
-  IconeMemoria, IconePlugue, IconeRelogio, IconeSino, IconeTarefa, Marca, Marcador,
+  IconeMemoria, IconePlugue, IconeProposta, IconeRelogio, IconeSino, IconeTarefa, Marca, Marcador,
 } from "../components/Icones";
 import "../landing.css";
 
@@ -238,7 +238,7 @@ export default function Landing() {
                 <div><p><b>The Sala</b><span>{t("agora", "now")}</span></p><p><b>{t("ChatGPT de Bruno propôs", "Bruno's ChatGPT proposed")}</b></p><p>{t("Preço do piloto: R$ 247 nos 10 primeiros…", "Pilot price: $49 for the first 10…")}</p></div>
               </div>
               <div className="lp-telefone-cartao">
-                <p className="lp-telefone-rotulo"><IconeDecisao tamanho={14} /> {t("Proposta", "Proposal")}</p>
+                <p className="lp-telefone-rotulo"><IconeProposta tamanho={14} /> {t("Proposta", "Proposal")}</p>
                 <p><b>{t("Preço do piloto: R$ 247/mês", "Pilot price: $49/month")}</b> {t("para os 10 primeiros, depois R$ 297.", "for the first 10, then $59.")}</p>
                 <p className="nota">{t("1 de 2 aprovações · falta você", "1 of 2 approvals · waiting for you")}</p>
                 <div className="lp-telefone-botoes"><span>{t("Ajustar", "Adjust")}</span><span className="cheio">{t("Aprovar", "Approve")}</span></div>

@@ -3,7 +3,7 @@ import type { Mensagem } from "../supabase";
 import { t } from "../i18n";
 import { Bolha, Evento } from "./Bolha";
 import { Texto } from "./Texto";
-import { IconeAgente, IconeBusca, IconeColunas, IconeDecisao, IconeEnviar, IconeMemoria, IconePainel, IconeTarefa, Marcador } from "./Icones";
+import { IconeAgente, IconeBiblioteca, IconeBusca, IconeColunas, IconeDecisao, IconeEnviar, IconeMemoria, IconePainel, IconeProposta, Marcador } from "./Icones";
 
 // O app de verdade numa janela, para a vitrine: componentes reais (Bolha, Evento, Texto) com dados de exemplo.
 // Abas mostram uma coisa por vez; giram sozinhas até a pessoa mexer (e nunca com movimento reduzido).
@@ -16,9 +16,9 @@ const nada = () => false;
 type Cena = "conversa" | "proposta" | "comparar" | "tarefas" | "memoria";
 export const cenas = (): { id: Cena; rotulo: string; icone: React.ReactNode }[] => [
   { id: "conversa", rotulo: t("Chame os agentes", "Call the agents"), icone: <IconeAgente tamanho={16} /> },
-  { id: "proposta", rotulo: t("Agente propõe, gente decide", "Agents propose, people decide"), icone: <IconeDecisao tamanho={16} /> },
+  { id: "proposta", rotulo: t("Agente propõe, gente decide", "Agents propose, people decide"), icone: <IconeProposta tamanho={16} /> },
   { id: "comparar", rotulo: t("Compare lado a lado", "Compare side by side"), icone: <IconeColunas tamanho={16} /> },
-  { id: "tarefas", rotulo: t("Tarefas com dono", "Tasks with owners"), icone: <IconeTarefa tamanho={16} /> },
+  { id: "tarefas", rotulo: t("Tarefas com dono", "Tasks with owners"), icone: <IconeDecisao tamanho={16} /> },
   { id: "memoria", rotulo: t("Memória da sala", "Room memory"), icone: <IconeMemoria tamanho={16} /> },
 ];
 
@@ -165,7 +165,7 @@ export function Demo() {
           <section className="demo-sala-aberta">
             <header className="demo-topo">
               <div><strong>{t("Preço do piloto", "Pilot pricing")}</strong><span className="nota">Ana, Bruno, Caio · {t("3 agentes", "3 agents")}</span></div>
-              <span className="demo-icones" aria-hidden><IconeDecisao tamanho={18} /><IconeTarefa tamanho={18} /><IconePainel tamanho={18} /><IconeMemoria tamanho={18} /></span>
+              <span className="demo-icones" aria-hidden><IconeProposta tamanho={18} /><IconeDecisao tamanho={18} /><IconePainel tamanho={18} /><IconeBiblioteca tamanho={18} /><IconeBusca tamanho={18} /></span>
             </header>
             <div className="demo-feed" key={cena}>
               {cena === "conversa" && <Conversa />}

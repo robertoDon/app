@@ -1524,3 +1524,62 @@ mark { background: color-mix(in srgb, var(--acento) 20%, transparent); color: va
 .recusar-de-vez { align-self: flex-end; font-size: var(--t1); color: var(--erro); }
 .recusar-de-vez:disabled { opacity: .5; cursor: default; }
 .evento-ajuste .evento-icone { color: var(--acento); }
+
+/* ================================================================ ⌘K: paleta de comandos */
+.lateral-busca {
+  display: flex; align-items: center; gap: 8px; width: 100%; height: 34px; padding: 0 10px; margin: 0 0 8px;
+  border: 1px solid var(--linha); border-radius: 8px; background: var(--painel); color: var(--cinza); cursor: pointer;
+  font: 400 13px var(--corpo); box-shadow: var(--sombra); transition: border-color var(--rapido), color var(--rapido);
+}
+.lateral-busca:hover { border-color: var(--linha-forte); color: var(--tinta); }
+.lateral-busca kbd, .cmd kbd {
+  margin-left: auto; font: 500 11px/1 var(--corpo); color: var(--cinza); padding: 3px 5px; border-radius: 5px;
+  border: 1px solid var(--linha-forte); background: var(--suave); min-width: 20px; text-align: center;
+}
+.cmd-fundo { position: fixed; inset: 0; z-index: 60; display: flex; justify-content: center; align-items: flex-start; padding: 12vh 16px 16px;
+  background: color-mix(in srgb, #000 28%, transparent); animation: cmd-fundo 120ms ease-out; }
+@keyframes cmd-fundo { from { opacity: 0; } }
+.cmd {
+  width: 100%; max-width: 620px; max-height: min(520px, 76vh); display: flex; flex-direction: column; overflow: hidden;
+  background: var(--elevado); border: 1px solid var(--linha-forte); border-radius: 14px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.04), 0 24px 64px -12px rgba(17,17,26,.35), 0 8px 20px -6px rgba(17,17,26,.18);
+  animation: cmd-entra 140ms cubic-bezier(.2,.8,.2,1);
+}
+@keyframes cmd-entra { from { opacity: 0; transform: translateY(-6px) scale(.985); } }
+.cmd-campo { display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 16px; border-bottom: 1px solid var(--linha); color: var(--cinza); }
+.cmd-campo input { flex: 1; min-width: 0; height: 100%; border: 0; padding: 0; background: none; font-size: 16px; outline: none !important; box-shadow: none; }
+.cmd-campo kbd { margin-left: 0; }
+.cmd-lista { list-style: none; margin: 0; padding: 6px; overflow-y: auto; flex: 1; }
+.cmd-grupo { padding: 10px 10px 4px; font-size: 11.5px; font-weight: 600; color: var(--cinza); letter-spacing: .02em; }
+.cmd-lista button {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 40px; padding: 0 10px; border: 0; border-radius: 8px;
+  background: none; text-align: left; cursor: pointer; font-size: 14px;
+}
+.cmd-lista button.sel { background: var(--suave); }
+.cmd-lista button.sel .cmd-icone { color: var(--tinta); }
+.cmd-icone { display: grid; place-items: center; width: 20px; color: var(--cinza); flex: none; }
+.cmd-inicial { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 5px; background: var(--suave); border: 1px solid var(--linha); font-size: 10.5px; font-weight: 600; color: var(--tinta); }
+.cmd-tema { width: 14px; height: 14px; border-radius: 999px; border: 1.5px solid currentColor; background: linear-gradient(90deg, currentColor 50%, transparent 50%); }
+.cmd-rotulo { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cmd-dica { color: var(--cinza); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cmd-lista button kbd { flex: none; }
+.cmd-nada { padding: 24px 12px; color: var(--cinza); text-align: center; }
+.cmd-pe { display: flex; gap: 16px; padding: 10px 16px; border-top: 1px solid var(--linha); color: var(--cinza); font-size: 12px; }
+.cmd-pe span { display: inline-flex; align-items: center; gap: 4px; }
+.cmd-pe kbd { margin: 0; }
+@media (max-width: 720px) {
+  .cmd-fundo { padding: calc(8px + env(safe-area-inset-top)) 8px 8px; }
+  .cmd-pe, .cmd-dica { display: none; }
+  .cmd-lista button { min-height: 44px; }
+}
+
+/* dica (tooltip) com o atalho: rápida, pequena, sempre escura */
+.dica {
+  position: fixed; z-index: 80; transform: translate(-50%, -100%); pointer-events: none;
+  display: inline-flex; align-items: center; gap: 8px; max-width: 240px; padding: 5px 8px; border-radius: 7px;
+  background: #1B1C20; color: #EDEDF0; font: 500 12px/1.3 var(--corpo); white-space: nowrap;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 6px 16px -4px rgba(0,0,0,.35); animation: dica-entra 120ms ease-out;
+}
+.dica-embaixo { transform: translate(-50%, 0); }
+.dica kbd { font: 500 11px/1 var(--corpo); color: #B4B8BF; padding: 2px 5px; border-radius: 4px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); }
+@keyframes dica-entra { from { opacity: 0; } }

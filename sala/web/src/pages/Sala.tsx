@@ -291,8 +291,13 @@ export default function SalaPage() {
       if (e.key === "m") { e.preventDefault(); setPainel((p) => (p === "memoria" ? null : "memoria")); }
       if (e.key === "p") { e.preventDefault(); setPainel((p) => (p === "painel" ? null : "painel")); }
     };
+    // vindos da paleta de comandos (⌘K)
+    const doPainel = (e: Event) => setPainel((e as CustomEvent<Painel>).detail);
+    const doConvite = () => setConvite(true);
     window.addEventListener("keydown", tecla);
-    return () => window.removeEventListener("keydown", tecla);
+    window.addEventListener("sala:painel", doPainel);
+    window.addEventListener("sala:convidar", doConvite);
+    return () => { window.removeEventListener("keydown", tecla); window.removeEventListener("sala:painel", doPainel); window.removeEventListener("sala:convidar", doConvite); };
   }, []);
 
   const carregarAnteriores = async () => {

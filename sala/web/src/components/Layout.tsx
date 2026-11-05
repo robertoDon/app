@@ -3,11 +3,12 @@ import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../App";
 import { sb, type ItemFila, type Sala } from "../supabase";
 import { gravado, locale, t } from "../i18n";
-import { IconeAgente, IconeMais, Marcador, IconePlugue, IconeProposta, IconeVoltar, Marca } from "./Icones";
+import { IconeAgente, IconeBusca, IconeMais, Marcador, IconePlugue, IconeProposta, IconeVoltar, Marca } from "./Icones";
 import { Conectar } from "./Conectar";
 import { Conta } from "./Conta";
 import { NovaSala } from "./NovaSala";
 import { Guia } from "./Guia";
+import { Comandos, abrirComandos, atalhoComandos } from "./Comandos";
 
 // Lista de salas com não lidas e prévia, ao vivo. Também mantém o contador na aba do navegador.
 export function useSalas() {
@@ -117,6 +118,9 @@ export function Layout({ children, salas, recarregar, foco, fila = [] }: {
     <div className={`app ${foco ? "app-foco" : ""}`}>
       <nav className="lateral" aria-label={t("Salas", "Rooms")}>
         <div className="lateral-topo"><Link to="/" aria-label={t("Início", "Home")}><Marca /></Link></div>
+        <button type="button" className="lateral-busca" onClick={abrirComandos} aria-label={t("Ir para uma sala ou fazer algo", "Go to a room or do something")}>
+          <IconeBusca tamanho={16} /><span>{t("Ir para…", "Go to…")}</span><kbd>{atalhoComandos()}</kbd>
+        </button>
 
         <div className="lateral-titulo" data-guia="salas">
           <span>{t("Salas", "Rooms")}</span>
@@ -184,6 +188,7 @@ export function Layout({ children, salas, recarregar, foco, fila = [] }: {
       {conectar && <Conectar fechar={() => setConectar(false)} />}
       {conta && <Conta fechar={() => setConta(false)} />}
       <Guia pronto={salas !== null} emSala={!!id} />
+      <Comandos salas={salas} salaAberta={id} novaSala={() => setCriando(true)} conectar={() => setConectar(true)} conta={() => setConta(true)} />
       {criando && <NovaSala fechar={() => setCriando(false)} aoCriar={recarregar} />}
     </div>
   );
