@@ -309,10 +309,11 @@ function registro(ps: Msg[], q?: Quem) {
 }
 
 async function cabecalho(s: Sala, q?: Quem) {
-  const [ps, ts] = await Promise.all([propostas(s.id, 15), q ? tarefas(s.id) : Promise.resolve([] as Tarefa[])]);
+  const [ps, ts, bs] = await Promise.all([propostas(s.id, 15), q ? tarefas(s.id) : Promise.resolve([] as Tarefa[]), biblioteca(s.id).catch(() => [] as ItemBib[])]);
   const r = registro(ps, q);
   const t = q ? listaTarefas(ts, q, 3) : "";
-  return `${tr(q, "Sala", "Room")} "${s.nome}"${s.contexto ? `\n${tr(q, "Contexto da sala", "Room context")}: ${s.contexto}` : ""}${r ? `\n${r}` : ""}${t ? `\n${t}` : ""}`;
+  const b = listaBiblioteca(bs, q, true);
+  return `${tr(q, "Sala", "Room")} "${s.nome}"${s.contexto ? `\n${tr(q, "Contexto da sala", "Room context")}: ${s.contexto}` : ""}${r ? `\n${r}` : ""}${t ? `\n${t}` : ""}${b ? `\n${b}` : ""}`;
 }
 
 // ---------------------------------------------------------------- arquivos
@@ -350,7 +351,11 @@ async function lerArquivo(q: Quem, caminho: string): Promise<Conteudo[]> {
   const salaId = path.split("/")[0];
   if (!(await salasDe(q)).some((s) => s.id === salaId)) throw new Falha(tr(q, "Arquivo não encontrado nas suas salas.", "File not found in your rooms."), 404);
   const { data: info } = await db.from("mensagens").select("anexos").eq("sala_id", salaId).filter("anexos", "cs", JSON.stringify([{ path }])).limit(1).maybeSingle();
-  const a = (info?.anexos as Anexo[] | undefined)?.find((x) => x.path === path);
+  let a = (info?.anexos as Anexo[] | undefined)?.find((x) => x.path === path);
+  if (!a) {
+    const { data: b } = await db.from("biblioteca").select("path, nome, mime, tamanho").eq("sala_id", salaId).eq("path", path).limit(1).maybeSingle();
+    if (b) a = { path: b.path, nome: b.nome ?? "arquivo", tipo: b.mime ?? "application/octet-stream", tamanho: Number(b.tamanho ?? 0) };
+  }
   if (!a) throw new Falha(tr(q, "Arquivo não encontrado nas suas salas.", "File not found in your rooms."), 404);
   if (ehTexto(a.tipo, a.nome) && a.tamanho <= 300_000) {
     const { data, error } = await db.storage.from("arquivos").download(path);
@@ -383,6 +388,45 @@ async function lerArquivo(q: Quem, caminho: string): Promise<Conteudo[]> {
   const { data } = await db.storage.from("arquivos").createSignedUrl(path, 3600);
   return [{ type: "text", text: `${a.nome} (${a.tipo}, ${tamanho(a.tamanho)}). ${tr(q, "Baixe por este link, válido por 1 hora", "Download it from this link, valid for 1 hour")}:\n${data?.signedUrl ?? tr(q, "(sem link)", "(no link)")}` }];
 }
+
+// ---------------------------------------------------------------- biblioteca
+
+type ItemBib = { id: number; sala_id: string; user_id: string; agente: string | null; tipo: "arquivo" | "link"; titulo: string; nota: string | null;
+  url: string | null; path: string | null; nome: string | null; mime: string | null; tamanho: number | null; criado_em: string; autor?: { nome: string } | null };
+const SEL_B = "id, sala_id, user_id, agente, tipo, titulo, nota, url, path, nome, mime, tamanho, criado_em, autor:perfis!biblioteca_user_id_fkey(nome)";
+
+async function biblioteca(sala: string): Promise<ItemBib[]> {
+  const { data, error } = await db.from("biblioteca").select(SEL_B).eq("sala_id", sala).order("id", { ascending: false }).limit(200);
+  if (error) throw error;
+  return data as unknown as ItemBib[];
+}
+
+function listaBiblioteca(bs: ItemBib[], q?: Quem, curta = false) {
+  if (!bs.length) return "";
+  const linhas = bs.slice(0, curta ? 25 : 200).map((b) => {
+    const onde = b.tipo === "link" ? b.url : `${b.nome}${b.tamanho ? `, ${tamanho(b.tamanho)}` : ""} · ler_arquivo: ${b.path}`;
+    const quem = b.agente ? tr(q, `${b.agente} de ${b.autor?.nome ?? "?"}`, `${b.autor?.nome ?? "?"}'s ${b.agente}`) : b.autor?.nome ?? "?";
+    return `- ${tr(q, "item", "item")} ${b.id}: ${b.titulo} (${b.tipo === "link" ? "link" : tr(q, "arquivo", "file")}: ${onde})${b.nota ? ` — ${curta ? umaLinha(b.nota, 140) : b.nota}` : ""}${curta ? "" : ` · ${quem}, ${b.criado_em.slice(0, 10)}`}`;
+  });
+  const resto = curta && bs.length > 25 ? `\n${tr(q, `(+${bs.length - 25} itens: use ver_biblioteca)`, `(+${bs.length - 25} items: use ver_biblioteca)`)}` : "";
+  return `${tr(q, "Biblioteca da sala (referências; abra os arquivos com ler_arquivo):", "Room library (references; open files with ler_arquivo):")}\n${linhas.join("\n")}${resto}`;
+}
+
+async function podeEscrever(q: Quem, sala: string) {
+  const { data } = await db.from("membros").select("papel").eq("sala_id", sala).eq("user_id", q.userId).maybeSingle();
+  if (!data || data.papel === "leitor") throw new Falha(tr(q, "Nesta sala a sua pessoa só acompanha: não dá para mexer na biblioteca.", "Your person can only view this room: you can't change the library."), 403);
+}
+
+async function itemDaBiblioteca(q: Quem, id: number): Promise<ItemBib> {
+  const { data } = await db.from("biblioteca").select(SEL_B).eq("id", id).maybeSingle();
+  const b = data as unknown as ItemBib | null;
+  if (!b || !(await salasDe(q)).some((s) => s.id === b.sala_id)) throw new Falha(tr(q, "Item da biblioteca não encontrado.", "Library item not found."), 404);
+  await podeEscrever(q, b.sala_id);
+  return b;
+}
+
+const registrar = (q: Quem, sala: string, acao: string, detalhe: string) =>
+  db.from("historico").insert({ sala_id: sala, quem: q.userId, agente: q.agente, acao, detalhe: detalhe.slice(0, 300) }).then(() => {});
 
 // ---------------------------------------------------------------- tarefas
 
@@ -470,6 +514,7 @@ function regras(q?: Quem) {
 - To call someone, use @Name (a person) or @Agent-Person (someone's agent).
 - Tasks marked "← YOURS" are yours: do them and complete them with concluir_tarefa, stating the result (link, number, file). If you can't, say in the room what's missing. To split work, use criar_tarefa.
 - Files in the conversation show up with 📎; open them with ler_arquivo. To deliver a document (draft, table, code), use enviar_arquivo.
+- The room library keeps reference documents and links (listed in the room header). Check it before answering about the project. Save lasting reference material there with adicionar_biblioteca; you can also edit and remove items.
 - To just acknowledge ("got it", "ok", "looking into it"), react with an emoji (reagir) instead of sending a message.
 - Be concise and use light markdown. Write in the language the room is using. When in doubt, ask your person before answering on their behalf.
 - Your name shows on your messages automatically; no need to sign.
@@ -483,6 +528,7 @@ function regras(q?: Quem) {
 - Para chamar alguém, use @Nome (pessoa) ou @Agente-Pessoa (agente de alguém).
 - Tarefas marcadas "← SUA" são suas: faça e conclua com concluir_tarefa, dizendo o resultado (link, número, arquivo). Se não der, diga na sala o que falta. Para dividir trabalho, use criar_tarefa.
 - Arquivos da conversa aparecem com 📎; abra com ler_arquivo. Para entregar um documento (rascunho, tabela, código), use enviar_arquivo.
+- A biblioteca da sala guarda documentos e links de referência (listados no cabeçalho da sala). Consulte antes de responder sobre o projeto. Guarde ali material de referência durável com adicionar_biblioteca; você também pode editar e tirar itens.
 - Para só confirmar ("entendi", "ok", "vou olhar"), reaja com emoji (reagir) em vez de mandar mensagem.
 - Seja objetivo e use markdown leve. Na dúvida, pergunte à sua pessoa antes de responder em nome dela.
 - Seu nome aparece sozinho nas suas mensagens; não precisa assinar.
@@ -664,6 +710,46 @@ const TOOLS_PT = [
     },
   },
   {
+    name: "ver_biblioteca",
+    description: "Lista a biblioteca da sala: documentos e links de referência, com título, nota, quem adicionou e o caminho para abrir arquivos com ler_arquivo.",
+    inputSchema: { type: "object", properties: { sala: SALA_ARG } },
+    annotations: { readOnlyHint: true },
+  },
+  {
+    name: "adicionar_biblioteca",
+    description: "Guarda na biblioteca da sala um link (passe url) ou um documento de texto (passe nome e conteudo: markdown, csv, json...). Use para material de referência durável, não para conversa.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        sala: SALA_ARG,
+        titulo: { type: "string", description: "Título curto e claro, ex.: Especificação do Grana v1.0" },
+        url: { type: "string", description: "Para link: o endereço (https://...)." },
+        nome: { type: "string", description: "Para documento: nome do arquivo com extensão, ex.: resumo-concorrencia.md" },
+        conteudo: { type: "string", description: "Para documento: o conteúdo (texto, até 1 MB)." },
+        nota: { type: "string", description: "Opcional: para que serve, em uma ou duas frases. Os outros agentes leem." },
+      },
+      required: ["titulo"],
+    },
+  },
+  {
+    name: "editar_biblioteca",
+    description: "Muda o título ou a nota de um item da biblioteca (item N).",
+    inputSchema: {
+      type: "object",
+      properties: {
+        item: { type: "integer", description: "O número do item (item N)." },
+        titulo: { type: "string", description: "Novo título (opcional)." },
+        nota: { type: "string", description: "Nova nota (opcional; texto vazio apaga a nota)." },
+      },
+      required: ["item"],
+    },
+  },
+  {
+    name: "tirar_biblioteca",
+    description: "Tira um item da biblioteca da sala (item N). Fica registrado no histórico da sala.",
+    inputSchema: { type: "object", properties: { item: { type: "integer", description: "O número do item (item N)." } }, required: ["item"] },
+  },
+  {
     name: "esperar_mensagens",
     description: "Espera até ~50 s chegar mensagem nova de outra pessoa ou agente e devolve as novas. Chame de novo com `depois` = o último id recebido para acompanhar a conversa.",
     inputSchema: {
@@ -703,6 +789,13 @@ const EN: Record<string, { d: string; p?: Record<string, string> }> = {
   criar_tarefa: { d: "Creates a task in the room. Assignee: empty = yourself; a person's first name (Ana); or Agent-Person (Claude-Ana).",
     p: { titulo: "What needs to be done, short and starting with a verb. E.g. Review client X's contract.", responsavel: "Who does it. Empty = you.",
       prazo: "Optional. Date only (2026-11-10, due by 6 pm Brasília time) or an ISO 8601 date and time.", origem: "Optional: id of the message the task came from." } },
+  ver_biblioteca: { d: "Lists the room library: reference documents and links, with title, note, who added them and the path to open files with ler_arquivo." },
+  adicionar_biblioteca: { d: "Saves a link (pass url) or a text document (pass nome and conteudo: markdown, csv, json...) to the room library. Use it for lasting reference material, not for conversation.",
+    p: { titulo: "Short, clear title, e.g. Grana spec v1.0", url: "For a link: the address (https://...).", nome: "For a document: file name with extension, e.g. competitor-summary.md",
+      conteudo: "For a document: the content (text, up to 1 MB).", nota: "Optional: what it's for, in one or two sentences. Other agents read it." } },
+  editar_biblioteca: { d: "Changes the title or note of a library item (item N).",
+    p: { item: "The item number (item N).", titulo: "New title (optional).", nota: "New note (optional; empty text removes the note)." } },
+  tirar_biblioteca: { d: "Removes an item from the room library (item N). It's recorded in the room history.", p: { item: "The item number (item N)." } },
   esperar_mensagens: { d: "Waits up to ~50 s for a new message from another person or agent and returns the new ones. Call it again with `depois` = the last id you got to follow the conversation.",
     p: { depois: "Last id you saw. 0 = from now on." } },
 };
@@ -834,6 +927,48 @@ async function chamar(q: Quem, nome: string, a: any): Promise<string | Conteudo[
       const s = await acharSala(q, a.sala);
       return registro(await propostas(s.id, 100), q) || tr(q, `Nenhuma proposta na sala "${s.nome}" ainda.`, `No proposals in the room "${s.nome}" yet.`);
     }
+    case "ver_biblioteca": {
+      const s = await acharSala(q, a.sala);
+      return listaBiblioteca(await biblioteca(s.id), q) || tr(q, `A biblioteca da sala "${s.nome}" está vazia.`, `The library of the room "${s.nome}" is empty.`);
+    }
+    case "adicionar_biblioteca": {
+      const s = await acharSala(q, a.sala);
+      await podeEscrever(q, s.id);
+      const titulo = String(a.titulo ?? "").trim().slice(0, 200);
+      if (!titulo) throw new Falha(tr(q, "Falta o título.", "Missing title."));
+      const nota = String(a.nota ?? "").trim().slice(0, 2000) || null;
+      let linha: Record<string, unknown>;
+      if (a.url) {
+        const url = String(a.url).trim();
+        if (!/^https?:\/\/\S+$/i.test(url) || url.length > 2000) throw new Falha(tr(q, "O link precisa começar com https://", "The link must start with https://"));
+        linha = { tipo: "link", url };
+      } else if (a.conteudo) {
+        const anexo = await subirTexto(q, s.id, String(a.nome ?? `${titulo}.md`), String(a.conteudo));
+        linha = { tipo: "arquivo", path: anexo.path, nome: anexo.nome, mime: anexo.tipo, tamanho: anexo.tamanho };
+      } else throw new Falha(tr(q, "Passe url (para link) ou nome e conteudo (para documento).", "Pass url (for a link) or nome and conteudo (for a document)."));
+      const { data, error } = await db.from("biblioteca").insert({ sala_id: s.id, user_id: q.userId, agente: q.agente, titulo, nota, ...linha }).select("id").single();
+      if (error) throw new Falha(error.message);
+      return tr(q, `Guardado na biblioteca da sala "${s.nome}" como item ${data.id}.`, `Saved to the library of the room "${s.nome}" as item ${data.id}.`);
+    }
+    case "editar_biblioteca": {
+      const b = await itemDaBiblioteca(q, Number(a.item));
+      const mudar: Record<string, unknown> = {};
+      if (a.titulo !== undefined && String(a.titulo).trim()) mudar.titulo = String(a.titulo).trim().slice(0, 200);
+      if (a.nota !== undefined) mudar.nota = String(a.nota).trim().slice(0, 2000) || null;
+      if (!Object.keys(mudar).length) throw new Falha(tr(q, "Passe titulo ou nota.", "Pass titulo or nota."));
+      const { error } = await db.from("biblioteca").update(mudar).eq("id", b.id);
+      if (error) throw new Falha(error.message);
+      await registrar(q, b.sala_id, "editou na biblioteca", String(mudar.titulo ?? b.titulo));
+      return tr(q, `Item ${b.id} atualizado.`, `Item ${b.id} updated.`);
+    }
+    case "tirar_biblioteca": {
+      const b = await itemDaBiblioteca(q, Number(a.item));
+      const { error } = await db.from("biblioteca").delete().eq("id", b.id);
+      if (error) throw new Falha(error.message);
+      if (b.path && b.user_id === q.userId && b.agente === q.agente) await db.storage.from("arquivos").remove([b.path]);
+      await registrar(q, b.sala_id, "tirou da biblioteca", b.titulo);
+      return tr(q, `Item ${b.id} ("${b.titulo}") saiu da biblioteca.`, `Item ${b.id} ("${b.titulo}") was removed from the library.`);
+    }
     case "esperar_mensagens": {
       const s = await acharSala(q, a.sala);
       const r = await esperar(q, s.id, Number(a.depois) || 0, 50);
@@ -959,7 +1094,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.9.0" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.10.0" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {
