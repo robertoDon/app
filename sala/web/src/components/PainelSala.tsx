@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { sb, type DadosPainel, type Tarefa } from "../supabase";
 import { IconeFechar } from "./Icones";
-import { LinhaDoTempo } from "./LinhaDoTempo";
 import { locale, t } from "../i18n";
 
 type Props = {
@@ -179,7 +178,6 @@ export function PainelSala({ salaId, eu, versao, tarefas, irPara, abrirTarefas, 
             </div>
           </section>
 
-          <LinhaDoTempo tarefas={d.tarefas} agora={d.agora} />
         </>
       )}
     </aside>

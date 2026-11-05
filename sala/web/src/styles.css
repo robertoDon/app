@@ -1565,7 +1565,7 @@ mark { background: color-mix(in srgb, var(--acento) 20%, transparent); color: va
 .chip-opcao:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
 
 .pn-ok { margin: 4px 8px 6px; font-size: var(--t1); color: var(--cinza); }
-.pn-linhas, .pn-itens, .pn-frentes, .lt-linhas { list-style: none; margin: 0; padding: 0; }
+.pn-linhas, .pn-itens, .pn-frentes { list-style: none; margin: 0; padding: 0; }
 .pn-linhas { display: flex; flex-direction: column; }
 .pn-linha { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 8px; border: 0; border-radius: var(--r1); background: none; color: var(--tinta); font: inherit; font-size: var(--t2); cursor: pointer; text-align: left; }
 .pn-linha:hover { background: var(--suave); }
@@ -1594,22 +1594,6 @@ mark { background: color-mix(in srgb, var(--acento) 20%, transparent); color: va
 .pn-atual .pn-barra { background: var(--acento); }
 .pn-semana-rotulo { font-size: 10.5px; color: var(--cinza); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .pn-semana .pn-num { font-size: 11px; }
-
-.lt { padding: 4px 8px 8px; }
-.lt-escala { display: flex; justify-content: space-between; margin-left: 38%; font-size: 10.5px; color: var(--cinza); margin-bottom: 4px; }
-.lt-linhas { display: flex; flex-direction: column; gap: 4px; }
-.lt-linha { display: grid; grid-template-columns: 38% 1fr; gap: 8px; align-items: center; min-width: 0; }
-.lt-nome { font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--tinta); }
-.lt-trilho { position: relative; height: 14px; border-radius: 3px; background: var(--suave); }
-.lt-barra { position: absolute; top: 3px; height: 8px; border-radius: 4px; background: var(--acento); }
-.lt-barra.lt-feita, .lt-chave.lt-feita { background: var(--ok); }
-.lt-barra.lt-atrasada, .lt-chave.lt-atrasada { background: var(--erro); }
-.lt-previsto { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--tinta); opacity: .55; }
-.lt-hoje { position: absolute; top: -2px; bottom: -2px; width: 0; border-left: 1.5px dashed var(--acento); }
-.lt-legenda { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin-top: 10px; }
-.lt-chave { display: inline-block; width: 12px; height: 6px; border-radius: 3px; background: var(--acento); margin-left: 6px; }
-.lt-chave:first-child { margin-left: 0; }
-.lt-chave-previsto { display: inline-block; width: 2px; height: 10px; background: var(--tinta); opacity: .55; margin-left: 8px; }
 
 .fila { margin: 0 0 8px; border: 1px solid var(--linha); border-radius: var(--r2); background: var(--painel); }
 .fila-topo { width: 100%; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 0; background: none; color: var(--tinta); font: 500 var(--t1)/1.2 var(--corpo); cursor: pointer; }
