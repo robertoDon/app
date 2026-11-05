@@ -129,6 +129,7 @@ const GRAVADOS: Record<string, string> = {
   "criou a tarefa": "created the task",
   "concluiu a tarefa": "completed the task",
   "cancelou a tarefa": "canceled the task",
+  "editou a tarefa": "edited the task",
   "reabriu a tarefa": "reopened the task",
   "renomeou a sala": "renamed the room",
   "mudou o contexto para os agentes": "changed the room instructions",

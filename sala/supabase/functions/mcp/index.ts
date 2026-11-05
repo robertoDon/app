@@ -741,6 +741,40 @@ async function acharAprovadores(q: Quem, sala: string, refs: unknown): Promise<s
 }
 
 // só a data ("2026-11-10"): vale até 18h de Brasília, como no app
+// "[Shared repo] Confirmar…" com frente "Shared repo": a frente já aparece à parte
+const semPrefixo = (titulo: string, frente: string) => {
+  let t = titulo.trim();
+  const f = frente.trim().toLowerCase();
+  while (f && t.toLowerCase().startsWith(`[${f}]`)) t = t.slice(f.length + 2).trim();
+  return t;
+};
+
+async function editarTarefa(q: Quem, a: Record<string, unknown>) {
+  const id = Number(a.tarefa);
+  const { data: t } = await db.from("tarefas").select("id, sala_id, titulo, estado, frente").eq("id", id).maybeSingle();
+  if (!t || !(await salasDe(q)).some((x) => x.id === t.sala_id)) throw new Falha(tr(q, `Tarefa ${a.tarefa} não encontrada.`, `Task ${a.tarefa} not found.`), 404);
+  const { data: mb } = await db.from("membros").select("papel").eq("sala_id", t.sala_id).eq("user_id", q.userId).maybeSingle();
+  if (!mb || mb.papel === "leitor") throw new Falha(tr(q, "Nesta sala a sua pessoa só acompanha.", "Your person can only view this room."), 403);
+  if (t.estado !== "aberta") throw new Falha(tr(q, `A tarefa ${id} já está ${t.estado}.`, `Task ${id} is already ${t.estado === "feita" ? "done" : "cancelled"}.`));
+  const mud: Record<string, unknown> = {};
+  const feito: string[] = [];
+  if (a.cancelar === true || a.cancelar === "true") { mud.estado = "cancelada"; feito.push(tr(q, "cancelada", "cancelled")); }
+  if (a.responsavel !== undefined && String(a.responsavel).trim() !== "") {
+    Object.assign(mud, await acharResponsavel(q, t.sala_id, String(a.responsavel)));
+    feito.push(tr(q, "responsável trocado", "assignee changed"));
+  }
+  if (a.frente !== undefined) { mud.frente = String(a.frente).trim().slice(0, 40) || null; feito.push(tr(q, "frente", "workstream")); }
+  if (a.titulo !== undefined && String(a.titulo).trim()) {
+    mud.titulo = semPrefixo(String(a.titulo), String(mud.frente ?? t.frente ?? "")).slice(0, 200); feito.push(tr(q, "título", "title"));
+  }
+  if (a.prazo !== undefined) { mud.prazo = String(a.prazo).trim() ? lerPrazo(a.prazo) : null; feito.push(tr(q, "prazo", "due date")); }
+  if (!feito.length) throw new Falha(tr(q, "Diga o que mudar: responsavel, titulo, prazo, frente ou cancelar.", "Say what to change: responsavel, titulo, prazo, frente or cancelar."));
+  const { error } = await db.from("tarefas").update(mud).eq("id", id);
+  if (error) throw new Falha(error.message);
+  registrar(q, t.sala_id, mud.estado === "cancelada" ? "cancelou a tarefa" : "editou a tarefa", String(mud.titulo ?? t.titulo));
+  return tr(q, `Tarefa ${id} atualizada: ${feito.join(", ")}.`, `Task ${id} updated: ${feito.join(", ")}.`);
+}
+
 function lerPrazo(v: unknown): string | null {
   const p = String(v ?? "").trim();
   return /^\d{4}-\d{2}-\d{2}$/.test(p) ? new Date(`${p}T18:00:00-03:00`).toISOString()
@@ -856,7 +890,7 @@ function regras(q?: Quem) {
 - To plan a piece of work (e.g. a spec in the library), break it into tasks with workstream, assignee and due date and send it with propor_plano. Once approved, the tasks are created and the due dates become the plan. To replan, send a new plan citing the tasks that change; don't change the plan on the side.
 - ver_painel shows progress (by workstream, who still has to approve, overdue tasks, pace), the same numbers people see. If the instructions gave you the follow-up, post a short weekly summary in the room from it: what moved, what's stuck and what's needed from whom.
 - To call someone, use @Name (a person) or @Agent-Person (someone's agent).
-- Tasks marked "← YOURS" are yours: do them and complete them with concluir_tarefa, stating the result (link, number, file). If you can't, say in the room what's missing. To split work, use criar_tarefa.
+- Tasks marked "← YOURS" are yours: do them and complete them with concluir_tarefa, stating the result (link, number, file). If you can't, say in the room what's missing. To split work, use criar_tarefa. If you're asked to take over, hand off, fix or cancel a task (even someone else's), change the existing one with editar_tarefa; never create a copy.
 - Files in the conversation show up with 📎; open them with ler_arquivo. To deliver a document (draft, table, code), use enviar_arquivo. Small images and PDFs can go in base64; for screenshots and many or large files, if you have a terminal, use preparar_envio (curl upload, no base64 tokens) and then enviar_arquivo with enviados. Other agents can't open private links (like a claude.ai artifact), so attach the screenshots.
 - The room library keeps reference documents and links (listed in the room header). Check it before answering about the project. Save lasting reference material there with adicionar_biblioteca; you can also edit and remove items.
 - Long rooms: what holds is the instructions, memory, decisions, tasks and library, not the old conversation. After the first read, use ler_mensagens with depois (new messages only). To find something older, use busca or antes; don't ask people to repeat it. A new version of a file goes under the same file name, saying in one line what changed; the room shows only the latest. When a discussion ends, whoever led it posts a short summary, updates the memory and turns the result into a proposal, task or library item.
@@ -881,7 +915,7 @@ function regras(q?: Quem) {
 - Para planejar um trabalho (ex.: um descritivo na biblioteca), quebre em tarefas com frente, responsável e prazo e mande com propor_plano. Aprovado, as tarefas nascem sozinhas e o prazo vira o previsto. Para replanejar, mande um plano novo citando as tarefas que mudam; não mude o plano por fora.
 - ver_painel mostra o andamento (avanço por frente, quem falta aprovar, atrasos, ritmo), os mesmos números que as pessoas veem. Se as instruções te deram o acompanhamento, mande na sala, uma vez por semana, um resumo curto tirado dele: o que andou, o que travou e o que precisa de quem.
 - Para chamar alguém, use @Nome (pessoa) ou @Agente-Pessoa (agente de alguém).
-- Tarefas marcadas "← SUA" são suas: faça e conclua com concluir_tarefa, dizendo o resultado (link, número, arquivo). Se não der, diga na sala o que falta. Para dividir trabalho, use criar_tarefa.
+- Tarefas marcadas "← SUA" são suas: faça e conclua com concluir_tarefa, dizendo o resultado (link, número, arquivo). Se não der, diga na sala o que falta. Para dividir trabalho, use criar_tarefa. Se pedirem para você assumir, passar, corrigir ou cancelar uma tarefa (mesmo de outra pessoa), mude a que existe com editar_tarefa; nunca crie uma cópia.
 - Arquivos da conversa aparecem com 📎; abra com ler_arquivo. Para entregar um documento (rascunho, tabela, código), use enviar_arquivo. Imagem e PDF pequenos podem ir em base64; para capturas de tela e arquivos grandes ou muitos, se você tem terminal, use preparar_envio (upload por curl, sem gastar tokens) e depois enviar_arquivo com enviados. Os outros agentes não abrem link privado (como artefato do claude.ai), então anexe as capturas.
 - A biblioteca da sala guarda documentos e links de referência (listados no cabeçalho da sala). Consulte antes de responder sobre o projeto. Guarde ali material de referência durável com adicionar_biblioteca; você também pode editar e tirar itens.
 - Sala longa: o que vale são as instruções, a memória, as decisões, as tarefas e a biblioteca, não a conversa antiga. Depois da primeira leitura, use ler_mensagens com depois (só as novas). Para achar algo antigo, use busca ou antes; não peça para repetirem. Versão nova de um arquivo vai com o mesmo nome de arquivo, dizendo numa linha o que mudou; a sala mostra só a mais recente. Quando uma discussão termina, quem conduziu manda um resumo curto, atualiza a memória e transforma o resultado em proposta, tarefa ou item da biblioteca.
@@ -1175,6 +1209,22 @@ const TOOLS_PT = [
     },
   },
   {
+    name: "editar_tarefa",
+    description: "Muda uma tarefa que já existe: responsável, título, prazo ou frente, ou cancela (ex.: duplicada). Use quando pedirem para você assumir, passar ou corrigir uma tarefa, inclusive de outra pessoa: nunca crie uma cópia.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        tarefa: { type: "integer", description: "O número da tarefa (tarefa N)." },
+        responsavel: { type: "string", description: "Opcional: novo responsável. \"eu\" = você; o primeiro nome de uma pessoa (Ana); ou Agente-Pessoa (Claude-Ana)." },
+        titulo: { type: "string", description: "Opcional: título novo." },
+        prazo: { type: "string", description: "Opcional: prazo novo (2026-11-10 ou data e hora ISO 8601). Vazio tira o prazo." },
+        frente: { type: "string", description: "Opcional: frente nova. Vazio tira." },
+        cancelar: { type: "boolean", description: "Opcional: cancela a tarefa (duplicada ou que não vale mais)." },
+      },
+      required: ["tarefa"],
+    },
+  },
+  {
     name: "ver_biblioteca",
     description: "Lista a biblioteca da sala: documentos e links de referência, com título, nota, quem adicionou e o caminho para abrir arquivos com ler_arquivo.",
     inputSchema: { type: "object", properties: { sala: SALA_ARG } },
@@ -1264,6 +1314,9 @@ const EN: Record<string, { d: string; p?: Record<string, string> }> = {
   ver_tarefas: { d: "Lists the room's tasks: open ones (with assignee and due date, yours marked) and recently completed ones." },
   concluir_tarefa: { d: "Marks a task as done and tells the room the result. You can attach a text file with the deliverable.",
     p: { tarefa: "The task number (task N).", resultado: "What was done: summary, link, numbers. Markdown ok.", arquivo_nome: "Optional: deliverable file name, e.g. final-ad.md", arquivo_conteudo: "Optional: deliverable file content (text, up to 1 MB)." } },
+  editar_tarefa: { d: "Changes an existing task: assignee, title, due date or workstream, or cancels it (e.g. a duplicate). Use it when you're asked to take over, hand off or fix a task, including someone else's: never create a copy.",
+    p: { tarefa: "The task number (task N).", responsavel: "Optional: new assignee. \"me\" = you; a person's first name (Ana); or Agent-Person (Claude-Ana).", titulo: "Optional: new title.",
+      prazo: "Optional: new due date (2026-11-10 or an ISO 8601 date and time). Empty removes it.", frente: "Optional: new workstream. Empty removes it.", cancelar: "Optional: cancels the task (a duplicate or no longer needed)." } },
   criar_tarefa: { d: "Creates a task in the room. Assignee: empty = yourself; a person's first name (Ana); or Agent-Person (Claude-Ana).",
     p: { titulo: "What needs to be done, short and starting with a verb. E.g. Review client X's contract.", responsavel: "Who does it. Empty = you.", frente: "Optional: workstream or module (e.g. Signup), for progress by workstream on the dashboard.",
       prazo: "Optional. Date only (2026-11-10, due by 6 pm Brasília time) or an ISO 8601 date and time.", origem: "Optional: id of the message the task came from." } },
@@ -1365,13 +1418,16 @@ async function chamar(q: Quem, nome: string, a: any): Promise<string | Conteudo[
       const t = await concluirTarefa(q, id, String(a.resultado ?? ""), anexo);
       return tr(q, `Tarefa ${t.id} ("${t.titulo}") concluída e avisada na sala.`, `Task ${t.id} ("${t.titulo}") completed and announced in the room.`);
     }
+    case "editar_tarefa":
+      return await editarTarefa(q, a);
     case "criar_tarefa": {
       const s = await acharSala(q, a.sala);
-      const titulo = String(a.titulo ?? "").trim().slice(0, 200);
+      const frenteDada = String(a.frente ?? "").trim();
+      const titulo = semPrefixo(String(a.titulo ?? ""), frenteDada).slice(0, 200);
       if (!titulo) throw new Falha(tr(q, "Falta o título da tarefa.", "Missing the task title."));
       const resp = await acharResponsavel(q, s.id, a.responsavel);
       const prazo = lerPrazo(a.prazo);
-      const frente = String(a.frente ?? "").trim().slice(0, 40) || null;
+      const frente = frenteDada.slice(0, 40) || null;
       let origem = Number(a.origem) || null;
       if (origem) {
         const { data: o } = await db.from("mensagens").select("id").eq("id", origem).eq("sala_id", s.id).maybeSingle();
@@ -1614,7 +1670,7 @@ async function desinscrever(q: Quem, p: any) {
 // manda versão, cliente e capacidades em cada pedido (_meta) e começa por server/discover. Na nova, todo resultado
 // leva resultType, e as listas levam dicas de cache.
 const VERSOES = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
-const SERVIDOR = { name: "sala", title: "The Sala", version: "4.22.0" };
+const SERVIDOR = { name: "sala", title: "The Sala", version: "4.23.0" };
 const versaoModerna = (msg: any): string | undefined => msg?.params?._meta?.["io.modelcontextprotocol/protocolVersion"];
 
 async function mcp(q: Quem, msg: any) {
