@@ -6,6 +6,7 @@ import { erro, t } from "../i18n";
 import { Vitrine } from "../components/Vitrine";
 import { IconeCheck, IconeEnviar, IconeGoogle, Marca } from "../components/Icones";
 import { TrocarIdioma } from "./Landing";
+import "../landing.css";
 
 export default function Entrar() {
   const { sessao } = useAuth();
@@ -29,55 +30,51 @@ export default function Entrar() {
   };
 
   return (
-    <main className="entrar">
-      <section className="entrar-texto">
-        <Marca />
-        <h1 className="display">{t("Pessoas e agentes, na mesma sala.", "People and agents, in the same room.")}</h1>
-        <p className="sub">
-          {t(
-            "Cada pessoa traz o agente que já assina, seja Claude, ChatGPT ou Gemini, e todo mundo conversa junto. Os agentes propõem; quem decide é gente.",
-            "Everyone brings the agent they already pay for, whether it's Claude, ChatGPT or Gemini, and the whole team talks together. Agents propose; people decide.",
-          )}
-        </p>
+    <div className="lp lp-entrar">
+      <main className="lp-entrar-lado">
+        <a href="/sobre" className="lp-marca" aria-label={t("The Sala: como funciona", "The Sala: how it works")}><Marca /></a>
+        <div className="lp-entrar-form">
+          <h1 className="lp-h2">{t("Entre na sua sala.", "Sign in to your room.")}</h1>
+          <p className="lp-sub">{t("Pessoas e os agentes delas, na mesma conversa. Grátis.", "People and their agents, in the same conversation. Free.")}</p>
 
-        <div className="auth">
-          <button className="btn-destaque auth-google" onClick={() => entrarComGoogle(url)}>
-            <span className="g-selo" aria-hidden><IconeGoogle /></span>
-            <span>{t("Continuar com o Google", "Continue with Google")}</span>
-          </button>
+          <div className="auth">
+            <button type="button" className="lp-btn lp-btn-claro lp-btn-grande auth-google" onClick={() => entrarComGoogle(url)}>
+              <span className="g-selo" aria-hidden><IconeGoogle /></span>
+              <span>{t("Continuar com o Google", "Continue with Google")}</span>
+            </button>
 
-          <div className="auth-ou" aria-hidden><span>{t("ou", "or")}</span></div>
+            <div className="auth-ou" aria-hidden><span>{t("ou", "or")}</span></div>
 
-          {estado === "enviado" ? (
-            <div className="auth-enviado" role="status">
-              <span className="auth-enviado-icone"><IconeCheck tamanho={18} /></span>
-              <div>
-                <strong>{t("Confira seu email", "Check your email")}</strong>
-                <span className="nota">{t(`Mandamos um link para ${email}. Abra neste aparelho.`, `We sent a link to ${email}. Open it on this device.`)}</span>
+            {estado === "enviado" ? (
+              <div className="auth-enviado" role="status">
+                <span className="auth-enviado-icone"><IconeCheck tamanho={18} /></span>
+                <div>
+                  <strong>{t("Confira seu email", "Check your email")}</strong>
+                  <span className="nota">{t(`Mandamos um link para ${email}. Abra neste aparelho.`, `We sent a link to ${email}. Open it on this device.`)}</span>
+                </div>
               </div>
-            </div>
-          ) : (
-            <form onSubmit={porEmail} className="auth-email">
-              <label className="sr" htmlFor="email">Email</label>
-              <input id="email" type="email" placeholder={t("seu@email.com", "you@email.com")} value={email}
-                onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
-              <button className={`auth-enviar ${email.includes("@") ? "pronto" : ""}`} disabled={estado === "enviando" || !email.trim()}
-                aria-label={t("Receber link de acesso", "Get a sign-in link")} title={t("Receber link de acesso", "Get a sign-in link")}>
-                <IconeEnviar tamanho={18} />
-              </button>
-            </form>
-          )}
-          {estado.startsWith("erro:")
-            ? <p className="nota erro" role="alert">{t("Não deu certo: ", "That didn't work: ")}{estado.slice(5)}</p>
-            : estado !== "enviado" && <p className="nota auth-dica">{t("Sem senha: mandamos um link de acesso para o seu email.", "No password: we'll email you a sign-in link.")}</p>}
+            ) : (
+              <form onSubmit={porEmail} className="auth-email">
+                <label className="sr" htmlFor="email">Email</label>
+                <input id="email" type="email" placeholder={t("seu@email.com", "you@email.com")} value={email}
+                  onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+                <button className={`auth-enviar ${email.includes("@") ? "pronto" : ""}`} disabled={estado === "enviando" || !email.trim()}
+                  aria-label={t("Receber link de acesso", "Get a sign-in link")} title={t("Receber link de acesso", "Get a sign-in link")}>
+                  <IconeEnviar tamanho={18} />
+                </button>
+              </form>
+            )}
+            {estado.startsWith("erro:")
+              ? <p className="nota erro" role="alert">{t("Não deu certo: ", "That didn't work: ")}{estado.slice(5)}</p>
+              : estado !== "enviado" && <p className="nota auth-dica">{t("Sem senha: mandamos um link de acesso para o seu email.", "No password: we'll email you a sign-in link.")}</p>}
+          </div>
         </div>
-      </section>
+        <footer className="lp-entrar-rodape"><a href="/sobre">{t("Como funciona", "How it works")}</a><a href="/ajuda">{t("Ajuda", "Help")}</a><a href="/privacidade">{t("Privacidade", "Privacy")}</a><TrocarIdioma className="lp-link" /></footer>
+      </main>
 
-      <section className="entrar-vitrine">
-        <Vitrine compacta />
+      <section className="lp-entrar-vitrine" aria-hidden>
+        <Vitrine />
       </section>
-
-      <footer className="rodape"><a href="/sobre">{t("Como funciona", "How it works")}</a> · <a href="/ajuda">{t("Ajuda", "Help")}</a> · <a href="/privacidade">{t("Privacidade", "Privacy")}</a> · <TrocarIdioma /> · {t("um produto Don", "a Don product")}</footer>
-    </main>
+    </div>
   );
 }
