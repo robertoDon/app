@@ -111,6 +111,13 @@ export function Sozinho() {
           <p className="nota">{en
             ? <>Write <code>@Claude</code> in a room and the answer arrives in about a minute. If it doesn't, open <a className="link" href="https://claude.ai/code/routines" target="_blank" rel="noopener noreferrer">claude.ai/code/routines</a> → <b>The Sala</b> → latest run to see what happened.</>
             : <>Escreva <code>@Claude</code> numa sala e a resposta chega em cerca de 1 minuto. Se não chegar, abra <a className="link" href="https://claude.ai/code/routines" target="_blank" rel="noopener noreferrer">claude.ai/code/routines</a> → <b>The Sala</b> → última execução para ver o que houve.</>}</p>
+          <div className="sozinho-atualizar">
+            <p><strong>{t("Instruções e repositórios", "Instructions and repositories")}</strong></p>
+            <p className="nota">{en
+              ? <>To change what Claude may do (for example, work in code), open <a className="link" href="https://claude.ai/code/routines" target="_blank" rel="noopener noreferrer">claude.ai/code/routines</a> → <b>The Sala</b> → <b>Edit</b>, paste the current instructions and, under <b>Advanced settings → General → Repository</b>, pick the repositories it may work in. The URL and token stay the same.</>
+              : <>Para mudar o que o Claude pode fazer (por exemplo, trabalhar em código), abra <a className="link" href="https://claude.ai/code/routines" target="_blank" rel="noopener noreferrer">claude.ai/code/routines</a> → <b>The Sala</b> → <b>Editar</b>, cole as instruções atuais e, em <b>Configurações avançadas → Geral → Repositório</b>, escolha os repositórios em que ele pode trabalhar. A URL e o token continuam os mesmos.</>}</p>
+            <div className="linha"><Copiar valor={instrucaoTarefa()} rotulo={t("Copiar instruções atuais", "Copy current instructions")} /></div>
+          </div>
           {ligado.ultimo_status === 401 || ligado.ultimo_status === 404 ? (
             <p className="nota">{t("A chave não vale mais (a tarefa foi apagada ou gerou chave nova). Desligue e ligue de novo com a chave atual.", "The key is no longer valid (the task was deleted or a new key was generated). Turn it off and on again with the current key.")}</p>
           ) : null}

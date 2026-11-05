@@ -1500,3 +1500,5 @@ mark { background: color-mix(in srgb, var(--acento) 20%, transparent); color: va
 .aprovacoes-pontos span.cheio { background: var(--ok); box-shadow: none; }
 .btn-aprovei { justify-content: center; color: var(--ok); background: color-mix(in srgb, var(--ok) 8%, var(--elevado)); border-color: color-mix(in srgb, var(--ok) 30%, var(--linha)); opacity: 1 !important; gap: 6px; }
 .campo-rotulo { font-size: 13px; font-weight: 500; }
+.sozinho-atualizar { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; padding: 12px 14px; border-radius: 12px; background: var(--suave); box-shadow: inset 0 0 0 1px var(--linha); }
+.sozinho-atualizar strong { font-weight: 600; }
