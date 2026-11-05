@@ -17,7 +17,7 @@ export const chamaTodos = (h: string) => TODOS.includes(h);
 export const MENCAO_COLETIVA = new RegExp(`@(${[...AGENTES, ...TODOS].join("|")})(?![\\p{L}\\p{N}_])`, "iu");
 
 const INLINE =
-  /(`[^`\n]+`)|(\*\*[^*\n]+\*\*)|(\*[^*\s\n][^*\n]*\*|_[^_\s\n][^_\n]*_)|(https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"])|(@[\p{L}\p{N}_]+(?:-[\p{L}\p{N}_]+)?)|((?<![\p{L}\p{N}_&/])#\d{1,7}(?![\p{L}\p{N}_]))/gu;
+  /(`[^`\n]+`)|(\*\*[^*\n]+\*\*)|(\*[^*\s\n][^*\n]*\*|(?<![\p{L}\p{N}_])_[^_\s\n][^_\n]*_(?![\p{L}\p{N}_]))|(https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"])|(@[\p{L}\p{N}_]+(?:-[\p{L}\p{N}_]+)?)|((?<![\p{L}\p{N}_&/])#\d{1,7}(?![\p{L}\p{N}_]))/gu;
 
 // "#142" no texto (agentes citam mensagens pelo número): vira um link com o nome de quem escreveu
 // só vira link quando é uma mensagem desta sala; "#12" de uma tarefa ou de outro lugar fica como texto
