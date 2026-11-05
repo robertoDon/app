@@ -7,7 +7,7 @@ import { IconeFechar } from "./Icones";
 // Modelos: um ponto de partida para o contexto que os agentes leem. Tudo editável depois.
 // Função (e não constante) para seguir o idioma escolhido.
 export const modelos = () => [
-  { id: "branco", titulo: t("Em branco", "Blank"), texto: t("Você escreve o contexto depois.", "You write the context later."), nome: "", contexto: "" },
+  { id: "branco", titulo: t("Em branco", "Blank"), texto: t("Comece do zero e escreva as instruções depois.", "Start from scratch and write the instructions later."), nome: "", contexto: "" },
   {
     id: "lancamento", titulo: t("Lançamento", "Launch"), texto: t("Produto, data, preço e o que falta.", "Product, date, price and what's left to do."), nome: t("Lançamento", "Launch"),
     contexto: t(

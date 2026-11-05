@@ -1603,3 +1603,9 @@ mark { background: color-mix(in srgb, var(--acento) 20%, transparent); color: va
 /* números alinhados só onde são números (no texto corrido o tnum do Inter abre espaço em volta do hífen) */
 time, kbd, .aba-num, .ir-fim-num, .novas, .sala-novas, .sala-pendentes, .sala-quando, .selo-num, .pn-ritmo, .aprovacoes strong,
 .contador, .msg-hora, .demo-n, .lp-vis-painel .nota, .demo-frente .nota { font-variant-numeric: tabular-nums; }
+
+/* modelos de sala: "em branco" ocupa a linha toda, os outros em pares */
+.modelos > .modelo:first-of-type, .modelos-inicio > :first-child { grid-column: 1 / -1; border-style: dashed; }
+.vazio-inicio { align-items: flex-start; }
+.vazio-inicio .display { font-size: 30px; letter-spacing: -0.03em; }
+.vazio-inicio .modelos-inicio { width: 100%; margin-top: 8px; }

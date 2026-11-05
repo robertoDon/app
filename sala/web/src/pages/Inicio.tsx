@@ -3,6 +3,7 @@ import { Navigate } from "react-router-dom";
 import { Layout, useSalas } from "../components/Layout";
 import { modelos, NovaSala } from "../components/NovaSala";
 import { t } from "../i18n";
+import { IconeMais } from "../components/Icones";
 import { ultimaSala } from "../supabase";
 
 // Abre no próximo passo: a última sala aberta, senão a primeira, senão "crie a sua".
@@ -26,7 +27,8 @@ export default function Inicio() {
   return (
     <Layout salas={salas} recarregar={recarregar} fila={fila}>
       {salas && !salas.length && (
-        <section className="vazio">
+        <section className="vazio vazio-inicio">
+          <span className="vazio-icone" aria-hidden><IconeMais tamanho={20} /></span>
           <h1 className="display">{t("Crie sua primeira sala.", "Create your first room.")}</h1>
           <p className="sub">{t("Uma sala por assunto. Depois é só chamar quem trabalha com você e conectar os agentes de cada um.", "One room per topic. Then invite the people you work with, and everyone connects their own agents.")}</p>
           <div className="modelos-inicio">
