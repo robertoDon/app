@@ -80,6 +80,8 @@ export default function SalaPage() {
   const [reacoes, setReacoes] = useState<Reacao[]>([]);
   const [votos, setVotos] = useState<{ proposta_id: number; user_id: string }[]>([]);
   const [precisaSala, setPrecisa] = useState(1); // aprovações que uma proposta precisa nesta sala
+  const [longeDoFim, setLongeDoFim] = useState(false); // subiu na conversa: mostra a seta para voltar
+  const [novasAbaixo, setNovasAbaixo] = useState(0);
   const [rascunho, setRascunho] = useState<RascunhoTarefa>(null);
   const [ata, setAta] = useState(false);
   const [pedido, setPedido] = useState<number | null>(null); // veio do aviso "chamaram seu agente"
@@ -157,7 +159,7 @@ export default function SalaPage() {
     salaAtual.current = id;
     ultimaSala.set(id);
     setMsgs(null); setPainel(null); setConvite(false); setRespondendo(null); setComparar(null);
-    setTemAnteriores(false); setTemPosteriores(false); longe.current = false;
+    setTemAnteriores(false); setTemPosteriores(false); longe.current = false; setLongeDoFim(false); setNovasAbaixo(0);
     noFim.current = true; lido.current = 0;
     let carregado = false;
     const buffer: Mensagem[] = []; // o que chega ao vivo antes da primeira leitura terminar
@@ -194,6 +196,7 @@ export default function SalaPage() {
     const chegou = (m: Mensagem) => {
       if (m.tipo !== "mensagem") setVersaoDecisoes((v) => v + 1);
       if (m.tipo === "decisao") recarregar(); // a aprovação pode ter trocado o contexto da sala
+      if (!noFim.current && !(m.user_id === eu && !m.agente)) setNovasAbaixo((n) => n + 1);
       if (longe.current) { setTemPosteriores(true); return; }
       setMsgs((atual) => {
         if (!atual) { buffer.push(m); return atual; }
@@ -537,8 +540,14 @@ export default function SalaPage() {
             </div>
           )}
 
+          <div className="feed-caixa">
           <div className="feed" ref={feed} role="log" aria-live="polite" aria-label={t(`Conversa em ${sala?.nome ?? "sala"}`, `Conversation in ${sala?.nome ?? "room"}`)}
-            onScroll={(e) => { const f = e.currentTarget; noFim.current = f.scrollHeight - f.scrollTop - f.clientHeight < 80; }}>
+            onScroll={(e) => {
+              const f = e.currentTarget, falta = f.scrollHeight - f.scrollTop - f.clientHeight;
+              noFim.current = falta < 80;
+              setLongeDoFim(falta > 600 || longe.current);
+              if (noFim.current) setNovasAbaixo(0);
+            }}>
             {msgs === null && <div className="feed-esqueleto" aria-hidden><span /><span /><span /></div>}
 
             {temAnteriores && msgs && (
@@ -678,10 +687,21 @@ export default function SalaPage() {
             })}
           </div>
 
-          {!leitor && <Avisos />}
-          {temPosteriores && (
-            <div className="anteriores"><button className="btn btn-pequeno" onClick={() => carregarRecentes(id)}>{t("Ir para as mensagens mais recentes", "Jump to latest")}</button></div>
+          {(longeDoFim || temPosteriores) && (
+            <button className="ir-fim" onClick={() => {
+              setNovasAbaixo(0); setLongeDoFim(false);
+              if (longe.current || temPosteriores) { carregarRecentes(id); return; }
+              noFim.current = true;
+              feed.current?.scrollTo({ top: feed.current.scrollHeight, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+            }} aria-label={novasAbaixo ? t(`Ir para o fim da conversa, ${novasAbaixo} novas`, `Jump to latest, ${novasAbaixo} new`) : t("Ir para o fim da conversa", "Jump to latest")}
+              title={t("Ir para o fim", "Jump to latest")}>
+              <IconeVoltar tamanho={20} />
+              {(novasAbaixo > 0 || temPosteriores) && <span className="ir-fim-num">{novasAbaixo > 0 ? (novasAbaixo > 99 ? "99+" : novasAbaixo) : "•"}</span>}
+            </button>
           )}
+          </div>
+
+          {!leitor && <Avisos />}
           {leitor ? (
             <p className="so-leitura" role="status">{t("Você está acompanhando esta sala como convidado: vê a conversa, as decisões e as tarefas, mas não escreve. Para participar, peça a quem cuida da sala.", "You're a viewer in this room: you can see the conversation, decisions and tasks, but you can't write. To join in, ask the room owner.")}</p>
           ) : <Compor key={id} ref={compor} subir={(f) => subirArquivo(id, eu, f)} sugestoesBase={sugestoes} respondendo={respondendo} cancelarResposta={() => setRespondendo(null)} enviar={enviar} />}
