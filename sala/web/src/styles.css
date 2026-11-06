@@ -1072,21 +1072,15 @@ span.tarefa-check { cursor: default; }
 .pn-semana .pn-num { font-size: 11px; }
 
 /* responder sozinho */
-.sozinho { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--linha); }
-.sozinho h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; font-size: 14px; }
-.sozinho h3 .nota { font-weight: 400; }
+.sozinho { display: flex; flex-direction: column; gap: 10px; }
 .sozinho-form { display: flex; flex-direction: column; gap: 8px; }
-.sozinho-form label { font-size: var(--t1); font-weight: 600; }
 .sozinho-form input { width: 100%; font-family: var(--mono); font-size: var(--t1); }
 .sozinho-form .btn { align-self: flex-start; }
-.sozinho-ligado { display: flex; flex-direction: column; gap: 8px; }
-.sozinho .ok {
-  display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 999px; font-size: 11.5px; color: var(--ok);
-  background: color-mix(in srgb, var(--ok) 10%, var(--elevado)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ok) 22%, transparent);
-}
-.sozinho-atualizar { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; padding: 12px 14px; border-radius: 12px; background: var(--suave); box-shadow: inset 0 0 0 1px var(--linha); }
-.sozinho-atualizar strong { font-weight: 600; }
-.passos-sozinho ul { margin: 8px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; list-style: disc; }
+.sozinho-ligado { gap: 12px; padding-bottom: 16px; }
+.sozinho-estado { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.sozinho-msg { padding: 10px 12px; border-radius: var(--r2); font-size: 13px; background: var(--suave); }
+.sozinho-msg.ok { color: var(--ok); background: color-mix(in srgb, var(--ok) 8%, var(--elevado)); }
+.sozinho-msg.atrasada { color: var(--erro); font-weight: 500; background: color-mix(in srgb, var(--erro) 7%, var(--elevado)); }
 
 /* ================================================================ janelas (modal), comparar, conta */
 
@@ -1294,8 +1288,46 @@ span.tarefa-check { cursor: default; }
 .conectar-opcoes button > svg { flex: none; color: var(--cinza-claro); transform: rotate(180deg); transition: transform var(--rapido), color var(--rapido); }
 .conectar-opcoes button:hover > svg { color: var(--tinta); transform: rotate(180deg) translateX(-2px); }
 /* os passos num cartão próprio, separado do resto da janela */
-.modal-conectar .aba-corpo { padding: 18px; border-radius: var(--r3); background: var(--fundo); box-shadow: inset 0 0 0 1px var(--linha); gap: 14px; }
-.modal-conectar .aba-corpo .sozinho { margin-top: 8px; }
+.conectar-cartao { display: flex; flex-direction: column; gap: 4px; padding: 20px 20px 12px; border-radius: var(--r3); background: var(--fundo); box-shadow: inset 0 0 0 1px var(--linha); }
+
+/* trilha: número, título curto, uma linha de detalhe e o que copiar; um fio liga os números */
+.trilha { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.trilha > li { position: relative; display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 14px; padding-bottom: 20px; }
+.trilha > li:not(:last-child)::before { content: ""; position: absolute; left: 12.5px; top: 30px; bottom: 4px; width: 1px; background: var(--linha-forte); }
+.trilha-num {
+  display: grid; place-items: center; width: 26px; height: 26px; border-radius: 999px; font: 600 12px/1 var(--corpo);
+  color: var(--tinta); background: var(--elevado); box-shadow: inset 0 0 0 1px var(--linha-forte);
+}
+.trilha-corpo { min-width: 0; display: flex; flex-direction: column; gap: 3px; padding-top: 3px; }
+.trilha-titulo { font-weight: 600; font-size: 14px; line-height: 1.35; letter-spacing: -0.005em; }
+.trilha-detalhe { font-size: 13px; color: var(--cinza); line-height: 1.5; }
+.trilha-detalhe b { color: var(--tinta); font-weight: 600; }
+.trilha-extra { margin-top: 8px; }
+.trilha-extra .copiavel { margin-top: 0; }
+.trilha-extra .copiavel code { max-height: 132px; overflow-y: auto; }
+.trilha-extra .linha input { min-width: 0; }
+.trilha-feito { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--agente-tinta); }
+
+/* exceções e casos raros ficam fechados */
+.conectar-ajuda { margin: 0 -4px 6px; padding: 10px 4px 0; border-top: 1px solid var(--linha); font-size: 13px; color: var(--cinza); }
+.conectar-ajuda summary { cursor: pointer; font-weight: 500; color: var(--tinta); list-style: none; display: flex; align-items: center; gap: 6px; min-height: 28px; }
+.conectar-ajuda summary::-webkit-details-marker { display: none; }
+.conectar-ajuda summary::before { content: "+"; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 6px; background: var(--suave); color: var(--cinza); font-weight: 600; }
+.conectar-ajuda[open] summary::before { content: "–"; }
+.conectar-ajuda > :not(summary) { margin-top: 8px; }
+.conectar-ajuda .linha { margin-top: 10px; }
+
+/* "Responder sozinho": um cartão à parte que abre a tela dele */
+.conectar-extra {
+  display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 16px; border: 1px dashed var(--linha-forte); border-radius: var(--r3);
+  background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; transition: background var(--rapido), border-color var(--rapido);
+}
+.conectar-extra:hover { background: var(--hover); border-style: solid; }
+.conectar-extra > span:nth-child(2) { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.conectar-extra strong { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.conectar-extra > span:nth-child(2) > span { font-size: 12.5px; color: var(--cinza); }
+.conectar-extra-icone { display: grid; place-items: center; width: 34px; height: 34px; flex: none; border-radius: 10px; background: var(--suave); color: var(--cinza); box-shadow: inset 0 0 0 1px var(--linha); }
+.conectar-extra > svg { flex: none; color: var(--cinza-claro); transform: rotate(180deg); }
 .conectar-pe {
   position: sticky; bottom: -24px; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
   margin: 0 -24px -24px; padding: 14px 24px 18px; border-top: 1px solid var(--linha); background: var(--elevado);
@@ -1540,6 +1572,15 @@ span.tarefa-check { cursor: default; }
   .sala-sugestoes { width: calc(100% - 20px); grid-template-columns: 1fr; }
   .minimapa { display: none; }
   .promessas, .fontes { grid-template-columns: 1fr; }
+  .conectar-cartao { padding: 16px 14px 8px; }
+  .trilha > li { grid-template-columns: 24px minmax(0, 1fr); gap: 12px; }
+  .trilha-num { width: 24px; height: 24px; }
+  .trilha > li:not(:last-child)::before { left: 11.5px; top: 28px; }
+  .conectar-pe { bottom: -20px; margin: 0 -20px -20px; padding: 12px 20px calc(14px + env(safe-area-inset-bottom)); }
+  /* no celular o conectar ocupa a tela toda, como uma página */
+  .modal-fundo:has(.modal-conectar) { padding: 0; }
+  .modal-conectar { max-width: none; height: 100%; max-height: 100%; border-radius: 0; border: 0; padding: calc(14px + env(safe-area-inset-top)) 20px 20px; }
+  .conectar-extra strong { flex-wrap: wrap; }
   .faltou { margin-left: 0; }
   .msg-minha { max-width: 90%; }
   /* no celular o texto usa a largura toda; o avatar fica só no cabeçalho */

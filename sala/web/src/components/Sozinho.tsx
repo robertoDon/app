@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { SUPABASE_URL, sb } from "../supabase";
 import { erro, idioma, locale, t } from "../i18n";
-import { IconeAbrir, IconeCopiar } from "./Icones";
+import { IconeAbrir, IconeCheck, IconeCopiar } from "./Icones";
+import { Trilha } from "./Trilha";
 
 type Desp = { agente: string; criado_em: string; ultimo_disparo: string | null; ultimo_status: number | null; ultimo_erro: string | null };
 
@@ -93,80 +94,60 @@ export function Sozinho() {
     carregar();
   };
 
+  const rotinas = <a className="btn btn-pequeno" href="https://claude.ai/code/routines" target="_blank" rel="noopener noreferrer"><IconeAbrir tamanho={14} /> claude.ai/code/routines</a>;
   return (
     <section className="sozinho">
-      <h3>{t("Responder sozinho", "Auto-reply")} <span className="nota">{t("opcional · Claude Pro, Max, Team ou Enterprise", "optional · Claude Pro, Max, Team or Enterprise")}</span></h3>
-      <p className="sub">{t(
-        "Quando chamarem o seu Claude numa sala, ele abre sozinho na nuvem, lê a conversa e responde em cerca de 1 minuto, mesmo com o computador desligado. Usa a sua assinatura do Claude.",
-        "When someone mentions your Claude in a room, it starts up in the cloud, reads the conversation and replies in about a minute, even with your computer off. It uses your Claude subscription.")}</p>
-
-      {lista === null ? null : ligado ? (
-        <div className="sozinho-ligado">
-          <p><strong className="ok">{t("Ligado", "On")}</strong>{" · "}
-            {ligado.ultimo_disparo
-              ? <>{t("último chamado", "last triggered")} {quando(ligado.ultimo_disparo)}{ligado.ultimo_erro ? <> · <span className="atrasada">{ligado.ultimo_erro}</span></> : ` · ${t("ok", "ok")}`}</>
-              : t("ainda não foi chamado", "not triggered yet")}</p>
+      {lista === null ? <div className="esqueleto" aria-hidden /> : ligado ? (
+        <div className="conectar-cartao sozinho-ligado">
+          <p className="sozinho-estado"><span className="pilula pilula-ok"><IconeCheck tamanho={12} /> {t("Ligado", "On")}</span>
+            <span className="nota">{ligado.ultimo_disparo
+              ? <>{t("último chamado", "last triggered")} {quando(ligado.ultimo_disparo)}{ligado.ultimo_erro ? <> · <span className="atrasada">{ligado.ultimo_erro}</span></> : ""}</>
+              : t("ainda não foi chamado", "not triggered yet")}</span></p>
+          <p>{en ? <>Write <code>@Claude</code> in a room: the answer arrives in about a minute.</> : <>Escreva <code>@Claude</code> numa sala: a resposta chega em cerca de 1 minuto.</>}</p>
+          {ligado.ultimo_status === 401 || ligado.ultimo_status === 404 ? (
+            <p className="nota atrasada">{t("A chave não vale mais (a tarefa foi apagada ou gerou chave nova). Desligue e ligue de novo com a chave atual.", "This key is no longer valid (the task was deleted or a new key was generated). Turn auto-reply off and on again with the current key.")}</p>
+          ) : null}
           <div className="linha">
             <button className="btn btn-pequeno" onClick={testar} disabled={indo}>{t("Testar", "Test")}</button>
-            <button className="btn btn-pequeno" onClick={desligar} disabled={indo}>{t("Desligar", "Turn off")}</button>
+            <button className="btn btn-pequeno btn-texto btn-perigo" onClick={desligar} disabled={indo}>{t("Desligar", "Turn off")}</button>
           </div>
-          <p className="nota">{en
-            ? <>Write <code>@Claude</code> in a room and the answer arrives in about a minute. If it doesn't, open <a className="link" href="https://claude.ai/code/routines" target="_blank" rel="noopener noreferrer">claude.ai/code/routines</a> → <b>The Sala</b> → latest run to see what happened.</>
-            : <>Escreva <code>@Claude</code> numa sala e a resposta chega em cerca de 1 minuto. Se não chegar, abra <a className="link" href="https://claude.ai/code/routines" target="_blank" rel="noopener noreferrer">claude.ai/code/routines</a> → <b>The Sala</b> → última execução para ver o que houve.</>}</p>
-          <div className="sozinho-atualizar">
-            <p><strong>{t("Instruções e repositórios", "Instructions and repositories")}</strong></p>
-            <p className="nota">{en
-              ? <>To change what Claude may do (for example, work in code), open <a className="link" href="https://claude.ai/code/routines" target="_blank" rel="noopener noreferrer">claude.ai/code/routines</a> → <b>The Sala</b> → <b>Edit</b>, paste the current instructions and, under <b>Advanced settings → General → Repository</b>, pick the repository you use most (the others go in each room's library). The URL and token stay the same.</>
-              : <>Para mudar o que o Claude pode fazer (por exemplo, trabalhar em código), abra <a className="link" href="https://claude.ai/code/routines" target="_blank" rel="noopener noreferrer">claude.ai/code/routines</a> → <b>The Sala</b> → <b>Editar</b>, cole as instruções atuais e, em <b>Configurações avançadas → Geral → Repositório</b>, escolha o repositório que você mais usa (os outros vão na biblioteca de cada sala). A URL e o token continuam os mesmos.</>}</p>
-            <div className="linha"><Copiar valor={instrucaoTarefa()} rotulo={t("Copiar instruções atuais", "Copy current instructions")} /></div>
-          </div>
-          {ligado.ultimo_status === 401 || ligado.ultimo_status === 404 ? (
-            <p className="nota">{t("A chave não vale mais (a tarefa foi apagada ou gerou chave nova). Desligue e ligue de novo com a chave atual.", "This key is no longer valid (the task was deleted or a new key was generated). Turn auto-reply off and on again with the current key.")}</p>
-          ) : null}
+          <details className="conectar-ajuda">
+            <summary>{t("Não respondeu, ou quer mudar o que ele pode fazer?", "No reply, or want to change what it can do?")}</summary>
+            <p>{en
+              ? <>Open the routines page → <b>The Sala</b>. The latest run shows what happened. To change the instructions or the repository, click <b>Edit</b>, paste the current instructions and pick the repository under <b>Advanced settings → General</b>. The URL and token stay the same.</>
+              : <>Abra a página de rotinas → <b>The Sala</b>. A última execução mostra o que houve. Para mudar as instruções ou o repositório, clique em <b>Editar</b>, cole as instruções atuais e escolha o repositório em <b>Configurações avançadas → Geral</b>. A URL e o token continuam os mesmos.</>}</p>
+            <div className="linha">{rotinas}<Copiar valor={instrucaoTarefa()} rotulo={t("Copiar instruções atuais", "Copy current instructions")} /></div>
+          </details>
         </div>
       ) : (
-        <>
-          <ol className="passos passos-sozinho">
-            <li>{en
-              ? <><b>Connect Claude to The Sala first</b> (steps above). The task uses that connector.</>
-              : <><b>Conecte o Claude ao The Sala antes</b> (passos acima). A tarefa usa esse conector.</>}</li>
-            <li>{en ? <>Open </> : <>Abra </>}<a className="link" href="https://claude.ai/code/routines" target="_blank" rel="noopener noreferrer">claude.ai/code/routines <IconeAbrir tamanho={14} /></a>
-              {en ? <> (<b>Scheduled tasks</b>) and click <b>New task</b>.</> : <> (<b>Tarefas agendadas</b>) e clique em <b>Nova tarefa</b>.</>}</li>
-            <li>{en
-              ? <>In the instructions box, paste this text. Leave <b>Auto</b> and <b>Default model</b> as they are.</>
-              : <>Na caixa de instruções, cole este texto. Deixe <b>Auto</b> e <b>Modelo padrão</b> como estão.</>}{" "}
-              <Copiar valor={instrucaoTarefa()} rotulo={t("Copiar instruções", "Copy instructions")} /></li>
-            <li>{en
-              ? <>In <b>Trigger</b>, switch <b>Schedule</b> to <b>API</b>. If a time shows up (like “Daily 09:00”), remove that line: the task should only run when The Sala calls it.</>
-              : <>Em <b>Acionamento</b>, troque <b>Agendamento</b> por <b>API</b>. Se aparecer um horário (tipo “Diariamente 09:00”), apague essa linha: a tarefa só deve rodar quando a Sala chamar.</>}</li>
-            <li>{en ? <>Open <b>Advanced settings</b>:</> : <>Abra <b>Configurações avançadas</b>:</>}
-              <ul>
-                <li>{en
-                  ? <><b>General</b> → <b>Repository</b>: pick the repository you use most. Other repositories go in each room's library as GitHub links, and Claude attaches them when needed. Leave <b>Project</b> as “None”.</>
-                  : <><b>Geral</b> → <b>Repositório</b>: escolha o repositório que você mais usa. Os outros vão na biblioteca de cada sala, como links do GitHub, e o Claude anexa quando precisar. Deixe <b>Projeto</b> em “Nenhuma seleção”.</>}</li>
-                <li>{en ? <><b>Connectors</b>: keep only <b>The Sala</b>.</> : <><b>Conectores</b>: deixe só o <b>The Sala</b>.</>}</li>
-                <li>{en ? <><b>Notifications</b>: turn off if you don't want an alert after every reply.</> : <><b>Notificações</b>: desligue se não quiser um aviso a cada resposta.</>}</li>
-              </ul></li>
-            <li>{en
-              ? <>Click <b>Create</b>. A window shows the <b>URL</b> (ends in <code>/fire</code>) and the <b>token</b> (starts with <code>sk-ant-oat01-</code>). Copy both before closing: the token is shown only once. Lost it? Open the task, <b>Edit</b>, and click <b>Generate token</b> on the API trigger.</>
-              : <>Clique em <b>Criar</b>. Abre uma janela com a <b>URL</b> (termina em <code>/fire</code>) e o <b>token</b> (começa com <code>sk-ant-oat01-</code>). Copie os dois antes de fechar: o token só aparece uma vez. Perdeu? Abra a tarefa, clique em <b>Editar</b> e em <b>Gerar token</b> no acionamento API.</>}</li>
-            <li>{en ? <>Paste both below and click <b>Turn on and test</b>.</> : <>Cole os dois aqui embaixo e clique em <b>Ligar e testar</b>.</>}</li>
-          </ol>
-          <form className="sozinho-form" onSubmit={ligar}>
-            <label htmlFor="sozinho-url">{t("URL do gatilho", "Trigger URL")}</label>
-            <input id="sozinho-url" required value={url} onChange={(e) => setUrl(e.target.value)} autoComplete="off" spellCheck={false}
-              placeholder="https://api.anthropic.com/v1/claude_code/routines/trig_…/fire" />
-            <label htmlFor="sozinho-token">{t("Token", "Token")}</label>
-            <input id="sozinho-token" required type="password" value={token} onChange={(e) => setToken(e.target.value)} autoComplete="off" spellCheck={false}
-              placeholder="sk-ant-oat01-…" />
-            <p className="nota">{t("O token só serve para disparar essa tarefa: não lê nada da sua conta. Fica guardado criptografado e você desliga quando quiser.",
-              "The token can only trigger that task: it can't read anything in your account. It's stored encrypted, and you can turn it off anytime.")}</p>
-            <button className="btn btn-cheio" disabled={indo}>{indo ? t("Ligando…", "Turning on…") : t("Ligar e testar", "Turn on and test")}</button>
-          </form>
-        </>
+        <div className="conectar-cartao">
+          <Trilha passos={[
+            { titulo: t("Conecte o Claude primeiro", "Connect Claude first"), detalhe: t("São os passos da tela anterior: a tarefa usa esse conector.", "That's the previous screen: the task uses that connector.") },
+            { titulo: t("Crie uma tarefa agendada", "Create a scheduled task"), detalhe: <>{t("Na página de rotinas do Claude Code, clique em ", "On Claude Code's routines page, click ")}<b>{t("Nova tarefa", "New task")}</b>.</>, extra: rotinas },
+            { titulo: t("Cole as instruções", "Paste the instructions"), detalhe: t("Na caixa de instruções. Deixe Auto e Modelo padrão como estão.", "In the instructions box. Leave Auto and Default model as they are."), extra: <Copiar valor={instrucaoTarefa()} rotulo={t("Copiar instruções", "Copy instructions")} /> },
+            { titulo: t("Em Acionamento, escolha API", "Under Trigger, choose API"), detalhe: t("Se aparecer um horário, apague: ela só roda quando a Sala chamar.", "If a time shows up, remove it: it should only run when The Sala calls it.") },
+            { titulo: t("Ajuste as configurações avançadas", "Adjust the advanced settings"), detalhe: t("Repositório: o que você mais usa. Conectores: só o The Sala. Notificações: como preferir.", "Repository: the one you use most. Connectors: only The Sala. Notifications: your call.") },
+            { titulo: t("Crie e copie a URL e o token", "Create it and copy the URL and token"), detalhe: <>{t("A URL termina em ", "The URL ends in ")}<code>/fire</code>{t("; o token começa com ", "; the token starts with ")}<code>sk-ant-oat01-</code>{t(" e aparece uma vez.", " and is shown only once.")}</> },
+            { titulo: t("Cole aqui e ligue", "Paste them here and turn it on"), extra: (
+              <form className="sozinho-form" onSubmit={ligar}>
+                <label htmlFor="sozinho-url" className="sr">{t("URL do gatilho", "Trigger URL")}</label>
+                <input id="sozinho-url" required value={url} onChange={(e) => setUrl(e.target.value)} autoComplete="off" spellCheck={false}
+                  placeholder={t("URL do gatilho (…/fire)", "Trigger URL (…/fire)")} />
+                <label htmlFor="sozinho-token" className="sr">{t("Token", "Token")}</label>
+                <input id="sozinho-token" required type="password" value={token} onChange={(e) => setToken(e.target.value)} autoComplete="off" spellCheck={false}
+                  placeholder="sk-ant-oat01-…" />
+                <p className="nota">{t("O token só dispara essa tarefa: não lê nada da sua conta. Fica guardado criptografado.", "The token can only trigger that task: it can't read anything in your account. It's stored encrypted.")}</p>
+                <button className="btn btn-cheio" disabled={indo}>{indo ? t("Ligando…", "Turning on…") : t("Ligar e testar", "Turn on and test")}</button>
+              </form>) },
+          ]} />
+          <details className="conectar-ajuda">
+            <summary>{t("Perdeu o token?", "Lost the token?")}</summary>
+            <p>{t("Abra a tarefa, clique em Editar e em Gerar token, no acionamento API.", "Open the task, click Edit, then Generate token under the API trigger.")}</p>
+          </details>
+        </div>
       )}
       {msg && (
-        <p className={msg.ok ? "nota ok" : "nota atrasada"} role="status">
+        <p className={`sozinho-msg ${msg.ok ? "ok" : "atrasada"}`} role="status">
           {msg.texto}{msg.link ? <> <a className="link" href={msg.link} target="_blank" rel="noopener noreferrer">{t("Ver a sessão", "View session")}</a></> : null}
         </p>
       )}
@@ -215,38 +196,30 @@ export function SozinhoEventos({ agente }: { agente: string }) {
 
   return (
     <section className="sozinho">
-      <h3>{t("Responder sozinho", "Auto-reply")} <span className="nota">{t("opcional · ChatGPT Plus, Pro, Business, Enterprise ou Edu", "optional · ChatGPT Plus, Pro, Business, Enterprise or Edu")}</span></h3>
-      <p className="sub">{t(
-        `Quando chamarem o seu ${agente} numa sala, ele recebe um aviso, lê a conversa e responde sozinho. Usa a sua assinatura.`,
-        `When someone mentions your ${agente} in a room, it gets notified, reads the conversation and replies on its own. It uses your subscription.`)}</p>
-      {lista === null ? null : ativo ? (
-        <div className="sozinho-ligado">
-          <p><strong className="ok">{t("Ligado", "On")}</strong>{" · "}
-            {ativo.ultimo_envio
-              ? <>{t("último chamado", "last triggered")} {quando(ativo.ultimo_envio)}{ativo.ultimo_erro ? <> · <span className="atrasada">{ativo.ultimo_erro}</span></> : " · ok"}</>
-              : t("ainda não foi chamado", "not triggered yet")}</p>
-          <p className="nota">{en
-            ? <>Write <code>@{agente}</code> in a room and it should reply in a minute or two. The {agente} task renews this on its own.</>
-            : <>Escreva <code>@{agente}</code> numa sala e ele deve responder em 1 ou 2 minutos. A tarefa do {agente} renova isso sozinha.</>}</p>
-          <div className="linha"><button className="btn btn-pequeno" onClick={desligar}>{t("Desligar", "Turn off")}</button></div>
+      {lista === null ? <div className="esqueleto" aria-hidden /> : ativo ? (
+        <div className="conectar-cartao sozinho-ligado">
+          <p className="sozinho-estado"><span className="pilula pilula-ok"><IconeCheck tamanho={12} /> {t("Ligado", "On")}</span>
+            <span className="nota">{ativo.ultimo_envio
+              ? <>{t("último chamado", "last triggered")} {quando(ativo.ultimo_envio)}{ativo.ultimo_erro ? <> · <span className="atrasada">{ativo.ultimo_erro}</span></> : ""}</>
+              : t("ainda não foi chamado", "not triggered yet")}</span></p>
+          <p>{en ? <>Write <code>@{agente}</code> in a room: it should reply in a minute or two. The {agente} task renews this on its own.</>
+            : <>Escreva <code>@{agente}</code> numa sala: ele deve responder em 1 ou 2 minutos. A tarefa do {agente} renova isso sozinha.</>}</p>
+          <div className="linha"><button className="btn btn-pequeno btn-texto btn-perigo" onClick={desligar}>{t("Desligar", "Turn off")}</button></div>
         </div>
       ) : (
-        <>
-          <ol className="passos passos-sozinho">
-            <li>{en ? <><b>Connect {agente} to The Sala first</b> (steps above).</> : <><b>Conecte o {agente} ao The Sala antes</b> (passos acima).</>}</li>
-            <li>{en
-              ? <>In ChatGPT on the web, start a chat in <b>Work</b> mode (in the desktop app: <b>Work</b> and <b>Cloud</b>) and turn on the <b>The Sala</b> connector.</>
-              : <>No ChatGPT, pelo site, abra uma conversa no modo <b>Work</b> (no app de computador: <b>Work</b> e <b>Cloud</b>) e ligue o conector <b>The Sala</b>.</>}</li>
-            <li>{en ? <>Send this message:</> : <>Mande esta mensagem:</>}{" "}
-              <Copiar valor={pedidoEventos()} rotulo={t("Copiar mensagem", "Copy message")} /></li>
-            <li>{en
-              ? <>If ChatGPT asks to confirm creating the task, confirm. When it's set up, this box shows <b>On</b> (it checks every 10 seconds).</>
-              : <>Se o ChatGPT pedir para confirmar a criação da tarefa, confirme. Quando estiver pronto, este quadro mostra <b>Ligado</b> (ele confere a cada 10 segundos).</>}</li>
-          </ol>
-          <p className="nota">{t(
-            "Este recurso do ChatGPT é novo. Se ele disser que o conector não oferece eventos, é porque ainda não aceita conectores personalizados: use o botão “Pedir ao ChatGPT” na sala.",
-            "This ChatGPT feature is new. If it says the connector doesn't offer events, it doesn't support custom connectors yet: use the “Ask ChatGPT” button in the room instead.")}</p>
-        </>
+        <div className="conectar-cartao">
+          <Trilha passos={[
+            { titulo: t(`Conecte o ${agente} primeiro`, `Connect ${agente} first`), detalhe: t("São os passos da tela anterior.", "That's the previous screen.") },
+            { titulo: t("Abra uma conversa no modo Work", "Start a chat in Work mode"), detalhe: t("Pelo site (no app de computador: Work e Cloud) e ligue o conector The Sala.", "On the website (in the desktop app: Work and Cloud), with The Sala connector on.") },
+            { titulo: t("Mande esta mensagem", "Send this message"), extra: <Copiar valor={pedidoEventos()} rotulo={t("Copiar mensagem", "Copy message")} /> },
+            { titulo: t("Confirme a tarefa", "Confirm the task"), detalhe: t("Quando estiver pronto, esta tela mostra Ligado sozinha (confere a cada 10 segundos).", "Once it's set up, this screen switches to On by itself (it checks every 10 seconds).") },
+          ]} />
+          <details className="conectar-ajuda">
+            <summary>{t("Não funcionou?", "Didn't work?")}</summary>
+            <p>{t("Este recurso do ChatGPT é novo. Se ele disser que o conector não oferece eventos, ainda não aceita conectores personalizados: use o botão “Pedir ao ChatGPT” na sala.",
+              "This ChatGPT feature is new. If it says the connector doesn't offer events, it doesn't support custom connectors yet: use the “Ask ChatGPT” button in the room instead.")}</p>
+          </details>
+        </div>
       )}
     </section>
   );

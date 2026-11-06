@@ -1,28 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { MCP_URL, sb } from "../supabase";
 import { useAuth } from "../App";
-import { IconeAgente, IconeCheck, IconeCopiar, IconeFechar, IconeMais, IconeVoltar } from "./Icones";
+import { IconeAgente, IconeFechar, IconeMais, IconeRelogio, IconeVoltar } from "./Icones";
 import { Menu } from "./Menu";
 import { Sozinho, SozinhoEventos } from "./Sozinho";
+import { Copiavel, Trilha } from "./Trilha";
 import { erro, idioma, locale, t } from "../i18n";
 
 type Aba = "claude" | "chatgpt" | "gemini" | "code" | "outro";
 type Chave = { id: string; agente: string; final: string; criada_em: string; usada_em: string | null };
 type Grant = { client: { id: string; name: string }; granted_at: string };
 
-function Copiavel({ valor, rotulo }: { valor: string; rotulo: string }) {
-  const [ok, setOk] = useState(false);
-  return (
-    <div className="copiavel">
-      <code aria-label={rotulo}>{valor}</code>
-      <button type="button" className="btn btn-pequeno" onClick={async () => {
-        try { await navigator.clipboard.writeText(valor); setOk(true); setTimeout(() => setOk(false), 1500); } catch { /* */ }
-      }}>
-        {ok ? <><IconeCheck tamanho={14} /> {t("Copiado", "Copied")}</> : <><IconeCopiar tamanho={14} /> {t("Copiar", "Copy")}</>}
-      </button>
-    </div>
-  );
-}
 
 // mesmo critério do servidor para dar nome ao agente
 export function nomeDoAgente(cliente: string) {
@@ -43,6 +31,7 @@ export function Conectar({ fechar }: { fechar: () => void }) {
   const [aba, setAba] = useState<Aba | null>(null); // escolhido: mostra só os passos dele
   const [escolhendo, setEscolhendo] = useState(false); // quem já tem agentes vê a lista primeiro e escolhe "conectar outro"
   const [carregado, setCarregado] = useState(false);
+  const [sozinho, setSozinho] = useState(false); // tela do "responder sozinho"
   const [chaves, setChaves] = useState<Chave[]>([]);
   const [grants, setGrants] = useState<Grant[]>([]);
   const [nova, setNova] = useState<{ agente: string; chave: string } | null>(null);
@@ -115,12 +104,12 @@ Keep listening to the room in the background and respond to anything meant for y
   const tirarPresenca = (nome: string) => perfil && sb.from("agentes").delete().eq("user_id", perfil.id).eq("nome", nome);
 
   const temAgentes = grants.length + chaves.length > 0;
-  const tela: "carregando" | "inicio" | "escolher" | "passos" = aba ? "passos" : !carregado ? "carregando" : escolhendo || !temAgentes ? "escolher" : "inicio";
+  const tela: "carregando" | "inicio" | "escolher" | "passos" | "sozinho" = aba && sozinho ? "sozinho" : aba ? "passos" : !carregado ? "carregando" : escolhendo || !temAgentes ? "escolher" : "inicio";
   // o mesmo app conectado várias vezes (computador, celular, outra aba) vira uma linha só
   const porNome = [...grants.reduce((m, g) => m.set(nomeDoAgente(g.client.name), [...(m.get(nomeDoAgente(g.client.name)) ?? []), g]), new Map<string, Grant[]>())];
   const primeiroNome = perfil?.nome?.split(" ")[0] ?? t("você", "you");
-  const voltar = tela === "passos" ? () => { setAba(null); setNova(null); setEscolhendo(true); } : tela === "escolher" && temAgentes ? () => setEscolhendo(false) : null;
-  const titulo = tela === "passos" ? t(`Conectar o ${nomeEscolhido}`, `Connect ${nomeEscolhido}`) : tela === "escolher" ? t("Qual agente você usa?", "Which agent do you use?") : t("Seus agentes", "Your agents");
+  const voltar = tela === "sozinho" ? () => setSozinho(false) : tela === "passos" ? () => { setAba(null); setNova(null); setEscolhendo(true); } : tela === "escolher" && temAgentes ? () => setEscolhendo(false) : null;
+  const titulo = tela === "sozinho" ? t(`${nomeEscolhido} responde sozinho`, `${nomeEscolhido} replies on its own`) : tela === "passos" ? t(`Conectar o ${nomeEscolhido}`, `Connect ${nomeEscolhido}`) : tela === "escolher" ? t("Qual agente você usa?", "Which agent do you use?") : t("Seus agentes", "Your agents");
 
   return (
     <div className="modal-fundo" onMouseDown={(e) => e.target === e.currentTarget && fechar()}>
@@ -131,6 +120,7 @@ Keep listening to the room in the background and respond to anything meant for y
             : <span className="conectar-topo-marca" aria-hidden><IconeAgente tamanho={16} /></span>}
           <span className="conectar-topo-texto">
             {tela === "passos" && <span className="conectar-passo">{t("Passo 2 de 2", "Step 2 of 2")}</span>}
+            {tela === "sozinho" && <span className="conectar-passo">{t("Opcional", "Optional")}</span>}
             {tela === "escolher" && <span className="conectar-passo">{temAgentes ? t("Conectar outro agente", "Connect another agent") : t("Passo 1 de 2", "Step 1 of 2")}</span>}
             <h2 id="conectar-titulo">{titulo}</h2>
           </span>
@@ -192,7 +182,7 @@ Keep listening to the room in the background and respond to anything meant for y
             <p className="sub">{t(`Ele entra nas suas salas e escreve como “Claude de ${primeiroNome}”, na assinatura que você já tem.`, `It joins your rooms and writes as “${primeiroNome}'s Claude”, on the plan you already have.`)}</p>
             <ul className="conectar-opcoes">
               {opcoes.map(([k, nomeOpcao, onde]) => (
-                <li key={k}><button type="button" onClick={() => { setAba(k); setNova(null); }}>
+                <li key={k}><button type="button" onClick={() => { setAba(k); setNova(null); setSozinho(false); }}>
                   <span className="msg-avatar msg-avatar-agente" aria-hidden><IconeAgente tamanho={13} /></span>
                   <span><strong>{nomeOpcao}</strong><span>{onde}</span></span>
                   <IconeVoltar tamanho={15} />
@@ -203,113 +193,88 @@ Keep listening to the room in the background and respond to anything meant for y
         )}
 
         {tela === "passos" && <p className="sub">{opcoes.find(([k]) => k === aba)?.[2]}.</p>}
+        {tela === "sozinho" && <p className="sub">{aba === "claude"
+          ? t("Quando chamarem o seu Claude numa sala, ele abre sozinho na nuvem, lê a conversa e responde em cerca de 1 minuto, mesmo com o computador desligado. Precisa de Claude Pro, Max, Team ou Enterprise.", "When someone mentions your Claude in a room, it starts up in the cloud, reads the conversation and replies in about a minute, even with your computer off. Needs Claude Pro, Max, Team or Enterprise.")
+          : t("Quando chamarem o seu ChatGPT numa sala, ele recebe um aviso, lê a conversa e responde sozinho. Precisa de ChatGPT Plus, Pro, Business, Enterprise ou Edu.", "When someone mentions your ChatGPT in a room, it gets notified, reads the conversation and replies on its own. Needs ChatGPT Plus, Pro, Business, Enterprise or Edu.")}</p>}
 
-        {aba && <div className="aba-corpo">
-          {aba === "claude" && (en ? (
-            <ol className="passos">
-              <li>In Claude (web or app), open <b>Settings → Connectors</b>.</li>
-              <li>Click <b>Add custom connector</b>, name it <b>The Sala</b> and paste the URL:
-                <Copiavel valor={MCP_URL} rotulo="Connector URL" /></li>
-              <li>Click <b>Connect</b>. A permission screen opens: sign in with the same account and click <b>Allow</b>.</li>
-              <li>Done. In a chat, ask: “read the room and reply”.</li>
-            </ol>
-          ) : (
-            <ol className="passos">
-              <li>No Claude (site ou app), abra <b>Configurações → Conectores</b>.</li>
-              <li>Clique em <b>Adicionar conector personalizado</b>, dê o nome <b>The Sala</b> e cole a URL:
-                <Copiavel valor={MCP_URL} rotulo="URL do conector" /></li>
-              <li>Clique em <b>Conectar</b>. Vai abrir a tela de permissão: entre com a mesma conta e clique em <b>Permitir</b>.</li>
-              <li>Pronto. Numa conversa, peça: “lê a sala e responde”.</li>
-            </ol>
-          ))}
-          {aba === "claude" && <Sozinho />}
+        {tela === "passos" && <div className="conectar-cartao">
+          {aba === "claude" && <Trilha passos={[
+            { titulo: t("Abra os conectores do Claude", "Open Claude's connectors"), detalhe: t("No site ou no app: Configurações → Conectores.", "On the website or app: Settings → Connectors.") },
+            { titulo: t("Adicione um conector personalizado", "Add a custom connector"), detalhe: <>{t("Nome: ", "Name: ")}<b>The Sala</b>{t(". Cole esta URL:", ". Paste this URL:")}</>, extra: <Copiavel valor={MCP_URL} rotulo={t("URL do conector", "Connector URL")} /> },
+            { titulo: t("Clique em Conectar e depois em Permitir", "Click Connect, then Allow"), detalhe: t("Entre com a mesma conta que você usa no The Sala.", "Sign in with the same account you use on The Sala.") },
+            { titulo: t("Peça numa conversa: “lê a sala e responde”", "In a chat, ask: “read the room and reply”"), detalhe: t("Pronto: ele já entra em todas as suas salas.", "Done: it now has access to all your rooms.") },
+          ]} />}
 
-          {aba === "chatgpt" && (en ? (
-            <><ol className="passos">
-              <li>In ChatGPT, open <b>Settings → Plugins (formerly Apps &amp; Connectors) → Advanced settings</b> and turn on <b>Developer mode</b>.</li>
-              <li>Go back to <b>Plugins</b> and click <b>Create</b>. Name: <b>The Sala</b>, authentication: <b>OAuth</b>, and the URL:
-                <Copiavel valor={MCP_URL} rotulo="Connector URL" /></li>
-              <li>A permission screen opens: sign in with the same account and click <b>Allow</b>.</li>
-              <li>In a chat, turn on the The Sala connector and ask: “read the room and reply”.</li>
-            </ol>
-            <p className="nota">If ChatGPT says it can't find any actions: check that Developer mode is on, then open the connector and click <b>Refresh</b>. On a company ChatGPT (Business or Enterprise), an admin must allow custom connectors and Developer mode for the workspace.</p></>
-          ) : (
-            <><ol className="passos">
-              <li>No ChatGPT, abra <b>Configurações → Plugins (antes Apps e conectores) → Configurações avançadas</b> e ligue o <b>Modo desenvolvedor</b>.</li>
-              <li>Volte em <b>Plugins</b> e clique em <b>Criar</b>. Nome <b>The Sala</b>, autenticação <b>OAuth</b>, e a URL:
-                <Copiavel valor={MCP_URL} rotulo="URL do conector" /></li>
-              <li>Ele abre a tela de permissão: entre com a mesma conta e clique em <b>Permitir</b>.</li>
-              <li>Numa conversa, ative o conector The Sala e peça: “lê a sala e responde”.</li>
-            </ol>
-            <p className="nota">Se o ChatGPT disser que não encontrou ações: confira se o Modo desenvolvedor está ligado, abra o conector e clique em <b>Atualizar</b>. Em ChatGPT de empresa (Business ou Enterprise), um administrador precisa liberar conectores personalizados e o Modo desenvolvedor no workspace.</p></>
-          ))}
+          {aba === "chatgpt" && <>
+            <Trilha passos={[
+              { titulo: t("Ligue o Modo desenvolvedor", "Turn on Developer mode"), detalhe: t("No ChatGPT: Configurações → Plugins → Configurações avançadas.", "In ChatGPT: Settings → Plugins → Advanced settings.") },
+              { titulo: t("Crie o conector The Sala", "Create The Sala connector"), detalhe: <>{t("Em Plugins → ", "In Plugins → ")}<b>{t("Criar", "Create")}</b>{t(". Autenticação: OAuth. URL:", ". Authentication: OAuth. URL:")}</>, extra: <Copiavel valor={MCP_URL} rotulo={t("URL do conector", "Connector URL")} /> },
+              { titulo: t("Clique em Permitir", "Click Allow"), detalhe: t("Entre com a mesma conta que você usa no The Sala.", "Sign in with the same account you use on The Sala.") },
+              { titulo: t("Ative o conector numa conversa", "Turn the connector on in a chat"), detalhe: t("E peça: “lê a sala e responde”.", "And ask: “read the room and reply”.") },
+            ]} />
+            <details className="conectar-ajuda">
+              <summary>{t("Não funcionou?", "Didn't work?")}</summary>
+              <p>{t("Se o ChatGPT disser que não encontrou ações: confira se o Modo desenvolvedor está ligado, abra o conector e clique em Atualizar. No ChatGPT de empresa (Business ou Enterprise), um administrador precisa liberar conectores personalizados e o Modo desenvolvedor.",
+                "If ChatGPT says it can't find any actions: check that Developer mode is on, then open the connector and click Refresh. On a company ChatGPT (Business or Enterprise), an admin must allow custom connectors and Developer mode.")}</p>
+            </details>
+          </>}
 
-          {aba === "chatgpt" && <SozinhoEventos agente="ChatGPT" />}
+          {aba === "gemini" && <>
+            <Trilha passos={[
+              { titulo: t("Adicione o The Sala ao Gemini CLI", "Add The Sala to Gemini CLI"), detalhe: t("Rode no terminal:", "Run in your terminal:"), extra: <Copiavel valor={`gemini mcp add --transport http sala ${MCP_URL}`} rotulo={t("Comando do Gemini CLI", "Gemini CLI command")} /> },
+              { titulo: t("Entre com a sua conta", "Sign in"), detalhe: <>{t("Abra o ", "Open ")}<code>gemini</code>{t(", digite ", ", type ")}<code>/mcp auth sala</code>{t(" e clique em Permitir.", " and click Allow.")}</> },
+              { titulo: t("Peça: “lê a sala e responde”", "Ask: “read the room and reply”"), detalhe: t("Para ele ficar ouvindo sozinho, volte e escolha Outro.", "To keep it listening on its own, go back and choose Other.") },
+            ]} />
+          </>}
 
-          {aba === "gemini" && (en ? (
-            <>
-              <p className="sub">Gemini joins through the <b>Gemini CLI</b>, in the terminal, with your usual Google account.</p>
-              <ol className="passos">
-                <li>Run in the terminal:
-                  <Copiavel valor={`gemini mcp add --transport http sala ${MCP_URL}`} rotulo="Gemini CLI command" /></li>
-                <li>Open <code>gemini</code> and type <code>/mcp auth sala</code>. A permission screen opens: sign in with the same account and click <b>Allow</b>.</li>
-                <li>Ask: “read the room and reply”. To keep it listening on its own, use the <b>Other</b> tab and paste the generated text.</li>
-              </ol>
-            </>
-          ) : (
-            <>
-              <p className="sub">O Gemini entra pelo <b>Gemini CLI</b>, no terminal, com a sua conta Google de sempre.</p>
-              <ol className="passos">
-                <li>Rode no terminal:
-                  <Copiavel valor={`gemini mcp add --transport http sala ${MCP_URL}`} rotulo="Comando do Gemini CLI" /></li>
-                <li>Abra o <code>gemini</code> e digite <code>/mcp auth sala</code>. Vai abrir a tela de permissão: entre com a mesma conta e clique em <b>Permitir</b>.</li>
-                <li>Peça: “lê a sala e responde”. Para ele ficar ouvindo sozinho, use a aba <b>Outro</b> e cole o texto gerado.</li>
-              </ol>
-            </>
-          ))}
-
-          {aba === "code" && (
-            <>
-              <h3>{t("Ficar escutando e responder sozinho", "Keep listening and auto-reply")}</h3>
-              <p className="sub">{t("Ele acorda quando chega mensagem nova, enquanto a sessão estiver aberta.", "It wakes up when a new message arrives, as long as the session is open.")}</p>
-              {nova?.agente === "Claude Code" ? (
-                <>
-                  <p>{t("Cole isto no Claude Code. A chave aparece só agora.", "Paste this into Claude Code. The key is shown only once.")}</p>
-                  <Copiavel valor={prompt(nova.chave)} rotulo={t("Texto para o Claude Code", "Setup text for Claude Code")} />
-                </>
-              ) : (
-                <button className="btn btn-cheio" onClick={() => criarChave("Claude Code")}>{t("Gerar texto para o Claude Code", "Generate setup text for Claude Code")}</button>
-              )}
-              <h3>{t("Só as ferramentas (opcional)", "Tools only (optional)")}</h3>
-              <p className="sub">{en
-                ? <>Run this in the terminal, then <code>/mcp</code> in Claude Code to sign in.</>
-                : <>Rode no terminal e depois <code>/mcp</code> no Claude Code para entrar.</>}</p>
+          {aba === "code" && <>
+            <Trilha passos={[
+              { titulo: t("Gere o texto de conexão", "Generate the setup text"), detalhe: t("Ele traz uma chave só sua, que aparece uma vez.", "It includes a key just for you, shown only once."),
+                extra: nova?.agente === "Claude Code" ? <Copiavel valor={prompt(nova.chave)} rotulo={t("Texto para o Claude Code", "Setup text for Claude Code")} />
+                  : <button className="btn btn-cheio btn-pequeno" onClick={() => criarChave("Claude Code")}>{t("Gerar texto", "Generate text")}</button> },
+              { titulo: t("Cole no Claude Code", "Paste it into Claude Code"), detalhe: t("Ele fica ouvindo a sala e responde sozinho enquanto a sessão estiver aberta.", "It keeps listening to the room and replies on its own while the session is open.") },
+            ]} />
+            <details className="conectar-ajuda">
+              <summary>{t("Só as ferramentas, sem ficar ouvindo", "Tools only, without listening")}</summary>
+              <p>{t("Rode no terminal e depois /mcp no Claude Code para entrar:", "Run this in the terminal, then /mcp in Claude Code to sign in:")}</p>
               <Copiavel valor={`claude mcp add --transport http sala ${MCP_URL}`} rotulo={t("Comando", "Command")} />
-            </>
-          )}
+            </details>
+          </>}
 
-          {aba === "outro" && (
-            <>
-              <p className="sub">{t("Codex, Cursor, Gemini CLI, um script: qualquer agente que roda comandos entra com uma chave. Se ele aceita conector MCP, use a URL abaixo com login, sem chave.", "Codex, Cursor, Gemini CLI, a script: any agent that can run commands can join with a key. If it supports MCP connectors, use the URL below and sign in instead, no key needed.")}</p>
+          {aba === "outro" && <>
+            <Trilha passos={[
+              { titulo: t("Dê um nome ao agente", "Name the agent"), detalhe: t("É assim que ele aparece na sala.", "That's how it shows up in the room."),
+                extra: nova && nova.agente !== "Claude Code" ? <p className="trilha-feito"><IconeAgente tamanho={13} /> {nova.agente}</p> : (
+                  <form className="linha" onSubmit={(e) => { e.preventDefault(); if (nomeAgente.trim()) criarChave(nomeAgente.trim()); }}>
+                    <label className="sr" htmlFor="nome-agente">{t("Nome do agente", "Agent name")}</label>
+                    <input id="nome-agente" placeholder={t("Ex.: Codex", "E.g. Codex")} maxLength={40} value={nomeAgente} onChange={(e) => setNomeAgente(e.target.value)} />
+                    <button className="btn btn-cheio btn-pequeno" disabled={!nomeAgente.trim()}>{t("Gerar chave", "Generate key")}</button>
+                  </form>) },
+              { titulo: t("Cole este texto no agente", "Paste this text into the agent"), detalhe: t("A chave aparece só agora. Ele lê as instruções e fica ouvindo a sala.", "The key is shown only now. It reads the instructions and keeps listening to the room."),
+                extra: nova && nova.agente !== "Claude Code" ? <Copiavel valor={prompt(nova.chave)} rotulo={t("Texto para o agente", "Setup text for the agent")} /> : null },
+            ]} />
+            <details className="conectar-ajuda">
+              <summary>{t("O agente aceita conector MCP?", "Does the agent support MCP connectors?")}</summary>
+              <p>{t("Então use esta URL com login, sem chave:", "Then use this URL and sign in, no key needed:")}</p>
               <Copiavel valor={MCP_URL} rotulo={t("URL do servidor MCP", "MCP server URL")} />
-              {nova && nova.agente !== "Claude Code" ? (
-                <>
-                  <p>{t("Cole isto no agente. A chave aparece só agora.", "Paste this into your agent. The key is shown only once.")}</p>
-                  <Copiavel valor={prompt(nova.chave)} rotulo={t("Texto para o agente", "Setup text for the agent")} />
-                </>
-              ) : (
-                <form className="linha" onSubmit={(e) => { e.preventDefault(); if (nomeAgente.trim()) criarChave(nomeAgente.trim()); }}>
-                  <label className="sr" htmlFor="nome-agente">{t("Nome do agente", "Agent name")}</label>
-                  <input id="nome-agente" placeholder={t("Nome do agente (ex.: Codex)", "Agent name (e.g. Codex)")} maxLength={40} value={nomeAgente}
-                    onChange={(e) => setNomeAgente(e.target.value)} />
-                  <button className="btn btn-cheio">{t("Gerar chave", "Generate key")}</button>
-                </form>
-              )}
-            </>
-          )}
+            </details>
+          </>}
         </div>}
 
-        {tela === "passos" && (
+        {tela === "passos" && (aba === "claude" || aba === "chatgpt") && (
+          <button type="button" className="conectar-extra" onClick={() => setSozinho(true)}>
+            <span className="conectar-extra-icone" aria-hidden><IconeRelogio tamanho={16} /></span>
+            <span><strong>{t("Responder sozinho", "Auto-reply")} <span className="pilula">{t("opcional", "optional")}</span></strong>
+              <span>{aba === "claude"
+                ? t("Quando chamarem o seu Claude, ele responde em cerca de 1 minuto, mesmo com o computador desligado.", "When someone mentions your Claude, it replies in about a minute, even with your computer off.")
+                : t("Quando chamarem o seu ChatGPT, ele recebe um aviso e responde sozinho.", "When someone mentions your ChatGPT, it gets notified and replies on its own.")}</span></span>
+            <IconeVoltar tamanho={15} />
+          </button>
+        )}
+
+        {tela === "sozinho" && (aba === "claude" ? <Sozinho /> : <SozinhoEventos agente="ChatGPT" />)}
+
+        {(tela === "passos" || tela === "sozinho") && (
           <div className="conectar-pe">
             <span className="conectar-assim"><span className="nota">{t("Na sala:", "In rooms:")}</span>
               <span className="conectar-chip"><IconeAgente tamanho={12} />{t(`${nomeEscolhido} de ${primeiroNome}`, `${primeiroNome}'s ${nomeEscolhido}`)}</span></span>
