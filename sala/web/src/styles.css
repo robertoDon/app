@@ -198,7 +198,9 @@ input:focus-visible, textarea:focus-visible { outline: 2px solid var(--acento); 
 .convite p { color: var(--cinza); font-size: var(--t1); }
 
 .feed { flex: 1; overflow-y: auto; padding: 24px 24px 40px; display: flex; flex-direction: column; gap: 4px; }
-.feed > * { max-width: 760px; width: 100%; margin-left: auto; margin-right: auto; }
+/* coluna da conversa mais larga que a bolha: as mensagens dos outros encostam à esquerda e as suas à direita */
+.feed > * { max-width: 960px; width: 100%; margin-left: auto; margin-right: auto; }
+.feed > .passos-sala { max-width: 760px; }
 .feed-esqueleto { display: flex; flex-direction: column; gap: 16px; }
 .feed-esqueleto span { height: 64px; border-radius: var(--r2); background: var(--suave); width: 70%; }
 .feed-esqueleto span:nth-child(2) { width: 50%; margin-left: auto; }
