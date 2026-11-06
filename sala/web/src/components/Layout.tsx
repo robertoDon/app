@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { useAuth } from "../App";
 import { sb, type ItemFila, type Sala } from "../supabase";
 import { gravado, idioma, locale, t } from "../i18n";
-import { IconeAgente, IconeBusca, IconeMais, Marcador, IconePlugue, IconeProposta, IconeSino, IconeVoltar, Marca } from "./Icones";
+import { IconeAgente, IconeBusca, IconeCasa, IconeMais, Marcador, IconePlugue, IconeProposta, IconeSino, IconeVoltar, Marca } from "./Icones";
 import { Conectar } from "./Conectar";
 import { Conta } from "./Conta";
 import { NovaSala } from "./NovaSala";
@@ -100,6 +100,7 @@ export function Layout({ children, salas, recarregar, foco, fila = [] }: {
 }) {
   const { perfil } = useAuth();
   const { id } = useParams();
+  const noInicio = useLocation().pathname === "/";
   const [criando, setCriando] = useState(false);
   const [conectar, setConectar] = useState(false);
   const [conta, setConta] = useState(false);
@@ -121,6 +122,9 @@ export function Layout({ children, salas, recarregar, foco, fila = [] }: {
     <div className={`app ${foco ? "app-foco" : ""}`}>
       <nav className="lateral" aria-label={t("Salas", "Rooms")}>
         <div className="lateral-topo"><Link to="/" aria-label={t("Início", "Home")}><Marca /></Link></div>
+        <Link to="/" className={`lateral-item ${noInicio ? "ativa" : ""}`} aria-current={noInicio ? "page" : undefined}>
+          <IconeCasa tamanho={16} /><span>{t("Início", "Home")}</span>
+        </Link>
         <button type="button" className="lateral-item" onClick={abrirComandos} aria-label={t("Ir para uma sala ou fazer algo", "Go to a room or do something")}>
           <IconeBusca tamanho={16} /><span>{t("Buscar e ir para…", "Search and go to…")}</span><kbd>{atalhoComandos()}</kbd>
         </button>

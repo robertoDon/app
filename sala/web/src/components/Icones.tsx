@@ -83,3 +83,4 @@ export const IconeBiblioteca = ({ tamanho }: P) => <svg {...base(tamanho)}><rect
 export const IconeLink = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></svg>;
 export const IconeMemoria = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M6 3.5h9l3.5 3.5v13.5H6Z" /><path d="M14.5 3.5V7.5h4" /><path d="M9 12h6M9 15.5h6M9 8.5h2.5" /></svg>;
 export const IconePainel = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M4 20V10" /><path d="M10 20V4" /><path d="M16 20v-7" /><path d="M21 20H3" /></svg>;
+export const IconeCasa = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1v-8.5Z" /></svg>;

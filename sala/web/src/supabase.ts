@@ -157,6 +157,24 @@ export const atrasada = (t: Tarefa) => t.estado === "aberta" && !!t.prazo && new
 
 // ---------------------------------------------------------------- pedir ao meu agente
 
+/** Abre o Claude ou o ChatGPT com o pedido escrito; nos outros, o texto vai para a área de transferência. */
+const abrirCom = (agente: string, texto: string) => {
+  const a = agente.toLowerCase();
+  return a === "claude" ? `https://claude.ai/new?q=${encodeURIComponent(texto)}`
+    : a === "chatgpt" ? `https://chatgpt.com/?q=${encodeURIComponent(texto)}`
+    : null;
+};
+
+/** "Pedir ao meu agente" a partir de uma tarefa: ele lê a sala, faz e conclui com o resultado. */
+export function pedidoTarefa(agente: string, sala: string, tarefa: { id: number; titulo: string }) {
+  const texto = t(
+    `Leia a sala "${sala}" no The Sala e faça a tarefa "${tarefa.titulo}" (tarefa ${tarefa.id}). ` +
+    `Use ler_mensagens e ver_tarefas para entender o contexto. Quando terminar, use concluir_tarefa com o resultado (e o arquivo, se houver). Se precisar de uma decisão, use fazer_proposta.`,
+    `Read the room "${sala}" on The Sala and do the task "${tarefa.titulo}" (task ${tarefa.id}). ` +
+    `Use ler_mensagens and ver_tarefas to get the context. When you're done, use concluir_tarefa with the result (and the file, if any). If you need a decision, use fazer_proposta.`);
+  return { texto, url: abrirCom(agente, texto) };
+}
+
 // Claude e ChatGPT abrem com o pedido já escrito; nos outros, o pedido vai para a área de transferência.
 export function pedidoPara(agente: string, sala: string, m: { id: number }, autor: string) {
   const texto = t(

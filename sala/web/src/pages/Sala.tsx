@@ -877,7 +877,7 @@ export default function SalaPage() {
             decidir={decidir} aprovacaoDe={aprovacaoDe} irPara={irPara} fechar={() => setPainel(null)} abrirAta={() => setAta(true)} />
         )}
         {painel === "tarefas" && sala && (
-          <Tarefas salaId={sala.id} tarefas={tarefas} membros={membros} agentes={agentes} eu={eu} nome={nome}
+          <Tarefas salaId={sala.id} salaNome={sala.nome} tarefas={tarefas} membros={membros} agentes={agentes} eu={eu} nome={nome}
             rascunho={rascunho} limparRascunho={() => setRascunho(null)} irPara={irPara} fechar={() => { setPainel(null); setRascunho(null); }} />
         )}
         {painel === "painel" && sala && (

@@ -123,10 +123,13 @@ export function Conta({ fechar }: { fechar: () => void }) {
 
         <section className="conta-secao">
           <h3 className="secao-rotulo secao-rotulo-solto" id="conta-tema">{t("Aparência", "Appearance")}</h3>
-          <div className="abas" role="radiogroup" aria-labelledby="conta-tema">
+          <div className="temas" role="radiogroup" aria-labelledby="conta-tema">
             {TEMAS.map((o) => (
               <button key={o.valor} type="button" role="radio" aria-checked={tema === o.valor}
-                className={`aba ${tema === o.valor ? "ativa" : ""}`} onClick={() => definirTema(o.valor)}>{o.titulo}</button>
+                className={`tema-cartao ${tema === o.valor ? "ativo" : ""}`} onClick={() => definirTema(o.valor)}>
+                <span className={`tema-mini tema-mini-${o.valor}`} aria-hidden><i /><b /><b /></span>
+                <span>{o.titulo}</span>
+              </button>
             ))}
           </div>
         </section>

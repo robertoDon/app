@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MCP_URL, sb } from "../supabase";
 import { useAuth } from "../App";
 import { IconeAgente, IconeCheck, IconeCopiar, IconeFechar } from "./Icones";
@@ -47,15 +47,30 @@ export function Conectar({ fechar }: { fechar: () => void }) {
   const [nomeAgente, setNomeAgente] = useState("");
   const en = idioma() === "en";
 
+  // o que já estava conectado ao abrir; o que aparecer depois vira "conectado agora"
+  const iniciais = useRef<Set<string> | null>(null);
+  const [recem, setRecem] = useState<string | null>(null);
+
   const carregar = async () => {
     const { data } = await sb.from("chaves").select("id, agente, final, criada_em, usada_em").order("criada_em", { ascending: false });
-    setChaves(data ?? []);
+    const cs = (data ?? []) as Chave[];
+    setChaves(cs);
+    let gs: Grant[] | null = null;
     try {
       const r = await sb.auth.oauth.listGrants();
-      if (r && !r.error) setGrants((r.data as unknown as Grant[]) ?? []);
+      if (r && !r.error) { gs = (r.data as unknown as Grant[]) ?? []; setGrants(gs); }
     } catch { /* servidor OAuth desligado */ }
+    const atuais = [...(gs ?? []).map((g) => [`g:${g.client.id}`, nomeDoAgente(g.client.name)]), ...cs.filter((c) => c.usada_em).map((c) => [`c:${c.id}`, c.agente])];
+    if (!iniciais.current) { iniciais.current = new Set(atuais.map(([k]) => k)); return; }
+    const novo = atuais.find(([k]) => !iniciais.current!.has(k));
+    if (novo) { iniciais.current.add(novo[0]); setRecem(novo[1]); }
   };
-  useEffect(() => { carregar(); }, []);
+  useEffect(() => {
+    carregar();
+    // enquanto a janela está aberta, confere se o agente terminou de conectar (a pessoa está na outra aba clicando em Permitir)
+    const id = window.setInterval(() => { if (!document.hidden) carregar(); }, 4000);
+    return () => window.clearInterval(id);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const esc = (e: KeyboardEvent) => e.key === "Escape" && fechar();
@@ -98,6 +113,17 @@ Keep listening to the room in the background and respond to anything meant for y
           ? <>The agent joins your rooms and writes as your agent: “{perfil?.nome?.split(" ")[0] ? `${perfil.nome.split(" ")[0]}'s Claude` : "your Claude"}”. Everyone uses their own subscription. </>
           : <>O agente entra nas suas salas e escreve como seu agente: “Claude de {perfil?.nome?.split(" ")[0] ?? "você"}”. Cada um usa a própria assinatura. </>}
           <a className="link" href="/ajuda#agentes" target="_blank" rel="noopener">{t("Precisa de ajuda?", "Need help?")}</a></p>
+
+        {recem && (
+          <div className="conectado-agora" role="status">
+            <span className="msg-avatar msg-avatar-agente" aria-hidden><IconeAgente tamanho={14} /></span>
+            <span className="conectado-agora-texto">
+              <strong>{t(`${recem} conectado.`, `${recem} is connected.`)}</strong>
+              <span>{t(`Numa sala, chame com @${recem.replace(/\s/g, "")}. Ou peça no próprio ${recem}: “lê a sala e responde”.`, `In a room, mention it with @${recem.replace(/\s/g, "")}. Or ask ${recem} itself: “read the room and reply”.`)}</span>
+            </span>
+            <button type="button" className="btn btn-pequeno btn-cheio" onClick={fechar}>{t("Pronto", "Done")}</button>
+          </div>
+        )}
 
         {(grants.length > 0 || chaves.length > 0) && (
           <section className="conectados">

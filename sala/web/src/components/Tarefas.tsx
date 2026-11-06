@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { atrasada, sb, type Membro, type Tarefa } from "../supabase";
+import { atrasada, copiarTexto, pedidoTarefa, sb, type Membro, type Tarefa } from "../supabase";
 import type { AgenteSala } from "../pages/Sala";
 import { IconeAgente, IconeFechar, IconeMais, IconeRelogio, IconeVoltar, Marcador } from "./Icones";
 import { Menu } from "./Menu";
@@ -9,6 +9,7 @@ export type RascunhoTarefa = { titulo: string; origem: number | null; responsave
 
 type Props = {
   salaId: string;
+  salaNome: string;
   tarefas: Tarefa[] | null;
   membros: Membro[];
   agentes: AgenteSala[];
@@ -119,7 +120,10 @@ export function Prazo({ tf }: { tf: Tarefa }) {
 
 // Tarefas da sala: o que está aberto, com quem e até quando; o que já foi entregue.
 // Um toque no círculo conclui (com Desfazer); o resto das ações fica no menu ⋯.
-export function Tarefas({ salaId, tarefas, membros, agentes, eu, nome, rascunho, limparRascunho, irPara, fechar }: Props) {
+export function Tarefas({ salaId, salaNome, tarefas, membros, agentes, eu, nome, rascunho, limparRascunho, irPara, fechar }: Props) {
+  const [rapida, setRapida] = useState("");
+  const [copiouPedido, setCopiouPedido] = useState<number | null>(null);
+  const meusAgentes = agentes.filter((a) => a.uid === eu);
   const [nova, setNova] = useState(false);
   const [editando, setEditando] = useState<number | null>(null);
   const [concluindo, setConcluindo] = useState<number | null>(null);
@@ -190,6 +194,13 @@ export function Tarefas({ salaId, tarefas, membros, agentes, eu, nome, rascunho,
     setConcluindo(null); setResultado(""); setDesfazer(tf);
   };
 
+  const pedirAoAgente = async (tf: Tarefa, agente: string) => {
+    const { texto, url } = pedidoTarefa(agente, salaNome, tf);
+    await copiarTexto(texto);
+    if (url) window.open(url, "_blank", "noopener,noreferrer");
+    else { setCopiouPedido(tf.id); setTimeout(() => setCopiouPedido(null), 2500); }
+  };
+
   const cancelarTarefa = async (tf: Tarefa) => {
     if (!confirm(t(`Cancelar a tarefa "${tf.titulo}"? Ela sai da lista.`, `Cancel the task "${tf.titulo}"? It will be removed from the list.`))) return;
     const { error } = await sb.rpc("editar_tarefa", { tarefa: tf.id, titulo: tf.titulo, responsavel: tf.responsavel, responsavel_agente: tf.responsavel_agente, prazo: tf.prazo, estado: "cancelada" });
@@ -213,6 +224,19 @@ export function Tarefas({ salaId, tarefas, membros, agentes, eu, nome, rascunho,
       </header>
 
       <div className="painel-filtro">
+        <form className="tarefa-rapida" onSubmit={async (e) => {
+          e.preventDefault();
+          const titulo = rapida.trim();
+          if (!titulo) return;
+          setRapida("");
+          const r = await criar(titulo, valorResp(eu, null), "", "");
+          if (r) { setRapida(titulo); alert(r); }
+        }}>
+          <IconeMais tamanho={16} />
+          <label className="sr" htmlFor="tarefa-rapida">{t("Adicionar tarefa", "Add a task")}</label>
+          <input id="tarefa-rapida" value={rapida} maxLength={200} onChange={(e) => setRapida(e.target.value)}
+            placeholder={t("Adicionar tarefa para você… (Enter)", "Add a task for yourself… (Enter)")} />
+        </form>
         <div className="abas abas-mini" role="tablist" aria-label={t("Filtrar", "Filter")}>
           <button role="tab" aria-selected={so === "todas"} className={so === "todas" ? "aba ativa" : "aba"} onClick={() => setSo("todas")}>{t("Todas", "All")}</button>
           <button role="tab" aria-selected={so === "minhas"} className={so === "minhas" ? "aba ativa" : "aba"} onClick={() => setSo("minhas")}>
@@ -263,6 +287,7 @@ export function Tarefas({ salaId, tarefas, membros, agentes, eu, nome, rascunho,
                           <Resp nome={quemNome(tf)} agente={!!tf.responsavel_agente} eu={minha(tf) && !tf.responsavel_agente} />
                           <Prazo tf={tf} />
                           {tf.frente && <span className="pilula">{tf.frente}</span>}
+                          {copiouPedido === tf.id && <span className="nota">{t("Pedido copiado. Cole no seu agente.", "Request copied. Paste it into your agent.")}</span>}
                           {tf.prazo_previsto && tf.prazo && new Date(tf.prazo).toDateString() !== new Date(tf.prazo_previsto).toDateString() && (
                             <span className="nota" title={t("Prazo do plano aprovado", "Due date in the approved plan")}>{t(`previsto ${prazoCurto(tf.prazo_previsto)}`, `planned ${prazoCurto(tf.prazo_previsto)}`)}</span>
                           )}
@@ -281,6 +306,7 @@ export function Tarefas({ salaId, tarefas, membros, agentes, eu, nome, rascunho,
                       </div>
                       <Menu rotulo={t(`Ações da tarefa ${tf.titulo}`, `Actions for task ${tf.titulo}`)} itens={[
                         tf.origem != null && { rotulo: t("Ver na conversa", "View in chat"), acao: () => irPara(tf.origem!) },
+                        ...meusAgentes.map((a) => ({ rotulo: t(`Pedir ao ${a.nome}`, `Ask ${a.nome}`), acao: () => pedirAoAgente(tf, a.nome) })),
                         { rotulo: t("Concluir com resultado…", "Complete with result…"), acao: () => { setConcluindo(tf.id); setResultado(""); setEditando(null); } },
                         { rotulo: t("Editar", "Edit"), acao: () => { setEditando(tf.id); setNova(false); setConcluindo(null); } },
                         { rotulo: t("Cancelar tarefa", "Cancel task"), acao: () => cancelarTarefa(tf), perigo: true },
