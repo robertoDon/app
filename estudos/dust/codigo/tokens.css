@@ -1,0 +1,162 @@
+/* Dust (app.dust.tt) design tokens, measured 2026-11-06 via getComputedStyle on <html>.
+   Light = html without .dark ; Dark = html.dark. Source values are oklch(); converted to sRGB hex via canvas.
+   Stack: Tailwind v4 (@theme vars), Geist font, stone (warm gray) neutral scale, semantic scales that INVERT in dark mode. */
+
+:root {
+  /* ---------- Typography ---------- */
+  --font-sans: Geist, sans-serif;            /* body AND conversation (--font-conversation) */
+  --font-mono: "Geist Mono", monospace;
+  --font-serif: Lora, Georgia, serif;
+  --font-dyslexic: OpenDyslexic, Geist, sans-serif;  /* accessibility preference */
+  --font-weight-normal: 400;
+  --font-weight-medium: 450;    /* note: medium is 450, not 500 */
+  --font-weight-semibold: 550;  /* note: semibold is 550, not 600 */
+  --font-weight-bold: 700;
+  /* size / line-height / letter-spacing — tracking tightens as size grows */
+  --text-xs: 12px;   --text-xs--line-height: 1.33333; --text-xs--letter-spacing: 0;
+  --text-sm: 14px;   --text-sm--line-height: 1.42857; --text-sm--letter-spacing: 0;
+  --text-base: 16px; --text-base--line-height: 1.5;   --text-base--letter-spacing: 0;
+  --text-lg: 18px;   --text-lg--line-height: 1.44444; --text-lg--letter-spacing: -.01em;
+  --text-xl: 20px;   --text-xl--line-height: 1.4;     --text-xl--letter-spacing: -.015em;
+  --text-2xl: 28px;  --text-2xl--line-height: 1.28571; --text-2xl--letter-spacing: -.0175em;
+  --text-3xl: 32px;  --text-3xl--line-height: 1.25;   --text-3xl--letter-spacing: -.02em;
+  --text-4xl: 40px;  --text-4xl--line-height: 1.2;    --text-4xl--letter-spacing: -.025em;
+  --text-5xl: 48px;  --text-5xl--line-height: 1.16667; --text-5xl--letter-spacing: -.029em;
+  --text-6xl: 56px;  --text-6xl--line-height: 1.1;    --text-6xl--letter-spacing: -.0325em;
+  --text-7xl: 64px;  --text-7xl--line-height: 1.0625; --text-7xl--letter-spacing: -.036em;
+  --text-8xl: 72px;  --text-8xl--line-height: 1.05556; --text-8xl--letter-spacing: -.04em;
+  --text-9xl: 80px;  --text-9xl--line-height: 1.05;   --text-9xl--letter-spacing: -.04em;
+
+  /* ---------- Layout ---------- */
+  --spacing: .25rem;                    /* 4px grid */
+  --container-conversation: 65ch;       /* max width of the conversation column */
+  --spacing-sidebar: 20rem;             /* 320px sidebar (measured 270px rendered, see README) */
+  --spacing-sidebar-side-spacing: .75rem;
+  --spacing-sidebar-toggle-slot: 3rem;
+  --spacing-pill-button: 2rem;
+  --title-height: 3rem;                 /* conversation top bar */
+  --panel-height: calc(100dvh - 1rem);  /* main panel floats with 8px margin */
+
+  /* ---------- Radius ---------- */
+  --radius-xs: 2px; --radius-sm: 4px; --radius-md: 6px; --radius-lg: 8px;
+  --radius-xl: 12px; --radius-2xl: 16px; --radius-3xl: 24px; --radius-4xl: 32px;
+
+  /* ---------- Motion ---------- */
+  --default-transition-duration: .15s;
+  --default-transition-timing-function: cubic-bezier(.4, 0, .2, 1);
+  --transition-duration-enter: .2s;
+  --transition-duration-exit: .16s;           /* exits faster than entries */
+  --transition-duration-modal-enter: .3s;
+  --transition-duration-modal-exit: .24s;
+  --ease-enter: cubic-bezier(.215, .61, .355, 1);       /* easeOutCubic */
+  --ease-emphasized: cubic-bezier(.23, 1, .32, 1);      /* easeOutQuint */
+  --ease-move: cubic-bezier(.455, .03, .515, .955);
+  --ease-out-expo: cubic-bezier(.19, 1, .22, 1);
+  --animate-input-bar-compact-in: input-bar-compact-in .48s cubic-bezier(.34, 1.56, .64, 1) both;  /* springy overshoot */
+  --animate-input-bar-compact-nav-in: input-bar-compact-nav-in .42s cubic-bezier(.34, 1.56, .64, 1) .16s both;
+  --animate-input-bar-compact-content-in: input-bar-compact-content-in .32s ease-out .1s both;
+  --animate-loading-dot: loading-dot 1.2s infinite;
+  --animate-shiny-text: shiny-text 2s infinite;       /* "Thinking..." shimmer on agent status */
+  --animate-shimmer: shimmer 1.8s linear infinite;
+  --animate-breathing: breathing 4s infinite ease-in-out;
+  --animate-ring-pulse: ring-pulse 3s ease-out infinite;
+  --animate-ring-pulse-soft: ring-pulse-soft 3s cubic-bezier(.4, 0, .6, 1) infinite;
+  --animate-cursor-blink: cursor-blink .9s infinite;
+  --animate-saved-pulse: saved-pulse 2s ease-out;
+  --animate-shake: shake .5s ease-in-out both;        /* error feedback */
+  --animate-collapse-down: collapse-down .15s ease-out;
+  --animate-collapse-up: collapse-up .15s ease-out;
+  --animate-panel-slide-in-content: panel-slide-in-content .3s;
+
+  /* ---------- Shadows (drop) ---------- */
+  --drop-shadow-sm: 0 1px 2px rgb(17 20 24 / .05);
+  --drop-shadow: 0 2px 4px rgb(17 20 24 / .063);
+  --drop-shadow-md: 0 4px 6px rgb(17 20 24 / .12);
+  --drop-shadow-lg: 0 10px 15px rgb(17 20 24 / .12);
+  --drop-shadow-xl: 0 20px 20px rgb(17 20 24 / .12);
+  --drop-shadow-2xl: 0 25px 35px rgb(17 20 24 / .12);
+  /* input bar (dark): inset 0 1px 0 rgba(255,255,255,.02), inset 0 0 0 1px rgba(255,255,255,.04),
+     0 0 0 1.5px rgba(0,0,0,.14), 0 1px 1px -.5px rgba(0,0,0,.18), 0 3px 3px -1.5px rgba(0,0,0,.18), 0 6px 6px -3px rgba(0,0,0,.18)
+     on focus the two inset alphas rise to .035 / .055 (layered "stacked" shadow) */
+
+  /* ---------- Neutral scale: stone (warm) ---------- */
+  --color-stone-25: #fdfdfc; --color-stone-50: #fbfaf9; --color-stone-100: #f5f5f4; --color-stone-150: #eeeeec;
+  --color-stone-200: #e7e5e4; --color-stone-300: #d6d3d1; --color-stone-400: #a6a09b; --color-stone-500: #79716b;
+  --color-stone-600: #57534d; --color-stone-650: #4c4843; --color-stone-700: #44403b; --color-stone-725: #3c3934;
+  --color-stone-750: #363331; --color-stone-775: #2e2c29; --color-stone-800: #262221; --color-stone-850: #1f1c19;
+  --color-stone-900: #191715; --color-stone-950: #0c0a09;
+
+  /* ---------- Brand palette ---------- */
+  --color-brand: #418b5c;                 /* hunter green */
+  --color-brand-hunter-green: #418b5c;
+  --color-brand-electric-blue: #1c91ff;
+  --color-brand-sky-blue: #9fdbff;
+  --color-brand-orange-golden: #fe9c1a;
+  --color-brand-sunshine-golden: #ffe262;
+  --color-brand-red-rose: #e14322;
+  --color-brand-pink-rose: #f2ad9f;
+  --color-brand-tea-green: #e2f78c;
+  --color-brand-dark-gray: #364153;
+  --color-brand-light-gray: #d3d5d9;
+  --color-brand-support-blue: #e9f7ff; --color-brand-support-golden: #fffae0; --color-brand-support-gray: #f7f7f7;
+  --color-brand-support-green: #fefff0; --color-brand-support-rose: #fef2f2;
+
+  /* ---------- Semantic (LIGHT) ---------- */
+  --color-app-background: #fbfaf9;    /* sidebar / outer frame */
+  --color-background: #ffffff;        /* main panel */
+  --color-muted-background: #fbfaf9;
+  --color-panel-background: #ffffff;
+  --color-modal-background: #ffffff;
+  --color-overlay-background: #ffffff;
+  --color-input-bar-background: #fbfbfb;
+  --color-input-bar-background-secondary: #f5f4f3;
+  --color-foreground: #191715;
+  --color-muted-foreground: #57534d;
+  --color-faint: #79716b;
+  --color-primary: #262221;           /* primary BUTTON = near-black, not a hue */
+  --color-border: #f5f5f4;
+  --color-border-dark: #eeeeec;
+  --color-border-form: #d6d3d1;
+  --color-border-form-active: #79716b;
+  --color-border-focus: #4babff;
+  --color-separator: #f5f5f4;
+  --color-hover: rgb(0 0 0 / .02);
+  --color-selected: rgb(0 0 0 / .06);
+  --color-loading: rgb(0 0 0 / .06);
+  --color-ring: #1c91ff;
+  --color-highlight: #1c91ff;         /* accent = electric blue (send button, links, focus) */
+  --color-highlight-on: #e9f7ff;
+  --color-success: #6aa668;
+  --color-warning: #e14322;           /* "warning" is their red/danger */
+  --color-info: #ffaa0d;              /* "info" is golden */
+  --color-slider-toggle-bg-idle: #e7e5e4;
+}
+
+.dark {
+  --color-app-background: #191715;
+  --color-background: #141211;
+  --color-muted-background: #191715;
+  --color-panel-background: #1f1c19;
+  --color-modal-background: #2e2c29;
+  --color-overlay-background: #262221;
+  --color-input-bar-background: #2e2c28;
+  --color-input-bar-background-secondary: #3a3833;
+  --color-foreground: #e7e5e4;
+  --color-muted-foreground: #a6a09b;
+  --color-faint: #79716b;
+  --color-primary: #e7e5e4;           /* primary button flips to near-white */
+  --color-border: #262221;
+  --color-border-dark: #363331;
+  --color-border-form: #44403b;
+  --color-border-focus: #137fe3;
+  --color-separator: #262221;
+  --color-hover: rgb(255 255 255 / .04);
+  --color-selected: rgb(255 255 255 / .08);
+  --color-loading: rgb(255 255 255 / .08);
+  --color-ring: #79716b;
+  --color-highlight: #1c91ff;
+  /* semantic ramps (highlight/success/warning/info/primary 50..950) are mirrored: 50<->950, 100<->900 ... 500 fixed */
+  --color-highlight-50: #041728; --color-highlight-100: #07355f; --color-highlight-200: #085092; --color-highlight-300: #0a6cc6;
+  --color-highlight-400: #137fe3; --color-highlight-600: #4babff; --color-highlight-700: #7ac6ff; --color-highlight-800: #9fdbff; --color-highlight-900: #caebff;
+  --color-slider-toggle-bg-idle: #44403b;
+}
