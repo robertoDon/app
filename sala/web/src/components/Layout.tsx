@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../App";
 import { sb, type ItemFila, type Sala } from "../supabase";
 import { gravado, idioma, locale, t } from "../i18n";
-import { IconeAgente, IconeBusca, IconeMais, Marcador, IconePlugue, IconeProposta, IconeVoltar, Marca } from "./Icones";
+import { IconeAgente, IconeBusca, IconeMais, Marcador, IconePlugue, IconeProposta, IconeSino, IconeVoltar, Marca } from "./Icones";
 import { Conectar } from "./Conectar";
 import { Conta } from "./Conta";
 import { NovaSala } from "./NovaSala";
@@ -49,14 +49,13 @@ function Fila({ fila }: { fila: ItemFila[] }) {
   if (!fila.length) return null;
   const vencida = (f: ItemFila) => !!f.prazo && new Date(f.prazo).getTime() < Date.now();
   return (
-    <div className="fila">
-      <button className="fila-topo" aria-expanded={aberta} onClick={() => setAberta((v) => !v)}>
-        <span>{t("Esperando você", "Waiting for you")}</span>
-        <span className="sala-novas">{fila.length}</span>
-        <IconeVoltar tamanho={14} />
+    <>
+      <button type="button" className="lateral-item" aria-expanded={aberta} onClick={() => setAberta((v) => !v)}>
+        <IconeSino tamanho={16} /><span>{t("Esperando você", "Waiting for you")}</span>
+        <span className="lateral-num" aria-label={t(`${fila.length} itens`, `${fila.length} items`)}>{fila.length}</span>
       </button>
       {aberta && (
-        <ul>
+        <ul className="fila-lista">
           {fila.map((f) => (
             <li key={`${f.tipo}${f.ref}`}>
               <Link to={f.tipo === "proposta" ? `/s/${f.sala_id}?ir=${f.ref}` : `/s/${f.sala_id}?tarefas=1`}>
@@ -68,7 +67,7 @@ function Fila({ fila }: { fila: ItemFila[] }) {
           ))}
         </ul>
       )}
-    </div>
+    </>
   );
 }
 
@@ -122,18 +121,17 @@ export function Layout({ children, salas, recarregar, foco, fila = [] }: {
     <div className={`app ${foco ? "app-foco" : ""}`}>
       <nav className="lateral" aria-label={t("Salas", "Rooms")}>
         <div className="lateral-topo"><Link to="/" aria-label={t("Início", "Home")}><Marca /></Link></div>
-        <button type="button" className="lateral-busca" onClick={abrirComandos} aria-label={t("Ir para uma sala ou fazer algo", "Go to a room or do something")}>
-          <IconeBusca tamanho={16} /><span>{t("Ir para…", "Go to…")}</span><kbd>{atalhoComandos()}</kbd>
+        <button type="button" className="lateral-item" onClick={abrirComandos} aria-label={t("Ir para uma sala ou fazer algo", "Go to a room or do something")}>
+          <IconeBusca tamanho={16} /><span>{t("Buscar e ir para…", "Search and go to…")}</span><kbd>{atalhoComandos()}</kbd>
         </button>
+        <Fila fila={fila} />
 
         <div className="lateral-titulo" data-guia="salas">
           <span>{t("Salas", "Rooms")}</span>
           <button className="btn-icone" onClick={() => setCriando(true)} title={t("Nova sala (N)", "New room (N)")} aria-label={t("Nova sala", "New room")}>
-            <IconeMais tamanho={18} />
+            <IconeMais tamanho={16} />
           </button>
         </div>
-
-        <Fila fila={fila} />
 
         <ul className="lista-salas">
           {salas === null && [0, 1, 2].map((i) => <li key={i} className="esqueleto" aria-hidden />)}
@@ -152,7 +150,7 @@ export function Layout({ children, salas, recarregar, foco, fila = [] }: {
                     <span className="sala-linha">
                       <span className="sala-previa">
                         {s.ultima_texto ? (
-                          <>{s.ultima_agente && <IconeAgente tamanho={12} />}{s.ultima_agente ?? s.ultima_nome?.split(" ")[0]}
+                          <>{s.ultima_agente && <IconeAgente tamanho={11} />}{s.ultima_agente ?? s.ultima_nome?.split(" ")[0]}
                             {s.ultima_tipo === "proposta" ? t(" propôs", " proposed") : s.ultima_tipo === "decisao" ? t(" decidiu", " decided") : ""}: {gravado(s.ultima_texto, s.idioma ?? idioma()).replace(/\*\*|__|`|^#+\s/gm, "")}</>
                         ) : t("Sem mensagens ainda", "No messages yet")}
                       </span>
@@ -163,7 +161,7 @@ export function Layout({ children, salas, recarregar, foco, fila = [] }: {
                       )}
                       {Number(s.pendentes) > 0 && (
                         <span className="sala-pendentes" title={`${s.pendentes} ${Number(s.pendentes) === 1 ? t("proposta aguardando decisão", "proposal awaiting a decision") : t("propostas aguardando decisão", "proposals awaiting a decision")}`} aria-label={`${s.pendentes} ${t("para decidir", "awaiting decision")}`}>
-                          <IconeProposta tamanho={12} />{s.pendentes}
+                          <IconeProposta tamanho={11} />{s.pendentes}
                         </span>
                       )}
                       {novas > 0 && !ativa && <span className="sala-novas" aria-label={`${novas} ${novas === 1 ? t("não lida", "unread") : t("não lidas", "unread")}`}>{novas > 99 ? "99+" : novas}</span>}
@@ -176,13 +174,13 @@ export function Layout({ children, salas, recarregar, foco, fila = [] }: {
         </ul>
 
         <div className="lateral-base">
-          <button className="btn btn-largo" data-guia="conectar" onClick={() => setConectar(true)} title={t("Conectar agente (A)", "Connect agent (A)")}>
-            <IconePlugue tamanho={18} /> {t("Conectar agente", "Connect agent")}
+          <button type="button" className="lateral-item" data-guia="conectar" onClick={() => setConectar(true)} title={t("Conectar agente (A)", "Connect agent (A)")}>
+            <IconePlugue tamanho={16} /><span>{t("Conectar agente", "Connect agent")}</span><kbd>A</kbd>
           </button>
           <button className="eu" data-guia="conta" onClick={() => setConta(true)} title={t("Sua conta, avisos e sair", "Account, notifications and sign out")}>
             {perfil?.avatar ? <img src={perfil.avatar} alt="" className="avatar" referrerPolicy="no-referrer" /> : <span className="avatar">{perfil?.nome?.[0]}</span>}
-            <span className="eu-nome">{perfil?.nome}</span>
-            <span className="nota">{t("Conta", "Account")}</span>
+            <span className="eu-nome"><strong>{perfil?.nome}</strong><span>{t("Conta, avisos e tema", "Account, notifications, theme")}</span></span>
+            <IconeVoltar tamanho={14} />
           </button>
         </div>
       </nav>
