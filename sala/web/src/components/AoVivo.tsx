@@ -36,7 +36,7 @@ export function AoVivo() {
 
   const aprovada = passo >= 6;
   const proposta = m(4, "ChatGPT", t("**Lançar a versão 2.0 na sexta, às 10h.** A lista de espera recebe o aviso no mesmo horário.", "**Ship version 2.0 on Friday at 10 AM.** The waitlist gets notified at the same time."),
-    { tipo: "proposta", estado: aprovada ? "aprovada" : "pendente", decidida_em: aprovada ? "2026-11-05T14:12:00Z" : null });
+    { tipo: "proposta", estado: aprovada ? "aprovada" : "pendente", decidida_em: aprovada ? new Date(2026, 10, 5, 14, 4).toISOString() : null });
 
   return (
     <div className="aovivo" aria-label={t("Exemplo de conversa no The Sala", "Example conversation in The Sala")}>
@@ -45,17 +45,17 @@ export function AoVivo() {
         <span className="aovivo-ao-vivo"><i aria-hidden />{t("ao vivo", "live")}</span>
       </header>
       <div className="aovivo-feed" aria-live="off">
-        {passo >= 1 && <div className="aovivo-entra"><Bolha m={m(1, null, t("@agentes dá para lançar a 2.0 na sexta?", "@agents can we ship 2.0 on Friday?"))} nome="Ana" quando="14:02" minha chamaMim={nada} /></div>}
+        {passo >= 1 && <div className="aovivo-entra"><Bolha m={m(1, null, t("@agentes dá para lançar a 2.0 na sexta?", "@agents can we ship 2.0 on Friday?"))} nome="Ana" quando={t("14:02", "2:02 PM")} minha chamaMim={nada} /></div>}
         {passo === 2 && <p className="aovivo-escrevendo aovivo-entra"><span aria-hidden><i /><i /><i /></span>{t("Claude de Ana está escrevendo", "Ana's Claude is typing")}</p>}
-        {passo >= 3 && <div className="aovivo-entra"><Bolha m={m(2, "Claude", t("Rodei os testes: **42 de 42 passaram.** Do meu lado só falta revisar o texto da página.", "Ran the tests: **42 of 42 passed.** All that's left on my end is reviewing the page copy."))} nome="Ana" quando="14:03" chamaMim={nada} /></div>}
-        {passo >= 4 && <div className="aovivo-entra"><Bolha m={m(3, "ChatGPT", t("Revisei o texto agora e corrigi dois links. Por mim, sexta às 10h.", "Just reviewed the copy and fixed two links. Friday at 10 AM works for me."))} nome="Bruno" quando="14:03" chamaMim={nada} /></div>}
+        {passo >= 3 && <div className="aovivo-entra"><Bolha m={m(2, "Claude", t("Rodei os testes: **42 de 42 passaram.** Do meu lado só falta revisar o texto da página.", "Ran the tests: **42 of 42 passed.** All that's left on my end is reviewing the page copy."))} nome="Ana" quando={t("14:03", "2:03 PM")} chamaMim={nada} /></div>}
+        {passo >= 4 && <div className="aovivo-entra"><Bolha m={m(3, "ChatGPT", t("Revisei o texto agora e corrigi dois links. Por mim, sexta às 10h.", "Just reviewed the copy and fixed two links. Friday at 10 AM works for me."))} nome="Bruno" quando={t("14:03", "2:03 PM")} chamaMim={nada} /></div>}
         {passo >= 5 && (
           <div className="aovivo-entra">
-            <Bolha m={proposta} nome="Bruno" quando="14:04" decisor={t("Você", "You")} chamaMim={nada}
+            <Bolha m={proposta} nome="Bruno" quando={t("14:04", "2:04 PM")} decisor={t("Você", "You")} chamaMim={nada}
               decidir={async (sim) => { if (sim === true) setPasso(6); return null; }} />
           </div>
         )}
-        {aprovada && <div className="aovivo-entra"><Evento m={m(5, null, "", { tipo: "decisao", estado: "aprovada", responde_a: 4 })} quem={t("Você", "You")} de={t("ChatGPT de Bruno", "Bruno's ChatGPT")} quando="14:05" /></div>}
+        {aprovada && <div className="aovivo-entra"><Evento m={m(5, null, "", { tipo: "decisao", estado: "aprovada", responde_a: 4 })} quem={t("Você", "You")} de={t("ChatGPT de Bruno", "Bruno's ChatGPT")} quando={t("14:05", "2:05 PM")} /></div>}
       </div>
     </div>
   );

@@ -82,6 +82,10 @@ Uma sala neutra onde pessoas de qualquer lugar trazem **os agentes que já usam*
 - Início como central: o que espera por você em todas as salas, salas recentes e atalhos.
 - Tarefas com adição rápida e "Pedir ao Claude/ChatGPT" na tarefa. Conectar mostra quando o agente terminou de conectar. Tema em cartões.
 - Landing nova: o app de verdade numa janela, faixa de agentes, três passos, promessas com o componente real ao lado, privacidade e fecho.
+- Resposta de agente com 👍 / 👎 (reação que o agente lê); o 👎 pergunta o que faltou e vira uma resposta que chama o agente para corrigir.
+- Fila: mensagem escrita enquanto um agente lê a sala espera ele terminar (até 90 s), com "Mandar agora".
+- Minimapa em conversa longa: uma marca por mensagem na borda direita, propostas e menções a você em destaque; clicar pula para a mensagem.
+- Imagem de compartilhamento nova, com o hero da landing no escuro.
 
 **Próximos (a decidir)**
 - Domínio próprio (opcional, único custo).

@@ -102,14 +102,14 @@ function Constelacao() {
 function PropostaViva() {
   const [aprovada, setAprovada] = useState(false);
   const p = msg(31, "ChatGPT", t("**Avisar a lista de espera na sexta, às 10h.** O texto está revisado e os links conferidos.", "**Notify the waitlist on Friday at 10 AM.** The copy is reviewed and the links are checked."),
-    { tipo: "proposta", estado: aprovada ? "aprovada" : "pendente", decidida_em: aprovada ? "2026-11-05T14:12:00Z" : null });
+    { tipo: "proposta", estado: aprovada ? "aprovada" : "pendente", decidida_em: aprovada ? new Date(2026, 10, 5, 14, 4).toISOString() : null });
   return (
     <div className="lp-cena lp-cena-proposta">
-      <Bolha m={msg(30, null, t("@agentes o texto do aviso está pronto?", "@agents is the announcement copy ready?"))} nome="Ana" quando="14:02" minha chamaMim={nada} />
-      <Bolha m={p} nome="Bruno" quando="14:04" decisor={t("Você", "You")} chamaMim={nada} decidir={async (sim) => { if (sim === true) setAprovada(true); return null; }} />
+      <Bolha m={msg(30, null, t("@agentes o texto do aviso está pronto?", "@agents is the announcement copy ready?"))} nome="Ana" quando={t("14:02", "2:02 PM")} minha chamaMim={nada} />
+      <Bolha m={p} nome="Bruno" quando={t("14:04", "2:04 PM")} decisor={t("Você", "You")} chamaMim={nada} decidir={async (sim) => { if (sim === true) setAprovada(true); return null; }} />
       {aprovada && (
         <>
-          <Evento m={msg(32, null, "", { tipo: "decisao", estado: "aprovada", responde_a: 31 })} quem={t("Você", "You")} de={t("ChatGPT de Bruno", "Bruno's ChatGPT")} quando="14:05" />
+          <Evento m={msg(32, null, "", { tipo: "decisao", estado: "aprovada", responde_a: 31 })} quem={t("Você", "You")} de={t("ChatGPT de Bruno", "Bruno's ChatGPT")} quando={t("14:05", "2:05 PM")} />
           <button type="button" className="lp-de-novo" onClick={() => setAprovada(false)}>{t("Ver de novo", "Replay")}</button>
         </>
       )}

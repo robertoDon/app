@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Mensagem } from "../supabase";
-import { IconeAgente, IconeReagir, IconeCopiar, IconeCheck, IconeDecisao, IconeFechar, IconeLapis, IconeLixo, IconeProposta, IconeRecusa, IconeResponder, IconeTarefa } from "./Icones";
+import { IconeAgente, IconeJoinha, IconeReagir, IconeCopiar, IconeCheck, IconeDecisao, IconeFechar, IconeLapis, IconeLixo, IconeProposta, IconeRecusa, IconeResponder, IconeTarefa } from "./Icones";
 import { Texto } from "./Texto";
 import { Anexos } from "./Anexos";
 import { naConversa, locale, t as tr } from "../i18n";
@@ -62,6 +62,9 @@ type Props = {
   abrirTarefas?: () => void;
   avatar?: string | null; // foto da pessoa (agente usa sempre o anel)
   tempo?: string; // quanto o agente levou para responder à pergunta ("40 s")
+  // resposta de agente: 👍 / 👎 viram reação (o agente lê); "o que faltou" vira resposta que chama o agente
+  avaliar?: { dono: string; corrigir: (nota: string) => void };
+  fila?: { ate: string; agora: () => void }; // mensagem segurada enquanto um agente lê a sala
 };
 
 // seletor rápido de emojis: abre ao lado do botão, fecha com Esc ou clique fora
@@ -100,6 +103,7 @@ export function Bolha(p: Props) {
   const [ocupado, setOcupado] = useState(false);
   const [copiado, setCopiado] = useState(false);
   const [escolhendo, setEscolhendo] = useState(false);
+  const [faltou, setFaltou] = useState<string | null>(null); // nota do 👎 sendo escrita
   const fecharSeletor = useCallback(() => setEscolhendo(false), []);
   const caixa = useRef<HTMLTextAreaElement>(null);
 
@@ -111,7 +115,9 @@ export function Bolha(p: Props) {
     }
   }, [editando]);
 
-  const temAcoes = !m.apagada && !m.pendente && !m.falhou && (p.responder || p.copiar || p.editar || p.apagar || p.virarTarefa || p.reagir);
+  const temAcoes = !m.apagada && !m.pendente && !m.falhou && !m.fila && (p.responder || p.copiar || p.editar || p.apagar || p.virarTarefa || p.reagir);
+  const avaliacao = p.avaliar && !proposta && !m.apagada && !!p.reagir;
+  const minhaReacao = (e: string) => !!p.reacoes?.some((r) => r.emoji === e && r.minha);
 
   const salvar = async () => {
     const t = rascunho.trim();
@@ -131,7 +137,7 @@ export function Bolha(p: Props) {
   };
 
   const cls = ["msg", m.agente ? "msg-agente" : "msg-pessoa", minha ? "msg-minha" : "", m.pendente ? "msg-pendente" : "",
-    m.falhou ? "msg-falhou" : "", continua && !proposta ? "msg-continua" : "", proposta ? "msg-proposta" : "",
+    m.falhou ? "msg-falhou" : "", m.fila ? "msg-na-fila" : "", continua && !proposta ? "msg-continua" : "", proposta ? "msg-proposta" : "",
     m.apagada ? "msg-apagada" : "", p.destaque ? "msg-destaque" : ""].join(" ");
 
   return (
@@ -274,6 +280,13 @@ export function Bolha(p: Props) {
                 {escolhendo && <Seletor escolher={p.reagir} fechar={fecharSeletor} />}
               </span>
             )}
+            {avaliacao && <>
+              <button type="button" className={`btn-acao ${minhaReacao("👍") ? "btn-acao-ligado" : ""}`} aria-pressed={minhaReacao("👍")} onClick={() => p.reagir!("👍")}
+                title={tr(`Boa resposta (${m.agente} e ${p.avaliar!.dono} veem)`, `Good answer (${m.agente} and ${p.avaliar!.dono} can see it)`)} aria-label={tr("Boa resposta", "Good answer")}><IconeJoinha tamanho={16} /></button>
+              <button type="button" className={`btn-acao ${minhaReacao("👎") ? "btn-acao-ligado" : ""}`} aria-pressed={minhaReacao("👎")}
+                onClick={() => { if (!minhaReacao("👎")) p.reagir!("👎"); setFaltou(""); }}
+                title={tr("Não ajudou: diga o que faltou", "Not helpful: say what was missing")} aria-label={tr("Não ajudou", "Not helpful")}><IconeJoinha tamanho={16} baixo /></button>
+            </>}
             {p.responder && <button type="button" className="btn-acao" onClick={p.responder} title={tr("Responder", "Reply")} aria-label={tr("Responder", "Reply")}><IconeResponder tamanho={16} /></button>}
             {p.copiar && (
               <button type="button" className="btn-acao" title={copiado ? tr("Copiado", "Copied") : tr("Copiar texto", "Copy text")} aria-label={tr("Copiar texto", "Copy text")}
@@ -298,6 +311,22 @@ export function Bolha(p: Props) {
             </button>
           ))}
         </div>
+      )}
+      {faltou !== null && p.avaliar && (
+        <form className="faltou" onSubmit={(e) => { e.preventDefault(); if (faltou.trim()) { p.avaliar!.corrigir(faltou.trim()); setFaltou(null); } }}>
+          <label className="sr" htmlFor={`faltou${m.id}`}>{tr("O que faltou", "What was missing")}</label>
+          <input id={`faltou${m.id}`} autoFocus value={faltou} maxLength={2000} onChange={(e) => setFaltou(e.target.value)}
+            onKeyDown={(e) => e.key === "Escape" && setFaltou(null)}
+            placeholder={tr(`O que faltou? O ${m.agente} lê e corrige.`, `What was missing? ${m.agente} will read it and fix it.`)} />
+          <button className="btn btn-pequeno btn-cheio" disabled={!faltou.trim()}>{tr("Pedir correção", "Ask for a fix")}</button>
+          <button type="button" className="btn btn-pequeno btn-texto" onClick={() => setFaltou(null)}>{tr("Só o 👎", "Just the 👎")}</button>
+        </form>
+      )}
+      {m.fila && p.fila && (
+        <p className="msg-fila" role="status">
+          <span className="msg-fila-ponto" aria-hidden />{tr(`Na fila: sai quando ${p.fila.ate} terminar de ler a sala.`, `Queued: it goes out once ${p.fila.ate} finishes reading the room.`)}
+          <button type="button" className="link" onClick={p.fila.agora}>{tr("Mandar agora", "Send now")}</button>
+        </p>
       )}
       {erro && <p className="msg-erro" role="alert">{erro}</p>}
       {m.falhou && (

@@ -14,6 +14,7 @@ import { Avisos } from "../components/Avisos";
 import { Tarefas, prazoCurto, valorResp, type RascunhoTarefa } from "../components/Tarefas";
 import { Ata } from "../components/Ata";
 import { PainelSala } from "../components/PainelSala";
+import { Minimapa } from "../components/Minimapa";
 import { abrirComandos } from "../components/Comandos";
 import { MENCAO_COLETIVA, chamaAgentes, chamaTodos, handle } from "../components/Texto";
 import { definirIdiomaConversa, erro, idioma, locale, naConversa, t, tc } from "../i18n";
@@ -359,19 +360,28 @@ export default function SalaPage() {
     });
   };
 
-  const enviar = (texto: string, proposta: boolean, anexos: Anexo[], aprovadores?: string[]) => {
+  const enviar = (texto: string, proposta: boolean, anexos: Anexo[], aprovadores?: string[], respondeA?: number) => {
     if (longe.current) carregarRecentes(id);
     noFim.current = true;
+    // um agente está lendo a sala: a mensagem espera ele terminar (ou "Mandar agora"), para não atravessar a resposta
+    const segura = !proposta && pensando.length > 0;
     const temp: Mensagem = {
       id: -Date.now(), sala_id: id, user_id: eu, agente: null, texto, criada_em: new Date().toISOString(),
-      tipo: proposta ? "proposta" : "mensagem", estado: proposta ? "pendente" : null, responde_a: respondendo?.id ?? null,
-      decidida_por: null, decidida_em: null, editada_em: null, apagada: false, anexos, pendente: true,
+      tipo: proposta ? "proposta" : "mensagem", estado: proposta ? "pendente" : null, responde_a: respondeA ?? respondendo?.id ?? null,
+      decidida_por: null, decidida_em: null, editada_em: null, apagada: false, anexos, pendente: !segura, fila: segura,
       aprovadores: proposta && aprovadores?.length ? aprovadores : null,
     };
-    setRespondendo(null);
+    if (respondeA === undefined) setRespondendo(null);
     setMsgs((a) => [...(a ?? []), temp]);
-    mandar(temp);
+    if (!segura) mandar(temp);
   };
+  const soltar = (m: Mensagem) => {
+    setMsgs((a) => a?.map((x) => (x.id === m.id ? { ...x, fila: false, pendente: true } : x)) ?? a);
+    mandar({ ...m, fila: false, pendente: true });
+  };
+  // 👎 com nota: vira uma resposta à mensagem do agente que chama ele pelo nome ("@Claude-Ana faltou o preço")
+  const pedirCorrecao = (m: Mensagem, nota: string) =>
+    enviar(`@${(m.agente ?? "").replace(/\s/g, "")}-${primeiro(m.user_id)} ${nota}`, false, [], undefined, m.id);
 
   const tentarDeNovo = (m: Mensagem) => {
     setMsgs((a) => a?.map((x) => (x.id === m.id ? { ...x, pendente: true, falhou: false } : x)) ?? a);
@@ -572,6 +582,20 @@ export default function SalaPage() {
     return [...res.values()];
   }, [msgs, agentes, reacoes, relogio, primeiro]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // mensagens na fila saem quando ninguém mais está lendo a sala, ou depois de 90 s
+  useEffect(() => {
+    const presas = (msgs ?? []).filter((m) => m.fila);
+    if (!presas.length) return;
+    if (!pensando.length) { presas.forEach(soltar); return; }
+    const primeira = Math.min(...presas.map((m) => new Date(m.criada_em).getTime()));
+    const t = window.setTimeout(() => presas.forEach(soltar), Math.max(0, primeira + 90_000 - Date.now()));
+    return () => window.clearTimeout(t);
+  }, [msgs, pensando]); // eslint-disable-line react-hooks/exhaustive-deps
+  // ao trocar de sala, o que estava na fila sai na hora
+  const presasRef = useRef<Mensagem[]>([]);
+  presasRef.current = (msgs ?? []).filter((m) => m.fila);
+  useEffect(() => () => { presasRef.current.forEach((m) => mandar({ ...m, fila: false, pendente: true })); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // sala sem mensagens: a caixa vai para o centro, com uma saudação e os próximos passos embaixo
   const vazia = msgs !== null && msgs.length === 0 && !leitor;
   const primeiroNome = (perfil?.nome ?? "").split(" ")[0];
@@ -749,6 +773,8 @@ export default function SalaPage() {
                   {novoDia && <div className="dia" role="separator"><span>{dia(m.criada_em)}</span></div>}
                   {marcoAqui}
                   <Bolha m={m} nome={nome(m.user_id)} quando={hora(m.criada_em)} quandoCompleto={completo(m.criada_em)} avatar={m.agente ? null : avatarDe(m.user_id)} tempo={tempoDe(m)}
+                    avaliar={m.agente && m.id > 0 && !leitor && m.tipo === "mensagem" ? { dono: primeiro(m.user_id), corrigir: (nota) => pedirCorrecao(m, nota) } : undefined}
+                    fila={m.fila ? { ate: pensando.length === 1 ? deQuem(pensando[0].nome, primeiro(pensando[0].uid)) : t("os agentes", "the agents"), agora: () => soltar(m) } : undefined}
                     minha={minhaPessoa} continua={continua} chamaMim={chamaMim} destaque={destaque === m.id}
                     autorDe={(id) => { const x = porId.get(id); return x ? autor(x) : null; }}
                     tarefaDe={(id) => tarefas?.find((x) => x.id === id)?.titulo ?? null} abrirTarefas={() => setPainel("tarefas")}
@@ -835,6 +861,8 @@ export default function SalaPage() {
               </div>
             )}
           </div>
+
+          {(msgs?.length ?? 0) >= 25 && <Minimapa feed={feed} versao={msgs} irPara={irPara} />}
 
           {(longeDoFim || temPosteriores) && (
             <button className="ir-fim" onClick={() => {

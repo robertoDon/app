@@ -84,3 +84,7 @@ export const IconeLink = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M1
 export const IconeMemoria = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M6 3.5h9l3.5 3.5v13.5H6Z" /><path d="M14.5 3.5V7.5h4" /><path d="M9 12h6M9 15.5h6M9 8.5h2.5" /></svg>;
 export const IconePainel = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M4 20V10" /><path d="M10 20V4" /><path d="M16 20v-7" /><path d="M21 20H3" /></svg>;
 export const IconeCasa = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1v-8.5Z" /></svg>;
+// Polegar para cima (ou para baixo, girado): avaliar a resposta de um agente
+export const IconeJoinha = ({ tamanho, baixo }: P & { baixo?: boolean }) => (
+  <svg {...base(tamanho)} style={baixo ? { transform: "rotate(180deg)" } : undefined}><path d="M7 10v10H4V10h3ZM7 10l4-7a2 2 0 0 1 3 2l-1 5h5.5a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.3 20H7" /></svg>
+);

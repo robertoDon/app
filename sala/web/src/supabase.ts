@@ -44,6 +44,7 @@ export type Mensagem = {
   aprovadores?: string[] | null; // só estas pessoas decidem (todas precisam aprovar)
   plano?: ItemPlano[] | null; // proposta de plano: cada item vira tarefa quando aprovada
   pendente?: boolean; // enviando
+  fila?: boolean; // esperando um agente terminar de ler a sala para sair
   falhou?: boolean;
 };
 
