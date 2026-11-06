@@ -88,3 +88,4 @@ export const IconeCasa = ({ tamanho }: P) => <svg {...base(tamanho)}><path d="M4
 export const IconeJoinha = ({ tamanho, baixo }: P & { baixo?: boolean }) => (
   <svg {...base(tamanho)} style={baixo ? { transform: "rotate(180deg)" } : undefined}><path d="M7 10v10H4V10h3ZM7 10l4-7a2 2 0 0 1 3 2l-1 5h5.5a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.3 20H7" /></svg>
 );
+export const IconeChave = ({ tamanho }: P) => <svg {...base(tamanho)}><circle cx="8" cy="15" r="4" /><path d="m10.8 12.2 8.7-8.7M16 7l3 3M14 9l2 2" /></svg>;

@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { MCP_URL, sb } from "../supabase";
+import { MCP_URL, presenca, sb, type Agente } from "../supabase";
 import { useAuth } from "../App";
-import { IconeAgente, IconeFechar, IconeMais, IconeRelogio, IconeVoltar } from "./Icones";
-import { Menu } from "./Menu";
+import { IconeAgente, IconeChave, IconeFechar, IconeMais, IconePlugue, IconeRelogio, IconeVoltar } from "./Icones";
 import { Sozinho, SozinhoEventos } from "./Sozinho";
-import { Copiavel, Trilha } from "./Trilha";
+import { BotaoCopiar, Copiavel, Trilha } from "./Trilha";
 import { erro, idioma, locale, t } from "../i18n";
 
 type Aba = "claude" | "chatgpt" | "gemini" | "code" | "outro";
@@ -24,6 +23,7 @@ export function nomeDoAgente(cliente: string) {
   return cliente.trim().slice(0, 40) || "Agente";
 }
 
+const quandoHora = (iso: string) => new Date(iso).toLocaleString(locale(), { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }).replace(".", "");
 const quando = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString(locale(), { day: "2-digit", month: "short" }) : t("nunca", "never"));
 
 export function Conectar({ fechar }: { fechar: () => void }) {
@@ -32,6 +32,11 @@ export function Conectar({ fechar }: { fechar: () => void }) {
   const [escolhendo, setEscolhendo] = useState(false); // quem já tem agentes vê a lista primeiro e escolhe "conectar outro"
   const [carregado, setCarregado] = useState(false);
   const [sozinho, setSozinho] = useState(false); // tela do "responder sozinho"
+  const [detalhe, setDetalhe] = useState<string | null>(null); // nome do agente aberto na lista
+  const [confirmando, setConfirmando] = useState<string | null>(null); // "Desconectar" pede um segundo clique
+  const [presencas, setPresencas] = useState<Agente[]>([]);
+  const [despertos, setDespertos] = useState<{ claude: boolean; chatgpt: boolean } | null>(null);
+  useEffect(() => { if (!confirmando) return; const id = setTimeout(() => setConfirmando(null), 3500); return () => clearTimeout(id); }, [confirmando]);
   const [chaves, setChaves] = useState<Chave[]>([]);
   const [grants, setGrants] = useState<Grant[]>([]);
   const [nova, setNova] = useState<{ agente: string; chave: string } | null>(null);
@@ -46,6 +51,7 @@ export function Conectar({ fechar }: { fechar: () => void }) {
     const { data } = await sb.from("chaves").select("id, agente, final, criada_em, usada_em").order("criada_em", { ascending: false });
     const cs = (data ?? []) as Chave[];
     setChaves(cs);
+    if (perfil) sb.from("agentes").select("*").eq("user_id", perfil.id).then(({ data: ps }) => setPresencas((ps as Agente[]) ?? []));
     let gs: Grant[] | null = null;
     try {
       const r = await sb.auth.oauth.listGrants();
@@ -101,15 +107,25 @@ Keep listening to the room in the background and respond to anything meant for y
   ];
   const nomeEscolhido = aba === "outro" ? (nomeAgente.trim() || "Codex") : abas.find(([k]) => k === aba)?.[1] ?? "Claude";
 
+  const carregarDespertos = async () => {
+    const [d, e] = await Promise.all([sb.rpc("meus_despertadores"), sb.rpc("meus_eventos")]);
+    const ds = (d.data as { agente: string }[] | null) ?? [], es = (e.data as { agente: string; expira: string | null }[] | null) ?? [];
+    setDespertos({ claude: ds.some((x) => x.agente === "Claude"), chatgpt: es.some((x) => x.agente === "ChatGPT" && (!x.expira || new Date(x.expira).getTime() > Date.now())) });
+  };
   const tirarPresenca = (nome: string) => perfil && sb.from("agentes").delete().eq("user_id", perfil.id).eq("nome", nome);
 
   const temAgentes = grants.length + chaves.length > 0;
-  const tela: "carregando" | "inicio" | "escolher" | "passos" | "sozinho" = aba && sozinho ? "sozinho" : aba ? "passos" : !carregado ? "carregando" : escolhendo || !temAgentes ? "escolher" : "inicio";
+  const meus = [...new Set([...grants.map((g) => nomeDoAgente(g.client.name)), ...chaves.map((c) => c.agente)])].map((nome) => ({
+    nome, grants: grants.filter((g) => nomeDoAgente(g.client.name) === nome), chaves: chaves.filter((c) => c.agente === nome),
+    presenca: presencas.find((a) => a.nome === nome),
+  }));
+  const aberto = detalhe ? meus.find((a) => a.nome === detalhe) : undefined;
+  const tela: "carregando" | "inicio" | "escolher" | "passos" | "sozinho" | "agente" = aba && sozinho ? "sozinho" : aba ? "passos" : aberto ? "agente" : !carregado ? "carregando" : escolhendo || !temAgentes ? "escolher" : "inicio";
   // o mesmo app conectado várias vezes (computador, celular, outra aba) vira uma linha só
   const porNome = [...grants.reduce((m, g) => m.set(nomeDoAgente(g.client.name), [...(m.get(nomeDoAgente(g.client.name)) ?? []), g]), new Map<string, Grant[]>())];
   const primeiroNome = perfil?.nome?.split(" ")[0] ?? t("você", "you");
-  const voltar = tela === "sozinho" ? () => setSozinho(false) : tela === "passos" ? () => { setAba(null); setNova(null); setEscolhendo(true); } : tela === "escolher" && temAgentes ? () => setEscolhendo(false) : null;
-  const titulo = tela === "sozinho" ? t(`${nomeEscolhido} responde sozinho`, `${nomeEscolhido} replies on its own`) : tela === "passos" ? t(`Conectar o ${nomeEscolhido}`, `Connect ${nomeEscolhido}`) : tela === "escolher" ? t("Qual agente você usa?", "Which agent do you use?") : t("Seus agentes", "Your agents");
+  const voltar = tela === "agente" ? () => setDetalhe(null) : tela === "sozinho" ? () => setSozinho(false) : tela === "passos" ? () => { setAba(null); setNova(null); setEscolhendo(true); } : tela === "escolher" && temAgentes ? () => setEscolhendo(false) : null;
+  const titulo = tela === "agente" ? aberto!.nome : tela === "sozinho" ? t(`${nomeEscolhido} responde sozinho`, `${nomeEscolhido} replies on its own`) : tela === "passos" ? t(`Conectar o ${nomeEscolhido}`, `Connect ${nomeEscolhido}`) : tela === "escolher" ? t("Qual agente você usa?", "Which agent do you use?") : t("Seus agentes", "Your agents");
 
   return (
     <div className="modal-fundo" onMouseDown={(e) => e.target === e.currentTarget && fechar()}>
@@ -121,6 +137,7 @@ Keep listening to the room in the background and respond to anything meant for y
           <span className="conectar-topo-texto">
             {tela === "passos" && <span className="conectar-passo">{t("Passo 2 de 2", "Step 2 of 2")}</span>}
             {tela === "sozinho" && <span className="conectar-passo">{t("Opcional", "Optional")}</span>}
+            {tela === "agente" && <span className="conectar-passo">{t("Seus agentes", "Your agents")}</span>}
             {tela === "escolher" && <span className="conectar-passo">{temAgentes ? t("Conectar outro agente", "Connect another agent") : t("Passo 1 de 2", "Step 1 of 2")}</span>}
             <h2 id="conectar-titulo">{titulo}</h2>
           </span>
@@ -143,32 +160,23 @@ Keep listening to the room in the background and respond to anything meant for y
         {tela === "inicio" && (
           <>
             <p className="sub">{t(`Eles entram nas suas salas e escrevem como “Claude de ${primeiroNome}”. Cada um roda na assinatura que você já tem.`, `They join your rooms and write as “${primeiroNome}'s Claude”. Each one runs on the plan you already have.`)}</p>
-            <ul className="linhas conectar-lista">
-              {porNome.map(([nomeAg, gs]) => (
-                <li key={nomeAg} className="linha-item">
-                  <span className="avatar avatar-agente"><IconeAgente tamanho={16} /></span>
-                  <span className="linha-texto">
-                    <span className="linha-titulo">{nomeAg}</span>
-                    <span className="presenca">{t("conector", "connector")}{gs.length > 1 ? t(` · ${gs.length} conexões`, ` · ${gs.length} connections`) : ""} · {t("desde", "since")} {quando(gs.map((g) => g.granted_at).sort()[0])}</span>
-                  </span>
-                  <Menu rotulo={t(`Ações de ${nomeAg}`, `Actions for ${nomeAg}`)} itens={[
-                    { rotulo: gs.length > 1 ? t("Desconectar todas", "Disconnect all") : t("Desconectar", "Disconnect"), perigo: true,
-                      acao: async () => { for (const g of gs) await sb.auth.oauth.revokeGrant({ clientId: g.client.id }); await tirarPresenca(nomeAg); carregar(); } },
-                  ]} />
-                </li>
-              ))}
-              {chaves.map((c) => (
-                <li key={c.id} className="linha-item">
-                  <span className="avatar avatar-agente"><IconeAgente tamanho={16} /></span>
-                  <span className="linha-texto">
-                    <span className="linha-titulo">{c.agente}</span>
-                    <span className="presenca">{t("chave", "key")} …{c.final} · {c.usada_em ? t(`usada ${quando(c.usada_em)}`, `last used ${quando(c.usada_em)}`) : t("nunca usada", "never used")}</span>
-                  </span>
-                  <Menu rotulo={t(`Ações de ${c.agente}`, `Actions for ${c.agente}`)} itens={[
-                    { rotulo: t("Apagar a chave", "Delete key"), perigo: true, acao: async () => { await sb.from("chaves").delete().eq("id", c.id); await tirarPresenca(c.agente); carregar(); } },
-                  ]} />
-                </li>
-              ))}
+            <ul className="conectar-lista">
+              {meus.map((a) => {
+                const n = a.grants.length + a.chaves.length;
+                const pres = a.presenca ? presenca(a.presenca) : null;
+                return (
+                  <li key={a.nome}>
+                    <button type="button" className="conectar-item" onClick={() => { setDetalhe(a.nome); setDespertos(null); carregarDespertos(); }}>
+                      <span className="avatar avatar-agente"><IconeAgente tamanho={16} /></span>
+                      <span className="linha-texto">
+                        <span className="linha-titulo">{a.nome}</span>
+                        <span className="presenca">{a.grants.length ? t("conector", "connector") : t("chave", "key")}{n > 1 ? t(` · ${n} conexões`, ` · ${n} connections`) : ""}{pres ? ` · ${pres.texto}` : ""}</span>
+                      </span>
+                      <IconeVoltar tamanho={15} />
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
             <div className="conectar-pe">
               <a className="link nota" href="/ajuda#agentes" target="_blank" rel="noopener">{t("Precisa de ajuda?", "Need help?")}</a>
@@ -176,6 +184,84 @@ Keep listening to the room in the background and respond to anything meant for y
             </div>
           </>
         )}
+
+        {tela === "agente" && aberto && (() => {
+          const pres = aberto.presenca ? presenca(aberto.presenca) : null;
+          const handleAg = `@${aberto.nome.replace(/\s/g, "")}-${primeiroNome}`;
+          const tipoSozinho = aberto.nome === "Claude" ? "claude" : aberto.nome === "ChatGPT" ? "chatgpt" : null;
+          const todas = [...aberto.grants.map((g) => ({ id: `g:${g.client.id}`, quando: g.granted_at })), ...aberto.chaves.map((c) => ({ id: `c:${c.id}`, quando: c.criada_em }))];
+          const desconectar = async (id: string) => {
+            if (confirmando !== id) { setConfirmando(id); return; }
+            setConfirmando(null);
+            if (id.startsWith("g:")) await sb.auth.oauth.revokeGrant({ clientId: id.slice(2) });
+            else await sb.from("chaves").delete().eq("id", id.slice(2));
+            if (todas.length === 1) { await tirarPresenca(aberto.nome); setDetalhe(null); }
+            carregar();
+          };
+          return (
+            <>
+              <div className="conectar-cartao agente-resumo">
+                <div className="agente-resumo-topo">
+                  <span className="avatar avatar-agente"><IconeAgente tamanho={20} /></span>
+                  <span className="linha-texto">
+                    <strong>{t(`${aberto.nome} de ${primeiroNome}`, `${primeiroNome}'s ${aberto.nome}`)}</strong>
+                    <span className={`presenca ${pres?.ativo ? "presenca-ativa" : ""}`}>{pres ? <>{pres.ativo && <span className="ponto ponto-mini" aria-hidden />} {pres.texto}</> : t("ainda não entrou numa sala", "hasn't joined a room yet")}</span>
+                  </span>
+                </div>
+                <dl className="agente-dados">
+                  <div><dt>{t("Para chamar", "To mention it")}</dt><dd><code>{handleAg}</code> <BotaoCopiar valor={handleAg} rotulo={t("Copiar", "Copy")} /></dd></div>
+                  <div><dt>{t("Conectado desde", "Connected since")}</dt><dd>{quandoHora(todas.map((x) => x.quando).sort()[0])}</dd></div>
+                  {tipoSozinho && <div><dt>{t("Responde sozinho", "Auto-reply")}</dt><dd>
+                    {despertos === null ? "…" : despertos[tipoSozinho] ? <span className="pilula pilula-ok">{t("Ligado", "On")}</span> : <span className="nota">{t("Desligado", "Off")}</span>}
+                    <button type="button" className="link nota" onClick={() => { setDetalhe(null); setAba(tipoSozinho); setSozinho(true); }}>{despertos?.[tipoSozinho] ? t("Ver", "View") : t("Configurar", "Set up")}</button>
+                  </dd></div>}
+                </dl>
+              </div>
+
+              <h3 className="secao-rotulo secao-rotulo-solto">{t("Conexões", "Connections")} <span>{todas.length}</span></h3>
+              <ul className="conectar-conexoes">
+                {aberto.grants.map((g, k) => (
+                  <li key={g.client.id}>
+                    <span className="conexao-icone" aria-hidden><IconePlugue tamanho={15} /></span>
+                    <span className="linha-texto">
+                      <span className="linha-titulo">{aberto.grants.length > 1 ? t(`Conexão ${k + 1}`, `Connection ${k + 1}`) : t("Conector", "Connector")}{g.client.name !== aberto.nome ? <span className="nota"> · {g.client.name}</span> : null}</span>
+                      <span className="presenca">{t("conectada em", "connected on")} {quandoHora(g.granted_at)}</span>
+                    </span>
+                    <button type="button" className={`btn btn-pequeno ${confirmando === `g:${g.client.id}` ? "btn-perigo-cheio" : "btn-texto btn-perigo"}`} onClick={() => desconectar(`g:${g.client.id}`)}>
+                      {confirmando === `g:${g.client.id}` ? t("Confirmar", "Confirm") : t("Desconectar", "Disconnect")}
+                    </button>
+                  </li>
+                ))}
+                {aberto.chaves.map((c) => (
+                  <li key={c.id}>
+                    <span className="conexao-icone" aria-hidden><IconeChave tamanho={15} /></span>
+                    <span className="linha-texto">
+                      <span className="linha-titulo">{t("Chave", "Key")} <code>…{c.final}</code></span>
+                      <span className="presenca">{t("criada em", "created on")} {quandoHora(c.criada_em)} · {c.usada_em ? t(`usada ${quando(c.usada_em)}`, `last used ${quando(c.usada_em)}`) : t("nunca usada", "never used")}</span>
+                    </span>
+                    <button type="button" className={`btn btn-pequeno ${confirmando === `c:${c.id}` ? "btn-perigo-cheio" : "btn-texto btn-perigo"}`} onClick={() => desconectar(`c:${c.id}`)}>
+                      {confirmando === `c:${c.id}` ? t("Confirmar", "Confirm") : t("Apagar", "Delete")}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <p className="nota">{t("Desconectar tira o acesso na hora. As mensagens que ele já escreveu continuam na sala.", "Disconnecting removes access right away. Messages it already wrote stay in the room.")}</p>
+
+              <div className="conectar-pe">
+                {todas.length > 1
+                  ? <button type="button" className={`btn btn-pequeno ${confirmando === "todas" ? "btn-perigo-cheio" : "btn-texto btn-perigo"}`} onClick={async () => {
+                      if (confirmando !== "todas") { setConfirmando("todas"); return; }
+                      setConfirmando(null);
+                      for (const g of aberto.grants) await sb.auth.oauth.revokeGrant({ clientId: g.client.id });
+                      for (const c of aberto.chaves) await sb.from("chaves").delete().eq("id", c.id);
+                      await tirarPresenca(aberto.nome); setDetalhe(null); carregar();
+                    }}>{confirmando === "todas" ? t("Confirmar: desconectar todas", "Confirm: disconnect all") : t("Desconectar todas", "Disconnect all")}</button>
+                  : <span />}
+                <button type="button" className="btn" onClick={() => setDetalhe(null)}>{t("Voltar", "Back")}</button>
+              </div>
+            </>
+          );
+        })()}
 
         {tela === "escolher" && (
           <>
