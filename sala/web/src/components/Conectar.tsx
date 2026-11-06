@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MCP_URL, sb } from "../supabase";
 import { useAuth } from "../App";
-import { IconeAgente, IconeCheck, IconeCopiar, IconeFechar, IconeVoltar } from "./Icones";
-import { Bolha } from "./Bolha";
+import { IconeAgente, IconeCheck, IconeCopiar, IconeFechar, IconeMais, IconeVoltar } from "./Icones";
 import { Menu } from "./Menu";
 import { Sozinho, SozinhoEventos } from "./Sozinho";
 import { erro, idioma, locale, t } from "../i18n";
@@ -41,7 +40,9 @@ const quando = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString(l
 
 export function Conectar({ fechar }: { fechar: () => void }) {
   const { perfil } = useAuth();
-  const [aba, setAba] = useState<Aba | null>(null); // null: primeiro a pergunta "qual agente você usa?"
+  const [aba, setAba] = useState<Aba | null>(null); // escolhido: mostra só os passos dele
+  const [escolhendo, setEscolhendo] = useState(false); // quem já tem agentes vê a lista primeiro e escolhe "conectar outro"
+  const [carregado, setCarregado] = useState(false);
   const [chaves, setChaves] = useState<Chave[]>([]);
   const [grants, setGrants] = useState<Grant[]>([]);
   const [nova, setNova] = useState<{ agente: string; chave: string } | null>(null);
@@ -62,6 +63,7 @@ export function Conectar({ fechar }: { fechar: () => void }) {
       if (r && !r.error) { gs = Array.isArray(r.data) ? (r.data as unknown as Grant[]) : []; setGrants(gs); }
     } catch { /* servidor OAuth desligado */ }
     const atuais = [...(gs ?? []).map((g) => [`g:${g.client.id}`, nomeDoAgente(g.client.name)]), ...cs.filter((c) => c.usada_em).map((c) => [`c:${c.id}`, c.agente])];
+    setCarregado(true);
     if (!iniciais.current) { iniciais.current = new Set(atuais.map(([k]) => k)); return; }
     const novo = atuais.find(([k]) => !iniciais.current!.has(k));
     if (novo) { iniciais.current.add(novo[0]); setRecem(novo[1]); }
@@ -112,17 +114,28 @@ Keep listening to the room in the background and respond to anything meant for y
 
   const tirarPresenca = (nome: string) => perfil && sb.from("agentes").delete().eq("user_id", perfil.id).eq("nome", nome);
 
+  const temAgentes = grants.length + chaves.length > 0;
+  const tela: "carregando" | "inicio" | "escolher" | "passos" = aba ? "passos" : !carregado ? "carregando" : escolhendo || !temAgentes ? "escolher" : "inicio";
+  // o mesmo app conectado várias vezes (computador, celular, outra aba) vira uma linha só
+  const porNome = [...grants.reduce((m, g) => m.set(nomeDoAgente(g.client.name), [...(m.get(nomeDoAgente(g.client.name)) ?? []), g]), new Map<string, Grant[]>())];
+  const primeiroNome = perfil?.nome?.split(" ")[0] ?? t("você", "you");
+  const voltar = tela === "passos" ? () => { setAba(null); setNova(null); setEscolhendo(true); } : tela === "escolher" && temAgentes ? () => setEscolhendo(false) : null;
+  const titulo = tela === "passos" ? t(`Conectar o ${nomeEscolhido}`, `Connect ${nomeEscolhido}`) : tela === "escolher" ? t("Qual agente você usa?", "Which agent do you use?") : t("Seus agentes", "Your agents");
+
   return (
     <div className="modal-fundo" onMouseDown={(e) => e.target === e.currentTarget && fechar()}>
-      <div className="modal" role="dialog" aria-modal="true" aria-labelledby="conectar-titulo">
-        <header className="modal-topo">
-          <h2 id="conectar-titulo">{t("Conectar um agente", "Connect an agent")}</h2>
+      <div className={`modal modal-conectar conectar-${tela}`} role="dialog" aria-modal="true" aria-labelledby="conectar-titulo">
+        <header className="conectar-topo">
+          {voltar
+            ? <button type="button" className="btn-icone" onClick={voltar} aria-label={t("Voltar", "Back")} title={t("Voltar", "Back")}><IconeVoltar /></button>
+            : <span className="conectar-topo-marca" aria-hidden><IconeAgente tamanho={16} /></span>}
+          <span className="conectar-topo-texto">
+            {tela === "passos" && <span className="conectar-passo">{t("Passo 2 de 2", "Step 2 of 2")}</span>}
+            {tela === "escolher" && <span className="conectar-passo">{temAgentes ? t("Conectar outro agente", "Connect another agent") : t("Passo 1 de 2", "Step 1 of 2")}</span>}
+            <h2 id="conectar-titulo">{titulo}</h2>
+          </span>
           <button className="btn-icone" onClick={fechar} aria-label={t("Fechar", "Close")}><IconeFechar /></button>
         </header>
-        <p className="sub">{en
-          ? <>The agent joins your rooms and writes as your agent: “{perfil?.nome?.split(" ")[0] ? `${perfil.nome.split(" ")[0]}'s Claude` : "your Claude"}”. Everyone uses their own subscription. </>
-          : <>O agente entra nas suas salas e escreve como seu agente: “Claude de {perfil?.nome?.split(" ")[0] ?? "você"}”. Cada um usa a própria assinatura. </>}
-          <a className="link" href="/ajuda#agentes" target="_blank" rel="noopener">{t("Precisa de ajuda?", "Need help?")}</a></p>
 
         {recem && (
           <div className="conectado-agora" role="status">
@@ -135,19 +148,22 @@ Keep listening to the room in the background and respond to anything meant for y
           </div>
         )}
 
-        {(grants.length > 0 || chaves.length > 0) && (
-          <section className="conectados">
-            <h3 className="secao-rotulo secao-rotulo-solto">{t("Seus agentes", "Your agents")} <span>{grants.length + chaves.length}</span></h3>
-            <ul className="linhas">
-              {grants.map((g) => (
-                <li key={g.client.id} className="linha-item">
+        {tela === "carregando" && <div className="esqueleto" aria-hidden />}
+
+        {tela === "inicio" && (
+          <>
+            <p className="sub">{t(`Eles entram nas suas salas e escrevem como “Claude de ${primeiroNome}”. Cada um roda na assinatura que você já tem.`, `They join your rooms and write as “${primeiroNome}'s Claude”. Each one runs on the plan you already have.`)}</p>
+            <ul className="linhas conectar-lista">
+              {porNome.map(([nomeAg, gs]) => (
+                <li key={nomeAg} className="linha-item">
                   <span className="avatar avatar-agente"><IconeAgente tamanho={16} /></span>
                   <span className="linha-texto">
-                    <span className="linha-titulo">{nomeDoAgente(g.client.name)}</span>
-                    <span className="presenca">{t("conector", "connector")} · {t("desde", "since")} {quando(g.granted_at)}</span>
+                    <span className="linha-titulo">{nomeAg}</span>
+                    <span className="presenca">{t("conector", "connector")}{gs.length > 1 ? t(` · ${gs.length} conexões`, ` · ${gs.length} connections`) : ""} · {t("desde", "since")} {quando(gs.map((g) => g.granted_at).sort()[0])}</span>
                   </span>
-                  <Menu rotulo={t(`Ações de ${nomeDoAgente(g.client.name)}`, `Actions for ${nomeDoAgente(g.client.name)}`)} itens={[
-                    { rotulo: t("Desconectar", "Disconnect"), perigo: true, acao: async () => { await sb.auth.oauth.revokeGrant({ clientId: g.client.id }); await tirarPresenca(nomeDoAgente(g.client.name)); carregar(); } },
+                  <Menu rotulo={t(`Ações de ${nomeAg}`, `Actions for ${nomeAg}`)} itens={[
+                    { rotulo: gs.length > 1 ? t("Desconectar todas", "Disconnect all") : t("Desconectar", "Disconnect"), perigo: true,
+                      acao: async () => { for (const g of gs) await sb.auth.oauth.revokeGrant({ clientId: g.client.id }); await tirarPresenca(nomeAg); carregar(); } },
                   ]} />
                 </li>
               ))}
@@ -164,14 +180,16 @@ Keep listening to the room in the background and respond to anything meant for y
                 </li>
               ))}
             </ul>
-          </section>
+            <div className="conectar-pe">
+              <a className="link nota" href="/ajuda#agentes" target="_blank" rel="noopener">{t("Precisa de ajuda?", "Need help?")}</a>
+              <button type="button" className="btn btn-cheio" onClick={() => setEscolhendo(true)}><IconeMais tamanho={16} /> {t("Conectar outro agente", "Connect another agent")}</button>
+            </div>
+          </>
         )}
 
-
-        {aba === null ? (
-          <section className="conectar-pergunta" aria-labelledby="conectar-qual">
-            <p className="conectar-passo">{t("Passo 1 de 2", "Step 1 of 2")}</p>
-            <h3 id="conectar-qual">{grants.length + chaves.length ? t("Qual agente você quer conectar agora?", "Which agent do you want to connect now?") : t("Qual agente você usa?", "Which agent do you use?")}</h3>
+        {tela === "escolher" && (
+          <>
+            <p className="sub">{t(`Ele entra nas suas salas e escreve como “Claude de ${primeiroNome}”, na assinatura que você já tem.`, `It joins your rooms and writes as “${primeiroNome}'s Claude”, on the plan you already have.`)}</p>
             <ul className="conectar-opcoes">
               {opcoes.map(([k, nomeOpcao, onde]) => (
                 <li key={k}><button type="button" onClick={() => { setAba(k); setNova(null); }}>
@@ -181,20 +199,10 @@ Keep listening to the room in the background and respond to anything meant for y
                 </button></li>
               ))}
             </ul>
-          </section>
-        ) : (
-          <div className="conectar-escolhido">
-            <p className="conectar-passo">{t("Passo 2 de 2", "Step 2 of 2")} · <strong>{t(`Conectar o ${nomeEscolhido}`, `Connect ${nomeEscolhido}`)}</strong></p>
-            <button type="button" className="link nota" onClick={() => { setAba(null); setNova(null); }}>{t("Trocar de agente", "Pick another agent")}</button>
-          </div>
+          </>
         )}
 
-        {aba && <div className="conectar-previa" aria-label={t("Como o agente aparece na sala", "How the agent shows up in a room")}>
-          <span className="nota">{t("Assim ele aparece na sala", "This is how it shows up in a room")}</span>
-          <Bolha m={{ id: 0, agente: nomeEscolhido, tipo: "mensagem", estado: null, apagada: false, editada_em: null, decidida_em: null,
-            texto: t("Li a sala. Por mim, sexta dá: os 42 testes passaram. Se precisar de um sim, eu mando uma proposta.", "I read the room. Friday works for me: all 42 tests pass. If I need a yes, I'll send a proposal.") }}
-            nome={perfil?.nome?.split(" ")[0] ?? t("você", "you")} quando={t("agora", "now")} chamaMim={() => false} />
-        </div>}
+        {tela === "passos" && <p className="sub">{opcoes.find(([k]) => k === aba)?.[2]}.</p>}
 
         {aba && <div className="aba-corpo">
           {aba === "claude" && (en ? (
@@ -301,6 +309,13 @@ Keep listening to the room in the background and respond to anything meant for y
           )}
         </div>}
 
+        {tela === "passos" && (
+          <div className="conectar-pe">
+            <span className="conectar-assim"><span className="nota">{t("Na sala:", "In rooms:")}</span>
+              <span className="conectar-chip"><IconeAgente tamanho={12} />{t(`${nomeEscolhido} de ${primeiroNome}`, `${primeiroNome}'s ${nomeEscolhido}`)}</span></span>
+            <button type="button" className="btn" onClick={fechar}>{t("Pronto", "Done")}</button>
+          </div>
+        )}
       </div>
     </div>
   );

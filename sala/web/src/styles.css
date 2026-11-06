@@ -1273,28 +1273,35 @@ span.tarefa-check { cursor: default; }
 .fonte-serifa .fonte-amostra { font-family: "Source Serif 4", Georgia, serif; }
 .fonte-leitura .fonte-amostra { font-family: "Lexend", var(--corpo); }
 
-/* conectar guiado: primeiro "qual agente você usa?", depois só os passos dele */
-.conectar-passo { font-size: 12px; color: var(--cinza); }
-.conectar-passo strong { color: var(--tinta); font-weight: 600; }
-.conectar-pergunta { display: flex; flex-direction: column; gap: 6px; }
-.conectar-pergunta h3 { font: 600 17px/1.3 var(--display); letter-spacing: -0.015em; margin-bottom: 6px; }
+/* conectar agente: uma coisa por tela (seus agentes → qual agente → os passos dele), com voltar no topo */
+.modal-conectar { gap: 18px; padding-top: 20px; }
+.conectar-topo { display: flex; align-items: center; gap: 12px; margin: 0 -8px 0 -6px; }
+.conectar-topo-texto { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.conectar-topo h2 { font: 600 22px/1.2 var(--display); letter-spacing: -0.025em; }
+.conectar-topo-marca { display: grid; place-items: center; width: 36px; height: 36px; flex: none; margin-left: 6px; border-radius: 10px; background: var(--agente); color: var(--agente-tinta); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--agente-tinta) 16%, transparent); }
+.conectar-passo { font-size: 12px; font-weight: 500; color: var(--cinza); }
+.modal-conectar > .sub { margin-top: -8px; }
+.conectar-lista { margin: 0 -8px; }
 .conectar-opcoes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .conectar-opcoes button {
   display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; border: 1px solid var(--linha); border-radius: var(--r2);
-  background: var(--elevado); color: inherit; font: inherit; text-align: left; cursor: pointer; transition: background var(--rapido), border-color var(--rapido);
+  background: var(--fundo); color: inherit; font: inherit; text-align: left; cursor: pointer; transition: background var(--rapido), border-color var(--rapido), box-shadow var(--rapido);
 }
-.conectar-opcoes button:hover { background: var(--hover); border-color: var(--linha-forte); }
+.conectar-opcoes button:hover { border-color: var(--linha-forte); box-shadow: var(--sombra-media); }
 .conectar-opcoes button > span:nth-child(2) { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .conectar-opcoes strong { font-weight: 600; }
 .conectar-opcoes button > span:nth-child(2) span { font-size: 12.5px; color: var(--cinza); }
 .conectar-opcoes button > svg { flex: none; color: var(--cinza-claro); transform: rotate(180deg); transition: transform var(--rapido), color var(--rapido); }
 .conectar-opcoes button:hover > svg { color: var(--tinta); transform: rotate(180deg) translateX(-2px); }
-.conectar-escolhido { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 14px; border-top: 1px solid var(--linha); }
-
-/* conectar: prévia de como o agente aparece */
-.conectar-previa { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px 14px; border-radius: var(--r3); background: var(--app); box-shadow: inset 0 0 0 1px var(--linha); }
-.conectar-previa .msg-meta { margin-top: 6px; }
-.conectar-previa .msg-acoes { display: none; }
+/* os passos num cartão próprio, separado do resto da janela */
+.modal-conectar .aba-corpo { padding: 18px; border-radius: var(--r3); background: var(--fundo); box-shadow: inset 0 0 0 1px var(--linha); gap: 14px; }
+.modal-conectar .aba-corpo .sozinho { margin-top: 8px; }
+.conectar-pe {
+  position: sticky; bottom: -24px; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  margin: 0 -24px -24px; padding: 14px 24px 18px; border-top: 1px solid var(--linha); background: var(--elevado);
+}
+.conectar-assim { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+.conectar-chip { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px 0 8px; border-radius: 999px; font-size: 12.5px; font-weight: 600; background: var(--agente); color: var(--agente-tinta); }
 
 /* privacidade: três promessas com um pedaço da tela */
 .promessas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 8px 0 12px; }

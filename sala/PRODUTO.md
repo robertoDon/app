@@ -87,7 +87,7 @@ Uma sala neutra onde pessoas de qualquer lugar trazem **os agentes que já usam*
 - Minimapa em conversa longa: uma marca por mensagem na borda direita, propostas e menções a você em destaque; clicar pula para a mensagem.
 - Imagem de compartilhamento nova, com o hero da landing no escuro.
 - Fonte da conversa na conta (Padrão, Serifada ou Leitura fácil com a Lexend) e som opcional quando alguém chama você ou uma proposta espera a sua decisão; as duas escolhas ficam na conta e valem em qualquer aparelho.
-- Conectar guiado: primeiro "qual agente você usa?" (com onde cada um roda), depois só os passos dele e a prévia de como vai aparecer na sala. Biblioteca lista os arquivos da conversa. Privacidade abre com três promessas curtas, cada uma com um pedaço da tela. Convite tem "Ver como funciona".
+- Conectar em telas: seus agentes (o mesmo app conectado várias vezes vira uma linha só) → "qual agente você usa?" → só os passos dele, num cartão, com voltar no topo e "Na sala: ChatGPT de Roberto" no rodapé. Biblioteca lista os arquivos da conversa. Privacidade abre com três promessas curtas, cada uma com um pedaço da tela. Convite tem "Ver como funciona".
 - Fora, de propósito: botão de parar o agente (ele roda na conta da pessoa, fora da Sala) e painel com os passos da resposta (os agentes só mandam o texto final).
 
 **Próximos (a decidir)**
