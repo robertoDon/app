@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MCP_URL, sb } from "../supabase";
 import { useAuth } from "../App";
-import { IconeAgente, IconeCheck, IconeCopiar, IconeFechar } from "./Icones";
+import { IconeAgente, IconeCheck, IconeCopiar, IconeFechar, IconeVoltar } from "./Icones";
 import { Bolha } from "./Bolha";
 import { Menu } from "./Menu";
 import { Sozinho, SozinhoEventos } from "./Sozinho";
@@ -41,7 +41,7 @@ const quando = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString(l
 
 export function Conectar({ fechar }: { fechar: () => void }) {
   const { perfil } = useAuth();
-  const [aba, setAba] = useState<Aba>("claude");
+  const [aba, setAba] = useState<Aba | null>(null); // null: primeiro a pergunta "qual agente você usa?"
   const [chaves, setChaves] = useState<Chave[]>([]);
   const [grants, setGrants] = useState<Grant[]>([]);
   const [nova, setNova] = useState<{ agente: string; chave: string } | null>(null);
@@ -100,6 +100,15 @@ Keep listening to the room in the background and respond to anything meant for y
   );
 
   const abas: [Aba, string][] = [["claude", "Claude"], ["chatgpt", "ChatGPT"], ["gemini", "Gemini"], ["code", "Claude Code"], ["outro", t("Outro", "Other")]];
+  // a pergunta guiada: cada agente com onde ele roda e o que muda
+  const opcoes: [Aba, string, string][] = [
+    ["claude", "Claude", t("No site ou no app do Claude", "On the Claude website or app")],
+    ["chatgpt", "ChatGPT", t("No site ou no app do ChatGPT", "On the ChatGPT website or app")],
+    ["code", "Claude Code", t("No terminal: fica ouvindo e responde sozinho", "In the terminal: keeps listening and replies on its own")],
+    ["gemini", "Gemini", t("Pelo Gemini CLI, no terminal", "Through Gemini CLI, in the terminal")],
+    ["outro", t("Outro", "Other"), t("Codex, Cursor ou qualquer agente MCP", "Codex, Cursor or any MCP agent")],
+  ];
+  const nomeEscolhido = aba === "outro" ? (nomeAgente.trim() || "Codex") : abas.find(([k]) => k === aba)?.[1] ?? "Claude";
 
   const tirarPresenca = (nome: string) => perfil && sb.from("agentes").delete().eq("user_id", perfil.id).eq("nome", nome);
 
@@ -158,22 +167,36 @@ Keep listening to the room in the background and respond to anything meant for y
           </section>
         )}
 
-        <div className="conectar-previa" aria-label={t("Como o agente aparece na sala", "How the agent shows up in a room")}>
+
+        {aba === null ? (
+          <section className="conectar-pergunta" aria-labelledby="conectar-qual">
+            <p className="conectar-passo">{t("Passo 1 de 2", "Step 1 of 2")}</p>
+            <h3 id="conectar-qual">{grants.length + chaves.length ? t("Qual agente você quer conectar agora?", "Which agent do you want to connect now?") : t("Qual agente você usa?", "Which agent do you use?")}</h3>
+            <ul className="conectar-opcoes">
+              {opcoes.map(([k, nomeOpcao, onde]) => (
+                <li key={k}><button type="button" onClick={() => { setAba(k); setNova(null); }}>
+                  <span className="msg-avatar msg-avatar-agente" aria-hidden><IconeAgente tamanho={13} /></span>
+                  <span><strong>{nomeOpcao}</strong><span>{onde}</span></span>
+                  <IconeVoltar tamanho={15} />
+                </button></li>
+              ))}
+            </ul>
+          </section>
+        ) : (
+          <div className="conectar-escolhido">
+            <p className="conectar-passo">{t("Passo 2 de 2", "Step 2 of 2")} · <strong>{t(`Conectar o ${nomeEscolhido}`, `Connect ${nomeEscolhido}`)}</strong></p>
+            <button type="button" className="link nota" onClick={() => { setAba(null); setNova(null); }}>{t("Trocar de agente", "Pick another agent")}</button>
+          </div>
+        )}
+
+        {aba && <div className="conectar-previa" aria-label={t("Como o agente aparece na sala", "How the agent shows up in a room")}>
           <span className="nota">{t("Assim ele aparece na sala", "This is how it shows up in a room")}</span>
-          <Bolha m={{ id: 0, agente: aba === "outro" ? (nomeAgente.trim() || "Codex") : abas.find(([k]) => k === aba)![1], tipo: "mensagem", estado: null, apagada: false, editada_em: null, decidida_em: null,
+          <Bolha m={{ id: 0, agente: nomeEscolhido, tipo: "mensagem", estado: null, apagada: false, editada_em: null, decidida_em: null,
             texto: t("Li a sala. Por mim, sexta dá: os 42 testes passaram. Se precisar de um sim, eu mando uma proposta.", "I read the room. Friday works for me: all 42 tests pass. If I need a yes, I'll send a proposal.") }}
             nome={perfil?.nome?.split(" ")[0] ?? t("você", "you")} quando={t("agora", "now")} chamaMim={() => false} />
-        </div>
+        </div>}
 
-        <h3 className="secao-rotulo secao-rotulo-solto">{t("Conectar um novo", "Connect another agent")}</h3>
-        <div className="abas" role="tablist" aria-label={t("Onde está o seu agente", "Where your agent runs")}>
-          {abas.map(([k, r]) => (
-            <button key={k} role="tab" aria-selected={aba === k} className={aba === k ? "aba ativa" : "aba"}
-              onClick={() => { setAba(k); setNova(null); }}>{r}</button>
-          ))}
-        </div>
-
-        <div className="aba-corpo" role="tabpanel">
+        {aba && <div className="aba-corpo">
           {aba === "claude" && (en ? (
             <ol className="passos">
               <li>In Claude (web or app), open <b>Settings → Connectors</b>.</li>
@@ -276,7 +299,7 @@ Keep listening to the room in the background and respond to anything meant for y
               )}
             </>
           )}
-        </div>
+        </div>}
 
       </div>
     </div>
