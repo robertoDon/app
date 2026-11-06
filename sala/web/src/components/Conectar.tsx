@@ -190,6 +190,7 @@ Keep listening to the room in the background and respond to anything meant for y
           const handleAg = `@${aberto.nome.replace(/\s/g, "")}-${primeiroNome}`;
           const tipoSozinho = aberto.nome === "Claude" ? "claude" : aberto.nome === "ChatGPT" ? "chatgpt" : null;
           const todas = [...aberto.grants.map((g) => ({ id: `g:${g.client.id}`, quando: g.granted_at })), ...aberto.chaves.map((c) => ({ id: `c:${c.id}`, quando: c.criada_em }))];
+          const maisRecente = [...todas].sort((a, b) => a.quando.localeCompare(b.quando)).at(-1)?.id;
           const desconectar = async (id: string) => {
             if (confirmando !== id) { setConfirmando(id); return; }
             setConfirmando(null);
@@ -219,13 +220,17 @@ Keep listening to the room in the background and respond to anything meant for y
               </div>
 
               <h3 className="secao-rotulo secao-rotulo-solto">{t("Conexões", "Connections")} <span>{todas.length}</span></h3>
+              {todas.length > 1 && <p className="nota conectar-explica">{t(
+                `É um agente só. Cada lugar onde você autorizou o ${aberto.nome} (app, navegador, terminal) vira uma conexão, e conectar de novo também. Se não usa mais algum, desconecte só ele.`,
+                `It's one agent. Each place where you authorized ${aberto.nome} (app, browser, terminal) becomes a connection, and so does reconnecting. If you no longer use one, disconnect just that one.`,
+              )}</p>}
               <ul className="conectar-conexoes">
                 {aberto.grants.map((g, k) => (
                   <li key={g.client.id}>
                     <span className="conexao-icone" aria-hidden><IconePlugue tamanho={15} /></span>
                     <span className="linha-texto">
                       <span className="linha-titulo">{aberto.grants.length > 1 ? t(`Conexão ${k + 1}`, `Connection ${k + 1}`) : t("Conector", "Connector")}{g.client.name !== aberto.nome ? <span className="nota"> · {g.client.name}</span> : null}</span>
-                      <span className="presenca">{t("conectada em", "connected on")} {quandoHora(g.granted_at)}</span>
+                      <span className="presenca">{t("conectada em", "connected on")} {quandoHora(g.granted_at)}{todas.length > 1 && `g:${g.client.id}` === maisRecente ? t(" · a mais recente", " · most recent") : ""}</span>
                     </span>
                     <button type="button" className={`btn btn-pequeno ${confirmando === `g:${g.client.id}` ? "btn-perigo-cheio" : "btn-texto btn-perigo"}`} onClick={() => desconectar(`g:${g.client.id}`)}>
                       {confirmando === `g:${g.client.id}` ? t("Confirmar", "Confirm") : t("Desconectar", "Disconnect")}
@@ -237,7 +242,7 @@ Keep listening to the room in the background and respond to anything meant for y
                     <span className="conexao-icone" aria-hidden><IconeChave tamanho={15} /></span>
                     <span className="linha-texto">
                       <span className="linha-titulo">{t("Chave", "Key")} <code>…{c.final}</code></span>
-                      <span className="presenca">{t("criada em", "created on")} {quandoHora(c.criada_em)} · {c.usada_em ? t(`usada ${quando(c.usada_em)}`, `last used ${quando(c.usada_em)}`) : t("nunca usada", "never used")}</span>
+                      <span className="presenca">{t("criada em", "created on")} {quandoHora(c.criada_em)} · {c.usada_em ? t(`usada ${quando(c.usada_em)}`, `last used ${quando(c.usada_em)}`) : t("nunca usada", "never used")}{todas.length > 1 && `c:${c.id}` === maisRecente ? t(" · a mais recente", " · most recent") : ""}</span>
                     </span>
                     <button type="button" className={`btn btn-pequeno ${confirmando === `c:${c.id}` ? "btn-perigo-cheio" : "btn-texto btn-perigo"}`} onClick={() => desconectar(`c:${c.id}`)}>
                       {confirmando === `c:${c.id}` ? t("Confirmar", "Confirm") : t("Apagar", "Delete")}

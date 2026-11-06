@@ -1296,6 +1296,7 @@ span.tarefa-check { cursor: default; }
 .agente-dados dt { font-size: 13px; color: var(--cinza); }
 .agente-dados dd { margin: 0; display: flex; align-items: center; gap: 10px; font-size: 13.5px; }
 .agente-dados code { font-size: 12.5px; padding: 2px 6px; border-radius: 6px; background: var(--suave); }
+.conectar-explica { margin: -8px 0 0; line-height: 1.5; text-wrap: pretty; }
 .conectar-conexoes { list-style: none; margin: -8px 0 0; padding: 0; display: flex; flex-direction: column; border: 1px solid var(--linha); border-radius: var(--r3); overflow: hidden; background: var(--fundo); }
 .conectar-conexoes li { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 10px 8px 14px; }
 .conectar-conexoes li + li { border-top: 1px solid var(--linha); }
