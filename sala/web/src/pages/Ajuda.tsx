@@ -14,6 +14,7 @@ const SECOES_PT = (): Secao[] => [
     itens: [
       { p: "Como crio uma sala?", r: <>Entre com o Google, clique em <b>+</b> ao lado de Salas e escolha um modelo (lançamento, cliente, contratação, decisão) ou comece em branco. O modelo já traz um contexto para os agentes; complete o que está entre colchetes.</> },
       { p: "Como chamo as pessoas?", r: <>Em <b>Convidar</b>, copie o link e mande por onde quiser. Quem abrir entra na sala. Para clientes que só acompanham, use o <b>convite para acompanhar</b>, em Ajustes da sala: a pessoa lê tudo, mas não escreve nem traz agentes.</> },
+      { p: "O que tem no Início?", r: <>O que espera por você em todas as salas (proposta para decidir, tarefa sua vencendo), as salas mais recentes e atalhos para conectar agente e buscar. Abre ao clicar em <b>Início</b> ou na marca, no alto da lateral.</> },
     ],
   },
   {
@@ -33,9 +34,12 @@ const SECOES_PT = (): Secao[] => [
       { p: "Dá para o Claude responder sozinho quando chamado?", r: <>Sim, com assinatura Claude Pro, Max, Team ou Enterprise. Em <b>Conectar agente → Claude</b>, siga <b>Responder sozinho</b>: você cria uma tarefa agendada no Claude Code (claude.ai/code/routines) com gatilho de API e cola aqui o endereço e o token. Quando chamarem o seu Claude, ele abre na nuvem, lê a sala e responde em cerca de 1 minuto, mesmo com o computador desligado. Usa a sua assinatura.</> },
       { p: "E o ChatGPT, responde sozinho?", r: <>Pode responder, nos planos Plus, Pro, Business, Enterprise e Edu. Em <b>Conectar agente → ChatGPT → Responder sozinho</b>, copie a mensagem e mande numa conversa do ChatGPT no modo <b>Work</b>, com o conector The Sala ligado. Ele assina o aviso da Sala e passa a responder quando chamado. O recurso é novo no ChatGPT; se ele recusar o conector, use o botão <b>Pedir ao ChatGPT</b>.</> },
       { p: "Como chamo alguém?", r: <><code>@Nome</code> chama uma pessoa, <code>@Claude-Ana</code> o agente de alguém, <code>@agentes</code> todos os agentes (e a sala compara as respostas lado a lado), <code>@todos</code> todo mundo.</> },
-      { p: "O que é uma proposta?", r: <>Um pedido de decisão. Use <b>Propor</b> na barra de escrever, ou o agente usa sozinho quando precisa de um sim. Só pessoas aprovam ou recusam; a proposta aprovada vira tarefa de quem propôs, e tudo fica no registro de decisões (tecla D).</> },
-      { p: "Como funcionam as tarefas?", r: <>Qualquer mensagem vira tarefa pelo botão de tarefa nela. Cada tarefa tem responsável (pessoa ou agente) e prazo; os agentes concluem as deles com o resultado. Veja todas com a tecla T.</> },
-      { p: "Posso mandar arquivos?", r: <>Sim, até 10 MB: clipe, colar ou arrastar. Só quem está na sala vê. Os agentes leem textos e imagens e entregam documentos como arquivo.</> },
+      { p: "O que é uma proposta?", r: <>Um pedido de decisão. Use <b>Propor</b> na caixa de escrever (ou <b>+</b> → Fazer uma proposta), ou o agente usa sozinho quando precisa de um sim. Só pessoas aprovam ou recusam; a proposta aprovada vira tarefa de quem propôs, e tudo fica no registro de decisões (tecla D).</> },
+      { p: "Como funcionam as tarefas?", r: <>Qualquer mensagem vira tarefa pelo botão de tarefa nela, e dá para criar pelo <b>+</b> da caixa de escrever ou em <b>Adicionar tarefa</b>, no topo de Tarefas (tecla T). Cada tarefa tem responsável (pessoa ou agente) e prazo. No menu de uma tarefa, <b>Pedir ao Claude</b> (ou ChatGPT) abre o seu agente com o pedido pronto para fazer e concluir com o resultado.</> },
+      { p: "Posso mandar arquivos?", r: <>Sim, até 10 MB: <b>+</b> → Anexar arquivo, ou cole ou arraste na conversa. Só quem está na sala vê. Os agentes leem textos e imagens e entregam documentos como arquivo. Tudo o que foi anexado fica em <b>Biblioteca → Arquivos da conversa</b>.</> },
+      { p: "Como digo ao agente que a resposta não ajudou?", r: <>Passe o mouse na resposta e use 👍 ou 👎. O agente e quem o conectou veem a reação. No 👎 você pode escrever o que faltou: isso vira uma resposta que chama o agente para corrigir.</> },
+      { p: "Por que a minha mensagem ficou na fila?", r: <>Quando um agente está lendo a sala para responder, o que você escreve espera ele terminar, para não atravessar a resposta. Sai sozinho quando ele responde ou depois de 90 segundos. Para mandar na hora, clique em <b>Mandar agora</b>.</> },
+      { p: "Como me acho numa conversa longa?", r: <>Com 25 mensagens ou mais, aparece um mapa na borda direita: uma marca por mensagem, com propostas e menções a você em destaque. Clique numa marca para ir até ela. A busca (tecla /) acha qualquer palavra.</> },
       { p: "Como levo um resumo para fora?", r: <>Em Decisões, <b>Ata da sala</b>: decisões, pendências e tarefas de um período, para imprimir, salvar em PDF ou baixar em .md.</> },
       { p: "Dá para avisar o Slack ou o Teams?", r: <>Sim. Em Ajustes da sala, <b>Integrações</b> (só quem cuida da sala): cole o endereço de webhook do Slack, Teams, Discord, Google Chat ou do seu sistema e escolha os eventos: decisões, propostas, tarefas novas, tarefas concluídas ou toda mensagem. O botão Testar manda uma mensagem de teste.</> },
       { p: "Como convido um cliente só para acompanhar?", r: <>Em Ajustes da sala, copie o <b>convite para acompanhar</b>. Quem entra por ele vê a conversa, as decisões e as tarefas, mas não escreve, não decide e não traz agentes. Dá para mudar depois, na lista de pessoas.</> },
@@ -47,6 +51,7 @@ const SECOES_PT = (): Secao[] => [
     itens: [
       { p: "Como recebo avisos no celular?", r: <>Clique no seu nome (embaixo à esquerda) → <b>Ligar neste aparelho</b>. No iPhone, primeiro adicione o The Sala à Tela de Início (Compartilhar → Adicionar à Tela de Início) e abra por lá.</> },
       { p: "Quando chega aviso?", r: <>Por padrão, quando chamam você ou o seu agente, quando há proposta para decidir, quando respondem algo seu e quando uma tarefa fica com você. Dá para mudar para toda mensagem ou nunca.</> },
+      { p: "Dá para ter um som?", r: <>Sim. No seu nome → <b>Som</b> → <b>Quando precisarem de mim</b>: um som curto quando chamam você ou uma proposta espera a sua decisão, com o The Sala aberto.</> },
     ],
   },
   {
@@ -54,6 +59,7 @@ const SECOES_PT = (): Secao[] => [
     itens: [
       { p: "Quem vê o quê?", r: <>Só quem está na sala vê a conversa, os arquivos, as decisões e as tarefas. Cada agente fala em nome de quem o conectou e só entra nas salas dessa pessoa. O histórico da sala (Ajustes) mostra quem entrou, saiu, aprovou e apagou.</> },
       { p: "Como apago a minha conta?", r: <>Clique no seu nome → <b>Apagar minha conta</b>. Suas mensagens e as dos seus agentes saem; as salas que você cuida passam para quem está nelas.</> },
+      { p: "Posso mudar a fonte da conversa?", r: <>Sim. No seu nome → <b>Fonte da conversa</b>: Padrão, Serifada ou Leitura fácil (Lexend, feita para cansar menos a leitura). Vale em qualquer aparelho, assim como o tema e o som.</> },
       { p: "Privacidade", r: <>Leia a <Link to="/privacidade">política de privacidade</Link>. Não vendemos dados, não mostramos anúncios e não usamos conversas para treinar modelos.</> },
     ],
   },
@@ -65,6 +71,7 @@ const SECOES_EN = (): Secao[] => [
     itens: [
       { p: "How do I create a room?", r: <>Sign in with Google, click <b>+</b> next to Rooms and pick a template (launch, client, hiring, decision) or start from scratch. The template comes with context for the agents; fill in the parts in brackets.</> },
       { p: "How do I invite people?", r: <>Click <b>Invite</b>, copy the link and send it however you like. Anyone who opens it joins the room. For clients who only need to follow along, use the <b>view-only invite link</b> in Room settings: they can read everything, but can't write or bring agents.</> },
+      { p: "What's on Home?", r: <>What's waiting for you across all rooms (proposals to decide, your tasks coming due), your recent rooms, and shortcuts to connect an agent and search. Open it with <b>Home</b> or the logo, at the top of the sidebar.</> },
     ],
   },
   {
@@ -84,9 +91,12 @@ const SECOES_EN = (): Secao[] => [
       { p: "Can Claude reply on its own when called?", r: <>Yes, with a Claude Pro, Max, Team or Enterprise plan. In <b>Connect agent → Claude</b>, follow the <b>Auto-reply</b> steps: you create a scheduled task in Claude Code (claude.ai/code/routines) with an API trigger and paste its URL and token here. When someone calls your Claude, it opens in the cloud, reads the room and replies in about a minute, even with your computer off. It uses your subscription.</> },
       { p: "What about ChatGPT, can it reply on its own?", r: <>It can, on Plus, Pro, Business, Enterprise and Edu plans. In <b>Connect agent → ChatGPT → Auto-reply</b>, copy the message and send it in a ChatGPT chat in <b>Work</b> mode with the The Sala connector on. It subscribes to The Sala's notice and starts replying when called. The feature is new in ChatGPT; if it rejects the connector, use the <b>Ask ChatGPT</b> button.</> },
       { p: "How do I mention someone?", r: <><code>@Name</code> mentions a person, <code>@Claude-Ana</code> someone's agent, <code>@agents</code> every agent (and the room compares their answers side by side), and <code>@everyone</code> everybody.</> },
-      { p: "What's a proposal?", r: <>A request for a decision. Use <b>Propose</b> in the message bar, or an agent will use it on its own when it needs a yes. Only people can approve or decline. An approved proposal becomes a task for whoever proposed it, and everything goes into the decision log (press D).</> },
-      { p: "How do tasks work?", r: <>Turn any message into a task with its task button. Each task has an assignee (a person or an agent) and a due date; agents complete theirs by posting the result. Press T to see them all.</> },
-      { p: "Can I send files?", r: <>Yes, up to 10 MB: use the paperclip, paste or drag and drop. Only people in the room can see them. Agents read text and images, and deliver documents as files.</> },
+      { p: "What's a proposal?", r: <>A request for a decision. Use <b>Propose</b> in the message box (or <b>+</b> → Make a proposal), or an agent will use it on its own when it needs a yes. Only people approve or decline; an approved proposal becomes a task for whoever proposed it, and everything goes into the decision log (D key).</> },
+      { p: "How do tasks work?", r: <>Turn any message into a task with its task button, or create one from the <b>+</b> in the message box or with <b>Add a task</b> at the top of Tasks (T key). Each task has an owner (a person or an agent) and a due date. In a task's menu, <b>Ask Claude</b> (or ChatGPT) opens your agent with the request ready to do it and complete it with the result.</> },
+      { p: "Can I send files?", r: <>Yes, up to 10 MB: <b>+</b> → Attach a file, or paste or drag it into the chat. Only people in the room can see them. Agents read text and images and deliver documents as files. Everything attached is listed in <b>Library → Files from the chat</b>.</> },
+      { p: "How do I tell an agent its answer didn't help?", r: <>Hover over the answer and use 👍 or 👎. The agent and whoever connected it see the reaction. With 👎 you can write what was missing: it becomes a reply that mentions the agent so it can fix it.</> },
+      { p: "Why is my message queued?", r: <>When an agent is reading the room to answer, what you write waits for it to finish so it doesn't cut across the answer. It goes out on its own once the agent replies, or after 90 seconds. To send it right away, click <b>Send now</b>.</> },
+      { p: "How do I find my way in a long conversation?", r: <>With 25 messages or more, a map shows up on the right edge: one mark per message, with proposals and mentions of you highlighted. Click a mark to jump to it. Search (the / key) finds any word.</> },
       { p: "How do I share a summary outside the room?", r: <>In Decisions, open <b>Room minutes</b>: decisions, open items and tasks for a period, ready to print, save as PDF or download as .md.</> },
       { p: "Can it notify Slack or Teams?", r: <>Yes. In Room settings, go to <b>Integrations</b> (room owner only): paste a webhook URL from Slack, Teams, Discord, Google Chat or your own system and pick the events: decisions, proposals, new tasks, completed tasks or every message. The Test button sends a test message.</> },
       { p: "How do I invite a client as a viewer?", r: <>In Room settings, copy the <b>view-only invite link</b>. Anyone who joins with it sees the conversation, decisions and tasks, but can't write, decide or bring agents. You can change this later in the people list.</> },
@@ -98,6 +108,7 @@ const SECOES_EN = (): Secao[] => [
     itens: [
       { p: "How do I get notifications on my phone?", r: <>Click your name (bottom left) → <b>Turn on for this device</b>. On iPhone, first add The Sala to your Home Screen (Share → Add to Home Screen) and open it from there.</> },
       { p: "When do I get notified?", r: <>By default: when someone mentions you or your agent, when a proposal needs a decision, when someone replies to you and when a task is assigned to you. You can switch to every message or never.</> },
+      { p: "Can I get a sound?", r: <>Yes. Your name → <b>Sound</b> → <b>When I'm needed</b>: a short sound when someone mentions you or a proposal is waiting for your decision, while The Sala is open.</> },
     ],
   },
   {
@@ -105,6 +116,7 @@ const SECOES_EN = (): Secao[] => [
     itens: [
       { p: "Who sees what?", r: <>Only people in the room see its conversation, files, decisions and tasks. Each agent speaks for the person who connected it and only joins that person's rooms. The room history (in Room settings) shows who joined, left, approved and deleted.</> },
       { p: "How do I delete my account?", r: <>Click your name → <b>Delete my account</b>. Your messages and your agents' messages are removed; rooms you own are handed over to the people still in them.</> },
+      { p: "Can I change the conversation font?", r: <>Yes. Your name → <b>Conversation font</b>: Default, Serif or Easy reading (Lexend, designed to make reading less tiring). It applies on any device, like the theme and the sound.</> },
       { p: "Privacy", r: <>Read our <Link to="/privacidade">privacy policy</Link>. We don't sell data, we don't show ads and we don't use conversations to train models.</> },
     ],
   },

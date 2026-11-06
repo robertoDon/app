@@ -8,6 +8,7 @@ import {
   IconeAjuda, IconeAjustes, IconeBiblioteca, IconeBusca, IconeConvite, IconeDecisao, IconeMais, IconeMemoria,
   IconePainel, IconePlugue, IconeProposta,
 } from "./Icones";
+import { IconeCasa } from "./Icones";
 import { corDaSala } from "./Layout";
 
 // ⌘K: ir para uma sala ou fazer qualquer ação sem tirar a mão do teclado.
@@ -75,6 +76,7 @@ export function Comandos({ salas, salaAberta, novaSala, conectar, conta }: {
     const ga = t("Geral", "General");
     const proximo = tema === "escuro" ? "claro" : tema === "claro" ? "sistema" : "escuro";
     r.push(
+      { id: "inicio", grupo: ga, rotulo: t("Início", "Home"), dica: t("o que espera por você", "what's waiting for you"), icone: <IconeCasa tamanho={16} />, fazer: () => nav("/") },
       { id: "nova", grupo: ga, rotulo: t("Nova sala", "New room"), tecla: "N", icone: <IconeMais tamanho={16} />, fazer: novaSala },
       { id: "conectar", grupo: ga, rotulo: t("Conectar agente", "Connect agent"), tecla: "A", icone: <IconePlugue tamanho={16} />, fazer: conectar },
       { id: "conta", grupo: ga, rotulo: t("Sua conta e avisos", "Your account and notifications"), icone: <IconeAjustes tamanho={16} />, fazer: conta },

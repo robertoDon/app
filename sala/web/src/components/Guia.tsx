@@ -21,8 +21,8 @@ const passosApp = (): Passo[] => [
     texto: t("Claude ou ChatGPT, na sua própria assinatura. Conecte uma vez e ele entra em todas as suas salas.",
       "Claude or ChatGPT, on your own subscription. Connect once and it joins all your rooms.") },
   { parte: "app", alvo: "conta", titulo: t("Sua conta", "Your account"),
-    texto: t("Avisos no celular, idioma e este guia, quando quiser rever.",
-      "Phone notifications, language, and this tour if you want to see it again.") },
+    texto: t("Avisos no celular, tema, fonte, som, idioma e este guia, quando quiser rever.",
+      "Phone notifications, theme, font, sound, language, and this tour if you want to see it again.") },
 ];
 
 const passosSala = (): Passo[] => [
