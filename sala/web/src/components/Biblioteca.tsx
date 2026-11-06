@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { copiarTexto, linksDe, sb, subirArquivo, tamanhoLegivel, LIMITE_ARQUIVO } from "../supabase";
-import { IconeArquivo, IconeBiblioteca, IconeFechar, IconeLink, IconeMais, IconeMemoria } from "./Icones";
+import { IconeArquivo, IconeBiblioteca, IconeFechar, IconeLink, IconeMais, IconeMemoria, IconeVoltar } from "./Icones";
 import { Menu } from "./Menu";
 import { erro as msgErro, locale, t } from "../i18n";
 
@@ -9,7 +9,8 @@ export type ItemBiblioteca = {
   titulo: string; nota: string | null; url: string | null; path: string | null; nome: string | null; mime: string | null; tamanho: number | null; criado_em: string;
 };
 
-type Props = { salaId: string; eu: string; podeEscrever: boolean; nome: (uid: string | null) => string; fechar: () => void; abrirMemoria?: () => void };
+type Props = { salaId: string; eu: string; podeEscrever: boolean; nome: (uid: string | null) => string; fechar: () => void; abrirMemoria?: () => void; irPara?: (id: number) => void };
+type ArquivoConversa = { mensagem: number; path: string; nome: string; tamanho: number; quem: string; criada_em: string };
 
 const dominio = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return u; } };
 const extensao = (n: string | null) => (n?.includes(".") ? n.split(".").pop()!.toUpperCase().slice(0, 5) : t("Arquivo", "File"));
@@ -17,7 +18,22 @@ const data = (iso: string) => new Date(iso).toLocaleDateString(locale(), { day: 
 
 // Biblioteca da sala: arquivos e links de referência. Pessoas e agentes adicionam, editam e tiram;
 // os agentes leem daqui antes de responder.
-export function Biblioteca({ salaId, eu, podeEscrever, nome, fechar, abrirMemoria }: Props) {
+export function Biblioteca({ salaId, eu, podeEscrever, nome, fechar, abrirMemoria, irPara }: Props) {
+  const [daConversa, setDaConversa] = useState<ArquivoConversa[] | null>(null);
+  const [verConversa, setVerConversa] = useState(false);
+  // tudo o que foi anexado na conversa, do mais novo para o mais velho
+  useEffect(() => {
+    sb.from("mensagens").select("id, user_id, agente, anexos, criada_em").eq("sala_id", salaId).eq("apagada", false).neq("anexos", "[]")
+      .order("id", { ascending: false }).limit(60)
+      .then(({ data: d }) => setDaConversa(((d ?? []) as { id: number; user_id: string; agente: string | null; anexos: { path: string; nome: string; tamanho: number }[]; criada_em: string }[])
+        .flatMap((m) => (m.anexos ?? []).map((a) => ({ mensagem: m.id, path: a.path, nome: a.nome, tamanho: a.tamanho, criada_em: m.criada_em,
+          quem: m.agente ? t(`${m.agente} de ${nome(m.user_id).split(" ")[0]}`, `${nome(m.user_id).split(" ")[0]}'s ${m.agente}`) : m.user_id === eu ? t("você", "you") : nome(m.user_id).split(" ")[0] })))));
+  }, [salaId]); // eslint-disable-line react-hooks/exhaustive-deps
+  const baixar = async (a: ArquivoConversa) => {
+    const janela = window.open("", "_blank");
+    const url = (await linksDe([a.path], true))[a.path];
+    if (janela && url) janela.location.href = url; else janela?.close();
+  };
   const [itens, setItens] = useState<ItemBiblioteca[] | null>(null);
   const [novo, setNovo] = useState(false);
   const [editando, setEditando] = useState<number | null>(null);
@@ -82,6 +98,28 @@ export function Biblioteca({ salaId, eu, podeEscrever, nome, fechar, abrirMemori
       )}
 
       {novo && <section className="painel-secao"><Novo salaId={salaId} eu={eu} pronto={() => setNovo(false)} /></section>}
+
+      {!novo && !!daConversa?.length && (
+        <section className="painel-lista">
+          <button className="secao-rotulo secao-dobra" aria-expanded={verConversa} onClick={() => setVerConversa((v) => !v)}>
+            <IconeVoltar tamanho={14} /> {t("Arquivos da conversa", "Files from the chat")} <span>{daConversa.length}</span>
+          </button>
+          {verConversa && (
+            <ul className="linhas">
+              {daConversa.map((a) => (
+                <li key={a.path} className="linha-item">
+                  <span className="avatar item-icone" aria-hidden><IconeArquivo tamanho={16} /></span>
+                  <span className="linha-texto">
+                    <button type="button" className="item-titulo linha-titulo" onClick={() => baixar(a)} title={t(`Baixar ${a.nome}`, `Download ${a.nome}`)}>{a.nome}</button>
+                    <span className="presenca">{a.quem} · {data(a.criada_em)} · {tamanhoLegivel(a.tamanho)}</span>
+                  </span>
+                  {irPara && <Menu rotulo={t(`Ações de ${a.nome}`, `Actions for ${a.nome}`)} itens={[{ rotulo: t("Ver na conversa", "View in chat"), acao: () => irPara(a.mensagem) }]} />}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
 
       {itens === null && <div className="painel-secao"><div className="esqueleto" /><div className="esqueleto" /></div>}
 

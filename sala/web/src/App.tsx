@@ -12,6 +12,7 @@ import Privacidade from "./pages/Privacidade";
 import Landing from "./pages/Landing";
 import Ajuda from "./pages/Ajuda";
 import { definirIdioma, escolhido, idioma, useIdioma } from "./i18n";
+import { lerDaConta } from "./preferencias";
 
 type Auth = { sessao: Session | null; perfil: Perfil | null; recarregarPerfil: () => void };
 const AuthCtx = createContext<Auth>({ sessao: null, perfil: null, recarregarPerfil: () => {} });
@@ -34,7 +35,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    sb.auth.getSession().then(({ data }) => { setSessao(data.session); carregarPerfil(data.session?.user.id); });
+    sb.auth.getSession().then(({ data }) => { setSessao(data.session); carregarPerfil(data.session?.user.id); lerDaConta(data.session?.user); });
     const { data } = sb.auth.onAuthStateChange((_e, s) => { setSessao(s); carregarPerfil(s?.user.id); });
     return () => data.subscription.unsubscribe();
   }, []);

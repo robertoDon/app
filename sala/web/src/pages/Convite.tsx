@@ -58,6 +58,7 @@ export default function Convite() {
             <button type="button" className="lp-btn lp-btn-claro lp-btn-grande" onClick={entrar} disabled={entrando} autoFocus>
               {entrando ? t("Entrando…", "Joining…") : t("Entrar na sala", "Join room")}
             </button>
+            <a href="/sobre" target="_blank" rel="noopener" className="lp-link lp-nota">{t("Primeira vez? Ver como funciona", "First time here? See how it works")}</a>
           </div>
         )}
       </main>

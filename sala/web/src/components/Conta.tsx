@@ -5,6 +5,7 @@ import { abrirConectar, apagarConta, sb, trocarIdioma } from "../supabase";
 import { erro as msgErro, t, useIdioma, type Idioma } from "../i18n";
 import { IconeAjuda, IconeCheck, IconeFechar, IconeLixo, IconeMapa, IconePlugue, IconeSair } from "./Icones";
 import { definirTema, useTema, type Tema } from "../tema";
+import { definirFonte, definirSom, tocarPlim, usePrefs, type Fonte } from "../preferencias";
 
 const opcoes = () => [
   { valor: "mencoes", titulo: t("Quando for comigo", "When it involves me"), texto: t("Quando chamarem você, houver proposta para decidir ou responderem algo seu.", "When someone mentions you, a proposal needs your decision, or someone replies to you.") },
@@ -27,6 +28,7 @@ export function Conta({ fechar }: { fechar: () => void }) {
   const [erro, setErro] = useState("");
   const lingua = useIdioma();
   const tema = useTema();
+  const preferencias = usePrefs();
   const TEMAS: { valor: Tema; titulo: string }[] = [
     { valor: "sistema", titulo: t("Automático", "Automatic") },
     { valor: "claro", titulo: t("Claro", "Light") },
@@ -132,6 +134,28 @@ export function Conta({ fechar }: { fechar: () => void }) {
               </button>
             ))}
           </div>
+        </section>
+
+        <section className="conta-secao">
+          <h3 className="secao-rotulo secao-rotulo-solto" id="conta-fonte">{t("Fonte da conversa", "Conversation font")}</h3>
+          <div className="fontes" role="radiogroup" aria-labelledby="conta-fonte">
+            {([["padrao", t("Padrão", "Default"), "Inter"], ["serifa", t("Serifada", "Serif"), "Source Serif"], ["leitura", t("Leitura fácil", "Easy reading"), "Lexend"]] as [Fonte, string, string][]).map(([v, rotulo, nomeFonte]) => (
+              <button key={v} type="button" role="radio" aria-checked={preferencias.fonte === v} className={`fonte-cartao fonte-${v} ${preferencias.fonte === v ? "ativo" : ""}`} onClick={() => definirFonte(v)}>
+                <span className="fonte-amostra" aria-hidden>Aa</span><span>{rotulo}</span><span className="nota">{nomeFonte}</span>
+              </button>
+            ))}
+          </div>
+          <p className="nota">{t("Vale para as mensagens e a caixa de escrever, em qualquer aparelho. Leitura fácil usa a Lexend, feita para ler com menos esforço.", "Applies to messages and the message box, on any device. Easy reading uses Lexend, designed to make reading less tiring.")}</p>
+        </section>
+
+        <section className="conta-secao">
+          <div className="campo-topo"><h3 className="secao-rotulo secao-rotulo-solto" id="conta-som">{t("Som", "Sound")}</h3>
+            <button type="button" className="link nota" onClick={tocarPlim}>{t("Ouvir", "Play")}</button></div>
+          <div className="abas" role="radiogroup" aria-labelledby="conta-som">
+            <button type="button" role="radio" aria-checked={preferencias.som === "comigo"} className={`aba ${preferencias.som === "comigo" ? "ativa" : ""}`} onClick={() => { definirSom("comigo"); tocarPlim(); }}>{t("Quando precisarem de mim", "When I'm needed")}</button>
+            <button type="button" role="radio" aria-checked={preferencias.som === "nada"} className={`aba ${preferencias.som === "nada" ? "ativa" : ""}`} onClick={() => definirSom("nada")}>{t("Nunca", "Never")}</button>
+          </div>
+          <p className="nota">{t("Um som curto quando alguém chama você ou uma proposta espera a sua decisão, com o The Sala aberto.", "A short sound when someone mentions you or a proposal is waiting for your decision, while The Sala is open.")}</p>
         </section>
 
         <section className="conta-secao">

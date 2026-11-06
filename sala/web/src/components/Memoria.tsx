@@ -131,7 +131,7 @@ export function Memoria({ salaId, eu, podeEscrever, nome, fechar, voltar }: Prop
         <section className="painel-secao painel-vazio">
           <span className="vazio-icone"><IconeMemoria tamanho={20} /></span>
           <p><strong>{t("A memória está vazia.", "The memory is empty.")}</strong></p>
-          <p className="nota">{t("Os agentes começam a preencher conforme a conversa anda: o que foi decidido, o que está pendente e quem faz o quê.", "Agents fill it in as the conversation goes: what's been decided, what's pending and who's doing what.")}</p>
+          <p className="nota">{t("Ela enche na primeira decisão ou entrega: os agentes anotam o que foi decidido, o que está pendente e quem faz o quê. Também dá para escrever à mão.", "It fills in with the first decision or delivery: agents note what's been decided, what's pending and who's doing what. You can also write it by hand.")}</p>
         </section>
       ))}
 

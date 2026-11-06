@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { useAuth } from "../App";
-import { sb, type ItemFila, type Sala } from "../supabase";
+import { sb, type ItemFila, type Mensagem, type Sala } from "../supabase";
+import { prefs, tocarPlim } from "../preferencias";
+import { chamaTodos, handle } from "./Texto";
 import { gravado, idioma, locale, t } from "../i18n";
 import { IconeAgente, IconeBusca, IconeCasa, IconeMais, Marcador, IconePlugue, IconeProposta, IconeSino, IconeVoltar, Marca } from "./Icones";
 import { Conectar } from "./Conectar";
@@ -12,7 +14,10 @@ import { Comandos, abrirComandos, atalhoComandos } from "./Comandos";
 
 // Lista de salas com não lidas e prévia, ao vivo. Também mantém o contador na aba do navegador.
 export function useSalas() {
+  const { sessao, perfil } = useAuth();
   const [salas, setSalas] = useState<Sala[] | null>(null);
+  const quemSou = useRef({ id: "", h: "" });
+  quemSou.current = { id: sessao?.user.id ?? "", h: handle((perfil?.nome ?? "").split(" ")[0]) };
   const [fila, setFila] = useState<ItemFila[]>([]);
   const espera = useRef<number | undefined>(undefined);
 
@@ -26,7 +31,14 @@ export function useSalas() {
     carregar();
     const depois = () => { window.clearTimeout(espera.current); espera.current = window.setTimeout(carregar, 250); };
     const canal = sb.channel("minhas-salas")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "mensagens" }, depois)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "mensagens" }, (p) => {
+        depois();
+        // som opcional (Conta › Som): alguém chamou você, ou chegou proposta de outra pessoa para decidir
+        const m = p.new as Mensagem, eu = quemSou.current;
+        if (prefs().som !== "comigo" || !eu.id || (m.user_id === eu.id && !m.agente)) return;
+        const chamou = [...m.texto.matchAll(/@([\p{L}\p{N}_]+)/gu)].some((x) => { const h = handle(x[1]); return chamaTodos(h) || (!!eu.h && h === eu.h); });
+        if (chamou || (m.tipo === "proposta" && m.user_id !== eu.id)) tocarPlim();
+      })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "membros" }, depois)
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "membros" }, depois)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "votos" }, depois)

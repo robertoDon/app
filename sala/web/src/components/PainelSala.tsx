@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { sb, type DadosPainel, type Tarefa } from "../supabase";
-import { IconeFechar } from "./Icones";
+import { IconeFechar, IconePainel } from "./Icones";
 import { locale, t } from "../i18n";
 
 type Props = {
@@ -62,6 +62,7 @@ export function PainelSala({ salaId, eu, versao, tarefas, irPara, abrirTarefas, 
 
       {vazio && (
         <section className="painel-secao painel-vazio">
+          <span className="vazio-icone" aria-hidden><IconePainel tamanho={20} /></span>
           <p><strong>{t("O painel se preenche sozinho.", "The dashboard fills in on its own.")}</strong></p>
           <p className="nota">{t("Ele mostra as tarefas e as propostas da sala. Para começar, peça ao seu agente um plano: \"quebra o descritivo em tarefas por módulo, com responsável e prazo\".",
             "It shows the room's tasks and proposals. To get started, ask your agent for a plan: \"break the spec into tasks by module, each with an owner and a due date\".")}</p>

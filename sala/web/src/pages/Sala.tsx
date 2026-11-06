@@ -913,7 +913,7 @@ export default function SalaPage() {
             abrirTarefas={() => setPainel("tarefas")} abrirDecisoes={() => setPainel("decisoes")} fechar={() => setPainel(null)} />
         )}
         {painel === "busca" && sala && <Busca salaId={sala.id} autor={autor} irPara={irPara} fechar={() => setPainel(null)} />}
-        {painel === "biblioteca" && sala && <Biblioteca salaId={sala.id} eu={eu} podeEscrever={!leitor} nome={nome} fechar={() => setPainel(null)} abrirMemoria={() => setPainel("memoria")} />}
+        {painel === "biblioteca" && sala && <Biblioteca salaId={sala.id} eu={eu} podeEscrever={!leitor} nome={nome} fechar={() => setPainel(null)} abrirMemoria={() => setPainel("memoria")} irPara={irPara} />}
         {painel === "memoria" && sala && <Memoria salaId={sala.id} eu={eu} podeEscrever={!leitor} nome={nome} fechar={() => setPainel(null)} voltar={() => setPainel("biblioteca")} />}
       </div>
 

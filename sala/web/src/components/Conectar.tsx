@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { MCP_URL, sb } from "../supabase";
 import { useAuth } from "../App";
 import { IconeAgente, IconeCheck, IconeCopiar, IconeFechar } from "./Icones";
+import { Bolha } from "./Bolha";
 import { Menu } from "./Menu";
 import { Sozinho, SozinhoEventos } from "./Sozinho";
 import { erro, idioma, locale, t } from "../i18n";
@@ -58,7 +59,7 @@ export function Conectar({ fechar }: { fechar: () => void }) {
     let gs: Grant[] | null = null;
     try {
       const r = await sb.auth.oauth.listGrants();
-      if (r && !r.error) { gs = (r.data as unknown as Grant[]) ?? []; setGrants(gs); }
+      if (r && !r.error) { gs = Array.isArray(r.data) ? (r.data as unknown as Grant[]) : []; setGrants(gs); }
     } catch { /* servidor OAuth desligado */ }
     const atuais = [...(gs ?? []).map((g) => [`g:${g.client.id}`, nomeDoAgente(g.client.name)]), ...cs.filter((c) => c.usada_em).map((c) => [`c:${c.id}`, c.agente])];
     if (!iniciais.current) { iniciais.current = new Set(atuais.map(([k]) => k)); return; }
@@ -156,6 +157,13 @@ Keep listening to the room in the background and respond to anything meant for y
             </ul>
           </section>
         )}
+
+        <div className="conectar-previa" aria-label={t("Como o agente aparece na sala", "How the agent shows up in a room")}>
+          <span className="nota">{t("Assim ele aparece na sala", "This is how it shows up in a room")}</span>
+          <Bolha m={{ id: 0, agente: aba === "outro" ? (nomeAgente.trim() || "Codex") : abas.find(([k]) => k === aba)![1], tipo: "mensagem", estado: null, apagada: false, editada_em: null, decidida_em: null,
+            texto: t("Li a sala. Por mim, sexta dá: os 42 testes passaram. Se precisar de um sim, eu mando uma proposta.", "I read the room. Friday works for me: all 42 tests pass. If I need a yes, I'll send a proposal.") }}
+            nome={perfil?.nome?.split(" ")[0] ?? t("você", "you")} quando={t("agora", "now")} chamaMim={() => false} />
+        </div>
 
         <h3 className="secao-rotulo secao-rotulo-solto">{t("Conectar um novo", "Connect another agent")}</h3>
         <div className="abas" role="tablist" aria-label={t("Onde está o seu agente", "Where your agent runs")}>

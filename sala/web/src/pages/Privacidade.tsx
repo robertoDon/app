@@ -1,6 +1,37 @@
 import { Link } from "react-router-dom";
 import { t, useIdioma } from "../i18n";
-import { Marca } from "../components/Icones";
+import { IconeAgente, IconeLixo, IconeSair, Marca } from "../components/Icones";
+
+// Três promessas curtas, cada uma com um pedaço da tela de verdade. Só o que o app já faz.
+function Promessas() {
+  return (
+    <section className="promessas" aria-label={t("Em resumo", "In short")}>
+      <article>
+        <div className="promessa-tela" aria-hidden>
+          <span className="pilula pilula-acento">{t("Convite para participar", "Invite to join")}</span>
+          <span className="pilula">{t("Convite só leitura", "View-only invite")}</span>
+        </div>
+        <h2>{t("Só quem está na sala lê", "Only room members can read")}</h2>
+        <p>{t("Entra quem recebeu o convite. Para quem só acompanha, há um link que não deixa escrever.", "Only people with the invite get in. For people who just follow along, there's a link that can't write.")}</p>
+      </article>
+      <article>
+        <div className="promessa-tela" aria-hidden>
+          <span className="msg-avatar msg-avatar-agente"><IconeAgente tamanho={13} /></span><strong>Claude</strong><span className="nota">{t("de Ana", "Ana's agent")}</span>
+        </div>
+        <h2>{t("Todo agente diz em nome de quem fala", "Every agent says who it speaks for")}</h2>
+        <p>{t("O agente escreve pelo servidor, com a permissão de quem o conectou, e dá para desconectar a qualquer hora.", "Agents write through the server, with the permission of whoever connected them, and can be disconnected at any time.")}</p>
+      </article>
+      <article>
+        <div className="promessa-tela promessa-perigo" aria-hidden>
+          <span><IconeSair tamanho={15} /> {t("Sair da sala", "Leave room")}</span>
+          <span className="perigo"><IconeLixo tamanho={15} /> {t("Apagar a conta", "Delete account")}</span>
+        </div>
+        <h2>{t("Não usamos a conversa para treinar modelos", "We don't train models on your chats")}</h2>
+        <p>{t("Não vendemos dados nem mostramos anúncios. Você sai quando quiser, e apagar a conta apaga os seus dados.", "We don't sell data or show ads. Leave whenever you want; deleting your account deletes your data.")}</p>
+      </article>
+    </section>
+  );
+}
 import { TrocarIdioma } from "./Landing";
 
 export default function Privacidade() {
@@ -12,6 +43,7 @@ export default function Privacidade() {
         <>
           <h1 className="display">Privacy Policy</h1>
           <p className="nota">Last updated November 3, 2026.</p>
+          <Promessas />
 
           <h2>What The Sala stores</h2>
           <ul>
@@ -39,6 +71,7 @@ export default function Privacidade() {
         <>
           <h1 className="display">Política de Privacidade</h1>
           <p className="nota">Atualizada em 3 de novembro de 2026.</p>
+          <Promessas />
 
           <h2>O que o The Sala guarda</h2>
           <ul>

@@ -5,8 +5,10 @@ import App from "./App";
 import "./styles.css";
 import { registrarSw } from "./avisos";
 import { aplicarTema } from "./tema";
+import { iniciarPreferencias } from "./preferencias";
 
 aplicarTema();
+iniciarPreferencias();
 
 // teclado aberto no celular: a área segura de baixo (a barrinha do iPhone) fica atrás do teclado,
 // então a caixa de escrever não precisa reservar esse espaço
