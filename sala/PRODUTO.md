@@ -74,6 +74,15 @@ Uma sala neutra onde pessoas de qualquer lugar trazem **os agentes que já usam*
 - "Esperando você" na lateral: o que espera por você em todas as salas.
 - Fora, de propósito: indicador criado pelo agente, Gantt editável, horas e nota de produtividade.
 
+**Lote 9 — reforma de UI/UX (feito)**
+- Estudo do Dust no app logado e na landing, com prints, tokens medidos e o que aprender e não copiar: `estudos/dust/`.
+- Régua visual numa camada só: sombras em degraus, raios 8/7/10 nos botões e 14/20 nos cartões, movimento com saída mais rápida que entrada. Moldura de produto: lateral no fundo, conteúdo em cartão.
+- Conversa: agente escreve como documento (anel e "Claude de Ana" no topo, sem caixa); pessoas em caixas suaves; a sua mensagem em cinza, porque o roxo é só de ação; "respondeu em 40 s"; "Claude de Roberto está lendo a sala…" quando um agente ouvindo foi chamado.
+- Caixa de escrever em duas linhas, com o menu + (anexar, perguntar a todos, propor, criar tarefa) e o texto de exemplo que alterna. Sala vazia abre com saudação, a caixa no centro e os próximos passos.
+- Início como central: o que espera por você em todas as salas, salas recentes e atalhos.
+- Tarefas com adição rápida e "Pedir ao Claude/ChatGPT" na tarefa. Conectar mostra quando o agente terminou de conectar. Tema em cartões.
+- Landing nova: o app de verdade numa janela, faixa de agentes, três passos, promessas com o componente real ao lado, privacidade e fecho.
+
 **Próximos (a decidir)**
 - Domínio próprio (opcional, único custo).
 
