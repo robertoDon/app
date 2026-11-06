@@ -136,7 +136,7 @@ Deno.serve(async (req) => {
 
   const corpo = await req.json().catch(() => ({}));
   if (corpo.tarefa) return await avisarTarefa(Number(corpo.tarefa));
-  if (corpo.despertar) return await despertar(Number(corpo.despertar));
+  if (corpo.despertar) return await despertar(Number(corpo.despertar), corpo.so_user ? { user_id: String(corpo.so_user), agente: String(corpo.so_agente ?? "") } : null);
   const { id } = corpo;
   const { data: m } = await db.from("mensagens")
     .select("id, sala_id, user_id, agente, texto, tipo, estado, responde_a, apagada, autor:perfis!mensagens_user_id_fkey(nome), salas(nome)")
@@ -266,7 +266,8 @@ async function avisarTarefa(id: number) {
 // Quando chamam o agente dessa pessoa, disparamos a tarefa: o Claude abre na nuvem, lê a sala e responde.
 // Regras: pessoa chamou (@Claude, @Claude-Ana, @agentes, @todos) → acorda; agente chamou → só se chamou pelo nome
 // (@Claude-Ana), para não virar corrente; decisão sobre proposta de um agente → acorda esse agente para seguir.
-async function despertar(id: number) {
+// `so`: despertar só este agente (chamada que ficou pendente enquanto a sessão dele trabalhava).
+async function despertar(id: number, so: { user_id: string; agente: string } | null = null) {
   const { data: m } = await db.from("mensagens")
     .select("id, sala_id, user_id, agente, texto, tipo, estado, responde_a, apagada, autor:perfis!mensagens_user_id_fkey(nome), salas(nome)")
     .eq("id", id).maybeSingle();
@@ -297,6 +298,7 @@ async function despertar(id: number) {
     dono = p ?? null;
   }
   const alvos = desp.filter((d) => {
+    if (so && (d.user_id !== so.user_id || d.agente !== so.agente || d.evento)) return false;
     if (m.agente && m.user_id === d.user_id && m.agente === d.agente) return false; // ele mesmo escreveu
     if (ouve(d.user_id, d.agente)) return false; // já está ouvindo a sala (Claude Code no computador)
     if (dono && dono.user_id === d.user_id && dono.agente === d.agente) return true;
@@ -342,6 +344,10 @@ async function despertar(id: number) {
       else await db.from("eventos_inscricoes").update({ ultimo_envio: new Date().toISOString(), ultimo_status: status, ultimo_erro: erro }).eq("id", d.evento);
       return;
     }
+    // uma sessão por vez nesta sala: se o agente já está trabalhando aqui, a chamada fica pendente para ele
+    // (o MCP avisa a sessão ao enviar; se ela parar sem ler, despertar_pendentes acorda uma nova)
+    const { data: livre, error: errReserva } = await db.rpc("reservar_despertar", { quem: d.user_id, agente: d.agente, sala: m.sala_id, msg: m.id });
+    if (!errReserva && livre === false) return;
     try {
       const { data: chave } = await db.rpc("chave_despertador", { quem: d.user_id, agente: d.agente });
       ({ status, erro } = await disparar(d.url, chave as string, texto));

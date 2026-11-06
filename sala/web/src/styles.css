@@ -266,7 +266,10 @@ input:focus-visible, textarea:focus-visible { outline: 2px solid var(--acento); 
   width: 100%; display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px;
   border: 0; border-radius: var(--r1); background: none; cursor: pointer; text-align: left;
 }
-.sugestoes button.ativa, .sugestoes button:hover { background: var(--suave); }
+.sugestoes button:hover { background: var(--suave); }
+/* a escolhida (setas/Enter) tem que saltar aos olhos também no escuro, onde --suave quase some sobre --elevado */
+.sugestoes button.ativa { background: color-mix(in srgb, var(--acento) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acento) 35%, transparent); }
+.sugestoes button.ativa .sug-rotulo { color: var(--tinta); }
 .sug-handle { font-weight: 600; }
 .sug-rotulo { color: var(--cinza); font-size: var(--t1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .avatar-mini { width: 20px; height: 20px; font-size: 11px; }
