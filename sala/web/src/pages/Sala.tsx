@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "../App";
-import { Layout, useSalas } from "../components/Layout";
+import { Layout, corDaSala, useSalas } from "../components/Layout";
 import { type Aprovacao, Bolha, Evento, type Citacao, type GrupoReacao } from "../components/Bolha";
 import { Ajustes } from "../components/Ajustes";
 import { Compor, type ComporApi, type Sugestao } from "../components/Compor";
@@ -92,7 +92,7 @@ export default function SalaPage() {
   const [ata, setAta] = useState(false);
   const [pedido, setPedido] = useState<number | null>(null); // veio do aviso "chamaram seu agente"
   const [copiouPedido, setCopiouPedido] = useState<string | null>(null);
-  const [, setRelogio] = useState(0); // refaz "visto há…" de tempos em tempos
+  const [relogio, setRelogio] = useState(0); // refaz "visto há…" de tempos em tempos
   const feed = useRef<HTMLDivElement>(null);
   const compor = useRef<ComporApi>(null);
   const noFim = useRef(true);
@@ -242,7 +242,7 @@ export default function SalaPage() {
       // assina antes de ler: nada que chegue no meio se perde
       .subscribe((status) => { if (status === "SUBSCRIBED" || status === "CHANNEL_ERROR" || status === "TIMED_OUT") primeira(); });
     const reserva = window.setTimeout(primeira, 4000);
-    const t = window.setInterval(() => setRelogio((n) => n + 1), 60_000);
+    const t = window.setInterval(() => setRelogio((n) => n + 1), 30_000);
     return () => { sb.removeChannel(canal); window.clearInterval(t); window.clearTimeout(reserva); };
   }, [id, carregarRecentes]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -543,6 +543,45 @@ export default function SalaPage() {
     return oculta;
   }, [msgs, abertos, destaque, primeiraNova, chamaMim, tarefasDe, autor]);
 
+  // quanto o agente levou para responder à pergunta citada ("40 s"); só para respostas do mesmo dia
+  const tempoDe = (m: Mensagem) => {
+    if (!m.agente || !m.responde_a || m.tipo === "decisao") return undefined;
+    const q = porId.get(m.responde_a);
+    if (!q) return undefined;
+    const seg = (new Date(m.criada_em).getTime() - new Date(q.criada_em).getTime()) / 1000;
+    if (seg < 0 || seg > 86400) return undefined;
+    return seg < 60 ? `${Math.max(1, Math.round(seg))} s` : seg < 3600 ? `${Math.round(seg / 60)} min` : `${Math.round(seg / 3600)} h`;
+  };
+  const avatarDe = (uid: string) => membros.find((x) => x.user_id === uid)?.perfis?.avatar ?? null;
+
+  // agentes que estão ouvindo, foram chamados há pouco e ainda não responderam: "Claude de Ana está lendo a sala…"
+  const pensando = useMemo(() => {
+    if (!msgs?.length) return [];
+    const res = new Map<string, AgenteSala>();
+    const recentes = msgs.slice(-5).filter((q) => q.tipo !== "decisao" && !q.apagada && q.id > 0 && Date.now() - new Date(q.criada_em).getTime() < 4 * 60_000);
+    for (const q of recentes) {
+      const ditas = [...q.texto.matchAll(/@([\p{L}\p{N}_]+)(?:-([\p{L}\p{N}_]+))?/gu)].map((x) => [handle(x[1]), x[2] ? handle(x[2]) : ""]);
+      if (!ditas.length) continue;
+      const ja = new Set(msgs.filter((x) => x.id > q.id && x.agente).map((x) => `${x.agente}|${x.user_id}`));
+      reacoes.filter((r) => r.mensagem_id === q.id && r.agente).forEach((r) => ja.add(`${r.agente}|${r.user_id}`));
+      for (const a of agentes) {
+        if (!ouvindoAgora(a.presenca?.texto) || ja.has(`${a.nome}|${a.uid}`) || (q.agente === a.nome && q.user_id === a.uid)) continue;
+        if (ditas.some(([h, d]) => chamaAgentes(h) || chamaTodos(h) || (h === handle(a.nome) && (!d || d === handle(primeiro(a.uid)))))) res.set(`${a.nome}|${a.uid}`, a);
+      }
+    }
+    return [...res.values()];
+  }, [msgs, agentes, reacoes, relogio, primeiro]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // sala sem mensagens: a caixa vai para o centro, com uma saudação e os próximos passos embaixo
+  const vazia = msgs !== null && msgs.length === 0 && !leitor;
+  const primeiroNome = (perfil?.nome ?? "").split(" ")[0];
+  const saudacoes = [
+    t(`No que vamos trabalhar, ${primeiroNome}?`, `What are we working on, ${primeiroNome}?`),
+    t(`Por onde começamos, ${primeiroNome}?`, `Where do we start, ${primeiroNome}?`),
+    t(`O que esta sala precisa resolver?`, `What does this room need to solve?`),
+  ];
+  const saudacao = saudacoes[[...id].reduce((n, c) => n + c.charCodeAt(0), 0) % saudacoes.length];
+
   // "não encontrada" só depois de recarregar a lista: sala recém-criada ainda não estava nela
   if (salas && !sala && conferida === id) {
     return (
@@ -559,7 +598,7 @@ export default function SalaPage() {
   return (
     <Layout salas={salas} recarregar={recarregar} fila={fila} foco>
       <div className="sala">
-        <div className={`sala-principal ${arrastando ? "arrastando" : ""}`}
+        <div className={`sala-principal ${arrastando ? "arrastando" : ""} ${vazia ? "sala-vazia" : ""}`}
           onDragOver={(e) => { if (!leitor && e.dataTransfer.types.includes("Files")) { e.preventDefault(); setArrastando(true); } }}
           onDragLeave={(e) => { if (e.currentTarget === e.target || !e.currentTarget.contains(e.relatedTarget as Node)) setArrastando(false); }}
           onDrop={(e) => { if (e.dataTransfer.files.length) { e.preventDefault(); compor.current?.anexar([...e.dataTransfer.files]); } setArrastando(false); }}>
@@ -632,7 +671,15 @@ export default function SalaPage() {
               <div className="anteriores"><button className="btn btn-pequeno" onClick={carregarAnteriores}>{t("Mostrar mensagens anteriores", "Show earlier messages")}</button></div>
             )}
 
-            {msgs !== null && !leitor && passos.some((p) => !p.feito) && msgs.length < 4 && (
+            {vazia && (
+              <section className="sala-abertura">
+                <span className="sala-abertura-inicial" style={{ "--cor": corDaSala(id) } as React.CSSProperties} aria-hidden>{(sala?.nome ?? " ").slice(0, 1).toUpperCase()}</span>
+                <h2>{saudacao}</h2>
+                <p className="sub">{t("Escreva para a sala, chame um agente com @ ou pergunte a todos de uma vez.", "Write to the room, mention an agent with @, or ask all of them at once.")}</p>
+              </section>
+            )}
+
+            {msgs !== null && !leitor && !vazia && passos.some((p) => !p.feito) && msgs.length < 4 && (
               <section className="passos-sala" aria-label={t("Próximos passos", "Next steps")}>
                 <h2>{msgs.length ? t("Para a sala render mais", "Get more out of your room") : t("Sala pronta. Três passos e ela ganha vida.", "Your room is ready. Three steps to get it going.")}</h2>
                 <ol>
@@ -647,7 +694,7 @@ export default function SalaPage() {
               </section>
             )}
 
-            {msgs !== null && msgs.length === 0 && (leitor || !passos.some((p) => !p.feito)) && (
+            {msgs !== null && msgs.length === 0 && leitor && (
               <section className="feed-vazio">
                 <span className="vazio-icone"><IconeAgente tamanho={20} /></span>
                 <p><strong>{t("Ninguém falou ainda.", "No one has said anything yet.")}</strong></p>
@@ -701,7 +748,7 @@ export default function SalaPage() {
                 <div key={m.id} className="msg-bloco">
                   {novoDia && <div className="dia" role="separator"><span>{dia(m.criada_em)}</span></div>}
                   {marcoAqui}
-                  <Bolha m={m} nome={nome(m.user_id)} quando={hora(m.criada_em)} quandoCompleto={completo(m.criada_em)}
+                  <Bolha m={m} nome={nome(m.user_id)} quando={hora(m.criada_em)} quandoCompleto={completo(m.criada_em)} avatar={m.agente ? null : avatarDe(m.user_id)} tempo={tempoDe(m)}
                     minha={minhaPessoa} continua={continua} chamaMim={chamaMim} destaque={destaque === m.id}
                     autorDe={(id) => { const x = porId.get(id); return x ? autor(x) : null; }}
                     tarefaDe={(id) => tarefas?.find((x) => x.id === id)?.titulo ?? null} abrirTarefas={() => setPainel("tarefas")}
@@ -776,6 +823,17 @@ export default function SalaPage() {
                 </div>
               );
             })}
+
+            {pensando.length > 0 && !longe.current && (
+              <div className="pensando" role="status">
+                <span className="msg-avatar msg-avatar-agente" aria-hidden><IconeAgente tamanho={13} /></span>
+                <span className="pensando-texto">
+                  {pensando.length === 1
+                    ? t(`${deQuem(pensando[0].nome, primeiro(pensando[0].uid))} está lendo a sala…`, `${deQuem(pensando[0].nome, primeiro(pensando[0].uid))} is reading the room…`)
+                    : t(`${pensando.map((a) => deQuem(a.nome, primeiro(a.uid))).join(", ")} estão lendo a sala…`, `${pensando.map((a) => deQuem(a.nome, primeiro(a.uid))).join(", ")} are reading the room…`)}
+                </span>
+              </div>
+            )}
           </div>
 
           {(longeDoFim || temPosteriores) && (
@@ -796,7 +854,18 @@ export default function SalaPage() {
           {leitor ? (
             <p className="so-leitura" role="status">{t("Você acompanha esta sala no modo só leitura: vê a conversa, as decisões e as tarefas, mas não escreve. Para participar, peça a quem cuida da sala.", "You're a viewer in this room: you can see the conversation, decisions and tasks, but you can't write. To join in, ask the room owner.")}</p>
           ) : <Compor key={id} ref={compor} subir={(f) => subirArquivo(id, eu, f)} sugestoesBase={sugestoes} respondendo={respondendo} cancelarResposta={() => setRespondendo(null)} enviar={enviar}
+            vazia={vazia} criarTarefa={(texto) => { setRascunho({ titulo: texto.slice(0, 120), origem: null, responsavel: valorResp(eu, null) }); setPainel("tarefas"); }}
             pessoas={membros.filter((x) => x.papel !== "leitor").map((x) => ({ id: x.user_id, nome: x.user_id === eu ? t("Você", "You") : (x.perfis?.nome ?? "").split(" ")[0] }))} />}
+          {vazia && (
+            <ul className="sala-sugestoes" aria-label={t("Para começar", "To get started")}>
+              {passos.filter((p) => !p.feito).map((p) => (
+                <li key={p.titulo}><button type="button" onClick={p.acao}>{p.icone}<span><strong>{p.titulo}</strong><span>{p.texto}</span></span></button></li>
+              ))}
+              <li><button type="button" onClick={() => { compor.current?.inserir(`@${tc("agentes", "agents")} `); }}>
+                <IconeAgente tamanho={18} /><span><strong>{t("Perguntar a todos os agentes", "Ask every agent")}</strong><span>{t("Cada um responde e você compara lado a lado.", "Each one answers and you compare them side by side.")}</span></span>
+              </button></li>
+            </ul>
+          )}
         </div>
 
         {(painel === "ajustes" || painel === "contexto") && sala && (

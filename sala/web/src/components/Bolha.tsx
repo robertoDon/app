@@ -60,6 +60,8 @@ type Props = {
   tarefaDe?: (id: number) => string | null; // "#12" de uma tarefa desta sala vira o título dela
   nomeDe?: (uid: string | null) => string; // responsáveis dos itens de um plano
   abrirTarefas?: () => void;
+  avatar?: string | null; // foto da pessoa (agente usa sempre o anel)
+  tempo?: string; // quanto o agente levou para responder à pergunta ("40 s")
 };
 
 // seletor rápido de emojis: abre ao lado do botão, fecha com Esc ou clique fora
@@ -85,7 +87,7 @@ function Seletor({ escolher, fechar }: { escolher: (e: string) => void; fechar: 
 
 const hora = (iso?: string | null) => (iso ? new Date(iso).toLocaleTimeString(locale(), { hour: "2-digit", minute: "2-digit" }) : "");
 
-// Pessoa: bolha clara (a minha, escura). Agente: fundo suave + ícone + "Claude · de Ana".
+// Pessoa: caixa suave (a minha à direita). Agente: sem caixa, como documento, com o anel + "Claude de Ana".
 // Proposta: cartão com Aprovar e Recusar. Estado nunca só por cor: sempre ícone e texto.
 export function Bolha(p: Props) {
   const { m, nome, minha, continua, citacao } = p;
@@ -138,13 +140,20 @@ export function Bolha(p: Props) {
         <header className="msg-meta">
           {m.agente ? (
             <>
-              <span className="msg-selo"><IconeAgente tamanho={14} /> {m.agente}</span>
+              <span className="msg-avatar msg-avatar-agente" aria-hidden><IconeAgente tamanho={13} /></span>
+              <strong className="msg-selo">{m.agente}</strong>
               <span className="msg-de">{tr(`de ${nome}`, `${nome}'s agent`)}</span>
             </>
+          ) : minha ? (
+            <strong>{tr("Você", "You")}</strong>
           ) : (
-            <strong>{minha ? tr("Você", "You") : nome}</strong>
+            <>
+              <span className="msg-avatar" aria-hidden>{p.avatar ? <img src={p.avatar} alt="" referrerPolicy="no-referrer" /> : (nome.trim()[0] ?? "?").toUpperCase()}</span>
+              <strong>{nome}</strong>
+            </>
           )}
           {p.quando && <time title={p.quandoCompleto}>{p.quando}</time>}
+          {p.tempo && <span className="msg-de msg-tempo" title={tr("Tempo entre a pergunta e a resposta", "Time between the question and the answer")}>· {tr(`respondeu em ${p.tempo}`, `answered in ${p.tempo}`)}</span>}
           {m.editada_em && !m.apagada && <span className="msg-de" title={tr(`Editada às ${hora(m.editada_em)}`, `Edited at ${hora(m.editada_em)}`)}>· {tr("editada", "edited")}</span>}
         </header>
       )}
