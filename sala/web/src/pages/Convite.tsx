@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../App";
 import { sb } from "../supabase";
 import { Marca } from "../components/Icones";
+import { corDaSala } from "../components/Layout";
 import { erro, t } from "../i18n";
 import "../landing.css";
 import { TrocarTema } from "./Landing";
@@ -46,7 +47,7 @@ export default function Convite() {
         )}
         {info && (
           <div className="lp-convite-cartao">
-            <span className="lp-convite-inicial" aria-hidden>{info.nome.slice(0, 1).toUpperCase()}</span>
+            <span className="lp-convite-inicial" style={{ "--cor": corDaSala(info.sala_id) } as React.CSSProperties} aria-hidden>{info.nome.slice(0, 1).toUpperCase()}</span>
             <p className="lp-olho">{info.leitura ? t("Te chamaram para acompanhar", "You're invited to view") : t("Te chamaram para", "You're invited to join")}</p>
             <h1 className="lp-h2">{info.nome}</h1>
             <p className="lp-sub">{info.pessoas === 1

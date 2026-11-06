@@ -1,9 +1,12 @@
+import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../App";
-import { entrarComGoogle, trocarIdioma } from "../supabase";
+import { entrarComGoogle, trocarIdioma, type Mensagem } from "../supabase";
 import { idioma, t } from "../i18n";
 import { AoVivo } from "../components/AoVivo";
-import { IconeEnviar, Marca } from "../components/Icones";
+import { Bolha, Evento } from "../components/Bolha";
+import { Texto } from "../components/Texto";
+import { IconeAgente, IconeCheck, IconeColunas, IconeEnviar, IconeProposta, IconeRelogio, IconeSino, Marca, Marcador } from "../components/Icones";
 import { definirTema, useTema } from "../tema";
 import "../landing.css";
 
@@ -32,34 +35,198 @@ export function TrocarTema({ className = "lp-link lp-link-icone" }: { className?
   );
 }
 
+// Peças da vitrine: componentes reais do app com dados de exemplo.
+const base = { responde_a: null, estado: null, decidida_por: null, decidida_em: null, editada_em: null, apagada: false, anexos: [], sala_id: "", user_id: "", criada_em: "" };
+const msg = (id: number, agente: string | null, texto: string, extra: Partial<Mensagem> = {}): Mensagem =>
+  ({ ...base, id, agente, texto, tipo: "mensagem", ...extra }) as Mensagem;
+const nada = () => false;
+
+/** Blocos com a classe "revela" sobem 14px e aparecem quando entram na tela, um depois do outro. */
+function useRevelar() {
+  useEffect(() => {
+    const els = [...document.querySelectorAll<HTMLElement>(".lp .revela")];
+    if (!("IntersectionObserver" in window) || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      els.forEach((e) => e.classList.add("visivel"));
+      return;
+    }
+    const obs = new IntersectionObserver((entradas) => {
+      entradas.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("visivel"); obs.unobserve(e.target); } });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.12 });
+    els.forEach((e) => obs.observe(e));
+    return () => obs.disconnect();
+  }, []);
+}
+
+/** O app de verdade numa janela: lateral com as salas e a conversa tocando ao vivo. */
+function JanelaApp() {
+  const salas = [
+    { i: "L", nome: t("Lançamento 2.0", "2.0 launch"), cor: "#0D9488", previa: t("ChatGPT propôs: lançar sexta", "ChatGPT proposed: ship Friday"), ativa: true },
+    { i: "C", nome: t("Cliente Acme", "Acme account"), cor: "#D97706", previa: t("Ana: cronograma revisado", "Ana: revised timeline"), novas: 3 },
+    { i: "D", nome: t("Contratação design", "Design hire"), cor: "#DB2777", previa: t("Claude: resumo dos candidatos", "Claude: candidate summary") },
+  ];
+  return (
+    <div className="lp-janela" aria-label={t("O The Sala funcionando", "The Sala in action")}>
+      <aside className="lp-janela-lateral" aria-hidden>
+        <span className="lp-janela-marca"><Marca /></span>
+        <span className="lp-janela-item"><IconeSino tamanho={14} /> {t("Esperando você", "Waiting for you")} <b>1</b></span>
+        <span className="lp-janela-rotulo">{t("Salas", "Rooms")}</span>
+        {salas.map((s) => (
+          <span key={s.i} className={`lp-janela-sala ${s.ativa ? "ativa" : ""}`}>
+            <span className="sala-inicial" style={{ "--cor": s.cor } as React.CSSProperties}>{s.i}</span>
+            <span><strong>{s.nome}</strong><span>{s.previa}</span></span>
+            {s.novas && <i>{s.novas}</i>}
+          </span>
+        ))}
+      </aside>
+      <div className="lp-janela-conteudo"><AoVivo /></div>
+    </div>
+  );
+}
+
+/** Pontos (pessoas) e anéis (agentes) que respiram atrás da janela: o símbolo do The Sala, vivo. */
+function Constelacao() {
+  const pecas: [number, number, "p" | "a", number][] = [
+    [6, 18, "p", 0], [12, 24, "a", 1], [88, 10, "p", 2], [94, 17, "a", 0], [80, 86, "p", 1], [87, 92, "a", 2],
+    [3, 70, "a", 2], [9, 78, "p", 0], [52, 4, "a", 1], [97, 52, "p", 2], [40, 97, "a", 0], [70, 2, "p", 1],
+  ];
+  return (
+    <div className="lp-constelacao" aria-hidden>
+      {pecas.map(([x, y, tipo, d], i) => (
+        <span key={i} className={`lp-c lp-c-${tipo === "p" ? "ponto" : "anel"} lp-c-d${d}`} style={{ left: `${x}%`, top: `${y}%` }} />
+      ))}
+    </div>
+  );
+}
+
+/** Uma proposta de verdade: dá para aprovar ali mesmo. */
+function PropostaViva() {
+  const [aprovada, setAprovada] = useState(false);
+  const p = msg(31, "ChatGPT", t("**Avisar a lista de espera na sexta, às 10h.** O texto está revisado e os links conferidos.", "**Notify the waitlist on Friday at 10 AM.** The copy is reviewed and the links are checked."),
+    { tipo: "proposta", estado: aprovada ? "aprovada" : "pendente", decidida_em: aprovada ? "2026-11-05T14:12:00Z" : null });
+  return (
+    <div className="lp-cena lp-cena-proposta">
+      <Bolha m={msg(30, null, t("@agentes o texto do aviso está pronto?", "@agents is the announcement copy ready?"))} nome="Ana" quando="14:02" minha chamaMim={nada} />
+      <Bolha m={p} nome="Bruno" quando="14:04" decisor={t("Você", "You")} chamaMim={nada} decidir={async (sim) => { if (sim === true) setAprovada(true); return null; }} />
+      {aprovada && (
+        <>
+          <Evento m={msg(32, null, "", { tipo: "decisao", estado: "aprovada", responde_a: 31 })} quem={t("Você", "You")} de={t("ChatGPT de Bruno", "Bruno's ChatGPT")} quando="14:05" />
+          <button type="button" className="lp-de-novo" onClick={() => setAprovada(false)}>{t("Ver de novo", "Replay")}</button>
+        </>
+      )}
+    </div>
+  );
+}
+
+/** Respostas de três agentes, lado a lado, como no Comparar do app. */
+function CompararVitrine() {
+  const cols = [
+    { quem: t("Claude de Ana", "Ana's Claude"), texto: t("**Sexta.** Os 42 testes passaram e o deploy leva 6 min.", "**Friday.** All 42 tests pass and the deploy takes 6 min.") },
+    { quem: t("ChatGPT de Bruno", "Bruno's ChatGPT"), texto: t("**Sexta, 10h.** O texto já está revisado.", "**Friday, 10 AM.** The copy is already reviewed.") },
+    { quem: t("Gemini de Caio", "Caio's Gemini"), texto: t("**Segunda.** Deixa um dia de folga para o suporte.", "**Monday.** It leaves a buffer day for support.") },
+  ];
+  return (
+    <div className="lp-cena lp-cena-comparar">
+      <p className="lp-cena-pergunta"><strong>Ana</strong> <span className="mencao">@{t("agentes", "agents")}</span> {t("dá para lançar na sexta?", "can we ship on Friday?")}</p>
+      <div className="lp-colunas">
+        {cols.map((c) => (
+          <div key={c.quem} className="coluna">
+            <header><IconeAgente tamanho={14} /> <strong>{c.quem}</strong></header>
+            <div className="coluna-corpo msg-corpo"><Texto texto={c.texto} chamaMim={nada} /></div>
+          </div>
+        ))}
+      </div>
+      <p className="lp-cena-rodape"><IconeCheck tamanho={14} /> {t("3 de 3 responderam", "3 of 3 answered")}</p>
+    </div>
+  );
+}
+
+/** Tarefas como no painel do app: círculo, quem faz, prazo. */
+function TarefasVitrine() {
+  const [feitas, setFeitas] = useState<number[]>([]);
+  const itens = [
+    { id: 1, titulo: t("Revisar o texto da página", "Review the page copy"), quem: t("Claude de Ana", "Ana's Claude"), agente: true, prazo: t("hoje", "today"), perto: true },
+    { id: 2, titulo: t("Trocar o print da loja", "Swap the store screenshot"), quem: t("Você", "You"), eu: true, prazo: t("amanhã", "tomorrow") },
+    { id: 3, titulo: t("Avisar a lista de espera", "Notify the waitlist"), quem: "Bruno", prazo: t("sexta", "Friday") },
+  ];
+  return (
+    <div className="lp-cena lp-cena-tarefas">
+      <p className="secao-rotulo">{t("A fazer", "To do")} <span>{itens.length - feitas.length}</span></p>
+      <ul className="tarefas">
+        {itens.map((i) => {
+          const feita = feitas.includes(i.id);
+          return (
+            <li key={i.id} className={`tarefa ${feita ? "tarefa-feita" : ""}`}>
+              <button type="button" className="tarefa-check" onClick={() => setFeitas((f) => (feita ? f.filter((x) => x !== i.id) : [...f, i.id]))}
+                aria-label={t(`Marcar como feita: ${i.titulo}`, `Mark as done: ${i.titulo}`)}><Marcador feito={feita} /></button>
+              <div className="tarefa-corpo">
+                <p className="tarefa-titulo">{i.titulo}</p>
+                <div className="tarefa-meta">
+                  <span className={`resp ${i.eu ? "resp-eu" : ""} ${i.agente ? "resp-agente" : ""}`}><span className="resp-avatar" aria-hidden>{i.agente ? <IconeAgente tamanho={11} /> : i.quem[0]}</span>{i.quem}</span>
+                  {!feita && <span className={`pilula ${i.perto ? "pilula-acento" : ""}`}><IconeRelogio tamanho={12} />{i.prazo}</span>}
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+function Bloco({ selo, titulo, texto, itens, children, invertido }: { selo: string; titulo: string; texto: string; itens: string[]; children: ReactNode; invertido?: boolean }) {
+  return (
+    <section className={`lp-bloco ${invertido ? "lp-bloco-invertido" : ""}`}>
+      <div className="lp-bloco-texto revela">
+        <span className="lp-selo"><i aria-hidden />{selo}</span>
+        <h2 className="lp-h2">{titulo}</h2>
+        <p className="lp-par">{texto}</p>
+        <ul className="lp-lista">{itens.map((i) => <li key={i}><IconeCheck tamanho={15} />{i}</li>)}</ul>
+      </div>
+      <div className="lp-bloco-vitrine revela">{children}</div>
+    </section>
+  );
+}
+
 const passos = () => [
   { titulo: t("Crie uma sala", "Create a room"), texto: t("E mande o link para quem trabalha com você, de qualquer empresa.", "Then share the link with the people you work with, at any company.") },
   { titulo: t("Cada um conecta o seu agente", "Everyone connects their own agent"), texto: t("Claude, ChatGPT, Gemini, Claude Code, Codex, Cursor ou qualquer agente MCP. Uma URL e um “Permitir”.", "Claude, ChatGPT, Gemini, Claude Code, Codex, Cursor or any MCP agent. One URL and one “Allow.”") },
   { titulo: t("Os agentes propõem, vocês decidem", "Agents propose, you decide"), texto: t("Chame um agente pelo nome. Quando algo precisa de um sim, ele manda uma proposta e só gente aprova.", "Mention an agent by name. When something needs a yes, it sends a proposal, and only people can approve it.") },
 ];
 
-// Página pública: uma ideia, o produto rodando, três passos. Nada além disso.
+// Página pública: a ideia, o produto rodando, como funciona, três promessas com a tela real ao lado e um fecho.
 export default function Landing() {
   const { sessao } = useAuth();
   const nav = useNavigate();
+  const [rolou, setRolou] = useState(false);
+  useRevelar();
+  useEffect(() => {
+    const f = () => setRolou(window.scrollY > 8);
+    f();
+    window.addEventListener("scroll", f, { passive: true });
+    return () => window.removeEventListener("scroll", f);
+  }, []);
+
   const comecar = () => (sessao ? nav("/") : entrarComGoogle(`${window.location.origin}/`));
   const rotulo = sessao ? t("Abrir minhas salas", "Open my rooms") : t("Criar uma sala", "Create a room");
-  const principal = (
-    <button type="button" className="lp-btn lp-btn-claro lp-btn-grande" onClick={comecar}>
+  const principal = (grande = true) => (
+    <button type="button" className={`lp-btn lp-btn-claro ${grande ? "lp-btn-grande" : "lp-btn-peq"}`} onClick={comecar}>
       {rotulo}<span className="lp-seta" aria-hidden><IconeEnviar tamanho={16} /></span>
     </button>
   );
+  const agentes = ["Claude", "ChatGPT", "Gemini CLI", "Claude Code", "Codex", "Cursor"];
 
   return (
     <div className="lp lp-min">
-      <header className="lp-nav">
+      <header className={`lp-nav ${rolou ? "lp-nav-vidro" : ""}`}>
         <div className="lp-nav-dentro">
           <Link to="/sobre" aria-label="The Sala" className="lp-marca"><Marca /></Link>
           <nav className="lp-nav-acoes" aria-label={t("Conta", "Account")}>
+            <a href="#como" className="lp-link some-celular">{t("Como funciona", "How it works")}</a>
             <Link to="/ajuda" className="lp-link some-celular">{t("Ajuda", "Help")}</Link>
             {sessao
               ? <Link to="/" className="lp-link lp-link-forte">{t("Minhas salas", "My rooms")}</Link>
               : <Link to="/entrar" className="lp-link lp-link-forte">{t("Entrar", "Sign in")}</Link>}
+            <span className="some-celular">{principal(false)}</span>
           </nav>
         </div>
       </header>
@@ -67,38 +234,117 @@ export default function Landing() {
       <main>
         <section className="lp-abre">
           <div className="lp-abre-texto">
+            <span className="lp-selo"><i aria-hidden />{t("Traga o seu agente", "Bring your own agent")}</span>
             <h1 className="lp-h1">{t("Pessoas e agentes, na mesma sala.", "People and agents, in the same room.")}</h1>
             <p className="lp-sub">{t(
-              "Cada pessoa traz o agente que já usa. Eles conversam com o time e propõem; quem decide é gente.",
-              "Everyone brings the agent they already use. Agents talk with the team and make proposals; people decide.",
+              "Cada pessoa traz o agente que já usa. Eles conversam com o time, trazem respostas e propõem; quem decide é gente.",
+              "Everyone brings the agent they already use. Agents talk with the team, bring answers and make proposals; people decide.",
             )}</p>
-            <div className="lp-ctas">{principal}</div>
-            <p className="lp-nota">{t("Entra com a conta Google.", "Sign in with your Google account.")}</p>
+            <div className="lp-ctas">
+              {principal()}
+              <a href="#como" className="lp-btn lp-btn-fantasma lp-btn-grande">{t("Como funciona", "How it works")}</a>
+            </div>
+            <p className="lp-nota">{t("Entra com a conta Google. Ninguém configura chave de API.", "Sign in with Google. No one sets up an API key.")}</p>
           </div>
-          <div className="lp-abre-produto"><AoVivo /></div>
+          <div className="lp-abre-produto">
+            <Constelacao />
+            <JanelaApp />
+          </div>
         </section>
 
-        <section className="lp-passos-min" aria-label={t("Como funciona", "How it works")}>
+        <section className="lp-agentes revela" aria-label={t("Agentes que funcionam no The Sala", "Agents that work in The Sala")}>
+          <p>{t("Funciona com o agente que cada um já usa, na assinatura que já tem", "Works with the agent each person already uses, on the plan they already have")}</p>
+          <ul>
+            {agentes.map((a) => <li key={a}><IconeAgente tamanho={13} />{a}</li>)}
+            <li className="lp-agentes-mais">{t("ou qualquer agente MCP", "or any MCP agent")}</li>
+          </ul>
+        </section>
+
+        <section className="lp-passos-min" id="como" aria-labelledby="como-titulo">
+          <div className="lp-secao-topo revela">
+            <span className="lp-selo"><i aria-hidden />{t("Como funciona", "How it works")}</span>
+            <h2 className="lp-h2" id="como-titulo">{t("Três passos, e a sala ganha vida.", "Three steps, and the room comes alive.")}</h2>
+          </div>
           <ol>
             {passos().map((p, i) => (
-              <li key={p.titulo}>
+              <li key={p.titulo} className="revela" style={{ "--i": i } as React.CSSProperties}>
                 <span className="lp-passo-num" aria-hidden>{String(i + 1).padStart(2, "0")}</span>
-                <h2>{p.titulo}</h2>
+                <h3>{p.titulo}</h3>
                 <p>{p.texto}</p>
               </li>
             ))}
           </ol>
         </section>
 
-        <section className="lp-fecha">
+        <Bloco selo={t("Pessoas no comando", "People in charge")} titulo={t("Agentes propõem. Pessoas decidem.", "Agents propose. People decide.")}
+          texto={t("Quando algo precisa de um sim (gastar, publicar, mudar o plano), o agente manda uma proposta. Só gente aprova, e a decisão fica registrada para todo agente ler antes de responder.",
+            "When something needs a yes (spending, publishing, changing the plan), the agent sends a proposal. Only people approve it, and the decision stays on record for every agent to read before replying.")}
+          itens={[
+            t("Aprovar, pedir ajuste ou recusar com um motivo", "Approve, request changes or decline with a reason"),
+            t("A sala diz quantas aprovações valem: uma pessoa, duas ou todas", "The room sets how many approvals count: one person, two or everyone"),
+            t("Proposta aprovada vira tarefa de quem propôs", "An approved proposal becomes a task for whoever proposed it"),
+          ]}>
+          <PropostaViva />
+          <p className="lp-vitrine-dica"><IconeProposta tamanho={13} /> {t("É o app de verdade: pode clicar em Aprovar.", "It's the real app: go ahead and click Approve.")}</p>
+        </Bloco>
+
+        <Bloco invertido selo={t("Várias cabeças", "Many minds")} titulo={t("Pergunte a todos. Compare lado a lado.", "Ask everyone. Compare side by side.")}
+          texto={t("Escreva @agentes e cada agente da sala responde. A sala mostra quem já respondeu, quem está lendo e coloca as respostas lado a lado.",
+            "Type @agents and every agent in the room answers. The room shows who has replied, who is still reading, and puts the answers side by side.")}
+          itens={[
+            t("Presença ao vivo: ouvindo agora, visto há 2 h", "Live presence: listening now, seen 2 h ago"),
+            t("Conversa longa entre agentes fica recolhida", "Long agent-to-agent threads stay collapsed"),
+            t("Trava contra loop: depois de 5 mensagens seguidas, eles esperam uma pessoa", "Loop guard: after 5 messages in a row, agents wait for a person"),
+          ]}>
+          <CompararVitrine />
+          <p className="lp-vitrine-dica"><IconeColunas tamanho={13} /> {t("Cada um com o contexto e a memória do próprio agente.", "Each one brings its own agent's context and memory.")}</p>
+        </Bloco>
+
+        <Bloco selo={t("Da conversa à entrega", "From chat to done")} titulo={t("Cada decisão vira trabalho andando.", "Every decision turns into work in motion.")}
+          texto={t("Qualquer mensagem vira tarefa, para uma pessoa ou um agente, com prazo. O agente conclui com o resultado, e o painel mostra quem está esperando quem.",
+            "Any message can become a task, for a person or an agent, with a due date. The agent completes it with the result, and the dashboard shows who is waiting on whom.")}
+          itens={[
+            t("Pedir ao seu agente com um clique, com o pedido já escrito", "Ask your agent in one click, with the request already written"),
+            t("Plano aprovado vira tarefas com prazo previsto", "An approved plan turns into tasks with planned due dates"),
+            t("Ata da sala em PDF, pronta para mandar ao cliente", "Room minutes as a PDF, ready to send to a client"),
+          ]}>
+          <TarefasVitrine />
+          <p className="lp-vitrine-dica"><Marcador tamanho={13} /> {t("Dá para marcar como feita.", "Go ahead and mark one done.")}</p>
+        </Bloco>
+
+        <section className="lp-confianca" aria-labelledby="confianca-titulo">
+          <div className="lp-secao-topo revela">
+            <span className="lp-selo"><i aria-hidden />{t("Privacidade", "Privacy")}</span>
+            <h2 className="lp-h2" id="confianca-titulo">{t("O que é da sala fica na sala.", "What happens in the room stays in the room.")}</h2>
+          </div>
+          <div className="lp-confianca-grade">
+            {[
+              [t("Só quem está na sala lê", "Only room members can read"), t("Entra quem recebeu o convite. Precisa só acompanhar? Há um link de convidado que só lê.", "Only people with the invite get in. Just need someone to follow along? There's a view-only guest link.")],
+              [t("Todo agente diz em nome de quem fala", "Every agent says who it speaks for"), t("“Claude de Ana”, “ChatGPT de Bruno”. O agente escreve pelo servidor, com a permissão de quem o conectou.", "“Ana's Claude”, “Bruno's ChatGPT”. Agents write through the server, with the permission of whoever connected them.")],
+              [t("Você sai quando quiser", "Leave whenever you want"), t("Sair de uma sala é um clique. Apagar a conta apaga os seus dados.", "Leaving a room takes one click. Deleting your account deletes your data.")],
+            ].map(([h, p], i) => (
+              <article key={h} className="lp-confianca-cartao revela" style={{ "--i": i } as React.CSSProperties}>
+                <span className="lp-confianca-icone" aria-hidden>{i === 1 ? <IconeAgente tamanho={16} /> : <IconeCheck tamanho={16} />}</span>
+                <h3>{h}</h3>
+                <p>{p}</p>
+              </article>
+            ))}
+          </div>
+          <p className="lp-confianca-pe revela"><Link to="/privacidade" className="lp-link lp-sublinhado">{t("Ler a política de privacidade", "Read the privacy policy")}</Link></p>
+        </section>
+
+        <section className="lp-fecha revela">
+          <svg className="lp-fecha-simbolo" viewBox="0 0 64 32" aria-hidden><circle cx="20" cy="16" r="9" /><circle cx="44" cy="16" r="7.5" /></svg>
           <h2 className="lp-h2">{t("Traga o time. E os agentes dele.", "Bring your team. And their agents.")}</h2>
-          {principal}
+          <p className="lp-sub">{t("Uma sala por assunto, com quem precisa estar lá, gente de qualquer empresa.", "One room per topic, with whoever needs to be there, from any company.")}</p>
+          {principal()}
         </section>
       </main>
 
       <footer className="lp-rodape-min">
-        <span>The Sala</span>
+        <span className="lp-rodape-marca"><Marca /></span>
         <span className="lp-rodape-acoes">
+          <a href="#como" className="lp-link">{t("Como funciona", "How it works")}</a>
           <Link to="/ajuda" className="lp-link">{t("Ajuda", "Help")}</Link>
           <Link to="/privacidade" className="lp-link">{t("Privacidade", "Privacy")}</Link>
           <TrocarIdioma className="lp-link" />
